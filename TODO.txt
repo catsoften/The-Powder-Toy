@@ -116,7 +116,11 @@ left column:
 - realistic mode
 - no drag
 
+
+
 change update message
+
+remove secret mod shortcut?
 
 Tools
 prop2
@@ -125,6 +129,8 @@ ezy terrain tool - set elements and layers and draw :D
     - add types of elements (load presets too)
     - texture of terrain - layered, noisy, partial layers
     - deco?
+    - pointy terrain
+    - "roughness"
 
 magnetism tools and electric field tools
 sniper tool, displays crosair, shoot anything on screen
@@ -132,6 +138,8 @@ sniper tool, displays crosair, shoot anything on screen
  moving solid tool, solid -> moving solid  (pauses sim)
  laser tool, set point, move mouse to slice
 - laser should bounce off of polished metal
+
+deco or element grid generator
 
 
 
@@ -211,6 +219,7 @@ time dilation GOL
 -TRBN seralize to FILT?
 - also range like other sensors?
 ambident heat time dilation
+PHSP fire is 25 C >_>
 
 literally any solid checking - rock isn't a solid :|
 bug fix: literally whenever create_part is used check if created
