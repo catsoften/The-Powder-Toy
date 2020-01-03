@@ -133,7 +133,7 @@ vcxproj.write(r"""<?xml version="1.0" encoding="utf-8"?>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Disabled</Optimization>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <TreatWarningAsError>False</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>

@@ -5,7 +5,7 @@ Element_RADR::Element_RADR()
 {
 	Identifier = "DEFAULT_PT_RADR";
 	Name = "RADR";
-	Colour = PIXPACK(0xFFFFFF);
+	Colour = PIXPACK(0xd48d00);
 	MenuVisible = 1;
 	MenuSection = SC_SPACE;
 	Enabled = 1;

@@ -5,7 +5,7 @@ Element_NAVI::Element_NAVI()
 {
 	Identifier = "DEFAULT_PT_NAVI";
 	Name = "NAVI";
-	Colour = PIXPACK(0xFFFFFF);
+	Colour = PIXPACK(0xd000ff);
 	MenuVisible = 1;
 	MenuSection = SC_SPACE;
 	Enabled = 1;

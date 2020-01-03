@@ -21,21 +21,14 @@ u can add HYGN or NBLE to make it grow!
 star grows larger and becomes blue
 once fusion cycle eats up it becomes either red giant or redsupergiant
 
-planets engage in n body motaton around stars, stars n body motion other stars
-
-entire blackhole should glow when struck by a particle
-- if energy glow white
-also release hwaking radiation?
-
 red giant becomes white dwarf or maybe supernova
 supergiant goes supernova and collapses either into black hole or neutron star
-
-if blackholes collide glow
 
 mass can be sucked away by gravity
 
 data/intro text fori ntro blurb
 - wth mod changes 
+
 
 
 MOVING SOLIDS 
@@ -213,13 +206,11 @@ do not used the precompiled
 12. simulation./SimulationData.cpp is where u add the hex code u calculated earlier to menu
 
 
-Write guide for FFGN
-
-
 
 
 fancy black holes
 - suck in solids too
+
 
 
 
@@ -248,6 +239,7 @@ magnetic fields
 food
 
 
+fancy black holes
 
 2 row elements?
 
