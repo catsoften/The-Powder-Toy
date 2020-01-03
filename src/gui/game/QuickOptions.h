@@ -50,3 +50,11 @@ public:
 	bool GetToggle() override;
 	void perform() override;
 };
+
+class TimeDilationOption: public QuickOption {
+public:
+	TimeDilationOption(GameModel * m);
+	bool GetToggle() override;
+	void perform() override;
+};
+

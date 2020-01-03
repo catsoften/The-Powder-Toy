@@ -15,6 +15,7 @@ public:
 	float AirVelocityY;
 
 	int WallType;
+	int frames;
 	float Gravity;
 	float GravityVelocityX;
 	float GravityVelocityY;

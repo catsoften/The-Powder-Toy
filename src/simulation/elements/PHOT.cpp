@@ -84,7 +84,7 @@ int Element_PHOT::update(UPDATE_FUNC_ARGS)
 						sim->pv[y/CELL][x/CELL] -= 15.0f * CFDS;
 					}
 				}
-				else if((TYP(r) == PT_QRTZ || TYP(r) == PT_PQRT) && !ry && !rx)//if on QRTZ
+				else if((TYP(r) == PT_RDND || TYP(r) == PT_QRTZ || TYP(r) == PT_PQRT) && !ry && !rx)//if on QRTZ
 				{
 					float a = RNG::Ref().between(0, 359) * 3.14159f / 180.0f;
 					parts[i].vx = 3.0f*cosf(a);

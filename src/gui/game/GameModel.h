@@ -33,6 +33,9 @@ public:
 
 class GameModel
 {
+public:
+	std::pair<float, float> get_mouse_pos();
+
 private:
 	std::vector<Notification*> notifications;
 	//int clipboardSize;
@@ -179,6 +182,8 @@ public:
 	void SetNewtonianGravity(bool newtonainGravity);
 	bool GetGravityGrid();
 	void ShowGravityGrid(bool showGrid);
+	void ShowTimeDilation(bool show);
+	bool GetTimeDilation();
 	void ClearSimulation();
 	std::vector<Menu*> GetMenuList();
 	std::vector<QuickOption*> GetQuickOptions();

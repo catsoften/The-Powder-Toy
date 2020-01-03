@@ -6,3 +6,4 @@
 #define IDI_SCRIPTMANAGER 121
 #define IDI_EVENTCOMPAT 122
 
+

@@ -87,6 +87,21 @@ String sign::getDisplayText(Simulation *sim, int &x0, int &y0, int &w, int &h, b
 					{
 						formatted_text << (part ? part->tmp2 : 0);
 					}
+					else if (between_curlies == "vx") {
+						formatted_text << (part ? part->vx : 0);
+					}
+					else if (between_curlies == "vy") {
+						formatted_text << (part ? part->vy : 0);
+					}
+					else if (between_curlies == "mod") {
+						formatted_text << "TPT Ultimata";
+					}
+					else if (between_curlies == "gen") {
+						if (part && part->temp)
+							formatted_text << "Generation: " << (int)(9000.0f - part->temp);
+						else
+							formatted_text << "Generation: 0";
+					}
 					else
 					{
 						formatted_text << '{' << between_curlies << '}';

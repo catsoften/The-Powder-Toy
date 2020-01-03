@@ -20,36 +20,6 @@ namespace EXFN_DATA {
 		return result == pavg || result == flags - pavg;
 	}
 
-	void draw_glowy_pixel(Renderer *ren, int nx, int ny, int colr, int colg, int colb, int cola) {
-		// Non-glowy render mode
-		if (ren->colour_mode & COLOUR_HEAT || !(ren->render_mode & PMODE_GLOW)) {
-			ren->addpixel(nx, ny, colr, colg, colb, cola);
-			return;
-		}
-
-		int cola1 = (5 * cola) / 255;
-		ren->addpixel(nx, ny, colr, colg, colb, (192*cola)/255);
-		ren->addpixel(nx+1, ny, colr, colg, colb, (96*cola)/255);
-		ren->addpixel(nx-1, ny, colr, colg, colb, (96*cola)/255);
-		ren->addpixel(nx, ny+1, colr, colg, colb, (96*cola)/255);
-		ren->addpixel(nx, ny-1, colr, colg, colb, (96*cola)/255);
-
-		for (int x = 1; x < 6; x++) {
-			ren->addpixel(nx, ny-x, colr, colg, colb, cola1);
-			ren->addpixel(nx, ny+x, colr, colg, colb, cola1);
-			ren->addpixel(nx-x, ny, colr, colg, colb, cola1);
-			ren->addpixel(nx+x, ny, colr, colg, colb, cola1);
-			for (int y = 1; y < 6; y++) {
-				if(x + y > 7)
-					continue;
-				ren->addpixel(nx+x, ny-y, colr, colg, colb, cola1);
-				ren->addpixel(nx-x, ny+y, colr, colg, colb, cola1);
-				ren->addpixel(nx+x, ny+y, colr, colg, colb, cola1);
-				ren->addpixel(nx-x, ny-y, colr, colg, colb, cola1);
-			}
-		}
-	}
-
 	void set_directions(int &spawndx, int &spawndy, int &initx, int &inity, int &dir, int x, int y, int tmp) {
 		dir = tmp;
 		if (is_up(dir)) {
@@ -93,9 +63,9 @@ Element_EXFN::Element_EXFN()
 
 	Weight = 100;
 
-	DefaultProperties.temp = 273.15f;
+	DefaultProperties.temp = 273.15;
 	HeatConduct = 0;
-	Description = "Excursion Funnel. Creates a stasis beam depending on tmp. Toggle reverse with GOLD / TTAN";
+	Description = "Excursion Funnel. Creates a stasis beam (direction depends on tmp). Toggle reverse with GOLD / TTAN";
 
 	Properties = TYPE_SOLID;
 
@@ -111,12 +81,49 @@ Element_EXFN::Element_EXFN()
 	Graphics = &Element_EXFN::graphics;
 }
 
+//#TPT-Directive ElementHeader Element_EXFN static void draw_glowy_pixel(Renderer *ren, int nx, int ny, int colr, int colg, int colb, int cola)
+void Element_EXFN::draw_glowy_pixel(Renderer *ren, int nx, int ny, int colr, int colg, int colb, int cola) {
+		// Non-glowy render mode
+		if (ren->colour_mode & COLOUR_HEAT || !(ren->render_mode & PMODE_GLOW)) {
+			ren->addpixel(nx, ny, colr, colg, colb, cola);
+			return;
+		}
+
+		int cola1 = (5 * cola) / 255;
+		ren->addpixel(nx, ny, colr, colg, colb, (192*cola)/255);
+		ren->addpixel(nx+1, ny, colr, colg, colb, (96*cola)/255);
+		ren->addpixel(nx-1, ny, colr, colg, colb, (96*cola)/255);
+		ren->addpixel(nx, ny+1, colr, colg, colb, (96*cola)/255);
+		ren->addpixel(nx, ny-1, colr, colg, colb, (96*cola)/255);
+
+		for (int x = 1; x < 6; x++) {
+			ren->addpixel(nx, ny-x, colr, colg, colb, cola1);
+			ren->addpixel(nx, ny+x, colr, colg, colb, cola1);
+			ren->addpixel(nx-x, ny, colr, colg, colb, cola1);
+			ren->addpixel(nx+x, ny, colr, colg, colb, cola1);
+			for (int y = 1; y < 6; y++) {
+				if(x + y > 7)
+					continue;
+				ren->addpixel(nx+x, ny-y, colr, colg, colb, cola1);
+				ren->addpixel(nx-x, ny+y, colr, colg, colb, cola1);
+				ren->addpixel(nx+x, ny+y, colr, colg, colb, cola1);
+				ren->addpixel(nx-x, ny-y, colr, colg, colb, cola1);
+			}
+		}
+	}
+
+
+
 //#TPT-Directive ElementHeader Element_EXFN static int update(UPDATE_FUNC_ARGS)
 int Element_EXFN::update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry, id;
-	int period = parts[i].flags * 4; // Period = 4 * height
 	int spawndx, spawndy, initx, inity, dir;
 	EXFN_DATA::set_directions(spawndx, spawndy, initx, inity, dir, parts[i].x, parts[i].y, parts[i].tmp);
+
+	if (parts[i].temp>=256.0+273.15)
+		parts[i].temp=256.0+273.15;
+	if (parts[i].temp<= -256.0+273.15)
+		parts[i].temp = -256.0+273.15;
 
 	/* EXFN properties with not EXFN:
 	 * - SPRK (.ctype GOLD): toggle self tmp2 = 0
@@ -132,8 +139,7 @@ int Element_EXFN::update(UPDATE_FUNC_ARGS) {
 				id = ID(r);
 
 				if (TYP(r) == PT_SPRK) {
-					if (parts[id].ctype == PT_GOLD || parts[id].ctype == PT_TTAN)
-					{
+					if (parts[id].ctype == PT_GOLD || parts[id].ctype == PT_TTAN) {
 						PropertyValue value;
 						value.Integer = parts[id].ctype == PT_GOLD ? 10 : 0;
 						sim->flood_prop(parts[i].x, parts[i].y, offsetof(Particle, tmp2), value, StructProperty::Integer);
@@ -245,12 +251,14 @@ int Element_EXFN::draw_beam(GRAPHICS_FUNC_ARGS) {
 		while (initx >= 0 && inity >= 0 && initx < XRES && inity < YRES) {
 			// Don't overwrite any solids
 			// The exception is glass (ID 45)
+			// and MVSD (ID 196)
 			r2 = ren->sim->pmap[inity][initx];
-			if (r2 && (ren->sim->elements[TYP(r2)].Properties & TYPE_SOLID) && TYP(r2) != 45) break;
+			if (r2 && (ren->sim->elements[TYP(r2)].Properties & TYPE_SOLID) && TYP(r2) != 45 &&  TYP(r2) != 196) break;
 
-			// Set the stasis field
-			ren->sim->stasis->vx[(inity) / STASIS_CELL][(initx) / STASIS_CELL] = rv * (float)spawndx;
-			ren->sim->stasis->vy[(inity) / STASIS_CELL][(initx) / STASIS_CELL] = rv * (float)spawndy;
+			// Set the stasis field (/4 since it resets every 4 frames)
+			ren->sim->stasis->vx[(inity) / STASIS_CELL][(initx) / STASIS_CELL] += rv * (float)spawndx / 4;
+			ren->sim->stasis->vy[(inity) / STASIS_CELL][(initx) / STASIS_CELL] += rv * (float)spawndy / 4;
+			ren->sim->stasis->strength[(inity) / STASIS_CELL][(initx) / STASIS_CELL] = (cpart->temp - (273.15f - 256.0f)) * 1.6f / 512;
 
 			// Beams should push gently towards center
 			if (cpart->pavg[0] < cpart->flags / 2)
@@ -261,9 +269,9 @@ int Element_EXFN::draw_beam(GRAPHICS_FUNC_ARGS) {
 				nudge_speed = -0.5f;
 
 			if (EXFN_DATA::is_up(dir)) {
-				ren->sim->stasis->vx[(inity) / STASIS_CELL][(initx) / STASIS_CELL] += nudge_speed;
+				ren->sim->stasis->vx[(inity) / STASIS_CELL][(initx) / STASIS_CELL] += nudge_speed / 4;
 			} else {
-				ren->sim->stasis->vy[(inity) / STASIS_CELL][(initx) / STASIS_CELL] += nudge_speed;
+				ren->sim->stasis->vy[(inity) / STASIS_CELL][(initx) / STASIS_CELL] += nudge_speed / 4;
 			}
 
 			/* Function to graph: pavg[0] = (flags / 2) + (flags / 2)sin(a(initx - parts[i].x - time))
@@ -291,16 +299,16 @@ int Element_EXFN::draw_beam(GRAPHICS_FUNC_ARGS) {
 			}
 
 			if (EXFN_DATA::is_part_of_wave(cpart->flags, period, delta, direction_multiplier, ren->sim->timer, 0, cpart->pavg[0]))
-				EXFN_DATA::draw_glowy_pixel(ren, initx, inity, r, g, b, 255);
+				Element_EXFN::draw_glowy_pixel(ren, initx, inity, r, g, b, 255);
 
 			// The portal 2 graphics have another 3rd wave offset
 			// about 1/3 of a period with a different color
 			if (EXFN_DATA::is_part_of_wave(cpart->flags, period, delta, direction_multiplier, ren->sim->timer, period / 3, cpart->pavg[0]))
-				EXFN_DATA::draw_glowy_pixel(ren, initx, inity, r, g, b, 80);
+				Element_EXFN::draw_glowy_pixel(ren, initx, inity, r, g, b, 80);
 
 			// Scanning lines
 			if (EXFN_DATA::is_part_of_wave(cpart->flags, period, delta_reverse, direction_multiplier, ren->sim->timer, 0, cpart->pavg[0]))
-				EXFN_DATA::draw_glowy_pixel(ren, initx, inity, r, g, b, 80);
+				Element_EXFN::draw_glowy_pixel(ren, initx, inity, r, g, b, 80);
 
 			initx += spawndx;
 			inity += spawndy;

@@ -6,7 +6,7 @@ Element_SAWD::Element_SAWD()
 	Name = "SAWD";
 	Colour = PIXPACK(0xF0F0A0);
 	MenuVisible = 1;
-	MenuSection = SC_POWDERS;
+	MenuSection = SC_ORGANIC;
 	Enabled = 1;
 
 	Advection = 0.7f;

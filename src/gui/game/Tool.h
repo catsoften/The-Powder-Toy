@@ -60,6 +60,38 @@ public:
 	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override { }
 };
 
+class TextTool: public Tool {
+public:
+	GameModel * gameModel;
+	TextTool(GameModel *model):
+	Tool(0, "TEXT", "Text tool. Click on a spot to place text, you can drag the marker before placing.", 0, 0, 0, "DEFAULT_UI_TEXT", TextTool::GetIcon),
+	gameModel(model) {
+	}
+	static VideoBuffer * GetIcon(int toolID, int width, int height);
+	virtual ~TextTool() {}
+	void Click(Simulation * sim, Brush * brush, ui::Point position) override;
+	void Draw(Simulation * sim, Brush * brush, ui::Point position) override { }
+	void DrawLine(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2, bool dragging = false) override { }
+	void DrawRect(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2) override { }
+	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override { }
+};
+
+class RulerTool: public Tool {
+public:
+	GameModel * gameModel;
+	RulerTool(GameModel *model):
+	Tool(0, "RULR", "Ruler. Click two points to measure distance.", 0, 0, 0, "DEFAULT_UI_RULER", RulerTool::GetIcon),
+	  gameModel(model) {}
+	static VideoBuffer * GetIcon(int toolID, int width, int height);
+	virtual ~RulerTool() {}
+	void Click(Simulation * sim, Brush * brush, ui::Point position) override;
+	void Draw(Simulation * sim, Brush * brush, ui::Point position) override { }
+	void DrawLine(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2, bool dragging = false) override { }
+	void DrawRect(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2) override { }
+	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override { }
+};
+
+
 class SampleTool: public Tool
 {
 	GameModel * gameModel;
@@ -99,7 +131,6 @@ public:
 	void DrawRect(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2) override;
 	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override;
 };
-
 
 class ElementTool: public Tool
 {

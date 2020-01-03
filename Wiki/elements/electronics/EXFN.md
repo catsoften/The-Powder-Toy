@@ -8,6 +8,8 @@
 
 Like the excursion funnel from *Portal 2*, it will create a funnel in the direction where particles will be carried towards or away from it. Toggle ON with PSCN, OFF with NSCN. If toggled with GOLD particles will move towards the emitter, if toggled with TTAN will move away.
 
+Like many powered elements, you can adjust the strength by changing its temp from -256 C to 256 C, which corresponds to a stasis strength value of 0 to 1.6.
+
 The beam will pass through non-solids and will stop upon reaching a solid element or the edge of the screen (Except GLAS). Any non-solid element will be moved by the beam, including energy particles. The width of the beam depends on how many EXFN you place down in a line.
 
 To select a direction to aim the beam, set the `tmp` value.
@@ -47,15 +49,12 @@ The glow effect is created using `ren->addpixel` if the current renderer is not 
 
 #### Stasis field
 The way the stasis beam is created is by setting the stasis field layer
-`ren->sim->stasis->vx[(inity) / STASIS_CELL][(initx) / STASIS_CELL]` and
-`ren->sim->stasis->vy[(inity) / STASIS_CELL][(initx) / STASIS_CELL]`
+`ren->sim->stasis->vx[(inity) / STASIS_CELL][(initx) / STASIS_CELL]`,
+`ren->sim->stasis->vy[(inity) / STASIS_CELL][(initx) / STASIS_CELL]`, and
+`ren->sim->stasis->strength[(inity) / STASIS_CELL][(initx) / STASIS_CELL] = (cpart->temp - (273.15f - 256.0f)) * 1.6f / 512;`
 
-The stasis field if either vx or vy is non-zero will set the vx and vy of any particles at the location to that. Every 4 frames the stasis field will reset to 0, meaning that if the EXFN disappears or turns off the stasis field will decay.
+The stasis field strength is non-zero it will ease the vx and vy of any particles at the location to that. Every 4 frames the stasis field will reset to 0, meaning that if the EXFN disappears or turns off the stasis field will decay.
 
 The stasis field is oriented so particles will tend towards the center of the beam, where the particle will be suspended.
 
 By default, STASIS_CELL = 2
-
-
-
-

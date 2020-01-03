@@ -45,6 +45,7 @@ void Renderer::RenderBegin()
 #ifdef OGLR
 	draw_air();
 	draw_grav();
+	draw_time_dilation();
 	DrawWalls();
 	render_parts();
 	render_fire();
@@ -70,6 +71,7 @@ void Renderer::RenderBegin()
 
 	draw_air();
 	draw_grav();
+	draw_time_dilation();
 	DrawWalls();
 	render_parts();
 	if(display_mode & DISPLAY_PERS)
@@ -114,6 +116,7 @@ void Renderer::RenderBegin()
 
 	draw_air();
 	draw_grav();
+	draw_time_dilation();
 	DrawWalls();
 	render_parts();
 	if(display_mode & DISPLAY_PERS)
@@ -1994,7 +1997,8 @@ void Renderer::render_parts()
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
 						nxo = (int)(ddist*cos(drad));
 						nyo = (int)(ddist*sin(drad));
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && TYP(sim->pmap[ny+nyo][nx+nxo]) != PT_PRTI)
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && TYP(sim->pmap[ny+nyo][nx+nxo]) != PT_PRTI
+								&& TYP(sim->pmap[ny+nyo][nx+nxo]) != PT_CBMB && TYP(sim->pmap[ny+nyo][nx+nxo]) != PT_TIME)
 							addpixel(nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
 				}
@@ -2011,7 +2015,8 @@ void Renderer::render_parts()
 						drad = (M_PI * ((float)orbl[r]) / 180.0f)*1.41f;
 						nxo = (int)(ddist*cos(drad));
 						nyo = (int)(ddist*sin(drad));
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && TYP(sim->pmap[ny+nyo][nx+nxo]) != PT_PRTO)
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && TYP(sim->pmap[ny+nyo][nx+nxo]) != PT_PRTO
+								&& TYP(sim->pmap[ny+nyo][nx+nxo]) != PT_CBMB && TYP(sim->pmap[ny+nyo][nx+nxo]) != PT_TIME)
 							addpixel(nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 					}
 				}
@@ -2359,6 +2364,39 @@ void Renderer::draw_grav()
 	}
 }
 
+void Renderer::draw_time_dilation() {
+	if (!timeDilationFieldEnabled)
+		return;
+	
+	int x, y, i, j, r, g, b;
+	float strength;
+	for (y = 0; y < YRES / CELL; y++) {
+		for (x = 0; x < XRES / CELL; x++) {
+			if (!sim->time_dilation[y][x])
+				continue;
+			strength = sim->time_dilation[y][x];
+			strength = strength < 0.0f ?
+				clamp_flt(-strength, 0.0f, -sim->MIN_TIME_DILATION) :
+				clamp_flt(strength, 0.0f, sim->MAX_TIME_DILATION);
+
+			// Slow is green, speedup is magenta
+			if (sim->time_dilation[y][x] < 0) {
+				r = 73, g = 216, b = 151; // Green
+			} else {
+				r = 182, g = 39, b = 104; // Magenta
+			}
+
+			for (j = 0; j < CELL; j++) // Draws the colors
+				for (i = 0; i < CELL; i++) {
+					if (!sim->pmap[y * CELL + j][x * CELL + i]) {
+						float m = 0.5f + 0.5f * (1 - (abs(CELL / 2 - j) + abs(CELL / 2 - i)) / (float)CELL);
+						addpixel(x * CELL + i, y * CELL + j, r, g, b, (int)(m * strength * 0.9f));
+					}
+				}
+		}
+	}
+}
+
 void Renderer::draw_air()
 {
 	if(!sim->aheat_enable && (display_mode & DISPLAY_AIRH))
@@ -2552,6 +2590,7 @@ Renderer::Renderer(Graphics * g, Simulation * sim):
 	display_mode(0),
 	gravityZonesEnabled(false),
 	gravityFieldEnabled(false),
+	timeDilationFieldEnabled(false),
 	decorations_enable(1),
 	blackDecorations(false),
 	debugLines(false),

@@ -74,6 +74,8 @@
 #include "simulation/Snapshot.h"
 #include "ElementClasses.h"
 
+#include <iostream>
+
 #ifdef GetUserName
 # undef GetUserName // dammit windows
 #endif
@@ -100,6 +102,15 @@ GameController::GameController():
 	gameModel->AddObserver(gameView);
 
 	gameView->SetDebugHUD(Client::Ref().GetPrefBool("Renderer.DebugMode", false));
+
+	
+	if (SDL_Init(SDL_INIT_AUDIO) != 0) {
+		std::cout << "Error: could not init audio" << std::endl;
+	}
+
+	#ifdef WIN // Fucking windows, needs env variable for SDL sound
+		SDL_AudioInit("directsound");
+	#endif
 
 #ifdef LUACONSOLE
 	commandInterface = new LuaScriptInterface(this, gameModel);
@@ -801,6 +812,7 @@ void GameController::Exit()
 	commandInterface->HandleEvent(LuaEvents::close, &ev);
 	gameView->CloseActiveWindow();
 	HasDone = true;
+	SDL_CloseAudio();
 }
 
 void GameController::ResetAir()

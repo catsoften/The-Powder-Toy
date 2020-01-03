@@ -27,6 +27,7 @@ class SimulationSample;
 struct matrix2d;
 struct vector2d;
 
+class GameModel;
 class Simulation;
 class Renderer;
 class Gravity;
@@ -77,6 +78,10 @@ public:
 	playerst fighters[MAX_FIGHTERS]; //Defined in Stickman.h
 	unsigned char fighcount; //Contains the number of fighters
 	bool gravWallChanged;
+	//Vehicles (cybertruck)
+	int vehicle_p1 = -1, vehicle_p2 = -1;
+	std::vector<int> vehicles;
+	const unsigned char MAX_VEHICLES = 100;
 	//Portals and Wifi
 	Particle portalp[CHANNELS][8][80];
 	int portal_rx[8];
@@ -97,6 +102,10 @@ public:
 	float *gravy;//gravy[(YRES/CELL) * (XRES/CELL)];
 	float *gravp;//gravp[(YRES/CELL) * (XRES/CELL)];
 	float *gravmap;//gravmap[(YRES/CELL) * (XRES/CELL)];
+	// Time dilation, smaller = more updates
+	char time_dilation[YRES / CELL][XRES / CELL];
+	const char MAX_TIME_DILATION = 8;
+	const char MIN_TIME_DILATION = -16;
 	//Walls
 	unsigned char bmap[YRES/CELL][XRES/CELL];
 	unsigned char emap[YRES/CELL][XRES/CELL];
@@ -224,6 +233,9 @@ public:
 	// These don't really belong anywhere at the moment, so go here for loop edge mode
 	static int remainder_p(int x, int y);
 	static float remainder_p(float x, float y);
+
+	GameModel *model = nullptr;
+	GameModel *getModel();
 
 	String ElementResolve(int type, int ctype);
 	String BasicParticleInfo(Particle const &sample_part);

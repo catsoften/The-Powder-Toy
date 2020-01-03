@@ -400,7 +400,7 @@ int Element_STKM::run_stickman(playerst *playerp, UPDATE_FUNC_ARGS) {
 					continue;
 
 				STKM_set_element(sim, playerp, TYP(r));
-				if (TYP(r) == PT_PLNT && parts[i].life<100) //Plant gives him 5 HP
+				if ((TYP(r) == PT_PLNT || TYP(r) == PT_HONY) && parts[i].life<100) //Plant gives him 5 HP
 				{
 					if (parts[i].life<=95)
 						parts[i].life += 5;
@@ -463,6 +463,8 @@ int Element_STKM::run_stickman(playerst *playerp, UPDATE_FUNC_ARGS) {
 					}
 			}
 			else if (playerp->elem==PT_LIGH && playerp->frames<30)//limit lightning creation rate
+				np = -1;
+			else if (playerp->elem == PT_CYTK) // STKM can't spawn cybertrucks
 				np = -1;
 			else
 				np = sim->create_part(-1, rx, ry, playerp->elem);

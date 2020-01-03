@@ -11,6 +11,7 @@ public:
     //Arrays from the simulation    
     float vx[YRES / STASIS_CELL][XRES / STASIS_CELL];
     float vy[YRES / STASIS_CELL][XRES / STASIS_CELL];
+    float strength[YRES / STASIS_CELL][XRES / STASIS_CELL];
 
     void Clear();
     Stasis(Simulation &sim);

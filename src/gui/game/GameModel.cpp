@@ -31,6 +31,8 @@
 #include "gui/game/DecorationTool.h"
 #include "gui/interface/Engine.h"
 
+#include "music/music.h"
+
 #include <iostream>
 
 GameModel::GameModel():
@@ -51,6 +53,7 @@ GameModel::GameModel():
 	decoSpace(0)
 {
 	sim = new Simulation();
+	sim->model = this;
 	ren = new Renderer(ui::Engine::Ref().g, sim);
 
 	activeTools = regularToolset;
@@ -219,6 +222,10 @@ GameModel::~GameModel()
 	//	delete[] activeTools;
 }
 
+std::pair<float, float> GameModel::get_mouse_pos() {
+	return std::make_pair(ren->mousePos.X,  ren->mousePos.Y);
+}
+
 void GameModel::UpdateQuickOptions()
 {
 	for(std::vector<QuickOption*>::iterator iter = quickOptions.begin(), end = quickOptions.end(); iter != end; ++iter)
@@ -242,6 +249,7 @@ void GameModel::BuildQuickOptionMenu(GameController * controller)
 	quickOptions.push_back(new NGravityOption(this));
 	quickOptions.push_back(new AHeatOption(this));
 	quickOptions.push_back(new ConsoleShowOption(this, controller));
+	quickOptions.push_back(new TimeDilationOption(this));
 
 	notifyQuickOptionsChanged();
 	UpdateQuickOptions();
@@ -300,7 +308,7 @@ void GameModel::BuildMenus()
 			{
 				tempTool = new Element_TESC_Tool(i, sim->elements[i].Name, sim->elements[i].Description, PIXR(sim->elements[i].Colour), PIXG(sim->elements[i].Colour), PIXB(sim->elements[i].Colour), sim->elements[i].Identifier, sim->elements[i].IconGenerator);
 			}
-			else if(i == PT_STKM || i == PT_FIGH || i == PT_STKM2)
+			else if(i == PT_STKM || i == PT_FIGH || i == PT_STKM2 || i == PT_BALI || sim->elements[i].Properties & PROP_VEHICLE || i == PT_JCB1 || i == PT_GNSH)
 			{
 				tempTool = new PlopTool(i, sim->elements[i].Name, sim->elements[i].Description, PIXR(sim->elements[i].Colour), PIXG(sim->elements[i].Colour), PIXB(sim->elements[i].Colour), sim->elements[i].Identifier, sim->elements[i].IconGenerator);
 			}
@@ -348,6 +356,8 @@ void GameModel::BuildMenus()
 	menuList[SC_TOOL]->AddTool(new PropertyTool());
 	menuList[SC_TOOL]->AddTool(new SignTool(this));
 	menuList[SC_TOOL]->AddTool(new SampleTool(this));
+	menuList[SC_TOOL]->AddTool(new TextTool(this));
+	menuList[SC_TOOL]->AddTool(new RulerTool(this));
 
 	//Add decoration tools to menu
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_ADD, "ADD", "Colour blending: Add.", 0, 0, 0, "DEFAULT_DECOR_ADD"));
@@ -950,6 +960,11 @@ void GameModel::SetPaused(bool pauseState)
 		Log(logmessage, false);
 	}
 
+	for (auto i = NOTE::sounds.begin(); i != NOTE::sounds.end(); ++i) {
+		if ((*i) && (*i)->callbacks < SOUND_CALLBACKS_TO_STOP)
+			pauseState ? (*i)->stop() : (*i)->play();
+	}
+
 	sim->sys_pause = pauseState?1:0;
 	notifyPausedChanged();
 }
@@ -1025,6 +1040,20 @@ void GameModel::ShowGravityGrid(bool showGrid)
 bool GameModel::GetGravityGrid()
 {
 	return ren->gravityFieldEnabled;
+}
+
+void GameModel::ShowTimeDilation(bool show)
+{
+	ren->timeDilationFieldEnabled = show;
+	if (show)
+		SetInfoTip("Draw Time Dilation: On");
+	else
+		SetInfoTip("Draw Time Dilation: Off");
+}
+
+bool GameModel::GetTimeDilation()
+{
+	return ren->timeDilationFieldEnabled;
 }
 
 void GameModel::FrameStep(int frames)

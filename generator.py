@@ -16,6 +16,8 @@ def generateElements(elementFiles, outputCpp, outputH):
 #include "simulation/SimulationData.h"
 #include "simulation/elements/Element.h"
 
+class Vehicle;
+
 """
 
 	directives = []
@@ -109,6 +111,7 @@ std::vector<Element> GetElements();
 
 	elementContent = """#include "simulation/ElementDefs.h"
 #include "ElementClasses.h"
+#include "simulation/vehicles/vehicle.h"
 
 std::vector<Element> GetElements()
 {

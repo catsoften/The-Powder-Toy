@@ -3,9 +3,15 @@
 
 #include <vector>
 #include <deque>
+#include <chrono>
+
 #include "common/String.h"
 #include "gui/interface/Window.h"
+#include "gui/interface/ScrollPanel.h"
 #include "simulation/Sample.h"
+
+#define FPSWINDOWW 100
+#define FPSWINDOWH 105
 
 enum DrawMode
 {
@@ -99,6 +105,14 @@ private:
 	ui::Button * simulationOptionButton;
 	ui::Button * displayModeButton;
 	ui::Button * pauseButton;
+
+	// Fps panel
+	bool fpsSettingsPanelOpen = false;
+	const unsigned int fps_size = 25;
+	float fps_history[25] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+	int part_history[25] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	std::chrono::steady_clock::time_point time_last_fps_measurement = std::chrono::steady_clock::now();
 
 	ui::Button * colourPicker;
 	std::vector<ToolButton*> colourPresets;

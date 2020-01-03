@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 #include <set>
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -30,6 +31,10 @@
 #include "common/tpt-minmax.h"
 #include "common/tpt-rand.h"
 #include "gui/game/Brush.h"
+
+#include "simulation/quantum/quantum.h"
+#include "simulation/mvsd/movingsolids.h"
+#include "gui/game/GameModel.h"
 
 #ifdef LUACONSOLE
 #include "lua/LuaScriptInterface.h"
@@ -692,6 +697,7 @@ int Simulation::flood_prop(int x, int y, size_t propoffset, PropertyValue propva
 SimulationSample Simulation::GetSample(int x, int y)
 {
 	SimulationSample sample;
+	sample.frames = timer;
 	sample.PositionX = x;
 	sample.PositionY = y;
 	if (x >= 0 && x < XRES && y >= 0 && y < YRES)
@@ -2250,6 +2256,7 @@ void Simulation::clear_sim(void)
 	memset(portalp, 0, sizeof(portalp));
 	memset(fighters, 0, sizeof(fighters));
 	std::fill(elementCount, elementCount+PT_NUM, 0);
+	std::fill(&time_dilation[0][0], &time_dilation[0][0] + ((XRES / CELL) * (YRES / CELL)), 0);
 	elementRecount = true;
 	fighcount = 0;
 	player.spwn = 0;
@@ -2260,6 +2267,8 @@ void Simulation::clear_sim(void)
 	player2.spawnID = -1;
 	player2.rocketBoots = false;
 	player2.fan = false;
+	vehicle_p1 = vehicle_p2 = -1;
+	vehicles.clear();
 	//memset(pers_bg, 0, WINDOWW*YRES*PIXELSIZE);
 	//memset(fire_r, 0, sizeof(fire_r));
 	//memset(fire_g, 0, sizeof(fire_g));
@@ -2274,6 +2283,8 @@ void Simulation::clear_sim(void)
 		air->ClearAirH();
 	}
 	SetEdgeMode(edgeMode);
+	QUANTUM::quantum_states.clear();
+	MOVINGSOLID::solids.clear();
 }
 
 bool Simulation::IsWallBlocking(int x, int y, int type)
@@ -2364,6 +2375,10 @@ void Simulation::init_can_move()
 		can_move[movingType][PT_STKM] = 0;
 		can_move[movingType][PT_STKM2] = 0;
 		can_move[movingType][PT_FIGH] = 0;
+		// Vehicle shouldn't be displaced
+		can_move[movingType][PT_CYTK] = 0;
+		can_move[movingType][PT_TANK] = 0;
+		can_move[movingType][PT_GNSH] = 0;
 		//INVS behaviour varies with pressure
 		can_move[movingType][PT_INVIS] = 3;
 		//stop CNCT from being displaced by other particles
@@ -2374,6 +2389,13 @@ void Simulation::init_can_move()
 		//nothing moves through EMBR (not sure why, but it's killed when it touches anything)
 		can_move[movingType][PT_EMBR] = 0;
 		can_move[PT_EMBR][movingType] = 0;
+		//SOIL varies depending on tunnel state
+		can_move[movingType][PT_SOIL] = 3;
+		//TRBN invisible to all
+		can_move[movingType][PT_TRBN] = 2;
+		// FILL invisible to all
+		can_move[movingType][PT_FILL] = 2;
+		
 		//Energy particles move through VIBR and BVBR, so it can absorb them
 		if (elements[movingType].Properties & TYPE_ENERGY)
 		{
@@ -2383,22 +2405,28 @@ void Simulation::init_can_move()
 
 		//SAWD cannot be displaced by other powders
 		if (elements[movingType].Properties & TYPE_PART)
-			can_move[movingType][PT_SAWD] = 0;
+			can_move[movingType][PT_SAWD] = 1;
 	}
 	//a list of lots of things PHOT can move through
 	// TODO: replace with property
 	for (destinationType = 0; destinationType < PT_NUM; destinationType++)
 	{
+		can_move[destinationType][PT_WEB] = 2; // Everything can go through web
+		can_move[destinationType][PT_CLUD] = 2; // Everything can go through cloud
+		can_move[destinationType][PT_JCB1] = 2; // JCB1 can go through anything
+
 		if (destinationType == PT_GLAS || destinationType == PT_PHOT || destinationType == PT_FILT || destinationType == PT_INVIS
 		 || destinationType == PT_CLNE || destinationType == PT_PCLN || destinationType == PT_BCLN || destinationType == PT_PBCN
 		 || destinationType == PT_WATR || destinationType == PT_DSTW || destinationType == PT_SLTW || destinationType == PT_GLOW
 		 || destinationType == PT_ISOZ || destinationType == PT_ISZS || destinationType == PT_QRTZ || destinationType == PT_PQRT
-		 || destinationType == PT_H2   || destinationType == PT_BGLA || destinationType == PT_C5)
+		 || destinationType == PT_H2   || destinationType == PT_BGLA || destinationType == PT_C5 || destinationType == PT_FILL
+		 || destinationType == PT_RDND || destinationType == PT_SWTR)
 			can_move[PT_PHOT][destinationType] = 2;
 		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTI && destinationType != PT_PRTO)
 		{
 			can_move[PT_PROT][destinationType] = 2;
 			can_move[PT_GRVT][destinationType] = 2;
+			can_move[PT_BALI][destinationType] = 2;
 		}
 	}
 
@@ -2431,6 +2459,10 @@ void Simulation::init_can_move()
 	can_move[PT_THDR][PT_THDR] = 2;
 	can_move[PT_EMBR][PT_EMBR] = 2;
 	can_move[PT_TRON][PT_SWCH] = 3;
+
+	can_move[PT_BEE][PT_WAX] = 2; // BEEs go through wax and honey
+	can_move[PT_BEE][PT_HONY] = 2;
+	can_move[PT_ANT][PT_SOIL] = 2; // ANT can go through soil
 }
 
 /*
@@ -2476,6 +2508,14 @@ int Simulation::eval_move(int pt, int nx, int ny, unsigned *rr)
 				pressureResistance = 4.0f;
 
 			if (pv[ny/CELL][nx/CELL] < -pressureResistance || pv[ny/CELL][nx/CELL] > pressureResistance)
+				result = 2;
+			else
+				result = 0;
+			break;
+		}
+		case PT_SOIL: {
+			// Allow particles if tmp2 == 2
+			if (parts[ID(r)].tmp2 == 2)
 				result = 2;
 			else
 				result = 0;
@@ -2915,7 +2955,7 @@ int Simulation::is_blocking(int t, int x, int y)
 	if (t & REFRACT) {
 		if (x<0 || y<0 || x>=XRES || y>=YRES)
 			return 0;
-		if (TYP(pmap[y][x]) == PT_GLAS || TYP(pmap[y][x]) == PT_BGLA)
+		if (TYP(pmap[y][x]) == PT_GLAS || TYP(pmap[y][x]) == PT_BGLA || TYP(pmap[y][x]) == PT_RDND)
 			return 1;
 		return 0;
 	}
@@ -3054,6 +3094,34 @@ void Simulation::kill_part(int i)//kills particle number i
 	if (t == PT_NONE)
 		return;
 
+	// When IONs are killed quantum states must be updated
+	if (t == PT_ION) {
+		auto itr = QUANTUM::quantum_states.find(parts[i].tmp2);
+		if (itr != QUANTUM::quantum_states.end()) {
+			// Reset all particles in the state
+			for (unsigned int i = 0; i < itr->second.id_order.size(); ++i) {
+				if (parts[itr->second.id_order[i]].type == PT_ION)
+					parts[itr->second.id_order[i]].flags = 0; // Recalculate quantum state
+			}
+
+			// Delete the state
+			itr = QUANTUM::quantum_states.erase(itr);
+		}
+	}
+
+	if (elements[t].Properties & PROP_VEHICLE) {
+		// Reset flags to mark occupied
+		if (parts[i].tmp2 == 1)
+			vehicle_p1 = -1;
+		if (parts[i].tmp2 == 2)
+			vehicle_p2 = -1;
+
+		// Erase self from vehicles vec
+		auto pos = std::find(vehicles.begin(), vehicles.end(), i);
+		if (pos != vehicles.end())
+			vehicles.erase(pos);
+	}
+
 	elementCount[t]--;
 
 	parts[i].type = PT_NONE;
@@ -3087,6 +3155,15 @@ bool Simulation::part_change_type(int i, int x, int y, int t)
 		elementCount[parts[i].type]--;
 	elementCount[t]++;
 
+	if (elements[t].Properties & PROP_VEHICLE) {
+		// Erase self from vehicles vec
+		if (t != parts[i].type) {
+			auto pos = std::find(vehicles.begin(), vehicles.end(), i);
+			if (pos != vehicles.end())
+				vehicles.erase(pos);
+		}
+	}
+
 	parts[i].type = t;
 	if (elements[t].Properties & TYPE_ENERGY)
 	{
@@ -3100,6 +3177,7 @@ bool Simulation::part_change_type(int i, int x, int y, int t)
 		if (ID(photons[y][x]) == i)
 			photons[y][x] = 0;
 	}
+
 	return false;
 }
 
@@ -3107,6 +3185,10 @@ bool Simulation::part_change_type(int i, int x, int y, int t)
 //tv = Type (PMAPBITS bits) + Var (32-PMAPBITS bits), var is usually 0
 int Simulation::create_part(int p, int x, int y, int t, int v)
 {
+	// Dont make STKM or STKM2 if inside of a cybertruck
+	if ((t == PT_STKM && vehicle_p1 >= 0) || (t == PT_STKM2 && vehicle_p2 >= 0))
+		return -1;
+
 	int i, oldType = PT_NONE;
 
 	if (x<0 || y<0 || x>=XRES || y>=YRES)
@@ -3141,6 +3223,9 @@ int Simulation::create_part(int p, int x, int y, int t, int v)
 
 	if (p == -2)
 	{
+		if (t == PT_MVSD && model)
+			model->SetPaused(true);
+
 		if (pmap[y][x])
 		{
 			int drawOn = TYP(pmap[y][x]);
@@ -3240,6 +3325,21 @@ int Simulation::create_part(int p, int x, int y, int t, int v)
 
 	if (elements[t].ChangeType)
 		(*(elements[t].ChangeType))(this, i, x, y, oldType, t);
+
+	// Vehicles
+	if (elements[t].Properties & PROP_VEHICLE) {
+		vehicles.push_back(i);
+		if (vehicles.size() > MAX_VEHICLES)
+			kill_part(i);
+	}
+
+	// FIGH Id
+	if (t == PT_FIGH)
+		fighters[parts[i].tmp].stkmID = i;
+	else if (t == PT_STKM)
+		player.stkmID = i;
+	else if (t == PT_STKM2)
+		player2.stkmID = i;
 
 	elementCount[t]++;
 	return i;
@@ -3393,14 +3493,43 @@ void Simulation::UpdateParticles(int start, int end)
 	float pGravX, pGravY, pGravD;
 	bool transitionOccurred;
 
+
+	// Update all moving solids before the particles
+	auto itr = MOVINGSOLID::solids.begin();
+	while (itr != MOVINGSOLID::solids.end()) {
+		// Remove moving solid states that have no particles
+		if (itr->second.particles() == 0)
+			itr = MOVINGSOLID::solids.erase(itr);
+		else {
+			// Stasised moving solids don't update
+			if (!(bmap[itr->second.getCY() / CELL][itr->second.getCX() / CELL] == WL_STASIS &&
+				emap[itr->second.getCY() / CELL][itr->second.getCX() / CELL] < 8)) {
+				itr->second.update(parts, pmap, this);
+			}
+			itr++;
+		}
+	}
+
 	//the main particle loop function, goes over all particles.
-	for (i = start; i <= end && i <= parts_lastActiveIndex; i++)
+	unsigned char update_count;
+	for (i = start; i <= end && i <= parts_lastActiveIndex; i++) {
 		if (parts[i].type)
 		{
-			t = parts[i].type;
+			// Some elements update n times per frame
+			update_count = 0;
+			update_loop_begin:
+			++update_count;
 
+			t = parts[i].type;
+		
 			x = (int)(parts[i].x+0.5f);
 			y = (int)(parts[i].y+0.5f);
+
+			// Time dilation: skip update
+			if (!(elements[t].Properties & PROP_NO_TIME) &&
+					!(t == PT_GBMB && parts[i].life > 0) &&  // GBMB needs to update to make gravity
+					time_dilation[y / CELL][x / CELL] < 0 && timer % abs(time_dilation[y / CELL][x / CELL]) != 0)
+				continue;
 
 			//this kills any particle out of the screen, or in a wall where it isn't supposed to go
 			if (x<CELL || y<CELL || x>=XRES-CELL || y>=YRES-CELL ||
@@ -3468,6 +3597,7 @@ void Simulation::UpdateParticles(int start, int end)
 				if (elements[t].Gravity)
 				{
 					//Gravity mode by Moach
+					// If adding new gravity modes make sure to update in simulation/mvsd/movingsolids.cpp
 					switch (gravityMode)
 					{
 					default:
@@ -3505,11 +3635,18 @@ void Simulation::UpdateParticles(int start, int end)
 
 			// Stasis fields slowly negate particle velocities towards the value
 			// Only if particle is non-solid
-			if (stasis->vx[y/STASIS_CELL][x/STASIS_CELL] != 0 || stasis->vy[y / STASIS_CELL][x / STASIS_CELL] != 0) {
-				if (!(elements[TYP(pmap[y][x])].Properties & TYPE_SOLID)) {
-					parts[i].vx = stasis->vx[y / STASIS_CELL][x / STASIS_CELL];
-					parts[i].vy = stasis->vy[y / STASIS_CELL][x / STASIS_CELL];
+			if (stasis->strength[y/STASIS_CELL][x/STASIS_CELL] != 0) {
+				if (pmap[y][x] && !(elements[TYP(pmap[y][x])].Properties & TYPE_SOLID)) {
+					parts[i].vx += (stasis->vx[y / STASIS_CELL][x / STASIS_CELL] - parts[i].vx) * stasis->strength[y/STASIS_CELL][x/STASIS_CELL];
+					parts[i].vy += (stasis->vy[y / STASIS_CELL][x / STASIS_CELL] - parts[i].vy) * stasis->strength[y/STASIS_CELL][x/STASIS_CELL];
 				}
+			}
+
+			// JCB1, and vehicles cannot be set as a ctype of CLNE
+			if ((t==PT_CLNE || t==PT_PCLN || t==PT_BCLN || t==PT_PBCN || t==PT_SNOW || t==PT_LAVA || t==PT_ICEI
+				|| t==PT_VIRS || t==PT_VRSS || t==PT_VRSG) &&
+				(parts[i].ctype == PT_JCB1 || elements[parts[i].ctype].Properties & PROP_VEHICLE)) {
+				parts[i].ctype = PT_NONE;
 			}
 
 			if (elements[t].Diffusion)//the random diffusion that gasses have
@@ -3640,7 +3777,7 @@ void Simulation::UpdateParticles(int start, int end)
 					ctemph = ctempl = pt;
 					// change boiling point with pressure
 					if (((elements[t].Properties&TYPE_LIQUID) && IsValidElement(elements[t].HighTemperatureTransition) && (elements[elements[t].HighTemperatureTransition].Properties&TYPE_GAS))
-					        || t==PT_LNTG || t==PT_SLTW)
+					        || t==PT_LNTG || t==PT_SLTW || t==PT_SWTR)
 						ctemph -= 2.0f*pv[y/CELL][x/CELL];
 					else if (((elements[t].Properties&TYPE_GAS) && IsValidElement(elements[t].LowTemperatureTransition) && (elements[elements[t].LowTemperatureTransition].Properties&TYPE_LIQUID))
 					         || t==PT_WTRV)
@@ -3710,6 +3847,9 @@ void Simulation::UpdateParticles(int start, int end)
 							}
 							else
 								s = 0;
+						}
+						else if (t == PT_SWTR) {
+							t = RNG::Ref().chance(1, 4) ? PT_SUGR : PT_WTRV;
 						}
 						else if (t == PT_SLTW)
 						{
@@ -4040,7 +4180,7 @@ void Simulation::UpdateParticles(int start, int end)
 			{
 				if ((*(elements[t].Update))(this, i, x, y, surround_space, nt, parts, pmap))
 					continue;
-				else if (t==PT_WARP)
+				else if (t==PT_WARP || t==PT_BCTR || t==PT_FISH || t==PT_MSSL)
 				{
 					// Warp does some movement in its update func, update variables to avoid incorrect data in pmap
 					x = (int)(parts[i].x+0.5f);
@@ -4236,8 +4376,8 @@ killed:
 					{
 						int rt = TYP(pmap[fin_y][fin_x]);
 						int lt = TYP(pmap[y][x]);
-						int rt_glas = (rt == PT_GLAS) || (rt == PT_BGLA);
-						int lt_glas = (lt == PT_GLAS) || (lt == PT_BGLA);
+						int rt_glas = (rt == PT_RDND) || (rt == PT_GLAS) || (rt == PT_BGLA);
+						int lt_glas = (rt == PT_RDND) || (lt == PT_GLAS) || (lt == PT_BGLA);
 						if ((rt_glas && !lt_glas) || (lt_glas && !rt_glas))
 						{
 							if (!get_normal_interp(REFRACT|t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry)) {
@@ -4628,10 +4768,18 @@ killed:
 						}
 					}
 				}
+
+				// Some elements update n times per frame (vehicles update twice)
+				if (elements[t].Properties & PROP_VEHICLE && update_count < 2)
+					goto update_loop_begin;
 			}
 movedone:
+			// Time dilation: speed up
+			if (!(elements[t].Properties & PROP_NO_TIME) && time_dilation[y / CELL][x / CELL] > 0 && update_count <= time_dilation[y / CELL][x / CELL])
+				goto update_loop_begin;
 			continue;
 		}
+	}
 
 	//'f' was pressed (single frame)
 	if (framerender)
@@ -4790,6 +4938,7 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 			x = (int)(parts[i].x+0.5f);
 			y = (int)(parts[i].y+0.5f);
 			bool inBounds = false;
+
 			if (x>=0 && y>=0 && x<XRES && y<YRES)
 			{
 				if (elements[t].Properties & TYPE_ENERGY)
@@ -4801,13 +4950,17 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT))
 						pmap[y][x] = PMAP(i, t);
 					// (there are a few exceptions, including energy particles - currently no limit on stacking those)
-					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM)
+					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t != PT_FILL)
 						pmap_count[y][x]++;
 				}
 				inBounds = true;
 			}
 			lastPartUsed = i;
 			NUM_PARTS ++;
+
+			// Time dilation: slow down
+			if (!(elements[t].Properties & PROP_NO_TIME) && time_dilation[y / CELL][x / CELL] < 0 && timer % abs(time_dilation[y / CELL][x / CELL]) != 0)
+				continue;
 
 			//decrease particle life
 			if (do_life_dec && (!sys_pause || framerender))
@@ -4825,6 +4978,12 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 				if (parts[i].life>0 && (elem_properties&PROP_LIFE_DEC) && !(inBounds && bmap[y/CELL][x/CELL] == WL_STASIS && emap[y/CELL][x/CELL]<8))
 				{
 					// automatically decrease life
+					// Time dilation: speed up
+					if (!(elements[t].Properties & PROP_NO_TIME) && time_dilation[y / CELL][x / CELL] > 0) {
+						parts[i].life -= time_dilation[y / CELL][x / CELL];
+						if (parts[i].life < 1)
+							parts[i].life = 1;
+					}
 					parts[i].life--;
 					if (parts[i].life<=0 && (elem_properties&(PROP_LIFE_KILL_DEC|PROP_LIFE_KILL)))
 					{
@@ -4934,6 +5093,23 @@ void Simulation::BeforeSim()
 	// Clear stasis field every couple of frames
 	if (timer % 4 == 0)
 		stasis->Clear();
+
+	// Tick time dilation down to 0
+	if (timer % 4 == 0) {
+		for (unsigned int y = 0; y < YRES / CELL; ++y)
+			for (unsigned int x = 0; x < XRES / CELL; ++x) {
+				if (time_dilation[y][x] < 0)
+					++time_dilation[y][x];
+				else if (time_dilation[y][x] > 0)
+					--time_dilation[y][x];
+
+				// Constrain
+				if (time_dilation[y][x] < MIN_TIME_DILATION)
+					time_dilation[y][x] = MIN_TIME_DILATION;
+				else if (time_dilation[y][x] > MAX_TIME_DILATION)
+					time_dilation[y][x] = MAX_TIME_DILATION;
+			}
+	}
 
 	if (!sys_pause||framerender)
 	{
@@ -5118,9 +5294,9 @@ void Simulation::BeforeSim()
 
 		// spawn STKM and STK2
 		if (!player.spwn && player.spawnID >= 0)
-			create_part(-1, (int)parts[player.spawnID].x, (int)parts[player.spawnID].y, PT_STKM);
+			player.stkmID = create_part(-1, (int)parts[player.spawnID].x, (int)parts[player.spawnID].y, PT_STKM);
 		if (!player2.spwn && player2.spawnID >= 0)
-			create_part(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
+			player2.stkmID = create_part(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
 
 		// particle update happens right after this function (called separately)
 	}
@@ -5290,4 +5466,8 @@ int Simulation::remainder_p(int x, int y)
 float Simulation::remainder_p(float x, float y)
 {
 	return std::fmod(x, y) + (x>=0 ? 0 : y);
+}
+
+GameModel* Simulation::getModel() {
+	return model;
 }

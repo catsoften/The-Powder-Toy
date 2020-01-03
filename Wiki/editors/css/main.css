@@ -1,0 +1,151 @@
+body {
+    padding: 10px 50px;
+    font-family: 'Gelasio', serif;
+    color: #222;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: 'PT Sans', sans-serif;
+    color: black;
+    letter-spacing: 2pt;
+}
+
+pre {
+    font-family: 'Inconsolata', monospace;
+}
+
+li {
+    padding-top: 10px;
+}
+
+img {
+    max-width: 100%;
+}
+
+blockquote {
+    margin: 10px;
+    padding: 10px 30px;
+    border-left: 2px solid black;
+}
+
+button {
+    border: none;
+    outline: none;
+    padding: 10px 15px;
+    background-color: #333;
+    color: #eee;
+    border-bottom: 2px solid #ccc;
+    transition: background-color 0.2s;
+    font-family: 'PT Sans', sans-serif;
+}
+
+button:hover {
+    transition: background-color 0.2s;
+    background-color: #555;
+    cursor: pointer;
+}
+
+button:focus {
+    box-shadow: 0px 0px 5px 0px rgba(14,147,230,1);
+}
+
+table {
+    width: 100%;
+    text-align: center;
+    border-collapse: collapse;
+    font-family: 'PT Sans', 'sans-serif';
+}
+
+td {
+    border: 1px solid #eee;
+}
+
+th {
+    background-color: #333;
+    font-weight: normal;
+    color: #eee;
+}
+
+th, tr {
+    padding: 5px;
+}
+
+input {
+    padding: 7px 12px;
+    width: 300px;
+    font-family: 'PT Sans', 'sans-serif';
+    font-size: 12pt;
+}
+
+hr {
+    border: none;
+    border-bottom: 1px solid #ccc;
+}
+
+details {
+    margin-left: 40px;
+}
+
+.padded-table td, .padded-table th {
+    padding: 5px;
+}
+
+.author {
+	margin: 0;
+	margin-top: -15px;
+	margin-bottom: 35px;
+}
+
+/* PC large screens */
+@media only screen and (min-width: 700px) {
+    body {
+        padding: 10px 25%;
+    }
+}
+
+/* Site title back to home page */
+.title a {
+    color: black;
+    text-decoration: none;
+    font-size: 18pt;
+}
+
+.title, .subtitle {
+    margin: 0;
+}
+
+.subtitle {
+    color: #777;
+    text-decoration: none;
+    font-size: 11pt;
+    text-transform: uppercase;
+    margin-bottom: 50px;
+}
+
+/* Next button */
+.next-group {
+    margin-top: 60px;
+    border-top: 1px solid #ccc;
+    padding: 20px;
+}
+
+.next {
+    margin-right: 50px;
+    font-size: 13pt;
+}
+
+/* Math */
+.math {
+    color: black;
+}
+
+/* Center */
+.center {
+    text-align: center;
+    width: 100%;
+}
+
+/* Definitions */
+dfn {
+    border-bottom: 1px black dotted;
+}

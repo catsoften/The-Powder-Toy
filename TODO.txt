@@ -1,1 +1,309 @@
-write documentation
+
+
+Lanthanum-this ones exciting, for I could see this bridging the gap between solids and solid explosives.
+ I was thinking that this element would be a solid metal that when exposed to high temperature flame,
+  It would release small pieces of bomb and flame, somewhat like thermite and TNT combined.
+   It would only explode into such pieces in small sections at a time. Like regular metal except it's
+    slightly explosive. This one needs more work.
+
+
+realistic stars 
+- types:
+- neutron stars
+- white dwaves 
+- red dwarf
+- yellow sun
+- red supergiant 
+- blue aelly big ones
+
+star starts at sun mass
+u can add HYGN or NBLE to make it grow!
+star grows larger and becomes blue
+once fusion cycle eats up it becomes either red giant or redsupergiant
+
+planets engage in n body motaton around stars, stars n body motion other stars
+
+entire blackhole should glow when struck by a particle
+- if energy glow white
+also release hwaking radiation?
+
+red giant becomes white dwarf or maybe supernova
+supergiant goes supernova and collapses either into black hole or neutron star
+
+if blackholes collide glow
+
+mass can be sucked away by gravity
+
+data/intro text fori ntro blurb
+- wth mod changes 
+
+
+MOVING SOLIDS 
+--------------------------
+2.5 torque
+3. rotation
+torque can be approximated by taking a grid sample of solids across the solid
+- grid should start at a particle in the solid to guarente at least 1 sample
+
+wiki: if tmp > 0 then it will NOT pressure MVSD
+
+use RNG::Ref() 
+
+^ Please use. GCC RNG is slow and has a several kb state. TPT rng takes a few clockcycles and only uses 1 dword of RAM
+--moony
+
+
+experiemntal: dynamic light field
+
+sound waves
+- sonic weapons finally :D
+
+
+new GOL
+
+
+rotate tool - rotate n degrees
+
+in game private conversations
+
+
+a realistic plant that makes SUGR from light
+- organ differentation from SEED
+
+moving solid tool, solid -> moving solid 
+(pauses sim)
+
+
+config tool 
+     https://github.com/The-Powder-Toy/The-Powder-Toy/pull/589/commits
+
+
+
+guide on adding new render modes
+
+quick options
+- electro
+- magnetic 
+
+
+breakpoint element
+
+left column:
+- popup for fps adjustmenet
+     - fast forward and slowdown options
+     - set fps as number
+     - maybe just a label and a + and - button
+     - move to settings menu
+
+
+
+sparkling water, actually made of diamond
+
+polish, polishes metal?
+
+potato
+
+nuclear stuff
+
+noise deco tool
+
+
+
+
+auto hid hud when near top opton
+show stacked particles in hud option
+
+Merge with offical TPT
+
+button menu sometimes dark
+
+MVSD ignore FILL?
+- add to wiki, along with pSTN
+
+
+perln noise
+
+TODO: (maybe move to settings menu)
+2. news button
+3. bug report button
+
+
+-- move on to emag
+
+https://starcatcher.us/scripts?view=47
+
+
+3.4 menu for art tools
+3.5 options menu
+4. Platform::OpenURI(ByteString::Build(SCHEME "powdertoy.co.uk/Discussions/Thread/View.html?Thread=", str.Substr(3, si.first - 3).ToUtf8()));
+
+
+
+Bullet - https://github.com/RCAProduction/The-Alliance-Toy/commit/40bc8704aaa0e0b93a6322398a5e4ce2b2d8cf2f
+
+
+
+code fixes:
+- uses CHANNELS() instead of math in PDTC and whatever
+
+
+
+	ui::Slider * fpsSlider = new ui::Slider(ui::Point(4, 0), ui::Point(70, 10), 5);
+	class FPSChange : public ui::SliderAction {
+		GameView *v;
+	public:
+		FPSChange(GameView *_v) { v = _v; }
+		void ActionCallback(ui::Slider *sender) {
+			v->c->ResetSpark();
+		}
+	};
+	fpsSlider->SetActionCallback(new FPSChange(this));
+	fpsSettingsPanel->AddChild(fpsSlider);
+
+
+
+
+GameView:283 - tag buton
+GameView:638 - Sidem enu buttons
+GameView: 612 - quick option
+GameView: 1115 element buttons
+GameView: 1361 - tooltips
+GmaeModel: 252 - build quick menu
+gui/options/OptionsView - settings pael
+
+
+
+
+ERR element - ERROR and destroys stuff
+
+user elements like BWBL, IVOD
+
+COVFE
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21746
+
+
+
+Potentially repurpose vehicle code to add AI creatures.
+
+aliens - evil AI that need to be killed
+
+sophon
+- breaks entanglement
+- instanteous communication
+- prevents planets fro mdeveloping technology
+
+STKM portla opens to another save
+
+spaceships generate heat
+- raidators
+
+How to add new icon
+do not used the precompiled
+1. cd font
+2. make editor unpacker packer
+3. ./unpacker > output1.txt
+4. ./editor
+5. Press + until u reach empty (looks like thermoeter)
+6. Draw, then exit
+7. rm font.h
+8. ./unpacker > font.h
+9. go to output1.txt, see last line whats the hex code
+10. conversion: convert hex to decimal, add 57194, convert back to hex
+11. copy ur font.h into data/font.cpp and add extern const in front of the arrays. Be careful NOT to delete the header or last couple lines
+12. simulation./SimulationData.cpp is where u add the hex code u calculated earlier to menu
+
+
+Write guide for FFGN
+
+
+
+
+fancy black holes
+- suck in solids too
+
+
+
+realistic shields for spaceship
+FFGN coat like SHLD
+
+
+
+soviet save :D
+- with anthem
+
+
+INFO element who made the mod 
+- draw art
+
+write guide about quantum 
+have lua mod to place down quantum gates?
+- or website?
+
+
+Two more particlemaps
+electric field
+magnetic fields
+
+
+food
+
+
+
+2 row elements?
+
+
+
+Spaceships
+- Ships have a unique id and allegiance so they can battle eachother
+- Components communicate with eachother via FILT network inside the ship
+which operates using flood fill to transfer data
+- Each component is assigned an ID in network
+-- HULL, Hull, Hull of the ship
+-- COTR, Controller
+   - Fires signal once every three frames so components can update and communicate
+   - Stores component id's
+   - Tells each component when to use the FILT network
+   - Components write data after COTR sends data. if no data is received then we can assume componenet has been destroyed
+   and remove it from the set of component id's
+   - Control signals (FILT has 32 bit CTYPE)     
+     001: FIRE, <componentID:8>00000000, Maximum number of components that can be connected is 255
+     010: CONNECT, <particleID:16>0000000000000000, Component is added. Passes particle id or maybe mod of it?
+     011: ASSIGN, <particleID:16>0000000000000000> <componentID:8> 00000000, Assigns componentID
+-- RADR, Radar, Finds enemy particles and passes coordinates to lasers
+   - Scanning range is 30 pixels or higher?
+   100: TGRT, <X:10>0000000000 <Y:10>0000000000
+-- NAVI, Navigation
+   -- Tells the ship to go somewhere? idk
+   -- Different operating modes
+   Altitude Control, Stick to coordinate, Maintain distance from enemy
+   101: MOVE, <direction:2>00
+-- THRS, Thruster, Applies thrust to the ship body
+   -- Stores direction thruster has been attached to ship
+   -- Calculates by which side of the thruster is more open.
+   Draws a fancy cone
+   -- Operating capacity depends on how much damage thruster has taken
+   
+
+
+QUANTUM STUFF THIS IS DONE IN CASE U NEED IT 
+EXPLAINATION
+
+Particles should also store not only their id, but particle id in state array
+- state not only stores vector state, but alos ordering of particles
+ - We simply apply identity gate to the one we don't want to change
+ - for example, 3 entangled particles, apply H to 2nd, I (X) M (X) I
+
+ swaping is easy, ie swap index 0 and 3 in a 5 qbit state, iterate al lstates, ie
+ |00000>, |00001>, ...., find where index 0 and 3 are opposite and swap value with the other state
+ ie 00010 swaps with 10000 and 01110 swaps with 11100 and so on
+
+https://www.quantum-inspire.com/
+quantum elements :D
+http://vlsicad.eecs.umich.edu/BK/Slots/cache/www.eecs.umich.edu/~jhayes/JPH_DACslides_Jun03.pdf
+http://www.cs.xu.edu/~kinne/quantum/deutche.html
+https://qumystery.tech/
+https://medium.com/@jonathan_hui/qc-quantum-computing-series-10ddd7977abd
+https://medium.com/@jonathan_hui/qc-programming-with-quantum-gates-2-qubit-operator-871528d136db
+https://medium.com/@jonathan_hui/qc-programming-with-quantum-gates-8996b667d256
+https://en.wikipedia.org/wiki/Qubit
+https://towardsdatascience.com/demystifying-quantum-gates-one-qubit-at-a-time-54404ed80640

@@ -98,3 +98,14 @@ void ConsoleShowOption::perform()
 {
 	c->ShowConsole();
 }
+
+
+TimeDilationOption::TimeDilationOption(GameModel * m):
+QuickOption("T", "Draw Time Dilation", m, Toggle) {}
+bool TimeDilationOption::GetToggle() {
+	return m->GetTimeDilation();
+}
+void TimeDilationOption::perform() {
+	m->ShowTimeDilation(!m->GetTimeDilation());
+}
+

@@ -121,7 +121,7 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 		break;
 	}
 	//make temp of other things closer to it's own temperature. This will change temp of things that don't conduct, and won't change the PROT's temperature
-	if (utype && utype != PT_WIFI)
+	if (utype && utype != PT_WIFI && utype != PT_TPRS)
 		parts[uID].temp = restrict_flt(parts[uID].temp-(parts[uID].temp-parts[i].temp)/4.0f, MIN_TEMP, MAX_TEMP);
 
 

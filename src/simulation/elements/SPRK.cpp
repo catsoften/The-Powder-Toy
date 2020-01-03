@@ -1,4 +1,5 @@
 #include "simulation/ElementCommon.h"
+
 //#TPT-Directive ElementClass Element_SPRK PT_SPRK 15
 Element_SPRK::Element_SPRK()
 {
@@ -65,6 +66,8 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 			parts[i].life = 54;
 		else if (ct == PT_SWCH)
 			parts[i].life = 14;
+		else if (ct == PT_NEON)
+			parts[i].life = 54;
 		if (sim->part_change_type(i,x,y,ct))
 			return 1;
 		return 0;
@@ -193,6 +196,13 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 						}
 					}
 					break;
+				case PT_NICH: { // NICH only conducts 1 pixel at a time
+					if (pavg != PT_INSL && parts[i].life < 4) {
+						if (abs(rx) > 1 || abs(ry) > 1)
+							continue;
+					}
+					break;
+				}
 				case PT_SPRK:
 					if (pavg!=PT_INSL && parts[i].life<4)
 					{

@@ -6,7 +6,7 @@ Element_VIRS::Element_VIRS()
 	Name = "VIRS";
 	Colour = PIXPACK(0xFE11F6);
 	MenuVisible = 1;
-	MenuSection = SC_LIQUID;
+	MenuSection = SC_ORGANIC;
 	Enabled = 1;
 
 	Advection = 0.6f;
@@ -110,7 +110,7 @@ int Element_VIRS::update(UPDATE_FUNC_ARGS)
 					}
 				}
 				//transforms things into virus here
-				else if (TYP(r) != PT_VIRS && TYP(r) != PT_VRSS && TYP(r) != PT_VRSG && TYP(r) != PT_DMND)
+				else if (TYP(r) != PT_VIRS && TYP(r) != PT_VRSS && TYP(r) != PT_VRSG && TYP(r) != PT_DMND && TYP(r) != PT_FILL)
 				{
 					if (!(rndstore & 0x7))
 					{

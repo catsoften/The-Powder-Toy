@@ -32,13 +32,18 @@
 #include "gui/interface/Colour.h"
 #include "gui/interface/Keys.h"
 #include "gui/interface/Engine.h"
+#include "gui/interface/ScrollPanel.h"
+#include "gui/interface/Slider.h"
 
 #include "simulation/SaveRenderer.h"
 #include "simulation/SimulationData.h"
 #include "simulation/ElementDefs.h"
+#include "simulation/quantum/def.h"
 #include "ElementClasses.h"
 
-#include <cstring>
+#include <ctime>
+#include <bitset>
+#include <algorithm>
 
 #ifdef GetUserName
 # undef GetUserName // dammit windows
@@ -349,6 +354,55 @@ GameView::~GameView()
 	delete placeSaveThumb;
 }
 
+<<<<<<< HEAD
+=======
+class GameView::MenuAction: public ui::ButtonAction
+{
+	GameView * v;
+public:
+	int menuID;
+	bool needsClick;
+	MenuAction(GameView * _v, int menuID_, bool needs_click) {
+		v = _v, menuID = menuID_;
+		needsClick = needs_click;
+	}
+	MenuAction(GameView * _v, int menuID_) {
+		v = _v;
+		menuID = menuID_;
+		 if (menuID == SC_DECO || menuID == SC_SETTINGS || menuID == SC_ART)
+			needsClick = true;
+		else
+			needsClick = false;
+	}
+	void MouseEnterCallback(ui::Button * sender) override
+	{
+		// don't immediately change the active menu, the actual set is done inside GameView::OnMouseMove
+		// if we change it here it causes components to be removed, which causes the window to stop sending events
+		// and then the previous menusection button never gets sent the OnMouseLeave event and is never unhighlighted
+		if(!(needsClick || v->c->GetMouseClickRequired()) && !v->GetMouseDown())
+			v->SetActiveMenuDelayed(menuID);
+	}
+	void ActionCallback(ui::Button * sender) override
+	{
+		if (needsClick || v->c->GetMouseClickRequired())
+			v->c->SetActiveMenu(menuID);
+		else
+			MouseEnterCallback(sender);
+	}
+};
+
+class GameView::OptionAction: public ui::ButtonAction
+{
+	QuickOption * option;
+public:
+	OptionAction(QuickOption * _option) { option = _option; }
+	void ActionCallback(ui::Button * sender) override
+	{
+		option->Perform();
+	}
+};
+
+>>>>>>> old-mod/ui
 class GameView::OptionListener: public QuickOptionListener
 {
 	ui::Button * button;
@@ -377,10 +431,12 @@ void GameView::NotifyQuickOptionsChanged(GameModel * sender)
 	}
 
 	int currentY = 1;
+	int currentDX = -32;
+	unsigned short i = 0;
+
 	std::vector<QuickOption*> optionList = sender->GetQuickOptions();
-	for(auto *option : optionList)
-	{
-		ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-16, currentY), ui::Point(15, 15), option->GetIcon(), option->GetDescription());
+	for(auto *option : optionList) {
+		ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW + currentDX, currentY), ui::Point(15, 15), option->GetIcon(), option->GetDescription());
 		//tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 		tempButton->SetTogglable(true);
 		tempButton->SetActionCallback({ [option] {
@@ -390,40 +446,86 @@ void GameView::NotifyQuickOptionsChanged(GameModel * sender)
 		AddComponent(tempButton);
 
 		quickOptionButtons.push_back(tempButton);
-		currentY += 16;
+
+		// Switch to right col when reached max size
+		if (i == MAX_QUICKOPTIONS_PER_COL - 1) {
+			currentY = 1;
+			currentDX = -16;
+		} else
+			currentY += 15;
+		++i;
 	}
 }
 
-void GameView::NotifyMenuListChanged(GameModel * sender)
-{
-	int currentY = WINDOWH-48;//-(sender->GetMenuList().size()*16);
-	for (size_t i = 0; i < menuButtons.size(); i++)
-	{
+void GameView::NotifyMenuListChanged(GameModel * sender) {
+	// Menu listing
+	int currentY = WINDOWH-48-32;//-(sender->GetMenuList().size()*16);
+	int currentX = WINDOWW-32; // Start on left col
+
+	for (size_t i = 0; i < menuButtons.size(); i++) {
 		RemoveComponent(menuButtons[i]);
 		delete menuButtons[i];
 	}
 	menuButtons.clear();
-	for (size_t i = 0; i < toolButtons.size(); i++)
-	{
+	for (size_t i = 0; i < toolButtons.size(); i++) {
 		RemoveComponent(toolButtons[i]);
 		delete toolButtons[i];
 	}
-	toolButtons.clear();
+
+	// Additional "custom" setting buttons
+
+	// Reset spark button, the height is 1 menu gap below the embedded script multiplayer button,
+	// or 18 menu options up (Yeah it's hardcoded :( )
+	// The gap is to avoid misclicks
+	class Respark : public ui::ButtonAction {
+		GameView *v;
+	public:
+		Respark(GameView *_v) { v = _v; }
+		void ActionCallback(ui::Button *sender) { v->c->ResetSpark(); }
+	};
+	ui::Button *resetSparkButton = new ui::Button(ui::Point(WINDOWW - 32, WINDOWH - 16 * 11), ui::Point(15, 15), "", "Reset Spark");
+	resetSparkButton->SetIcon(IconReload);
+	resetSparkButton->SetActionCallback(new Respark(this));
+	AddComponent(resetSparkButton);
+	menuButtons.push_back(resetSparkButton);
+
+	// Toggle button for FPS options and gauge
+	class FPSSettings : public ui::ButtonAction {
+		GameView *v;
+	public:
+		FPSSettings(GameView *_v) { v = _v; }
+		void ActionCallback(ui::Button *sender) { v->fpsSettingsPanelOpen = !v->fpsSettingsPanelOpen;; }
+	};
+	ui::Button *FPSButton = new ui::Button(ui::Point(WINDOWW - 32, WINDOWH - 16 * 19), ui::Point(15, 47), "P", "Performance Graph");
+	FPSButton->SetActionCallback(new FPSSettings(this));
+	AddComponent(FPSButton);
+	menuButtons.push_back(FPSButton);
+
+	// Main menus
 	std::vector<Menu*> menuList = sender->GetMenuList();
-	for (int i = (int)menuList.size()-1; i >= 0; i--)
-	{
-		if (menuList[i]->GetVisible())
-		{
+	for (int i = (int)menuList.size()-1; i >= 0; i--) {
+		// Move to right column now
+		if (i == (int)menuList.size()-4) {
+			currentY = WINDOWH - 48; // 1 button above, to leave room for menu above
+			currentX += 16;
+		}
+
+		if (menuList[i]->GetVisible()) {
 			String tempString = "";
 			tempString += menuList[i]->GetIcon();
 			String description = menuList[i]->GetDescription();
 			if (i == SC_FAVORITES && !Favorite::Ref().AnyFavorites())
 				description += " (Use ctrl+shift+click to toggle the favorite status of an element)";
+<<<<<<< HEAD
 			auto *tempButton = new MenuButton(ui::Point(WINDOWW-16, currentY), ui::Point(15, 15), tempString, description);
+=======
+			ui::Button *tempButton = new ui::Button(ui::Point(currentX, currentY), ui::Point(15, 15), tempString, description);
+>>>>>>> old-mod/ui
 			tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 			tempButton->menuID = i;
 			tempButton->needsClick = i == SC_DECO;
 			tempButton->SetTogglable(true);
+<<<<<<< HEAD
 			auto mouseEnterCallback = [this, tempButton] {
 				// don't immediately change the active menu, the actual set is done inside GameView::OnMouseMove
 				// if we change it here it causes components to be removed, which causes the window to stop sending events
@@ -439,6 +541,11 @@ void GameView::NotifyMenuListChanged(GameModel * sender)
 			};
 			tempButton->SetActionCallback({ actionCallback, nullptr, mouseEnterCallback });
 			currentY-=16;
+=======
+			tempButton->SetActionCallback(new MenuAction(this, i));
+
+			currentY-=16; // Use -15 if you need more menu space, may break some lua scripts
+>>>>>>> old-mod/ui
 			AddComponent(tempButton);
 			menuButtons.push_back(tempButton);
 		}
@@ -941,7 +1048,7 @@ void GameView::updateToolButtonScroll()
 		for(auto *button : toolButtons)
 		{
 			button->Position.X -= offsetDelta;
-			if (button->Position.X+button->Size.X <= 0 || (button->Position.X+button->Size.X) > XRES-2)
+			if (button->Position.X+button->Size.X <= 0 || (button->Position.X+button->Size.X) > XRES+17)
 				button->Visible = false;
 			else
 				button->Visible = true;
@@ -1172,16 +1279,16 @@ void GameView::ToolTip(ui::Point senderPosition, String toolTip)
 	else if(senderPosition.X > Size.X-BARSIZE)// < Size.Y-(quickOptionButtons.size()+1)*16)
 	{
 		this->toolTip = toolTip;
-		toolTipPosition = ui::Point(Size.X-27-Graphics::textwidth(toolTip), senderPosition.Y+3);
+		toolTipPosition = ui::Point(Size.X-BARSIZE-5-Graphics::textwidth(toolTip), senderPosition.Y+3);
 		if(toolTipPosition.Y+10 > Size.Y-MENUSIZE)
-			toolTipPosition = ui::Point(Size.X-27-Graphics::textwidth(toolTip), Size.Y-MENUSIZE-10);
+			toolTipPosition = ui::Point(Size.X-BARSIZE-5-Graphics::textwidth(toolTip), Size.Y-MENUSIZE-10);
 		isToolTipFadingIn = true;
 	}
 	// element tooltips
 	else
 	{
 		this->toolTip = toolTip;
-		toolTipPosition = ui::Point(Size.X-27-Graphics::textwidth(toolTip), Size.Y-MENUSIZE-10);
+		toolTipPosition = ui::Point(Size.X-BARSIZE-Graphics::textwidth(toolTip), Size.Y-MENUSIZE-10);
 		isToolTipFadingIn = true;
 	}
 }
@@ -2153,6 +2260,16 @@ void GameView::OnDraw()
 					else
 						sampleInfo << " (unknown mode)";
 				}
+				else if (type == PT_QLOG) {
+					sampleInfo << c->ElementResolve(type, ctype);
+					sampleInfo << " (" << QGATE_NAME::get_name(ctype) << ")";
+				}
+				else if (type == PT_BCTR) {
+					if (sample.particle.tmp2)
+						sampleInfo << "Dead ";
+					sampleInfo << c->ElementResolve(type, ctype);
+					sampleInfo << " (" << ctype << ")";
+				}
 				else
 				{
 					sampleInfo << c->ElementResolve(type, ctype);
@@ -2202,18 +2319,49 @@ void GameView::OnDraw()
 			sampleInfo << c->WallName(sample.WallType);
 			sampleInfo << ", Pressure: " << sample.AirPressure;
 		}
-		else if (sample.isMouseInSim)
-		{
+		else if (sample.isMouseInSim) {
 			sampleInfo << "Empty, Pressure: " << sample.AirPressure;
 		}
-		else
-		{
+		else {
 			sampleInfo << "Empty";
 		}
 
 		int textWidth = Graphics::textwidth(sampleInfo.Build());
 		g->fillrect(XRES-20-textWidth, 12, textWidth+8, 15, 0, 0, 0, alpha*0.5f);
 		g->drawtext(XRES-16-textWidth, 16, sampleInfo.Build(), 255, 255, 255, alpha*0.75f);
+
+		// 3rd line where it displays the life and stuff (Yeah it's out of order)
+		StringBuilder sampleInfo2;
+		sampleInfo2 << Format::Precision(2);
+		if (sample.particle.type) {
+			if (showDebug) {
+				sampleInfo2 << "Tmp2: " << Format::Fixed(sample.particle.tmp2);
+				sampleInfo2 << ", DColor: " << Format::Fixed(sample.particle.dcolour);
+				sampleInfo2 << ", Flags: " << Format::Fixed(sample.particle.flags);
+				sampleInfo2 << ", Pavg0: " << Format::Fixed(sample.particle.pavg[0]);
+				sampleInfo2 << ", Pavg1: " << Format::Fixed(sample.particle.pavg[1]);
+			}
+		}
+
+		int textWidth3 = Graphics::textwidth(sampleInfo2.Build());
+		g->fillrect(XRES - 20 - textWidth3, 42, textWidth3 + 8, 15, 0, 0, 0, alpha*0.5f);
+		g->drawtext(XRES - 16 - textWidth3, 44, sampleInfo2.Build(), 255, 255, 255, alpha*0.75f);
+
+		// 4th line where it displays the pvag and stuff
+		StringBuilder sampleInfo3;
+		sampleInfo3 << Format::Precision(2);
+		if (sample.particle.type) {
+			if (showDebug) {
+				sampleInfo3 << "VX: " << Format::Fixed(sample.particle.vx);
+				sampleInfo3 << ", VY: " << Format::Fixed(sample.particle.vy);
+				sampleInfo3 << ", Temp: " << Format::Fixed(sample.particle.temp) << " K";
+				// sampleInfo3 << ", Temp: " << Format::Fixed(5) << (sample.particle.temp - 273.15f) * 9.0f / 5.0f + 32.0 << " F";
+			}
+		}
+
+		int textWidth4 = Graphics::textwidth(sampleInfo3.Build());
+		g->fillrect(XRES - 20 - textWidth4, 56, textWidth3 + 8, 15, 0, 0, 0, alpha*0.5f);
+		g->drawtext(XRES - 16 - textWidth4, 58, sampleInfo3.Build(), 255, 255, 255, alpha*0.75f);
 
 #ifndef OGLI
 		if (wavelengthGfx)
@@ -2255,8 +2403,33 @@ void GameView::OnDraw()
 		if (showDebug)
 		{
 			StringBuilder sampleInfo;
-			sampleInfo << Format::Precision(2);
+			
 
+			// BCTR gene
+			if (type == PT_BCTR) {
+				// Blame String.h
+				std::bitset<32> t(sample.particle.ctype);
+				sampleInfo << "Gene: ";
+				std::vector<int> current;
+
+				for (unsigned int k = 0; k < 32; ++k) {
+					current.push_back(t[k] ? 1 : 0);
+
+					// Add a break and output reversed chunk, since we fucked
+					// up in expressing output correctly
+					if (k == 3 || k == 7 || k == 11 || k == 15 || k == 19 || k == 22 || k == 25 || k == 26) {
+						std::reverse(current.begin(), current.end());
+						for (auto i : current) sampleInfo << i;
+						sampleInfo << "-";
+						current.clear();
+					}
+				}
+				std::reverse(current.begin(), current.end());
+				for (auto i : current) sampleInfo << i;
+				sampleInfo << "  ";
+			}
+
+			sampleInfo << Format::Precision(2);
 			if (type)
 				sampleInfo << "#" << sample.ParticleID << ", ";
 
@@ -2278,28 +2451,104 @@ void GameView::OnDraw()
 	{
 		//FPS and some version info
 		StringBuilder fpsInfo;
-		fpsInfo << Format::Precision(2) << "FPS: " << ui::Engine::Ref().GetFps();
+		fpsInfo << Format::Precision(4) << "FPS: " << ui::Engine::Ref().GetFps();
 
-		if (showDebug)
-		{
+		if (showDebug) {
 			if (ren->findingElement)
 				fpsInfo << " Parts: " << ren->foundElements << "/" << sample.NumParts;
 			else
 				fpsInfo << " Parts: " << sample.NumParts;
 		}
-		if (c->GetReplaceModeFlags()&REPLACE_MODE)
-			fpsInfo << " [REPLACE MODE]";
-		if (c->GetReplaceModeFlags()&SPECIFIC_DELETE)
-			fpsInfo << " [SPECIFIC DELETE]";
-		if (ren && ren->GetGridSize())
-			fpsInfo << " [GRID: " << ren->GetGridSize() << "]";
-		if (ren && ren->findingElement)
-			fpsInfo << " [FIND]";
 
 		int textWidth = Graphics::textwidth(fpsInfo.Build());
 		int alpha = 255-introText*5;
 		g->fillrect(12, 12, textWidth+8, 15, 0, 0, 0, alpha*0.5);
 		g->drawtext(16, 16, fpsInfo.Build(), 32, 216, 255, alpha*0.75);
+
+		// Second line
+		time_t rawtime;
+		struct tm * timeinfo;
+		char buffer[80];
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+		strftime(buffer, 80, "%d-%m-%Y %I:%M:%S %p", timeinfo); // Get rid of year if nessesary 
+
+		StringBuilder fpsInfo2;
+		fpsInfo2 << buffer << " ";
+
+		if (c->GetReplaceModeFlags()&REPLACE_MODE)
+			fpsInfo2 << " [REPLACE MODE]";
+		if (c->GetReplaceModeFlags()&SPECIFIC_DELETE)
+			fpsInfo2 << " [SPECIFIC DELETE]";
+		if (ren->GetGridSize())
+			fpsInfo2 << " [GRID: " << ren->GetGridSize() << "]";
+
+		int textWidth2 = Graphics::textwidth(fpsInfo2.Build());
+		int alpha2 = 255 - introText * 5;
+		g->fillrect(12, 30, textWidth2 + 8, 15, 0, 0, 0, alpha2 * 0.5);
+		g->drawtext(16, 28, fpsInfo2.Build(), 32, 216, 255, alpha2 * 0.75);
+	}
+
+	// FPS options
+	if (fpsSettingsPanelOpen) {
+		int fpsx = WINDOWW - 33 - FPSWINDOWW, fpsy = WINDOWH - 16 * 19;
+		g->fillrect(fpsx, fpsy, FPSWINDOWW, FPSWINDOWH, 0, 0, 0, 210);
+
+		// Border of the little rect
+		g->draw_line(fpsx, fpsy, fpsx + FPSWINDOWW, fpsy, 255, 255, 255, 50);
+		g->draw_line(fpsx, fpsy + FPSWINDOWH, fpsx + FPSWINDOWW, fpsy + FPSWINDOWH, 255, 255, 255, 50);
+		g->draw_line(fpsx, fpsy, fpsx, fpsy + FPSWINDOWH, 255, 255, 255, 50);
+		g->draw_line(fpsx + FPSWINDOWW - 2, fpsy, fpsx + FPSWINDOWW - 2, fpsy + FPSWINDOWH, 255, 255, 255, 50);
+
+		// Update fps gauge every 100 ms
+		if (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time_last_fps_measurement).count()
+				> 100000) {
+			time_last_fps_measurement = std::chrono::steady_clock::now();
+			
+			// Shift all fps down, delete first
+			// Shift all particle counts, delete first
+			for (unsigned int i = 1; i <= fps_size - 1; ++i) {
+				fps_history[i - 1] = fps_history[i];
+				part_history[i - 1] = part_history[i];
+			}
+			fps_history[fps_size - 1] = ui::Engine::Ref().GetFps();
+			part_history[fps_size - 1] = sample.NumParts;
+		}
+
+		// Draw FPS graph
+		int graph_height = 50;
+		int graph_padding = 8;
+		int chunkw = (FPSWINDOWW - graph_padding * 2) / fps_size;
+		int liney1, liney2, py1 = -1, py2 = -1;
+
+		// Top and bottom basis line
+		g->draw_line(fpsx + graph_padding, fpsy + graph_padding, fpsx + FPSWINDOWW - graph_padding, fpsy + graph_padding, 
+			255, 0, 0, 205);
+		g->draw_line(fpsx + graph_padding, fpsy + graph_padding + graph_height, fpsx + FPSWINDOWW - graph_padding,
+			fpsy + graph_padding + graph_height, 
+			55, 55, 55, 205);
+
+		for (unsigned int i = 0; i < fps_size; ++i) {
+			liney1 = (1.0f - fps_history[i] / ui::Engine::Ref().FpsLimit) * graph_height + fpsy + graph_padding;
+			liney2 = (1.0f - (float)part_history[i] / (NPART)) * graph_height + fpsy + graph_padding;
+
+			if (py1 < 0) py1 = liney1;
+			if (py2 < 0) py2 = liney2;
+
+			if (liney2 < fpsy + graph_padding)
+				liney2 = fpsy + graph_padding;
+
+			g->draw_line(fpsx + graph_padding + chunkw * i, py1, fpsx + graph_padding + chunkw * (i + 1), liney1, 255, 255, 0, 235);
+			g->draw_line(fpsx + graph_padding + chunkw * i, py2, fpsx + graph_padding + chunkw * (i + 1), liney2, 0, 100, 255, 235);
+			// g->fillrect(fpsx + graph_padding + chunkw * i, liney, chunkw, (fps_history[i] / ui::Engine::Ref().FpsLimit) * graph_height,
+			// 	255, 255, 0, 205);
+			py1 = liney1;
+			py2 = liney2;
+		}
+
+		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding, "Target FPS", 255, 0, 0, 255);
+		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding + 12, "Actual FPS", 255, 255, 0, 255);
+		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding + 24, "Particles", 0, 100, 255, 255);
 	}
 
 	//Tooltips
