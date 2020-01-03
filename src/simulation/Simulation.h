@@ -12,6 +12,7 @@
 #include "ElementDefs.h"
 #include "GOLMenu.h"
 #include "MenuSection.h"
+#include "Stasis.h"
 
 #include "CoordStack.h"
 
@@ -30,6 +31,7 @@ class Simulation;
 class Renderer;
 class Gravity;
 class Air;
+// Class Stasis defined in Stasis.h
 class GameSave;
 
 class Simulation
@@ -38,6 +40,7 @@ public:
 
 	Gravity * grav;
 	Air * air;
+	Stasis * stasis;
 
 	std::vector<sign> signs;
 	Element elements[PT_NUM];
@@ -116,6 +119,8 @@ public:
 	int sandcolour;
 	int sandcolour_frame;
 	int deco_space;
+	// Timer
+	unsigned int timer = 0;
 
 	int Load(GameSave * save, bool includePressure);
 	int Load(GameSave * save, bool includePressure, int x, int y);

@@ -14,6 +14,7 @@
 #include "CoordStack.h"
 #include "ElementClasses.h"
 #include "Gravity.h"
+#include "Stasis.h"
 #include "Sample.h"
 #include "Snapshot.h"
 
@@ -3502,6 +3503,14 @@ void Simulation::UpdateParticles(int start, int end)
 			parts[i].vx += elements[t].Advection*vx[y/CELL][x/CELL] + pGravX;
 			parts[i].vy += elements[t].Advection*vy[y/CELL][x/CELL] + pGravY;
 
+			// Stasis fields slowly negate particle velocities towards the value
+			// Only if particle is non-solid
+			if (stasis->vx[y/STASIS_CELL][x/STASIS_CELL] != 0 || stasis->vy[y / STASIS_CELL][x / STASIS_CELL] != 0) {
+				if (!(elements[TYP(pmap[y][x])].Properties & TYPE_SOLID)) {
+					parts[i].vx = stasis->vx[y / STASIS_CELL][x / STASIS_CELL];
+					parts[i].vy = stasis->vy[y / STASIS_CELL][x / STASIS_CELL];
+				}
+			}
 
 			if (elements[t].Diffusion)//the random diffusion that gasses have
 			{
@@ -4922,6 +4931,10 @@ void Simulation::CheckStacking()
 //updates pmap, gol, and some other simulation stuff (but not particles)
 void Simulation::BeforeSim()
 {
+	// Clear stasis field every couple of frames
+	if (timer % 4 == 0)
+		stasis->Clear();
+
 	if (!sys_pause||framerender)
 	{
 		air->update_air();
@@ -5120,12 +5133,14 @@ void Simulation::AfterSim()
 		Element_EMP::Trigger(this, emp_trigger_count);
 		emp_trigger_count = 0;
 	}
+	timer++; // Global timer
 }
 
 Simulation::~Simulation()
 {
 	delete grav;
 	delete air;
+	delete stasis;
 	for (size_t i = 0; i < tools.size(); i++)
 		delete tools[i];
 }
@@ -5188,6 +5203,9 @@ Simulation::Simulation():
 	pv = air->pv;
 	hv = air->hv;
 
+	// Create stasis map
+	stasis = new Stasis(*this);
+
 	msections = LoadMenus();
 
 	wtypes = LoadWalls();
@@ -5228,7 +5246,7 @@ String Simulation::ElementResolve(int type, int ctype)
 	{
 		return elements[type].Name;
 	}
-	return "Empty";
+	return String("Empty");
 }
 
 String Simulation::BasicParticleInfo(Particle const &sample_part)

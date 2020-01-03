@@ -126,6 +126,7 @@
 
 //CELL, the size of the pressure, gravity, and wall maps. Larger than 1 to prevent extreme lag
 #define CELL	4
+#define STASIS_CELL 2
 #define ISTP	(CELL/2)
 #define CFDS	(4.0f/CELL)
 #define SIM_MAXVELOCITY 1e4f

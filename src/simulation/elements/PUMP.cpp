@@ -105,9 +105,7 @@ int Element_PUMP::update(UPDATE_FUNC_ARGS)
 
 
 //#TPT-Directive ElementHeader Element_PUMP static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_PUMP::graphics(GRAPHICS_FUNC_ARGS)
-
-{
+int Element_PUMP::graphics(GRAPHICS_FUNC_ARGS) {
 	int lifemod = ((cpart->life>10?10:cpart->life)*19);
 	*colb += lifemod;
 	return 0;

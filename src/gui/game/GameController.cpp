@@ -1497,7 +1497,7 @@ String GameController::ElementResolve(int type, int ctype)
 	{
 		return gameModel->GetSimulation()->ElementResolve(type, ctype);
 	}
-	return "";
+	return String("");
 }
 
 String GameController::BasicParticleInfo(Particle const &sample_part)
@@ -1506,7 +1506,7 @@ String GameController::BasicParticleInfo(Particle const &sample_part)
 	{
 		return gameModel->GetSimulation()->BasicParticleInfo(sample_part);
 	}
-	return "";
+	return String("");
 }
 
 void GameController::ReloadSim()

@@ -2,6 +2,7 @@
 
 #include "OptionsController.h"
 #include "OptionsModel.h"
+#include <cstring>
 
 #include <cstdio>
 #ifdef WIN
