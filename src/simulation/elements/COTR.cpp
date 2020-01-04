@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/Spaceship.h"
-#include "simulation/Thruster.h"
+
 #include <climits>
 #include <vector>
 

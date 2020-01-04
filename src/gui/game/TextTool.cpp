@@ -18,8 +18,6 @@
 #include "gui/game/texterfonts/font.h"
 #include "gui/game/texterfonts/all-fonts.h"
 
-#include <iostream>
-
 // Construct new fonts
 std::vector<TexterFont*> texter_fonts({
     new SMALLFONT::Small(),
@@ -88,74 +86,6 @@ public:
         Client::Ref().SetPref("Text.Spacing", spacing->GetOption().second);
         Client::Ref().SetPref("Text.Font", font->GetOption().second);
     }
-
-	class OkayAction: public ui::ButtonAction {
-	public:
-		TextWindow * prompt;
-		OkayAction(TextWindow * prompt_) { prompt = prompt_; }
-		void ActionCallback(ui::Button * sender) override {
-            // Render text to sim
-            texter_fonts[prompt->font->GetOption().second]->draw_sim(prompt->lines,
-                prompt->justification->GetOption().second,
-                text_spacing_options[prompt->spacing->GetOption().second].second,
-                prompt->sim->GetParticleType(prompt->element.ToUtf8()),
-                prompt->textPosition.X, prompt->textPosition.Y, prompt->sim);
-            prompt->onClose();
-			prompt->CloseActiveWindow();
-			prompt->SelfDestruct();
-		}
-	};
-
-    class CancelAction: public ui::ButtonAction {
-	public:
-		TextWindow * prompt;
-		CancelAction(TextWindow * prompt_) { prompt = prompt_; }
-		void ActionCallback(ui::Button * sender) override {
-			prompt->CloseActiveWindow();
-			prompt->SelfDestruct();
-		}
-	};
-
-    class ElementTextAction: public ui::TextboxAction {
-	public:
-        TextWindow * window;
-		ElementTextAction(TextWindow * win_) { window = win_; }
-		void TextChangedCallback(ui::Textbox * sender) override {
-            // Change current element if type is valid
-            if (window->sim->GetParticleType(sender->GetText().ToUtf8()) != -1) {
-                window->element = sender->GetText();
-                window->elecolor = window->sim->elements[window->sim->GetParticleType(sender->GetText().ToUtf8())].Colour;
-                Client::Ref().SetPrefUnicode("Text.Element", window->element);
-            }
-        }
-    };
-
-	class TextTextAction: public ui::TextboxAction {
-	public:
-		ui::ScrollPanel * prompt;
-        TextWindow * window;
-		TextTextAction(ui::ScrollPanel * prompt_, TextWindow * win_) {
-            prompt = prompt_;
-            window = win_;
-        }
-		void TextChangedCallback(ui::Textbox * sender) override {
-            window->lines = sender->GetText().PartitionBy('\n', true);
-            int oldSize = sender->Size.Y;
-            int oldScrollSize = prompt->InnerSize.Y;
-
-            sender->Size.Y = 13 * window->lines.size();
-            if (sender->Size.Y < prompt->Size.Y)
-                sender->Size.Y = prompt->Size.Y;
-
-            prompt->InnerSize = ui::Point(prompt->Size.X, sender->Position.Y + sender->Size.Y);
-            
-            // Auto scroll as ScrollPanel size increases
-            if (oldSize < sender->Size.Y && oldScrollSize + prompt->ViewportPosition.Y == prompt->Size.Y)
-                prompt->SetScrollPosition(prompt->InnerSize.Y - prompt->Size.Y);
-            else if (sender->Size.Y <= prompt->Size.Y)
-                prompt->SetScrollPosition(0);
-        }
-    };
 };
 
 TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_):
@@ -175,7 +105,10 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
     cancelButton->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
     cancelButton->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	cancelButton->Appearance.BorderInactive = (ui::Colour(200, 200, 200));
-	cancelButton->SetActionCallback(new CancelAction(this));
+    cancelButton->SetActionCallback({ [this] {
+        CloseActiveWindow();
+        SelfDestruct();
+    }});
 	AddComponent(cancelButton);
 	SetCancelButton(cancelButton);
 
@@ -183,7 +116,17 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
     okayButton->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
     okayButton->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	okayButton->Appearance.BorderInactive = (ui::Colour(200, 200, 200));
-	okayButton->SetActionCallback(new OkayAction(this));
+	okayButton->SetActionCallback({ [this] {
+        // Render text to sim
+        texter_fonts[font->GetOption().second]->draw_sim(lines,
+            justification->GetOption().second,
+            text_spacing_options[spacing->GetOption().second].second,
+            sim->GetParticleType(element.ToUtf8()),
+            textPosition.X, textPosition.Y, sim);
+        onClose();
+        CloseActiveWindow();
+        SelfDestruct();
+    }});
 	AddComponent(okayButton);
 	SetOkayButton(okayButton);
 
@@ -252,7 +195,14 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 	elementField->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	elementField->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	elementField->SetLimit(5);
-    elementField->SetActionCallback(new ElementTextAction(this));
+    elementField->SetActionCallback({ [this] {
+        // Change current element if type is valid
+        if (sim->GetParticleType(elementField->GetText().ToUtf8()) != -1) {
+            element = elementField->GetText();
+            elecolor = sim->elements[sim->GetParticleType(elementField->GetText().ToUtf8())].Colour;
+            Client::Ref().SetPrefUnicode("Text.Element", element);
+        }
+    }});
     AddComponent(elementField);
 
     // Textbox is in a scroll panel for scrolling
@@ -263,7 +213,23 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 	textField->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	textField->Appearance.VerticalAlign = ui::Appearance::AlignTop;
 	textField->SetLimit(6000);
-	textField->SetActionCallback(new TextTextAction(scrollPanel, this));
+	textField->SetActionCallback({ [this, scrollPanel] {
+            lines = textField->GetText().PartitionBy('\n', true);
+            int oldSize = textField->Size.Y;
+            int oldScrollSize = scrollPanel->InnerSize.Y;
+
+            textField->Size.Y = 13 * lines.size();
+            if (textField->Size.Y < scrollPanel->Size.Y)
+                textField->Size.Y = scrollPanel->Size.Y;
+
+            scrollPanel->InnerSize = ui::Point(scrollPanel->Size.X, textField->Position.Y + textField->Size.Y);
+            
+            // Auto scroll as ScrollPanel size increases
+            if (oldSize < textField->Size.Y && oldScrollSize + scrollPanel->ViewportPosition.Y == scrollPanel->Size.Y)
+                scrollPanel->SetScrollPosition(scrollPanel->InnerSize.Y - scrollPanel->Size.Y);
+            else if (textField->Size.Y <= scrollPanel->Size.Y)
+                scrollPanel->SetScrollPosition(0);
+    }});
     textField->SetInputType(ui::Textbox::Multiline);
     textField->SetMultiline(true);
 	scrollPanel->AddChild(textField);

@@ -46,15 +46,6 @@ public:
     }
 	virtual ~RulerWindow() {}
 	void OnTryExit(ui::Window::ExitMethod method) override;
-	class OkayAction: public ui::ButtonAction {
-	public:
-		RulerWindow * prompt;
-		OkayAction(RulerWindow * prompt_) { prompt = prompt_; }
-		void ActionCallback(ui::Button * sender) override {
-			prompt->CloseActiveWindow();
-			prompt->SelfDestruct();
-		}
-	};
 };
 
 RulerWindow::RulerWindow(RulerTool * tool_, Simulation * sim_):
@@ -72,7 +63,10 @@ RulerWindow::RulerWindow(RulerTool * tool_, Simulation * sim_):
 	okayButton->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	okayButton->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	okayButton->Appearance.BorderInactive = (ui::Colour(200, 200, 200));
-	okayButton->SetActionCallback(new OkayAction(this));
+	okayButton->SetActionCallback({ [this] {
+		CloseActiveWindow();
+		SelfDestruct();
+	}});
 	AddComponent(okayButton);
 	SetOkayButton(okayButton);
 	MakeActiveWindow();

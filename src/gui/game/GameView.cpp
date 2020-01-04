@@ -332,6 +332,21 @@ GameView::GameView():
 
 	colourPicker = new ui::Button(ui::Point((XRES/2)-8, YRES+1), ui::Point(16, 16), "", "Pick Colour");
 	colourPicker->SetActionCallback({ [this] { c->OpenColourPicker(); } });
+
+	// Additional "custom" setting buttons in left menu column
+
+	// Reset spark button, the height is 1 menu gap below the embedded script multiplayer button,
+	// or 18 menu options up (Yeah it's hardcoded :( )
+	// The gap is to avoid misclicks
+	ui::Button *resetSparkButton = new ui::Button(ui::Point(WINDOWW - 32, WINDOWH - 16 * 11), ui::Point(15, 15), "", "Reset Spark");
+	resetSparkButton->SetIcon(IconReload);
+	resetSparkButton->SetActionCallback({ [this] { c->ResetSpark(); }});
+	AddComponent(resetSparkButton);
+
+	// Toggle button for FPS options and gauge
+	ui::Button *FPSButton = new ui::Button(ui::Point(WINDOWW - 32, WINDOWH - 16 * 19), ui::Point(15, 47), "P", "Performance Graph");
+	FPSButton->SetActionCallback({ [this] { fpsSettingsPanelOpen = !fpsSettingsPanelOpen; }});
+	AddComponent(FPSButton);
 }
 
 GameView::~GameView()
@@ -352,55 +367,6 @@ GameView::~GameView()
 	delete placeSaveThumb;
 }
 
-<<<<<<< HEAD
-=======
-class GameView::MenuAction: public ui::ButtonAction
-{
-	GameView * v;
-public:
-	int menuID;
-	bool needsClick;
-	MenuAction(GameView * _v, int menuID_, bool needs_click) {
-		v = _v, menuID = menuID_;
-		needsClick = needs_click;
-	}
-	MenuAction(GameView * _v, int menuID_) {
-		v = _v;
-		menuID = menuID_;
-		 if (menuID == SC_DECO || menuID == SC_SETTINGS || menuID == SC_ART)
-			needsClick = true;
-		else
-			needsClick = false;
-	}
-	void MouseEnterCallback(ui::Button * sender) override
-	{
-		// don't immediately change the active menu, the actual set is done inside GameView::OnMouseMove
-		// if we change it here it causes components to be removed, which causes the window to stop sending events
-		// and then the previous menusection button never gets sent the OnMouseLeave event and is never unhighlighted
-		if(!(needsClick || v->c->GetMouseClickRequired()) && !v->GetMouseDown())
-			v->SetActiveMenuDelayed(menuID);
-	}
-	void ActionCallback(ui::Button * sender) override
-	{
-		if (needsClick || v->c->GetMouseClickRequired())
-			v->c->SetActiveMenu(menuID);
-		else
-			MouseEnterCallback(sender);
-	}
-};
-
-class GameView::OptionAction: public ui::ButtonAction
-{
-	QuickOption * option;
-public:
-	OptionAction(QuickOption * _option) { option = _option; }
-	void ActionCallback(ui::Button * sender) override
-	{
-		option->Perform();
-	}
-};
-
->>>>>>> old-mod/ui
 class GameView::OptionListener: public QuickOptionListener
 {
 	ui::Button * button;
@@ -470,35 +436,6 @@ void GameView::NotifyMenuListChanged(GameModel * sender) {
 		delete toolButtons[i];
 	}
 
-	// Additional "custom" setting buttons
-
-	// Reset spark button, the height is 1 menu gap below the embedded script multiplayer button,
-	// or 18 menu options up (Yeah it's hardcoded :( )
-	// The gap is to avoid misclicks
-	class Respark : public ui::ButtonAction {
-		GameView *v;
-	public:
-		Respark(GameView *_v) { v = _v; }
-		void ActionCallback(ui::Button *sender) { v->c->ResetSpark(); }
-	};
-	ui::Button *resetSparkButton = new ui::Button(ui::Point(WINDOWW - 32, WINDOWH - 16 * 11), ui::Point(15, 15), "", "Reset Spark");
-	resetSparkButton->SetIcon(IconReload);
-	resetSparkButton->SetActionCallback(new Respark(this));
-	AddComponent(resetSparkButton);
-	menuButtons.push_back(resetSparkButton);
-
-	// Toggle button for FPS options and gauge
-	class FPSSettings : public ui::ButtonAction {
-		GameView *v;
-	public:
-		FPSSettings(GameView *_v) { v = _v; }
-		void ActionCallback(ui::Button *sender) { v->fpsSettingsPanelOpen = !v->fpsSettingsPanelOpen;; }
-	};
-	ui::Button *FPSButton = new ui::Button(ui::Point(WINDOWW - 32, WINDOWH - 16 * 19), ui::Point(15, 47), "P", "Performance Graph");
-	FPSButton->SetActionCallback(new FPSSettings(this));
-	AddComponent(FPSButton);
-	menuButtons.push_back(FPSButton);
-
 	// Main menus
 	std::vector<Menu*> menuList = sender->GetMenuList();
 	for (int i = (int)menuList.size()-1; i >= 0; i--) {
@@ -514,18 +451,14 @@ void GameView::NotifyMenuListChanged(GameModel * sender) {
 			String description = menuList[i]->GetDescription();
 			if (i == SC_FAVORITES && !Favorite::Ref().AnyFavorites())
 				description += " (Use ctrl+shift+click to toggle the favorite status of an element)";
-<<<<<<< HEAD
-			auto *tempButton = new MenuButton(ui::Point(WINDOWW-16, currentY), ui::Point(15, 15), tempString, description);
-=======
-			ui::Button *tempButton = new ui::Button(ui::Point(currentX, currentY), ui::Point(15, 15), tempString, description);
->>>>>>> old-mod/ui
+
+			auto * tempButton = new MenuButton(ui::Point(currentX, currentY), ui::Point(15, 15), tempString, description);
 			tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 			tempButton->menuID = i;
-			tempButton->needsClick = i == SC_DECO;
+			tempButton->needsClick = i == SC_DECO || i == SC_SETTINGS || i == SC_ART;
 			tempButton->SetTogglable(true);
-<<<<<<< HEAD
 			auto mouseEnterCallback = [this, tempButton] {
-				// don't immediately change the active menu, the actual set is done inside GameView::OnMouseMove
+				// Don't immediately change the active menu, the actual set is done inside GameView::OnMouseMove
 				// if we change it here it causes components to be removed, which causes the window to stop sending events
 				// and then the previous menusection button never gets sent the OnMouseLeave event and is never unhighlighted
 				if(!(tempButton->needsClick || c->GetMouseClickRequired()) && !GetMouseDown())
@@ -538,12 +471,7 @@ void GameView::NotifyMenuListChanged(GameModel * sender) {
 					mouseEnterCallback();
 			};
 			tempButton->SetActionCallback({ actionCallback, nullptr, mouseEnterCallback });
-			currentY-=16;
-=======
-			tempButton->SetActionCallback(new MenuAction(this, i));
-
 			currentY-=16; // Use -15 if you need more menu space, may break some lua scripts
->>>>>>> old-mod/ui
 			AddComponent(tempButton);
 			menuButtons.push_back(tempButton);
 		}

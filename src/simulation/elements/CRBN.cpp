@@ -112,7 +112,7 @@ int Element_CRBN::update(UPDATE_FUNC_ARGS)
 		sim->part_change_type(i, parts[i].x, parts[i].y, PT_CO2);
 	// Thin wires superconduct
 	else if (parts[i].temp < 100.0f && seen_sprk && crbn_count <= 2) {
-		sim->FloodINST(x, y, PT_SPRK, PT_CRBN);
+		sim->FloodINST(x, y);
 	}
 	return 0;
 }
