@@ -2,7 +2,7 @@
 
 ### Turbine
 
-![Element](https://i.imgur.com/L27QpB8.gif)
+[Click here for image (Warning: large)](https://i.imgur.com/L27QpB8.gif)
 
 **Description:**  *Turbine. Makes SPRK when in moving air or particles. pavg0 = air velocity, pavg1 = particle velocity.*
 

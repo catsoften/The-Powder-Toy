@@ -24,7 +24,7 @@ Element_SUGR::Element_SUGR()
 	Explosive = 1;
 	Meltable = 2;
 	Hardness = 2;
-	Description = "Sugar.";
+	Description = "Sugar. Great food for bacteria.";
 
 	Properties = TYPE_PART;
 
@@ -69,7 +69,8 @@ int Element_SUGR::update(UPDATE_FUNC_ARGS) {
 						sim->kill_part(i);
 					return 0;
 				}
-			}
+			} 
+	return 0;
 }
 
 Element_SUGR::~Element_SUGR() {}

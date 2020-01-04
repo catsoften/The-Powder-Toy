@@ -28,7 +28,7 @@ Element_CLUD::Element_CLUD()
 	Weight = 10;
 
 	HeatConduct = 0;
-	Description = "Cloud. Weather depends on ctype. (SNOW / WATR / LIGH / LAVA)";
+	Description = "Cloud. Weather depends on ctype. (SNOW / WATR / LIGH / LAVA / LN2)";
 
 	Properties = TYPE_GAS | PROP_NOCTYPEDRAW;
 
@@ -55,6 +55,7 @@ int Element_CLUD::update(UPDATE_FUNC_ARGS) {
 	 * 			 may make BALI
 	 *  - SNOW - Snow storm
 	 *  - GLAS - GLAS (Molten if cloud is hot enough)
+	 *  - LN2  - Liquid nitrogen
 	 *  - LAVA - Molten LAVA
 	 */
 
@@ -63,10 +64,12 @@ int Element_CLUD::update(UPDATE_FUNC_ARGS) {
 		int ni = -1;
 		if (parts[i].ctype == PT_LIGH || parts[i].ctype == PT_THDR || parts[i].ctype == PT_WATR || parts[i].ctype == PT_DSTW)
 			ni = sim->create_part(-3, x, y, PT_WATR);
-		else if (parts[i].ctype == PT_GLAS)
+		else if (parts[i].ctype == PT_GLAS || parts[i].ctype == PT_BGLA)
 			ni = sim->create_part(-3, x, y, PT_BGLA);
 		else if (parts[i].ctype == PT_LAVA)
 			ni = sim->create_part(-3, x, y, PT_LAVA);
+		else if (parts[i].ctype == PT_LNTG)
+			ni = sim->create_part(-3, x, y, PT_LNTG);
 		else if (parts[i].ctype == PT_SNOW || parts[i].ctype == PT_ICEI)
 			ni = sim->create_part(-3, x, y, PT_SNOW);
 
@@ -100,8 +103,8 @@ int Element_CLUD::graphics(GRAPHICS_FUNC_ARGS) {
 	else if (cpart->ctype == PT_WATR || cpart->ctype == PT_DSTW) {
 		m = 0.5f;
 	}
-	// Snow
-	else if (cpart->ctype == PT_ICEI || cpart->ctype == PT_SNOW) {
+	// Snow or LN2
+	else if (cpart->ctype == PT_LNTG || cpart->ctype == PT_ICEI || cpart->ctype == PT_SNOW) {
 		m = 0.8f;
 	}
 	// Molten

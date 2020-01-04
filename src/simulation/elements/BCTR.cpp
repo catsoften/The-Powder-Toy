@@ -149,22 +149,22 @@ Element_BCTR::Element_BCTR()
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
 
-	Advection = 0.4f;
-	AirDrag = 0.04f * CFDS;
-	AirLoss = 0.94f;
+	Advection = 0.6f;
+	AirDrag = 0.01f * CFDS;
+	AirLoss = 0.98f;
 	Loss = 0.95f;
-	Collision = -0.1f;
-	Gravity = 0.3f;
+	Collision = 0.0f;
+	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
-	Falldown = 1;
+	HotAir = 0.000f * CFDS;
+	Falldown = 2;
 
-	Flammable = 1;
+	Flammable = 0;
 	Explosive = 0;
 	Meltable = 0;
-	Hardness = 1;
+	Hardness = 20;
 
-	Weight = 90;
+	Weight = 30;
 	HeatConduct = 150;
 	Description = "Bacteria. Feed it sugar to grow, can evolve genes.";
 
@@ -176,10 +176,10 @@ Element_BCTR::Element_BCTR()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = ITH;
-	HighTemperatureTransition = NT;
+	HighTemperature = 273.15f + 200.0f;
+	HighTemperatureTransition = PT_FIRE;
 
-	DefaultProperties.life = 110;
+	DefaultProperties.life = BCTR::START_LIFE;
 
 	// Element properties here
 	Update = &Element_BCTR::update;
@@ -389,7 +389,8 @@ int Element_BCTR::update(UPDATE_FUNC_ARGS) {
 }
 
 //#TPT-Directive ElementHeader Element_BCTR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BCTR::graphics(GRAPHICS_FUNC_ARGS) {
+int Element_BCTR::graphics(GRAPHICS_FUNC_ARGS)
+{
 	*pixel_mode |= PMODE_BLUR;
 
 	// Dead
@@ -421,6 +422,7 @@ int Element_BCTR::graphics(GRAPHICS_FUNC_ARGS) {
 		*firea = 240;
 		*pixel_mode |= PMODE_GLOW;
 	}
+
 	return 0;
 }
 

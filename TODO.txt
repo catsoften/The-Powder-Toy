@@ -55,7 +55,7 @@ sound waves
 new GOL
 
 
-rotate tool - rotate n degrees
+
 
 in game private conversations
 
@@ -66,9 +66,6 @@ a realistic plant that makes SUGR from light
 moving solid tool, solid -> moving solid 
 (pauses sim)
 
-
-config tool 
-     https://github.com/The-Powder-Toy/The-Powder-Toy/pull/589/commits
 
 
 
@@ -106,7 +103,7 @@ noise deco tool
 auto hid hud when near top opton
 show stacked particles in hud option
 
-Merge with offical TPT
+rotate tool - rotate n degrees
 
 button menu sometimes dark
 
@@ -116,11 +113,62 @@ MVSD ignore FILL?
 
 perln noise
 
+
+forumn restyle to tpt style extension!
+
+
+
 TODO: (maybe move to settings menu)
 2. news button
 3. bug report button
 
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13325
 
+high pressure pipe 
+
+quatntum category
+- particles 
+-sfld 
+- qlog
+
+config tool 
+     https://github.com/The-Powder-Toy/The-Powder-Toy/pull/589/commits
+
+replace with String::Build
+make text red in input when error
+
+
+test all tools repeatedly! -ask bwbellairs to do it
+
+-TRBN seralize to FILT?
+- also range like other sensors?
+
+
+https://github.com/The-Powder-Toy/The-Powder-Toy/pull/622
+
+laser tool, set point, move mouse to slice
+- laser should bounce off of polished metal
+
+- generic ctype setter
+
+ * - DRAY
+* - PSTN
+ * - PDTC
+- FRAY
+ - LDTC seperate, has flags
+ * - QLOG
+     - drag input1 and 2 along dir
+ * - Vehicles
+ * - STAR
+ - PNET
+ * - EXFN
+ * - NOTE
+    - preview sound
+- BCTR
+
+
+
+LITH ION batteries :D
 
 
 -- move on to emag
@@ -135,11 +183,6 @@ https://starcatcher.us/scripts?view=47
 
 
 Bullet - https://github.com/RCAProduction/The-Alliance-Toy/commit/40bc8704aaa0e0b93a6322398a5e4ce2b2d8cf2f
-
-
-
-code fixes:
-- uses CHANNELS() instead of math in PDTC and whatever
 
 
 

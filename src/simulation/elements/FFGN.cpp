@@ -180,8 +180,7 @@ int Element_FFGN::update(UPDATE_FUNC_ARGS)
 }
 
 //#TPT-Directive ElementHeader Element_FFGN static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FFGN::graphics(GRAPHICS_FUNC_ARGS)
-{
+int Element_FFGN::graphics(GRAPHICS_FUNC_ARGS) {
 	// Lighter if activated
 	if (cpart->life > 0) {
 		*colr *= 2;

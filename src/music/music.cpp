@@ -1,10 +1,11 @@
 #include "music/music.h"
 #include <unordered_map>
 #include <vector>
-
+#include <cmath>
 namespace NOTE {
 	std::vector<Sound*> sounds(MAX_NOTES_AT_SAME_TIME);
 	std::unordered_map<int, float> key_map;
+	String names[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
 	int next_audio_device = 0;
 	
@@ -124,5 +125,16 @@ namespace NOTE {
 		if (key_map.count(key) == 0)
 			return 440; // A is default in case we screw up since it's default ID, DO NOT RETURN 0 will cause divide by 0 error
 		return key_map[key];
+	}
+
+	String get_note_name_from_key(int key) {
+		StringBuilder name;
+		float freq = get_frequency_from_key(key);
+		int h = round(12 * log2(freq / 16.35f)); // 16.35 = C0
+		int octave = h / 12;
+    	int n = h % 12;
+
+		name << names[n] << octave;
+		return name.Build();
 	}
 }

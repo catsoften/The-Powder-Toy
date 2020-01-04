@@ -39,9 +39,12 @@
 #include "simulation/SimulationData.h"
 #include "simulation/ElementDefs.h"
 #include "simulation/quantum/def.h"
+#include "music/music.h"
 #include "ElementClasses.h"
 
 #include <ctime>
+#include <bitset>
+#include <algorithm>
 
 #ifdef GetUserName
 # undef GetUserName // dammit windows
@@ -2329,6 +2332,41 @@ void GameView::OnDraw()
 		if (showDebug)
 		{
 			StringBuilder sampleInfo;
+
+			// BCTR gene
+			if (type == PT_BCTR) {
+				// Blame String.h
+				std::bitset<32> t(sample.particle.ctype);
+				sampleInfo << "Gene: ";
+				std::vector<int> current;
+
+				for (unsigned int k = 0; k < 32; ++k) {
+					current.push_back(t[k] ? 1 : 0);
+
+					// Add a break and output reversed chunk, since we fucked
+					// up in expressing output correctly
+					if (k == 3 || k == 7 || k == 11 || k == 15 || k == 19 || k == 22 || k == 25 || k == 26) {
+						std::reverse(current.begin(), current.end());
+						for (auto i : current) sampleInfo << i;
+						sampleInfo << "-";
+						current.clear();
+					}
+				}
+				std::reverse(current.begin(), current.end());
+				for (auto i : current) sampleInfo << i;
+				sampleInfo << "  ";
+			}
+			// Music note
+			else if (type == PT_NOTE) {
+				if (NOTE::key_map.count(sample.particle.tmp) > 0) {
+					sampleInfo << NOTE::get_note_name_from_key(sample.particle.tmp);
+					sampleInfo << " (" << NOTE::get_frequency_from_key(sample.particle.tmp) << " Hz)";
+				} else {
+					sampleInfo << "(Unknown note)";
+				}
+				sampleInfo << "   ";
+			}
+
 			sampleInfo << Format::Precision(2);
 
 			if (type)

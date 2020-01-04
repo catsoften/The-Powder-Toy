@@ -16,9 +16,11 @@ A gas that everything passes through (like PROT), spawns weather depending on ct
 
 **SNOW / ICE:** Snow cloud, light gray. Creates SNOW.
 
-**GLAS:** Glass cloud, rains broken glass. Redish.
+**GLAS / BGLA:** Glass cloud, rains broken glass. Redish.
 
 **LAVA:** Rains lava (Ctype STNE). Redish.
+
+**LN2:** Liquid nitrogen. Same graphics as snow cloud.
 
 **Anything else:** Normal white cloud.
 

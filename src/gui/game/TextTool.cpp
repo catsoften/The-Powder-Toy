@@ -14,6 +14,7 @@
 #include "graphics/Graphics.h"
 #include "gui/interface/Engine.h"
 #include "client/Client.h"
+#include "gui/game/config_tool/util.h"
 
 #include "gui/game/texterfonts/font.h"
 #include "gui/game/texterfonts/all-fonts.h"
@@ -95,27 +96,15 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 	textPosition(position_)
 {
     // Components
-	ui::Label * messageLabel = new ui::Label(ui::Point(4, 5), ui::Point(Size.X-8, 15), "Write text");
+	ui::Label * messageLabel = make_left_label(ui::Point(4, 5), ui::Point(Size.X-8, 15), "Write text");
 	messageLabel->SetTextColour(style::Colour::InformationTitle);
-	messageLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-	messageLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	AddComponent(messageLabel);
 
-    ui::Button * cancelButton = new ui::Button(ui::Point(0, Size.Y-16), ui::Point(Size.X / 2, 16), "Cancel");
-    cancelButton->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
-    cancelButton->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	cancelButton->Appearance.BorderInactive = (ui::Colour(200, 200, 200));
-    cancelButton->SetActionCallback({ [this] {
-        CloseActiveWindow();
-        SelfDestruct();
-    }});
+    ui::Button * cancelButton = make_center_button(ui::Point(0, Size.Y-16), ui::Point(Size.X / 2, 16), "Cancel");
+    CANCEL_BUTTON(cancelButton);
 	AddComponent(cancelButton);
-	SetCancelButton(cancelButton);
 
-	ui::Button * okayButton = new ui::Button(ui::Point(Size.X / 2, Size.Y-16), ui::Point(Size.X / 2, 16), "OK");
-    okayButton->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
-    okayButton->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	okayButton->Appearance.BorderInactive = (ui::Colour(200, 200, 200));
+	ui::Button * okayButton = make_center_button(ui::Point(Size.X / 2, Size.Y-16), ui::Point(Size.X / 2, 16), "OK");
 	okayButton->SetActionCallback({ [this] {
         // Render text to sim
         texter_fonts[font->GetOption().second]->draw_sim(lines,
@@ -123,6 +112,7 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
             text_spacing_options[spacing->GetOption().second].second,
             sim->GetParticleType(element.ToUtf8()),
             textPosition.X, textPosition.Y, sim);
+        sim->model->SetPaused(true); // Pause sim
         onClose();
         CloseActiveWindow();
         SelfDestruct();
@@ -132,9 +122,7 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 
 
     // Justification dropdown
-	ui::Label * tempLabel = new ui::Label(ui::Point(6, Size.Y - 42), ui::Point(40, 15), "Text Align:");
-    tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-    tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	ui::Label * tempLabel = make_left_label(ui::Point(6, Size.Y - 42), ui::Point(40, 15), "Text Align:");
 	AddComponent(tempLabel);
 
     justification = new ui::DropDown(ui::Point(70, Size.Y - 42), ui::Point(55, 16));
@@ -150,9 +138,7 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 
 
     // Font dropdown
-    tempLabel = new ui::Label(ui::Point(130, Size.Y - 42), ui::Point(40, 15), "Font:");
-    tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-    tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+    tempLabel = make_left_label(ui::Point(130, Size.Y - 42), ui::Point(40, 15), "Font:");
     AddComponent(tempLabel);
 
     font = new ui::DropDown(ui::Point(160, Size.Y - 42), ui::Point(80, 16));
@@ -168,9 +154,7 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 
 
     // Spacing dropdown
-    tempLabel = new ui::Label(ui::Point(130, Size.Y - 64), ui::Point(40, 15), "Spacing:");
-    tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-    tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+    tempLabel = make_left_label(ui::Point(130, Size.Y - 64), ui::Point(40, 15), "Spacing:");
     AddComponent(tempLabel);
 
     spacing = new ui::DropDown(ui::Point(200, Size.Y - 64), ui::Point(40, 16));
@@ -184,23 +168,31 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
     spacing->SetOption(space);
     spacing->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 
-    tempLabel = new ui::Label(ui::Point(6, Size.Y - 64), ui::Point(40, 15), "Element:");
-    tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-    tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+    tempLabel = make_left_label(ui::Point(6, Size.Y - 64), ui::Point(40, 15), "Element:");
     AddComponent(tempLabel);
 
 
     // Element name input
-    elementField = new ui::Textbox(ui::Point(70, Size.Y - 64), ui::Point(55, 17), element, "DMND");
-	elementField->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-	elementField->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+    elementField = make_left_textbox(ui::Point(70, Size.Y - 64), ui::Point(55, 17), element, "DMND");
 	elementField->SetLimit(5);
     elementField->SetActionCallback({ [this] {
         // Change current element if type is valid
         if (sim->GetParticleType(elementField->GetText().ToUtf8()) != -1) {
+            elementField->SetTextColour(ui::Colour(255, 255, 255));
             element = elementField->GetText();
             elecolor = sim->elements[sim->GetParticleType(elementField->GetText().ToUtf8())].Colour;
             Client::Ref().SetPrefUnicode("Text.Element", element);
+        } else {
+            int id = elementField->GetText().ToNumber<int>(true);
+            if (id > 0 && id < PT_NUM) {
+                elementField->SetTextColour(ui::Colour(255, 255, 255));
+                element = sim->elements[id].Name;
+                elecolor = sim->elements[id].Colour;
+                Client::Ref().SetPrefUnicode("Text.Element", element);
+            }
+            else {
+                elementField->SetTextColour(ui::Colour(255, 100, 0));
+            }
         }
     }});
     AddComponent(elementField);
@@ -210,9 +202,9 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
     AddComponent(scrollPanel);
 
 	textField = new ui::Textbox(ui::Point(0, 0), ui::Point(scrollPanel->Size.X, scrollPanel->Size.Y), "", "[Text]");
-	textField->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-	textField->Appearance.VerticalAlign = ui::Appearance::AlignTop;
-	textField->SetLimit(6000);
+    textField->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+    textField->Appearance.VerticalAlign = ui::Appearance::AlignTop;
+    textField->SetLimit(6000);
 	textField->SetActionCallback({ [this, scrollPanel] {
             lines = textField->GetText().PartitionBy('\n', true);
             int oldSize = textField->Size.Y;

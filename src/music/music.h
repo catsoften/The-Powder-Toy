@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include "music/audio.h"
+#include "common/String.h"
 
 namespace NOTE {
 	const int LIFE_CHUNK = 6;
@@ -14,6 +15,7 @@ namespace NOTE {
 	extern std::unordered_map<int, float> key_map;
 
     float get_frequency_from_key(int key);
+	String get_note_name_from_key(int key);
 }
 
 #endif

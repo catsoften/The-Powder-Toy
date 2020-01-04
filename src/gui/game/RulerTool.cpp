@@ -98,18 +98,18 @@ void RulerWindow::OnTryExit(ui::Window::ExitMethod method) {
 void RulerWindow::DoDraw() {
     // Draw new ruler here
     ui::Window::DoDraw();
-     Graphics * g = GetGraphics();
+    Graphics * g = GetGraphics();
 
     // First point
     if (point_count >= 1) {
         StringBuilder c1; c1 << p1.X << ", " << p1.Y;
-        g->drawcircle(p1.X, p1.Y, 10, 10, 255, 255, 255, 200);
+        g->drawcircle(p1.X, p1.Y, 6, 6, 255, 255, 255, 200);
         g->drawtext(p1.X - g->textwidth(c1.Build()) / 2, p1.Y + (p1.Y < YRES / 2 ? 15 : -20), c1.Build(), 255, 255, 255, 255);
     }
     // Second point and connecting line
     if (point_count >= 2) {
         StringBuilder c2; c2 << p2.X << ", " << p2.Y;
-        g->drawcircle(p2.X, p2.Y, 10, 10, 255, 255, 255, 200);
+        g->drawcircle(p2.X, p2.Y, 6, 6, 255, 255, 255, 200);
         g->drawtext(p2.X - g->textwidth(c2.Build()) / 2, p2.Y + (p2.Y < YRES / 2 ? 15 : -20), c2.Build(), 255, 255, 255, 255);
 
         g->draw_line(p1.X, p1.Y, p2.X, p2.Y, 255, 255, 255, 200);

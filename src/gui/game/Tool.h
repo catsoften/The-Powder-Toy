@@ -91,6 +91,19 @@ public:
 	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override { }
 };
 
+class ConfigTool: public Tool {
+public:
+	GameModel * gameModel;
+	ConfigTool(GameModel *model):
+	Tool(0, "CNFG", "Config tool. Allows you to configurate certain particles like WIFI or QLOG by clicking on them.", 0x05, 0xe3, 0x77, "DEFAULT_UI_CONFIG", NULL),
+	  gameModel(model) {}
+	virtual ~ConfigTool() {}
+	void Click(Simulation * sim, Brush * brush, ui::Point position) override;
+	void Draw(Simulation * sim, Brush * brush, ui::Point position) override { }
+	void DrawLine(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2, bool dragging = false) override { }
+	void DrawRect(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2) override { }
+	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override { }
+};
 
 class SampleTool: public Tool
 {
