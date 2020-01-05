@@ -181,6 +181,7 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 			Element_STKM::STKM_init_legs(this, &player, i);
 			player.spwn = 1;
 			player.elem = PT_DUST;
+			player.stkmID = i;
 
 			if ((save->majorVersion < 93 && parts[i].ctype == SPC_AIR) ||
 			        (save->majorVersion < 88 && parts[i].ctype == OLD_SPC_AIR))
@@ -196,6 +197,7 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 			Element_STKM::STKM_init_legs(this, &player2, i);
 			player2.spwn = 1;
 			player2.elem = PT_DUST;
+			player2.stkmID = i;
 			if ((save->majorVersion < 93 && parts[i].ctype == SPC_AIR) ||
 			        (save->majorVersion < 88 && parts[i].ctype == OLD_SPC_AIR))
 			{
@@ -238,6 +240,7 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 					if (fighNum == oldTmp)
 						fighters[parts[i].tmp].fan = true;
 				}
+				fighters[parts[i].tmp].stkmID = i;
 			}
 			else
 			{

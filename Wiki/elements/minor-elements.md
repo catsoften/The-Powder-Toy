@@ -46,3 +46,13 @@ freed if their web dissolves. WEB slows down liquids and powders with weight < 5
 
 ## SFLD (Superfluid)
 Evaporates into NEON at 27.102 K, likes to "flow" along solids. Suffers no loss, air drag or diffusion, and has max thermal conductivity.
+
+## SHPO
+Shampoo, evaporates into water vapor at 100 C. Cures VIRS. Will clean any deco color, and reset ALL properties (except temp) back 
+to the original defaults. If a particle has a Create function, it will be called too. SHPO will make bubbles and slowly dissolve powders. 
+
+## HAIR
+A powder, will instantly freeze when near the head of STKM or STKM2 (and FIGH, but it won't follow sometimes). It will follow the head 
+of STKM and STKM2. You can decorate hair into shapes (ie to make arms or clothes). Hair will also freeze when it has
+touched GEL or is below 0 C. When touching powders hair can be "dirtied" and take on the color of the powder as a deco color. If 
+the STKM head moves too fast the HAIR will break apart.

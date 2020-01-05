@@ -722,6 +722,8 @@ void Element_STKM::STKM_init_legs(Simulation * sim, playerst *playerp, int i)
 //#TPT-Directive ElementHeader Element_STKM static void STKM_set_element(Simulation *sim, playerst *playerp, int element)
 void Element_STKM::STKM_set_element(Simulation *sim, playerst *playerp, int element)
 {
+	if (element == PT_HAIR)
+		return;
 	if (sim->elements[element].Falldown != 0
 	    || sim->elements[element].Properties&TYPE_GAS
 	    || sim->elements[element].Properties&TYPE_LIQUID

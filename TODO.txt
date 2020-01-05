@@ -101,6 +101,7 @@ noise deco tool
 
 
 
+
 auto hid hud when near top opton
 show stacked particles in hud option
 
@@ -112,7 +113,7 @@ perln noise
 forumn restyle to tpt style extension!
 
 rulerTool - use new shit
-drag the ruler window
+    drag the ruler window
 scale tool
 
 
@@ -220,6 +221,15 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21746
 Potentially repurpose vehicle code to add AI creatures.
 
 aliens - evil AI that need to be killed
+
+potatoes
+1. steam
+2. mash
+3. burn
+4. jacob1 control with mind
+
+MEAT, UDDR, MILK - realistic cow hmm
+BONE, FLSH maybe
 
 sophon
 - breaks entanglement
