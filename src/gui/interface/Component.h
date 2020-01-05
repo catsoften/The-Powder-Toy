@@ -44,6 +44,7 @@ namespace ui
 		Point Size;
 		bool Enabled;
 		bool Visible;
+		bool MouseCurrentlyInside;
 
 		ui::Appearance Appearance;
 		//virtual void SetAppearance(ui::Appearance);

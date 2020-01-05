@@ -19,7 +19,8 @@ Component::Component(Window* parent_state):
 	Position(Point(0,0)),
 	Size(Point(0,0)),
 	Enabled(true),
-	Visible(true)
+	Visible(true),
+	MouseCurrentlyInside(false)
 {
 
 }

@@ -185,8 +185,8 @@ int Element_MVSD::update(UPDATE_FUNC_ARGS) {
 						MOVINGSOLID::Collision(x + rx, y + ry, MOVINGSOLID::MOVING, px, py, x + rx, y + ry));
 				}
 
-				// General collision
-				else if (rt != PT_MVSD) {
+				// General collision (Ignore FILL)
+				else if (rt != PT_MVSD && rt != PT_FILL) {
 					if (sim->elements[rt].Properties & TYPE_SOLID)
 						MOVINGSOLID::solids[parts[i].tmp2].add_collision(
 							MOVINGSOLID::Collision(x + rx, y + ry, MOVINGSOLID::STATIC, px, py, x + rx, y + ry));
@@ -221,7 +221,7 @@ int Element_MVSD::update(UPDATE_FUNC_ARGS) {
 
 			r = pmap[(int)round(sy)][(int)round(sx)];
 			if (r) {
-				if (TYP(r) != PT_MVSD && 
+				if (TYP(r) != PT_MVSD && TYP(r) != PT_FILL && 
 						(sim->elements[TYP(r)].Properties & TYPE_PART ||
 						 sim->elements[TYP(r)].Properties & TYPE_SOLID)) {
 					MOVINGSOLID::solids[parts[i].tmp2].add_collision(
@@ -240,9 +240,9 @@ int Element_MVSD::update(UPDATE_FUNC_ARGS) {
 					break;
 				} 
 				else if (parts[ID(r)].tmp2 != parts[i].tmp2) {
-
+					// Collisions with other solids are handled
+					// in simulation/mvsd
 				}
-				
 			}
 
 			endloop:

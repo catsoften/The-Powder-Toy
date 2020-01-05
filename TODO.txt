@@ -105,10 +105,6 @@ show stacked particles in hud option
 
 rotate tool - rotate n degrees
 
-button menu sometimes dark
-
-MVSD ignore FILL?
-- add to wiki, along with pSTN
 
 
 perln noise
@@ -144,13 +140,11 @@ test all tools repeatedly! -ask bwbellairs to do it
 - also range like other sensors?
 
 
-https://github.com/The-Powder-Toy/The-Powder-Toy/pull/622
 
 laser tool, set point, move mouse to slice
 - laser should bounce off of polished metal
 
 - generic ctype setter
-
  * - DRAY
 * - PSTN
  * - PDTC

@@ -509,12 +509,14 @@ void Window::DoMouseMove(int x_, int y_, int dx, int dy)
 				Components[i]->OnMouseMovedInside(local.X, local.Y, dx, dy);
 
 				// entering?
-				if (!(a.X >= 0 &&
-				      a.Y >= 0 &&
-				      a.X < Components[i]->Size.X &&
-				      a.Y < Components[i]->Size.Y ))
-				{
+				// if (!(a.X >= 0 &&
+				//       a.Y >= 0 &&
+				//       a.X < Components[i]->Size.X &&
+				//       a.Y < Components[i]->Size.Y ))
+				// {
+				if (!Components[i]->MouseCurrentlyInside) {
 					Components[i]->OnMouseEnter(local.X, local.Y);
+					Components[i]->MouseCurrentlyInside = true;
 				}
 				if (Components[i]->Enabled)
 					hoverComponent = Components[i];
@@ -522,14 +524,15 @@ void Window::DoMouseMove(int x_, int y_, int dx, int dy)
 			else if (!halt)
 			{
 				// leaving?
-				if (a.X >= 0 &&
-					a.Y >= 0 &&
-					a.X < Components[i]->Size.X &&
-					a.Y < Components[i]->Size.Y )
+				if (Components[i]->MouseCurrentlyInside)
+				// if (a.X >= 0 &&
+				// 	a.Y >= 0 &&
+				// 	a.X < Components[i]->Size.X &&
+				// 	a.Y < Components[i]->Size.Y )
 				{
 					Components[i]->OnMouseLeave(local.X, local.Y);
+					Components[i]->MouseCurrentlyInside = false;
 				}
-
 			}
 		}
 	}
