@@ -91,6 +91,20 @@ public:
 	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override { }
 };
 
+class RotateTool: public Tool {
+public:
+	GameModel * gameModel;
+	RotateTool(GameModel *model) : Tool(0, "ROT", "Rotation tool. Select a rectangle and rotate an arbitrary angle.", 0x9b, 0xbc, 0xcc, "DEFAULT_UI_ROTATE", NULL),
+								   gameModel(model) {}
+	virtual ~RotateTool() {}
+	void Click(Simulation * sim, Brush * brush, ui::Point position) override;
+	void Draw(Simulation * sim, Brush * brush, ui::Point position) override { }
+	void DrawLine(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2, bool dragging = false) override { }
+	void DrawRect(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2) override { }
+	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override { }
+};
+
+
 class ConfigTool: public Tool {
 public:
 	GameModel * gameModel;

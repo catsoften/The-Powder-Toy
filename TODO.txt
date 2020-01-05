@@ -40,7 +40,6 @@ torque can be approximated by taking a grid sample of solids across the solid
 
 wiki: if tmp > 0 then it will NOT pressure MVSD
 
-use RNG::Ref() 
 
 ^ Please use. GCC RNG is slow and has a several kb state. TPT rng takes a few clockcycles and only uses 1 dword of RAM
 --moony
@@ -67,6 +66,8 @@ moving solid tool, solid -> moving solid
 (pauses sim)
 
 
+
+use RNG::Ref() 
 
 
 guide on adding new render modes
@@ -103,8 +104,6 @@ noise deco tool
 auto hid hud when near top opton
 show stacked particles in hud option
 
-rotate tool - rotate n degrees
-
 
 
 perln noise
@@ -112,6 +111,9 @@ perln noise
 
 forumn restyle to tpt style extension!
 
+rulerTool - use new shit
+drag the ruler window
+scale tool
 
 
 TODO: (maybe move to settings menu)

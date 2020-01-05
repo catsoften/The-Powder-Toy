@@ -97,7 +97,6 @@ void RulerWindow::OnTryExit(ui::Window::ExitMethod method) {
 
 void RulerWindow::DoDraw() {
     // Draw new ruler here
-    ui::Window::DoDraw();
     Graphics * g = GetGraphics();
 
     // First point
@@ -120,6 +119,11 @@ void RulerWindow::DoDraw() {
         g->clearrect((p1.X + p2.X) / 2 - lenstrlen / 2, (p1.Y + p2.Y) / 2, lenstrlen, 10);
         g->drawtext((p1.X + p2.X) / 2 - lenstrlen / 2, (p1.Y + p2.Y) / 2, lenstr, 255, 255, 255, 255);
     }
+
+    g->clearrect(XRES, 0, WINDOWW - XRES, WINDOWH);
+	g->clearrect(0, YRES, WINDOWW, WINDOWH - YRES);
+
+    ui::Window::DoDraw();
 }
 
 void RulerWindow::DoMouseMove(int x, int y, int dx, int dy) {
