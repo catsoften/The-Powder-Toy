@@ -41,10 +41,6 @@ torque can be approximated by taking a grid sample of solids across the solid
 wiki: if tmp > 0 then it will NOT pressure MVSD
 
 
-^ Please use. GCC RNG is slow and has a several kb state. TPT rng takes a few clockcycles and only uses 1 dword of RAM
---moony
-
-
 experiemntal: dynamic light field
 
 sound waves
@@ -103,6 +99,7 @@ left column:
      - maybe just a label and a + and - button
      - move to settings menu
 - autohide hud
+    - hud: show all particle properties!
 - stats:
     - time played
     - times played
@@ -153,6 +150,20 @@ test all tools repeatedly! -ask bwbellairs to do it
 -TRBN seralize to FILT?
 - also range like other sensors?
 
+ambident heat time dilation
+
+coffee, alchohol, bleach, tear gas, nitrogen
+rock?
+    - erodes
+bedrock, absorbs liquid
+clud move pressure
+stronger acid?
+
+color sensor
+
+atmosphere setting
+
+custom elements
 
 
 laser tool, set point, move mouse to slice

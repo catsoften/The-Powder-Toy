@@ -1,0 +1,108 @@
+#include "simulation/ElementCommon.h"
+
+//#TPT-Directive ElementClass Element_RCRT PT_RCRT 245
+Element_RCRT::Element_RCRT()
+{
+	Identifier = "DEFAULT_PT_RCRT";
+	Name = "RCRT";
+	Colour = PIXPACK(0xa8a8a8);
+	MenuVisible = 1;
+	MenuSection = SC_POWDERS;
+	Enabled = 1;
+
+	Advection = 0.1f;
+	AirDrag = 0.04f * CFDS;
+	AirLoss = 0.94f;
+	Loss = 0.95f;
+	Collision = -0.1f;
+	Gravity = 0.3f;
+	Diffusion = 0.00f;
+	HotAir = 0.000f	* CFDS;
+	Falldown = 1;
+
+	Flammable = 0;
+	Explosive = 0;
+	Meltable = 2;
+	Hardness = 2;
+
+	Weight = 90;
+	HeatConduct = 100;
+	Description = "Reinforced concrete. Remains in place near supporting solids.";
+
+	Properties = TYPE_PART | PROP_HOT_GLOW;
+
+	LowPressure = IPL;
+	LowPressureTransition = NT;
+	HighPressure = IPH;
+	HighPressureTransition = NT;
+	LowTemperature = ITL;
+	LowTemperatureTransition = NT;
+	HighTemperature = 1223.0f;
+	HighTemperatureTransition = PT_LAVA;
+
+	Update = &Element_RCRT::update;
+	Graphics = &Element_RCRT::graphics;
+}
+
+//#TPT-Directive ElementHeader Element_RCRT static int update(UPDATE_FUNC_ARGS)
+int Element_RCRT::update(UPDATE_FUNC_ARGS) {
+	/**
+	 * Properties:
+	 * tmp  - How is it supported
+	 * 		  1 = touching solid
+	 * 		  2 = touching RCRT touching solid
+	 * 		  3 = touching RCRT touching RCRT touching solid
+	 * 		  ...
+	 * Max support length is 5
+	 * tmp2  - Is connected to a solid rn? Randomly resets, if not connected
+	 * 		   Countsdown, then collapses
+	 */
+	int rx, ry, r, rt;
+	int possible_connect_tmp = 0; // For initial connecting
+	bool found_solid = false;
+	
+	parts[i].tmp2--;
+	if (parts[i].tmp2 < 0)
+		parts[i].tmp2 = 0;
+
+	for (rx = -1; rx <= 1; ++rx)
+		for (ry = -1; ry <= 1; ++ry)
+			if (BOUNDS_CHECK && (rx || ry)) {
+				r = pmap[y + ry][x + rx];
+				if (!r) continue;
+				rt = TYP(r);
+
+				if (sim->elements[rt].Properties & TYPE_SOLID) {
+					parts[i].tmp = 1;
+					found_solid = true;
+				}
+				else if (rt == PT_RCRT && parts[ID(r)].tmp && parts[i].tmp == 0) {
+					if (possible_connect_tmp > parts[ID(r)].tmp + 1)
+						possible_connect_tmp = parts[ID(r)].tmp + 1;
+				}
+			}
+
+	if (possible_connect_tmp)
+		parts[i].tmp = possible_connect_tmp;
+
+	if (!found_solid && parts[i].tmp == 1) // No longer connected to a solid
+		parts[i].tmp = 6; // 0 means not yet calculated, 6 skips that
+
+	// Floodfill connected to solid rn property
+	if (parts[i].tmp == 1) {
+		PropertyValue value;
+		value.Integer = 10;
+		sim->flood_prop(x, y, offsetof(Particle, tmp2), value, StructProperty::Integer);
+	}
+	
+	if (parts[i].tmp > 0 && parts[i].tmp <= 5 && parts[i].tmp2 > 0) 
+		parts[i].vx = parts[i].vy = 0.0f;
+	return 0;
+}
+
+//#TPT-Directive ElementHeader Element_RCRT static int graphics(GRAPHICS_FUNC_ARGS)
+int Element_RCRT::graphics(GRAPHICS_FUNC_ARGS) {
+	return 1;
+}
+
+Element_RCRT::~Element_RCRT() {}

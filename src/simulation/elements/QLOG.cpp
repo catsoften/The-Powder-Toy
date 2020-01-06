@@ -166,7 +166,7 @@ int Element_QLOG::update(UPDATE_FUNC_ARGS) {
 		// > pavg[1] = Input 2
 		for (int shift = 2; shift <= 3; ++shift) {
 			// (2^n by 2^n matrix for 2^n particle state, where n is number of inputs)
-			if (gate.size() >= (1 << shift)) {
+			if ((int)gate.size() >= (1 << shift)) {
 				// Failed to find a 2ND input (All checks must be present as element might have moved)
 				// or been deleted since last frame
 				int pavg = shift - 2;

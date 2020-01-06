@@ -2386,6 +2386,7 @@ void Simulation::init_can_move()
 		can_move[movingType][PT_INVIS] = 3;
 		//stop CNCT from being displaced by other particles
 		can_move[movingType][PT_CNCT] = 0;
+		can_move[movingType][PT_RCRT] = 0;
 		//VOID and PVOD behaviour varies with powered state and ctype
 		can_move[movingType][PT_PVOD] = 3;
 		can_move[movingType][PT_VOID] = 3;
@@ -2812,6 +2813,9 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 	case PT_CNCT:
 		if (y < ny && TYP(pmap[y+1][x]) == PT_CNCT) //check below CNCT for another CNCT
 			return 0;
+		break;
+	case PT_RCRT:
+		if (y < ny && TYP(pmap[y+1][x]) == PT_RCRT) return 0;
 		break;
 	case PT_GBMB:
 		if (parts[i].life > 0)

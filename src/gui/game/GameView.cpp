@@ -328,7 +328,7 @@ GameView::GameView():
 	pauseButton->SetActionCallback({ [this] { c->SetPaused(pauseButton->GetToggleState()); } });
 	AddComponent(pauseButton);
 
-	ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-16, WINDOWH-32), ui::Point(15, 15), 0xE065, "Search for elements");
+	ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-32, WINDOWH-80), ui::Point(15, 15), 0xE065, "Search for elements");
 	tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 	tempButton->SetActionCallback({ [this] { c->OpenElementSearch(); } });
 	AddComponent(tempButton);
@@ -426,7 +426,7 @@ void GameView::NotifyQuickOptionsChanged(GameModel * sender)
 
 void GameView::NotifyMenuListChanged(GameModel * sender) {
 	// Menu listing
-	int currentY = WINDOWH-48-32;//-(sender->GetMenuList().size()*16);
+	int currentY = WINDOWH-96;//-(sender->GetMenuList().size()*16);
 	int currentX = WINDOWW-32; // Start on left col
 
 	for (size_t i = 0; i < menuButtons.size(); i++) {
@@ -444,7 +444,7 @@ void GameView::NotifyMenuListChanged(GameModel * sender) {
 	for (int i = (int)menuList.size()-1; i >= 0; i--) {
 		// Move to right column now
 		if (i == (int)menuList.size()-4) {
-			currentY = WINDOWH - 48; // 1 button above, to leave room for menu above
+			currentY = WINDOWH - 32; // 1 button above, to leave room for menu above
 			currentX += 16;
 		}
 

@@ -57,3 +57,22 @@ A powder, will instantly freeze when near the head of STKM or STKM2 (and FIGH, b
 of STKM and STKM2. You can decorate hair into shapes (ie to make arms or clothes). Hair will also freeze when it has
 touched GEL or is below 0 C. When touching powders hair can be "dirtied" and take on the color of the powder as a deco color. If 
 the STKM head moves too fast the HAIR will break apart.
+
+## CMNT (Cement)
+Slowly hardens into either RCRT, CNCT or STNE depending on how impure it is (determined by tmp2). Adding SLTW or SWTR raises 
+impurity by 5 for each particle absorbed, being near CRBN, DUST or SALT randomly adds 2 impurity. Above 50 impurity turns into CNCT 
+instead of RCRT, above 120 impurity turns into STNE instead of CNCT.
+
+For every 50 C above 0 C RCRT hardens 1 life faster. Adding water increases life by 200 / particle, life is averaged out in a group of cement. Heats up slightly when cooling, turns darker as it hardens. Maxes out life at 3000, sticks like GEL. Turns into STNE at 983 K.
+
+## CMTP (Cement Powder)
+Mix with any type of water to make CMNT. Starts with 500 life. If SLTW or SWTR is used starts at 100 impurity. Melts at 983 K.
+
+## RCRT (Reinforced concrete)
+Reinforced concrete, stacks like CNCT and no powders or liquids can go through (including DEST). Melts 100 degrees higher than CNCT. 
+Does not move if either:
+- Touching a supporting solid
+- Touching another particle touching a support solid
+- Touching another particle that's touching another particle touching a support solid...
+- The max extension length is 5 pixels. Any particles further will simply fall down.
+
