@@ -1,4 +1,5 @@
 #include "simulation/ElementCommon.h"
+#define MAX_RCRT_CONNECT 5
 
 //#TPT-Directive ElementClass Element_RCRT PT_RCRT 245
 Element_RCRT::Element_RCRT()
@@ -58,7 +59,7 @@ int Element_RCRT::update(UPDATE_FUNC_ARGS) {
 	 * 		   Countsdown, then collapses
 	 */
 	int rx, ry, r, rt;
-	int possible_connect_tmp = 0; // For initial connecting
+	int possible_connect_tmp = MAX_RCRT_CONNECT + 1; // For initial connecting
 	bool found_solid = false;
 	
 	parts[i].tmp2--;
@@ -82,11 +83,11 @@ int Element_RCRT::update(UPDATE_FUNC_ARGS) {
 				}
 			}
 
-	if (possible_connect_tmp)
+	if (possible_connect_tmp != MAX_RCRT_CONNECT + 1)
 		parts[i].tmp = possible_connect_tmp;
 
 	if (!found_solid && parts[i].tmp == 1) // No longer connected to a solid
-		parts[i].tmp = 6; // 0 means not yet calculated, 6 skips that
+		parts[i].tmp = MAX_RCRT_CONNECT + 1; // 0 means not yet calculated, 6 skips that
 
 	// Floodfill connected to solid rn property
 	if (parts[i].tmp == 1) {
@@ -95,7 +96,7 @@ int Element_RCRT::update(UPDATE_FUNC_ARGS) {
 		sim->flood_prop(x, y, offsetof(Particle, tmp2), value, StructProperty::Integer);
 	}
 	
-	if (parts[i].tmp > 0 && parts[i].tmp <= 5 && parts[i].tmp2 > 0) 
+	if (parts[i].tmp > 0 && parts[i].tmp <= MAX_RCRT_CONNECT && parts[i].tmp2 > 0) 
 		parts[i].vx = parts[i].vy = 0.0f;
 	return 0;
 }

@@ -6,7 +6,7 @@
 
 **Description:**  *Cloud. Weather depends on ctype. (SNOW / WATR / LIGH / LAVA)*
 
-A gas that everything passes through (like PROT), spawns weather depending on ctype. Does not move or be affected by pressure, it's basically a solid even though it's TYPE_GAS. THDR can pass through CLUD without detonating.
+A gas that everything passes through (like PROT), spawns weather depending on ctype. Does not move, but is slightl affected by pressure, it's basically a solid even though it's TYPE_GAS. THDR can pass through CLUD without detonating.
 
 #### Ctypes:
 

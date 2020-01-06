@@ -10,7 +10,7 @@ Element_CLUD::Element_CLUD()
 	MenuSection = SC_GAS;
 	Enabled = 1;
 
-	Advection = 0.0f;
+	Advection = 0.02f;
 	AirDrag = 0.00f * CFDS;
 	AirLoss = 0.90f;
 	Loss = 0.00f;
