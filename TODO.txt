@@ -176,17 +176,19 @@ custom elements
 laser tool, set point, move mouse to slice
 - laser should bounce off of polished metal
 
-- generic ctype setter
- * - DRAY
-* - PSTN
- * - PDTC
-- FRAY
  - LDTC seperate, has flags
+PSTN - add movement distance
+
+
+ * - PDTC
  * - QLOG
      - drag input1 and 2 along dir
  * - Vehicles
+  - BALI
  * - STAR
  - PNET
+- custom elements 
+
  * - EXFN
  * - NOTE
     - preview sound
