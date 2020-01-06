@@ -108,6 +108,7 @@ left column:
 - custom hud
 - date/time format
 - realistic mode
+- no drag
 
 change update message
 
@@ -161,12 +162,9 @@ bleach, tear gas, nitrogen
 
 bedrock, absorbs liquid
 anti hydrogen
-money - stkm magnet
 
 
-wiki page for RCRT
-wiki ROCK
-
+heat seeking missiles
 
 color sensor
 

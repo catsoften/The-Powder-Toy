@@ -183,9 +183,9 @@ void apply_gate_raw(const matrix &gate, int state_id, const std::vector<int> &pa
         }
 
         // Sanity check
-        if (newgate.size() > qstate_size)
+        if ((int)newgate.size() > qstate_size)
             throw "New quantum gate size is larger than size of state (This should never happen!)\n";
-        else if (newgate.size() < qstate_size)
+        else if ((int)newgate.size() < qstate_size)
             throw "New quantum gate size is smaller than size of state (This should never happen!)\n";
 
         // Apply the new gate

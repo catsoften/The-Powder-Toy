@@ -95,6 +95,10 @@ int Element_ROCK::update(UPDATE_FUNC_ARGS) {
 			change_to = PT_OIL;
 		else if (RNG::Ref().chance(1, 500))
 			change_to = PT_GAS;
+		else if (sim->elements[parts[i].ctype].Properties & TYPE_PART ||
+				 sim->elements[parts[i].ctype].Properties & TYPE_LIQUID ||
+				 sim->elements[parts[i].ctype].Properties & TYPE_GAS)
+			change_to = parts[i].ctype;
 		
 		if (change_to) {
 			sim->part_change_type(i, x, y, change_to);

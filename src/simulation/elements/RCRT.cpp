@@ -96,8 +96,10 @@ int Element_RCRT::update(UPDATE_FUNC_ARGS) {
 		sim->flood_prop(x, y, offsetof(Particle, tmp2), value, StructProperty::Integer);
 	}
 	
-	if (parts[i].tmp > 0 && parts[i].tmp <= MAX_RCRT_CONNECT && parts[i].tmp2 > 0) 
+	if (parts[i].tmp > 0 && parts[i].tmp <= MAX_RCRT_CONNECT && parts[i].tmp2 > 0) {
 		parts[i].vx = parts[i].vy = 0.0f;
+		return 1;
+	}
 	return 0;
 }
 

@@ -68,11 +68,11 @@ For every 50 C above 0 C RCRT hardens 1 life faster. Adding water increases life
 ## CMTP (Cement Powder)
 Mix with any type of water to make CMNT. Starts with 500 life. If SLTW or SWTR is used starts at 100 impurity. Melts at 983 K.
 
-## RCRT (Reinforced concrete)
-Reinforced concrete, stacks like CNCT and no powders or liquids can go through (including DEST). Melts 100 degrees higher than CNCT. 
-Does not move if either:
-- Touching a supporting solid
-- Touching another particle touching a support solid
-- Touching another particle that's touching another particle touching a support solid...
-- The max extension length is 5 pixels. Any particles further will simply fall down.
+## MONY (Money)
+Like a magnet, attracts STKM and STKM2. Turns OIL, COAL, BCOL and GOLD into MONY on contact. Glows slightly. Deadly to STKM.
 
+## HOLY (Holy water)
+Holy WATR kills:
+JCB1, FIGH, STKM, STKM2, MONY, OIL, DEST, BOMB, SING, TANK, ACID, BCTR, VIRS, SPDR, Any fire type, EMP, WARP, GNSH, FFLD, SHLD, LOVE, NPLM
+
+Cools any hot particles down to room temperature. May produce SMKE when cleansing.

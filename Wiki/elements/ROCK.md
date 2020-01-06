@@ -23,6 +23,9 @@ Above 12 pressure it will "shatter" into its ore type. The following ores are ch
 COAL -> BCOL
 RDMD -> PQRT
 TUNG -> BRMT
+Any other powder -> The powder
+Any other gas    -> The gas
+Any other liquid -> The liquid
 ```
 Otherwise, it just turns into a rock powder with its ctype. There is a slight change for shattering ROCK to release GAS or OIL.
 
