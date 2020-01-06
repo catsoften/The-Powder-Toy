@@ -53,9 +53,9 @@ int Element_ION::update(UPDATE_FUNC_ARGS) {
 					// not having decoherence or dying when diagonal
 					// pixel is touching
 					if (parts[i].flags > 0 && (rx == 0 || ry == 0)) {
-						if (rand() % 20 == 0)
+						if (RNG::Ref().chance(1, 20))
 							QUANTUM::decohere_particle(parts, i);
-						if (rand() % 800 == 0)
+						if (RNG::Ref().chance(1, 800))
 							sim->kill_part(i);
 					}
 					collided = true;
@@ -66,18 +66,18 @@ int Element_ION::update(UPDATE_FUNC_ARGS) {
 	if (parts[i].temp > 20.0f) {
 		// If overheated will impart a random velocity to still IONs
 		if (!collided && parts[i].vx == 0 && parts[i].vy == 0) {
-			parts[i].vx = ((rand() % 1000) / 1000.0f * 8.0f + 1.0f) * (rand() % 2 == 0 ? -1 : 1);
-			parts[i].vy = ((rand() % 1000) / 1000.0f * 8.0f + 1.0f) * (rand() % 2 == 0 ? -1 : 1);
+			parts[i].vx = (RNG::Ref().uniform01() * 8.0f + 1.0f) * (RNG::Ref().chance(1, 2) ? -1 : 1);
+			parts[i].vy = (RNG::Ref().uniform01() * 8.0f + 1.0f) * (RNG::Ref().chance(1, 2) ? -1 : 1);
 		}
 
 		// Randomly decohere
-		if (parts[i].flags > 0 && rand() % 30 == 0)
+		if (parts[i].flags > 0 && RNG::Ref().chance(1, 30))
 			QUANTUM::decohere_particle(parts, i);
 
 		// Randomly diffuse
-		if (rand() % 10 == 0) {
-			parts[i].vx += (rand() % 2 == 0) ? -1 : 1;
-			parts[i].vy += (rand() % 2 == 0) ? -1 : 1;
+		if (RNG::Ref().chance(1, 10)) {
+			parts[i].vx += RNG::Ref().chance(1, 2) ? -1 : 1;
+			parts[i].vy += RNG::Ref().chance(1, 2) ? -1 : 1;
 		}
 	}
 
@@ -93,7 +93,7 @@ int Element_ION::graphics(GRAPHICS_FUNC_ARGS) {
 
 	*pixel_mode &= ~PMODE_FLAT;
 	*pixel_mode |= FIRE_ADD | PMODE_ADD;
-	if (rand() % 1000 == 0) // Don't flare too much
+	if (RNG::Ref().chance(1, 1000)) // Don't flare too much
 		*pixel_mode |= PMODE_LFLARE;
 
 	return 0;

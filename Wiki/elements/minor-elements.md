@@ -50,6 +50,7 @@ Evaporates into NEON at 27.102 K, likes to "flow" along solids. Suffers no loss,
 ## SHPO
 Shampoo, evaporates into water vapor at 100 C. Cures VIRS. Will clean any deco color, and reset ALL properties (except temp) back 
 to the original defaults. If a particle has a Create function, it will be called too. SHPO will make bubbles and slowly dissolve powders. 
+Note: washing HAIR with too much SHPO might dissolve it. 
 
 ## HAIR
 A powder, will instantly freeze when near the head of STKM or STKM2 (and FIGH, but it won't follow sometimes). It will follow the head 

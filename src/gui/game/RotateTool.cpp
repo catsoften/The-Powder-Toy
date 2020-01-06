@@ -127,27 +127,25 @@ RotateWindow::RotateWindow(RotateTool * tool_, Simulation * sim_, ui::Point pos)
 
         // Auto detect gaps
         if (quality_rotate->GetChecked()) {
-            // We iterate 4 times to get rid of slightly larger gaps
-            for (unsigned int i = 0; i < 4; ++i) {
-                for (auto &point : final) {
-                    for (int rx1 = -1; rx1 <= 1; ++rx1)
-                    for (int ry1 = -1; ry1 <= 1; ++ry1) {
-                        if (!stacking_check.count(map_key(point.first.X + rx1, point.first.Y + ry1))) { // Potentional gap?
-                            int gaps = 0, element = 0, key;
-                            for (int rx2 = -1; rx2 <= 1; ++rx2)
-                            for (int ry2 = -1; ry2 <= 1; ++ry2) {
-                                key = map_key(point.first.X + rx1 + rx2, point.first.Y + ry1 + ry2);
-                                if (gaps > 2) goto failed; // A gap must have at least 6 surrounding elements
-                                if ((rx2 || ry2) && !stacking_check.count(key))
-                                    ++gaps;
-                                else
-                                    element = stacking_check[key];
-                            }
-                            sim->create_part(-1, point.first.X + rx1, point.first.Y + ry1, element);
+            for (auto &point : final) {
+                for (int rx1 = -1; rx1 <= 1; ++rx1)
+                for (int ry1 = -1; ry1 <= 1; ++ry1) {
+                    if (!stacking_check.count(map_key(point.first.X + rx1, point.first.Y + ry1))) { // Potentional gap?
+                        int element = 0, key;
+                        for (int rx2 = -1; rx2 <= 1; ++rx2)
+                        for (int ry2 = -1; ry2 <= 1; ++ry2) {
+                            if (!((rx2 == 0 || ry2 == 0) && (rx2 || ry2)))
+                                continue;
+                            key = map_key(point.first.X + rx1 + rx2, point.first.Y + ry1 + ry2);
+                            if (!stacking_check.count(key))
+                                goto failed; // A gap must have at least 4 surrounding elements not diagonal
+                            else
+                                element = stacking_check[key];
                         }
-                        failed:
-                        continue;
+                        sim->create_part(-1, point.first.X + rx1, point.first.Y + ry1, element);
                     }
+                    failed:
+                    continue;
                 }
             }
         }

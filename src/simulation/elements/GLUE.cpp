@@ -60,7 +60,7 @@ int Element_GLUE::update(UPDATE_FUNC_ARGS)
 				// Negate any powder velocities nearby
 				if (sim->elements[rt].Properties & TYPE_PART) {
 					parts[ID(r)].vx = parts[ID(r)].vy = 0;
-					if (rand() % 50 == 0) // Randomly "harden"
+					if (RNG::Ref().chance(1, 50) == 0) // Randomly "harden"
 						parts[i].tmp = 1;
 				}
 
@@ -90,7 +90,7 @@ int Element_GLUE::update(UPDATE_FUNC_ARGS)
 						break;
 					}
 					case PT_FIRE: {
-						parts[i].life = rand() % 100 + 100;
+						parts[i].life = RNG::Ref().between(0, 100) + 100;
 						sim->part_change_type(i, x, y, PT_FIRE);
 						break;
 					}

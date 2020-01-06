@@ -108,15 +108,15 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 
 	// If life <= 1000 spawn sparks (EMBR)
 	if (parts[i].life <= 1000) {
-		if (rand() % 50 == 0)
+		if (RNG::Ref().chance(1, 50))
 			Element_CYTK::create_part(sim, Gunship.WIDTH * 0.4f, -Gunship.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
-		if (rand() % 50 == 0)
+		if (RNG::Ref().chance(1, 50))
 			Element_CYTK::create_part(sim, -Gunship.WIDTH * 0.4f, -Gunship.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
-		if (rand() % 50 == 0)
+		if (RNG::Ref().chance(1, 50))
 			Element_CYTK::create_part(sim, 0, -Gunship.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 	}
 	// If life <= 300 spawn fire damage
-	if (parts[i].life <= 300 && rand() % 30 == 0) {
+	if (parts[i].life <= 300 && RNG::Ref().chance(1, 30)) {
 		Element_CYTK::create_part(sim, -Gunship.WIDTH * 0.4f, -Gunship.HEIGHT / 2, PT_FIRE, parts[i].pavg[0], parts, i);
 	}
 
@@ -216,8 +216,8 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 			int j1 = Element_CYTK::create_part(sim, Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, PT_SMKE, parts[i].pavg[0], parts, i);
 			int j2 = Element_CYTK::create_part(sim, -Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, PT_SMKE, parts[i].pavg[0], parts, i);
 			parts[j1].temp = parts[j2].temp = 400.0f;
-			parts[j1].life = rand() % 100 + 50;
-			parts[j2].life = rand() % 100 + 50;
+			parts[j1].life = RNG::Ref().between(0, 100) + 50;
+			parts[j2].life = RNG::Ref().between(0, 100) + 50;
 		}
 	}
 

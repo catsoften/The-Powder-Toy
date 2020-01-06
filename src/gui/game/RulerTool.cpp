@@ -12,6 +12,7 @@
 
 #include "graphics/Graphics.h"
 #include "gui/interface/Engine.h"
+#include "gui/game/config_tool/util.h"
 
 #include <cmath>
 
@@ -49,20 +50,15 @@ public:
 };
 
 RulerWindow::RulerWindow(RulerTool * tool_, Simulation * sim_):
-	ui::Window(ui::Point(XRES - 100, YRES - 60), ui::Point(100, 40)),
+	ui::Window(ui::Point(WINDOWW - 105, WINDOWH - 45), ui::Point(100, 40)),
 	tool(tool_),
 	sim(sim_)
 {
-	ui::Label * messageLabel = new ui::Label(ui::Point(4, 5), ui::Point(Size.X-8, 15), "Close Ruler");
+	ui::Label * messageLabel = make_left_label(ui::Point(4, 5), ui::Point(Size.X-8, 15), "Close Ruler");
 	messageLabel->SetTextColour(style::Colour::InformationTitle);
-	messageLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-	messageLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	AddComponent(messageLabel);
 
-	ui::Button * okayButton = new ui::Button(ui::Point(0, Size.Y-16), ui::Point(Size.X, 16), "OK");
-	okayButton->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-	okayButton->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	okayButton->Appearance.BorderInactive = (ui::Colour(200, 200, 200));
+	ui::Button * okayButton = make_center_button(ui::Point(0, Size.Y-16), ui::Point(Size.X, 16), "OK");
 	okayButton->SetActionCallback({ [this] {
 		CloseActiveWindow();
 		SelfDestruct();
@@ -129,6 +125,9 @@ void RulerWindow::DoDraw() {
 void RulerWindow::DoMouseMove(int x, int y, int dx, int dy) {
 	ui::Window::DoMouseMove(x, y, dx, dy);
 
+    // Restrict x and y
+    if (x > XRES) x = XRES;
+    if (y > YRES) y = YRES;
     if (dragging == 1) p1 = ui::Point(x, y);
     else if (dragging == 2) p2 = ui::Point(x, y);
 }

@@ -65,7 +65,7 @@ int Element_BOWR::update(UPDATE_FUNC_ARGS)
 			if (BOUNDS_CHECK && (rx || ry)) {
 				r = pmap[y + ry][x + rx];
 				if (!r || TYP(r) == PT_BOWR) continue;
-				if (rand() % 20 == 0)
+				if (RNG::Ref().chance(1, 20))
 					sim->kill_part(ID(r));
 			}
 	return 0;

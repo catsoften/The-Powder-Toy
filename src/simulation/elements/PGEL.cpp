@@ -65,7 +65,7 @@ int Element_PGEL::update(UPDATE_FUNC_ARGS)
 				}
 				
 				// Delete self after while if liquid
-				if (parts[i].tmp == 0 && rand() % 2000 == 1){
+				if (parts[i].tmp == 0 && RNG::Ref().chance(1, 2000)){
 					sim->part_change_type(i, parts[i].x, parts[i].y, PT_NONE);
 				}
 

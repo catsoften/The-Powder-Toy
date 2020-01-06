@@ -27,7 +27,7 @@ std::unordered_map<int, QuantumState> quantum_states;
 int get_new_state_id() {
     int state;
     do {
-        state = rand() % MAX_STATES;
+        state = RNG::Ref().between(0, MAX_STATES);
         // State doesn't already exist
         if (quantum_states.count(state) == 0)
             break;
@@ -69,7 +69,7 @@ void observe(int state_id, int basis) {
         throw "Quantum state does not exist\n";
 
     // Pick a random quantum state to collapse to
-    double randomNum = (rand() % 1000000) / 1000000.0;
+    double randomNum = RNG::Ref().uniform01();
     double cprob = 0; // Cumulative probability
     unsigned int i = 0;
     for (; i < quantum_states[state_id].state.size(); ++i) {
@@ -142,7 +142,7 @@ void apply_gate_raw(const matrix &gate, int state_id, const std::vector<int> &pa
     matrix newgate;
     int qstate_size = quantum_states[state_id].state.size();
 
-    if (gate.size() < qstate_size) {
+    if ((int)gate.size() < qstate_size) {
         /* We'll assume all arguments of the gate are the first n particles for an 
          * n particle gate. This is of course, not the case, so we'll swap any out of 
          * place particles. For example, if we wish to apply a CNOT gate (2 qbit input)
@@ -178,7 +178,7 @@ void apply_gate_raw(const matrix &gate, int state_id, const std::vector<int> &pa
         // Create the new quantum gate
         matrix identity = LINALG::get_identity(2);
         newgate = gate;
-        while (newgate.size() < qstate_size) {
+        while ((int)newgate.size() < qstate_size) {
             newgate = LINALG::kronecker_product(newgate, identity);
         }
 
@@ -319,11 +319,11 @@ void decohere_particle(Particle *parts, int i) {
 
         // Randomize the quantum state. We pick 1 number rand1 + rand2 * i
         // then pick a 2nd number where |n2|^2 + |n1|^2 = 1
-        double rand1 = 0.707 * (rand() % 100000) / 100000.0f, rand2 = 0.707 * (rand() % 100000) / 100000.0f;
+        double rand1 = 0.707 * RNG::Ref().uniform01(), rand2 = 0.707 * RNG::Ref().uniform01();
         double number_2_adds_to = 1 - rand1 * rand1 - rand2 * rand2;
 
         // Right now rand3 and rand4 are square of their actual values
-        double rand3 = number_2_adds_to * (rand() % 100000) / 100000.0f;
+        double rand3 = number_2_adds_to * RNG::Ref().uniform01();
         double rand4 = number_2_adds_to - rand3;
 
         std::complex<double> n1(rand1, rand2);

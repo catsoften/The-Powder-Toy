@@ -303,7 +303,7 @@ std::unordered_map<int, MVSDGroup> solids;
 int get_new_state() {
     int new_state_id;
     do {
-        new_state_id = rand() % 10000000 + 1;
+        new_state_id = RNG::Ref().between(1, 10000000);
         if (solids.find(new_state_id) == solids.end())
             break;
     } while(true);

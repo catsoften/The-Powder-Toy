@@ -55,7 +55,7 @@ void Element_TANK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	if (to == PT_NONE && sim->parts[i].life <= 0) {
 		int j, t;
 		for (auto px = KV2_PIXELS.begin(); px != KV2_PIXELS.end(); ++px) {
-			t = rand() % 100;
+			t = RNG::Ref().between(0, 100);
 			if (t < 70)
 				j = Element_CYTK::create_part(sim, px->x, px->y, PT_BRMT, sim->parts[i].pavg[0], sim->parts, i);
 			else
@@ -99,7 +99,7 @@ int Element_TANK::update(UPDATE_FUNC_ARGS)
 
 	// Collision damage
 	if (has_collision && (fabs(ovx) > KV2.COLLISION_SPEED || fabs(ovy) > KV2.COLLISION_SPEED)) {
-		parts[i].life -= rand() % 25;
+		parts[i].life -= RNG::Ref().between(0, 25);
 	}
 
 	// Heat damage
@@ -116,15 +116,15 @@ int Element_TANK::update(UPDATE_FUNC_ARGS)
 
 	// If life <= 150 spawn sparks (EMBR)
 	if (parts[i].life <= 150) {
-		if (rand() % 50 == 0)
+		if (RNG::Ref().chance(1, 50))
 			Element_CYTK::create_part(sim, KV2.WIDTH * 0.4f, -KV2.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
-		if (rand() % 50 == 0)
+		if (RNG::Ref().chance(1, 50))
 			Element_CYTK::create_part(sim, -KV2.WIDTH * 0.4f, -KV2.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
-		if (rand() % 50 == 0)
+		if (RNG::Ref().chance(1, 50))
 			Element_CYTK::create_part(sim, 0, -KV2.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 	}
 	// If life <= 300 spawn fire damage
-	if (parts[i].life <= 300 && rand() % 30 == 0) {
+	if (parts[i].life <= 300 && RNG::Ref().chance(1, 30)) {
 		Element_CYTK::create_part(sim, -KV2.WIDTH * 0.4f, -KV2.HEIGHT / 2, PT_FIRE, parts[i].pavg[0], parts, i);
 	}
 
@@ -193,9 +193,9 @@ int Element_TANK::update(UPDATE_FUNC_ARGS)
 		if (cmd2 == 4) { // Fly or shoot (down)
 			if (parts[i].tmp == 1 || parts[i].tmp == 2) { // Flamethrower
 				int j = Element_CYTK::create_part(sim, -KV2.WIDTH * 0.4f, -KV2.HEIGHT / 2, PT_BCOL, parts[i].pavg[0], parts, i);
-				parts[j].life = rand() % 100 + 50;
+				parts[j].life = RNG::Ref().between(0, 100) + 50;
 				parts[j].vx = parts[i].pavg[1] ? 15 : -15;
-				parts[j].vy = -(rand() % 3 + 3);
+				parts[j].vy = -(RNG::Ref().between(0, 3) + 3);
 				if (parts[i].tmp == 1) // Plasma
 					parts[j].temp = 9000.0f;
 				rotate(parts[j].vx, parts[j].vy, parts[i].pavg[0]);

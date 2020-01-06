@@ -67,8 +67,6 @@ moving solid tool, solid -> moving solid
 
 
 
-use RNG::Ref() 
-
 
 guide on adding new render modes
 
@@ -78,14 +76,6 @@ quick options
 
 
 breakpoint element
-
-left column:
-- popup for fps adjustmenet
-     - fast forward and slowdown options
-     - set fps as number
-     - maybe just a label and a + and - button
-     - move to settings menu
-
 
 
 sparkling water, actually made of diamond
@@ -106,20 +96,41 @@ auto hid hud when near top opton
 show stacked particles in hud option
 
 
+left column:
+- popup for fps adjustmenet
+     - fast forward and slowdown options
+     - set fps as number
+     - maybe just a label and a + and - button
+     - move to settings menu
+- autohide hud
+- stats:
+    - time played
+    - times played
+- find: highlight selected element on screen
+- enable mvsd spin
+- custom hud
+- date/time format
+- realistic mode
+
+change update message
+
+
 
 perln noise
 
 
 forumn restyle to tpt style extension!
 
-rulerTool - use new shit
-    drag the ruler window
 scale tool
 
+tags button width was also removed??
 
 TODO: (maybe move to settings menu)
 2. news button
 3. bug report button
+
+votes on saves, timestamps on comments
+
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13325
 

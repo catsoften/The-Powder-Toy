@@ -128,10 +128,10 @@ int Element_FFLD::update(UPDATE_FUNC_ARGS)
 int Element_FFLD::graphics(GRAPHICS_FUNC_ARGS)
 {
 	// Force fields are a random blue-white glow
-	int value = rand() % 100 + 90;
+	int value = RNG::Ref().between(0, 100) + 90;
 	*colr = value;
 	*colg = value;
-	*colb = rand() % 55 + 200;
+	*colb = RNG::Ref().between(0, 55) + 200;
 
 	*firea = 55;
 	*firer = *colr;

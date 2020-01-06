@@ -55,7 +55,7 @@ void Element_CYTK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	if (to == PT_NONE && sim->parts[i].life <= 0) {
 		int j, t;
 		for (auto px = CYBERTRUCK_PIXELS.begin(); px != CYBERTRUCK_PIXELS.end(); ++px) {
-			t = rand() % 100;
+			t = RNG::Ref().between(0, 100);
 			if (t < 20)
 				j = create_part(sim, px->x, px->y, PT_BGLA, sim->parts[i].pavg[0], sim->parts, i);
 			else if (t < 70)
@@ -110,8 +110,8 @@ bool Element_CYTK::attempt_move(int x, int y, Simulation *sim, Particle *parts, 
 
 		if (dx < v.WIDTH && dy < v.HEIGHT) {
 			if (fabs(parts[i].vx) > v.COLLISION_SPEED / 2.0f || fabs(parts[i].vy) > v.COLLISION_SPEED / 2.0f) {
-				parts[*ov].life -= rand() % 40 + 10;
-				parts[i].life -= rand() % 40 + 10;
+				parts[*ov].life -= RNG::Ref().between(0, 40) + 10;
+				parts[i].life -= RNG::Ref().between(0, 40) + 10;
 			}
 			parts[i].vx = 0;
 			parts[i].vy = 0;
@@ -359,7 +359,7 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 
 	// Collision damage
 	if (has_collision && (fabs(ovx) > CYBERTRUCK.COLLISION_SPEED || fabs(ovy) > CYBERTRUCK.COLLISION_SPEED)) {
-		parts[i].life -= rand() % 25;
+		parts[i].life -= RNG::Ref().between(0, 25);
 	}
 
 	// Heat damage
@@ -376,15 +376,15 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 
 	// If life <= 50 spawn sparks (EMBR)
 	if (parts[i].life <= 50) {
-		if (rand() % 50 == 0)
+		if (RNG::Ref().chance(1, 50))
 			create_part(sim, CYBERTRUCK.WIDTH * 0.4f, -CYBERTRUCK.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
-		if (rand() % 50 == 0)
+		if (RNG::Ref().chance(1, 50))
 			create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, -CYBERTRUCK.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
-		if (rand() % 50 == 0)
+		if (RNG::Ref().chance(1, 50))
 			create_part(sim, 0, -CYBERTRUCK.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 	}
 	// If life <= 25 spawn fire damage
-	if (parts[i].life <= 25 && rand() % 30 == 0) {
+	if (parts[i].life <= 25 && RNG::Ref().chance(1, 30)) {
 		create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, -CYBERTRUCK.HEIGHT / 2, PT_FIRE, parts[i].pavg[0], parts, i);
 	}
 
@@ -460,21 +460,21 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 				int j1 = create_part(sim, CYBERTRUCK.WIDTH * 0.4f, CYBERTRUCK.HEIGHT / 2, PT_PLSM, parts[i].pavg[0], parts, i);
 				int j2 = create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, CYBERTRUCK.HEIGHT / 2, PT_PLSM, parts[i].pavg[0], parts, i);
 				parts[j1].temp = parts[j2].temp = 400.0f;
-				parts[j1].life = rand() % 100 + 50;
-				parts[j2].life = rand() % 100 + 50;
+				parts[j1].life = RNG::Ref().between(0, 100) + 50;
+				parts[j2].life = RNG::Ref().between(0, 100) + 50;
 			}
 			else if (parts[i].tmp == 2) { // Flamethrower
 				int j = create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, -CYBERTRUCK.HEIGHT / 2, PT_BCOL, parts[i].pavg[0], parts, i);
-				parts[j].life = rand() % 100 + 50;
+				parts[j].life = RNG::Ref().between(0, 100) + 50;
 				parts[j].vx = parts[i].pavg[1] ? 15 : -15;
-				parts[j].vy = -(rand() % 3 + 3);
+				parts[j].vy = -(RNG::Ref().between(0, 3) + 3);
 				rotate(parts[j].vx, parts[j].vy, parts[i].pavg[0]);
 			}
 			else if (parts[i].tmp == 3 && sim->timer % 50 == 0) { // BOMB
 				int j = create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, -CYBERTRUCK.HEIGHT / 2, PT_BOMB, parts[i].pavg[0], parts, i);
-				parts[j].life = rand() % 100 + 50;
+				parts[j].life = RNG::Ref().between(0, 100) + 50;
 				parts[j].vx = parts[i].pavg[1] ? 10 : -10;
-				parts[j].vy = -(rand() % 3 + 3);
+				parts[j].vy = -(RNG::Ref().between(0, 3) + 3);
 				rotate(parts[j].vx, parts[j].vy, parts[i].pavg[0]);
 			}
 		}
