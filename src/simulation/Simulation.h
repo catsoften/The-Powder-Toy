@@ -33,14 +33,15 @@ class Renderer;
 class Gravity;
 class Air;
 // Class Stasis defined in Stasis.h
+class EMField;
 class GameSave;
 
 class Simulation
 {
 public:
-
 	Gravity * grav;
 	Air * air;
+	EMField * emfield;
 	Stasis * stasis;
 
 	std::vector<sign> signs;
@@ -160,7 +161,7 @@ public:
 	bool FloodFillPmapCheck(int x, int y, int type);
 	int flood_prop(int x, int y, size_t propoffset, PropertyValue propvalue, StructProperty::PropertyType proptype);
 	bool flood_water(int x, int y, int i);
-	int FloodINST(int x, int y);
+	int FloodINST(int x, int y, int cm_=-1, int co_=-1);
 	void detach(int i);
 	bool part_change_type(int i, int x, int y, int t);
 	//int InCurrentBrush(int i, int j, int rx, int ry);

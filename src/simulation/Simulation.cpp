@@ -34,6 +34,7 @@
 
 #include "simulation/quantum/quantum.h"
 #include "simulation/mvsd/movingsolids.h"
+#include "simulation/magnetics/magnetics.h"
 #include "gui/game/GameModel.h"
 
 #ifdef LUACONSOLE
@@ -738,11 +739,13 @@ SimulationSample Simulation::GetSample(int x, int y)
 	return sample;
 }
 
-#define PMAP_CMP_CONDUCTIVE(pmap, t) (TYP(pmap)==(t) || (TYP(pmap)==PT_SPRK && parts[ID(pmap)].ctype==(t)))
+#define PMAP_CMP_CONDUCTIVE(pmap, t) (TYP(pmap)==(t) || (TYP(pmap)==co && parts[ID(pmap)].ctype==(t)))
 
-int Simulation::FloodINST(int x, int y)
+int Simulation::FloodINST(int x, int y, int cm_, int co_)
 {
-	const int cm = PT_INST;
+	const int cm = cm_ < 0 ? PT_INST : cm_;
+	const int co = co_ < 0 ? PT_SPRK : co_;
+
 	int x1, x2;
 	int created_something = 0;
 
@@ -781,7 +784,7 @@ int Simulation::FloodINST(int x, int y)
 			// fill span
 			for (x=x1; x<=x2; x++)
 			{
-				if (create_part(-1, x, y, PT_SPRK)>=0)
+				if (create_part(-1, x, y, co)>=0)
 					created_something = 1;
 			}
 
@@ -2286,6 +2289,7 @@ void Simulation::clear_sim(void)
 		air->ClearAirH();
 	}
 	SetEdgeMode(edgeMode);
+	emfield->Clear();
 	QUANTUM::quantum_states.clear();
 	MOVINGSOLID::solids.clear();
 }
@@ -3500,7 +3504,6 @@ void Simulation::UpdateParticles(int start, int end)
 	float pGravX, pGravY, pGravD;
 	bool transitionOccurred;
 
-
 	// Update all moving solids before the particles
 	auto itr = MOVINGSOLID::solids.begin();
 	while (itr != MOVINGSOLID::solids.end()) {
@@ -3630,6 +3633,9 @@ void Simulation::UpdateParticles(int start, int end)
 				}
 			}
 
+			// Electromagnetic field updates
+			emfield->ApplyElectromagneticForces(i);
+
 			//velocity updates for the particle
 			if (t != PT_SPNG || !(parts[i].flags&FLAG_MOVABLE))
 			{
@@ -3652,7 +3658,8 @@ void Simulation::UpdateParticles(int start, int end)
 			// JCB1, and vehicles cannot be set as a ctype of CLNE
 			if ((t==PT_CLNE || t==PT_PCLN || t==PT_BCLN || t==PT_PBCN || t==PT_SNOW || t==PT_LAVA || t==PT_ICEI
 				|| t==PT_VIRS || t==PT_VRSS || t==PT_VRSG) &&
-				(parts[i].ctype == PT_JCB1 || elements[parts[i].ctype].Properties & PROP_VEHICLE)) {
+				(parts[i].ctype == PT_JCB1 ||
+					(parts[i].ctype > 0 && parts[i].ctype < PT_NUM && elements[parts[i].ctype].Properties & PROP_VEHICLE))) {
 				parts[i].ctype = PT_NONE;
 			}
 
@@ -4788,6 +4795,8 @@ movedone:
 		}
 	}
 
+	emfield->Update();
+
 	//'f' was pressed (single frame)
 	if (framerender)
 		framerender--;
@@ -4957,7 +4966,8 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT))
 						pmap[y][x] = PMAP(i, t);
 					// (there are a few exceptions, including energy particles - currently no limit on stacking those)
-					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t != PT_FILL)
+					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t != PT_FILL &&
+						t!=PT_SPDR && t!=PT_BIRD && t!=PT_ANT && t!=PT_BEE && t!=PT_FISH)
 						pmap_count[y][x]++;
 				}
 				inBounds = true;
@@ -5097,13 +5107,18 @@ void Simulation::CheckStacking()
 //updates pmap, gol, and some other simulation stuff (but not particles)
 void Simulation::BeforeSim()
 {
-	// Clear stasis field every couple of frames
-	if (timer % 4 == 0)
-		stasis->Clear();
+	if (!sys_pause||framerender)
+	{
+		// Reset EM field calculation
+		emfield->PreUpdate();
 
-	// Tick time dilation down to 0
-	if (timer % 4 == 0) {
-		for (unsigned int y = 0; y < YRES / CELL; ++y)
+		// Clear stasis field every couple of frames
+		if (timer % 4 == 0)
+			stasis->Clear();
+
+		// Tick time dilation down to 0
+		if (timer % 4 == 0) {
+			for (unsigned int y = 0; y < YRES / CELL; ++y)
 			for (unsigned int x = 0; x < XRES / CELL; ++x) {
 				if (time_dilation[y][x] < 0)
 					++time_dilation[y][x];
@@ -5116,10 +5131,9 @@ void Simulation::BeforeSim()
 				else if (time_dilation[y][x] > MAX_TIME_DILATION)
 					time_dilation[y][x] = MAX_TIME_DILATION;
 			}
-	}
+		}
 
-	if (!sys_pause||framerender)
-	{
+
 		air->update_air();
 
 		if(aheat_enable)
@@ -5407,6 +5421,9 @@ Simulation::Simulation():
 
 	// Create stasis map
 	stasis = new Stasis(*this);
+
+	// EM
+	emfield = new EMField(*this);
 
 	msections = LoadMenus();
 

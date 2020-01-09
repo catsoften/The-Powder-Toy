@@ -144,7 +144,8 @@ int Element_WEB::update(UPDATE_FUNC_ARGS) {
 //#TPT-Directive ElementHeader Element_WEB static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_WEB::graphics(GRAPHICS_FUNC_ARGS) {
 	// Mimic ctype color
-	if (cpart->ctype) {
+	bool valid_ctype = cpart->ctype > 0 && cpart->ctype < PT_NUM && ren->sim->elements[cpart->ctype].Enabled;
+	if (valid_ctype) {
 		*colr = PIXR(ren->sim->elements[cpart->ctype].Colour);
 		*colg = PIXG(ren->sim->elements[cpart->ctype].Colour);
 		*colb = PIXB(ren->sim->elements[cpart->ctype].Colour);

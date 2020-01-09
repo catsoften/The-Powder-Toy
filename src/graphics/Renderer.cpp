@@ -18,6 +18,7 @@
 #include "simulation/ElementGraphics.h"
 #include "simulation/Air.h"
 #include "simulation/Gravity.h"
+#include "simulation/magnetics/magnetics.h"
 #include "ElementClasses.h"
 
 #ifdef LUACONSOLE
@@ -46,6 +47,8 @@ void Renderer::RenderBegin()
 	draw_air();
 	draw_grav();
 	draw_time_dilation();
+	draw_magnetic_field();
+	draw_electric_field();
 	DrawWalls();
 	render_parts();
 	render_fire();
@@ -72,6 +75,8 @@ void Renderer::RenderBegin()
 	draw_air();
 	draw_grav();
 	draw_time_dilation();
+	draw_magnetic_field();
+	draw_electric_field();
 	DrawWalls();
 	render_parts();
 	if(display_mode & DISPLAY_PERS)
@@ -117,6 +122,8 @@ void Renderer::RenderBegin()
 	draw_air();
 	draw_grav();
 	draw_time_dilation();
+	draw_magnetic_field();
+	draw_electric_field();
 	DrawWalls();
 	render_parts();
 	if(display_mode & DISPLAY_PERS)
@@ -2397,6 +2404,75 @@ void Renderer::draw_time_dilation() {
 	}
 }
 
+void Renderer::draw_magnetic_field() {
+	if (!magneticFieldEnabled || !sim->emfield->isEnabled)
+		return;
+	
+	int x, y, i, j, r, g, b;
+	float strength;
+	for (y = 0; y < YRES / EMCELL; y++) {
+		for (x = 0; x < XRES / EMCELL; x++) {
+			if (!sim->emfield->magnetic[sim->emfield->XY(x, y)])
+				continue;
+
+			strength = sim->emfield->magnetic[sim->emfield->XY(x, y)];
+			strength = strength < 0.0f ?
+				-clamp_flt(-strength, 0.0f, 256.0f) :
+				clamp_flt(strength, 0.0f, 256.0f);
+
+			// Gold is positive, blue is negative
+			if (strength > 0) { r = 255, g = 165, b = 10; } // Gold
+			else              { r = 0, g = 70, b = 250;   } // Blue
+
+			for (j = 0; j < EMCELL; j++) // Draws the colors
+				for (i = 0; i < EMCELL; i++) {
+					if (!sim->pmap[y * EMCELL + j][x * EMCELL + i]) {
+						// float m = 0.5f + 0.5f * (1 - (abs(EMCELL / 2 - j) + abs(EMCELL / 2 - i)) / (float)EMCELL);
+						addpixel(x * EMCELL + i, y * EMCELL + j, r, g, b, abs(strength)); // (int)(m * strength * 0.9f));
+					}
+				}
+		}
+	}
+}
+
+void Renderer::draw_electric_field() {
+	if (!electricFieldEnabled || !sim->emfield->isEnabled)
+		return;
+	
+	int x, y, i, j, r, g, b;
+	float strength;
+	for (y = 0; y < YRES / EMCELL; y++) {
+		for (x = 0; x < XRES / EMCELL; x++) {
+			if (!sim->emfield->electric[sim->emfield->XY(x, y)])
+				continue;
+
+			strength = sim->emfield->electric[sim->emfield->XY(x, y)];
+
+			// Slow is green, speedup is magenta
+			if (strength < 0) {
+				r = 182, g = 39, b = 104; // Magenta
+			} else {
+				r = 73, g = 216, b = 151; // Green
+			}
+
+			strength = strength < 0.0f ?
+				clamp_flt(-strength, 0.0f, 512.0f) :
+				clamp_flt(strength, 0.0f, 512.0f);
+
+			for (j = 0; j < EMCELL; j++) // Draws the colors
+				for (i = 0; i < EMCELL; i++) {
+					// if (!sim->pmap[y * EMCELL + j][x * EMCELL + i]) {
+						float m = 0.5f + 0.5f * (1 - (abs(EMCELL / 2 - j) + abs(EMCELL / 2 - i)) / (float)EMCELL);
+						int s = (int)abs(m * strength * 0.9f);
+						if (s > 255) s = 255;
+						addpixel(x * EMCELL + i, y * EMCELL + j, r, g, b, s);
+					// }
+				}
+		}
+	}
+}
+
+
 void Renderer::draw_air()
 {
 	if(!sim->aheat_enable && (display_mode & DISPLAY_AIRH))
@@ -2591,6 +2667,8 @@ Renderer::Renderer(Graphics * g, Simulation * sim):
 	gravityZonesEnabled(false),
 	gravityFieldEnabled(false),
 	timeDilationFieldEnabled(false),
+	magneticFieldEnabled(false),
+	electricFieldEnabled(false),
 	decorations_enable(1),
 	blackDecorations(false),
 	debugLines(false),

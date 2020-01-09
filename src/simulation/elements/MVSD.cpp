@@ -54,6 +54,7 @@ int Element_MVSD::update(UPDATE_FUNC_ARGS) {
 	if (parts[i].tmp2 == 0)
 		MOVINGSOLID::create_moving_solid(parts, pmap, i);
 
+	bool valid_ctype = parts[i].ctype > 0 && parts[i].ctype < PT_NUM && sim->elements[parts[i].ctype].Enabled;
 	int px = (int)(parts[i].x + 0.5);
 	int py = (int)(parts[i].y + 0.5);
 
@@ -78,11 +79,13 @@ int Element_MVSD::update(UPDATE_FUNC_ARGS) {
 	}
 
 	/* Ctype is not a solid or portal gel */
-	if (!(sim->elements[parts[i].ctype].Properties & TYPE_SOLID) && parts[i].ctype != PT_PGEL)
+	if (!valid_ctype)
+		parts[i].ctype = 0;
+	else if (!(sim->elements[parts[i].ctype].Properties & TYPE_SOLID) && parts[i].ctype != PT_PGEL)
 		parts[i].ctype = 0;
 
 	/* Basic ctype mimicing */
-	if (parts[i].ctype) {
+	if (valid_ctype) {
 		// Flammability mimic
 		if ((sim->elements[parts[i].ctype].Explosive & 2) && sim->pv[y / CELL][x / CELL] > 2.5f) {
 			parts[i].life = RNG::Ref().between(180, 259);
@@ -168,7 +171,7 @@ int Element_MVSD::update(UPDATE_FUNC_ARGS) {
 				int rt = TYP(r);
 
 				// Flammability mimic
-				if ((sim->elements[parts[i].ctype].Explosive & 2) && rt == PT_FIRE) {
+				if (valid_ctype && (sim->elements[parts[i].ctype].Explosive & 2) && rt == PT_FIRE) {
 					parts[i].life = RNG::Ref().between(180, 259);
 					parts[i].temp = restrict_flt(sim->elements[PT_FIRE].DefaultProperties.temp + (sim->elements[parts[i].ctype].Flammable / 2), MIN_TEMP, MAX_TEMP);
 					sim->part_change_type(i, x, y, PT_FIRE);
@@ -258,7 +261,8 @@ int Element_MVSD::update(UPDATE_FUNC_ARGS) {
 //#TPT-Directive ElementHeader Element_MVSD static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_MVSD::graphics(GRAPHICS_FUNC_ARGS) {
 	// Mimic ctype color
-	if (cpart->ctype) {
+	bool valid_ctype = cpart->ctype > 0 && cpart->ctype < PT_NUM && ren->sim->elements[cpart->ctype].Enabled;
+	if (valid_ctype) {
 		*colr = PIXR(ren->sim->elements[cpart->ctype].Colour);
 		*colg = PIXG(ren->sim->elements[cpart->ctype].Colour);
 		*colb = PIXB(ren->sim->elements[cpart->ctype].Colour);

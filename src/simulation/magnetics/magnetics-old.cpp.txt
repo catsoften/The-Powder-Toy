@@ -1,0 +1,185 @@
+#include "magnetics.h"
+#include "simulation/Simulation.h"
+#include "simulation/ElementCommon.h"
+
+#include <algorithm>
+#include <iostream>
+
+#define MAGNETIC_RADIUS_MULTIPLIER 2.0f
+#define MAGNETIC_VELOCITY_MULTIPLIER 0.2f
+
+// Helper
+bool is_valid_loc(int x, int y) {
+    return x >= 0 && x < XRES / EMCELL && y >= 0 && y < YRES / EMCELL;
+}
+
+// Actual magnetics
+void EMField::Clear() {
+    std::fill(&mx[0], &mx[0] + (EM_FIELD_SIZE), 0.0f);
+    std::fill(&my[0], &my[0] + (EM_FIELD_SIZE), 0.0f);
+    std::fill(&magnetic[0], &magnetic[0] + (EM_FIELD_SIZE), 0.0f);
+
+    std::fill(&ex[0], &ex[0] + (EM_FIELD_SIZE), 0.0f);
+    std::fill(&ey[0], &ey[0] + (EM_FIELD_SIZE), 0.0f);
+    // std::fill(&sources[0], &sources[0] + (EM_FIELD_SIZE), 0.0f);
+    sources.clear();
+}
+
+EMField::EMField(Simulation &simulation) : sim(simulation) {
+    Clear();
+}
+
+void EMField::PreUpdate() {
+    if (!isEnabled) return;
+    // if (sim.timer % 5 != 0) return;
+
+    changed_this_frame = false;
+    added_sources.clear();
+    removed_sources.clear();
+
+    // Record previous source array
+    // std::copy(std::begin(sources), std::end(sources), std::begin(sources_cache));
+    // std::fill(&sources[0], &sources[0] + (EM_FIELD_SIZE), 0.0f);
+    // std::copy(std::begin(magnetic), std::end(magnetic), std::begin(pmagnetic));
+}
+
+int EMField::distance_2(int index1, int index2) {
+    int x1 = index1 % (XRES / EMCELL), y1 = index1 / (XRES / EMCELL);
+    int x2 = index2 % (XRES / EMCELL), y2 = index2 / (XRES / EMCELL);
+    return (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
+}
+
+void EMField::ApplyMagneticVelocity(int i) {
+    if (!isEnabled)
+        return;
+
+    if (sim.parts[i].type == PT_BRMT) {
+        int x = (int)(sim.parts[i].x + 0.5f) / EMCELL;
+        int y = (int)(sim.parts[i].y + 0.5f) / EMCELL;
+        sim.parts[i].vx -= MAGNETIC_VELOCITY_MULTIPLIER * mx[FASTXY(x, y)];
+        sim.parts[i].vy -= MAGNETIC_VELOCITY_MULTIPLIER * my[FASTXY(x, y)];
+    }
+}
+
+void EMField::Update() {
+    // if (!isEnabled) return;
+    // if (sim.timer % 5 != 0) return;
+    //if (!changed_this_frame)
+    //    return;
+    if (!isEnabled || !changed_this_frame) 
+        return;
+
+    // Remove the effect of any sources that used to exist
+    for (auto i = removed_sources.begin(); i != removed_sources.end(); ++i) {
+        unsigned int cx = *i % (XRES / EMCELL), cy = *i / (XRES / EMCELL);
+        float power = sources[FASTXY(cx / EMCELL, cy / EMCELL)];
+        mx[FASTXY(cx, cy)] -= MAGNETIC_RADIUS_MULTIPLIER * power;
+
+        float angle;
+        int index;
+
+        for (int dx = -10; dx <= 10; ++dx)
+        for (int dy = -10; dy <= 10; ++dy) {
+            if ((dx || dy) && cx + dx >= 0 && cy + dy >= 0 && cx + dx < XRES / EMCELL && cy + dy < YRES / EMCELL) {
+                angle = atan2(dy, dx);
+                power = MAGNETIC_RADIUS_MULTIPLIER * *i / (dx * dx + dy * dy) / EMCELL / EMCELL;
+                index = FASTXY(cx + dx, cy + dy);
+
+                magnetic[index] -= power;
+                mx[index] -= power * cos(angle);
+                my[index] -= power * sin(angle);
+            }
+        }
+
+        // for (unsigned int x = 0; x < XRES / EMCELL; ++x)
+        // for (unsigned int y = 0; y < YRES / EMCELL; ++y) {
+        //     if (cx != x || cy != y) {
+        //         mx[FASTXY(x, y)] -= MAGNETIC_RADIUS_MULTIPLIER * power / ((x - cx) * (x - cx) + (y - cy) * (y - cy)) / EMCELL / EMCELL;
+        //     }
+        // }
+        sources.erase(*i);
+    }
+
+    // Identify any sources that were added this frame and add them
+    for (auto i = added_sources.begin(); i != added_sources.end(); ++i) {
+        int cx = i->first % (XRES / EMCELL), cy = i->first / (XRES / EMCELL);
+        // float power = MAGNETIC_RADIUS_MULTIPLIER * i->second;
+        float angle;
+
+        float power = sources[FASTXY(cx / EMCELL, cy / EMCELL)];
+        mx[FASTXY(cx, cy)] += MAGNETIC_RADIUS_MULTIPLIER * power;
+
+        // mx[FASTXY(cx, cy)] += 
+
+        // TODO combine no just =
+        sources[i->first] = i->second;
+        int index;
+
+        // Fill in further squares at 4x less resolution
+        // for (int x = 0; x < XRES / EMCELL; x += 4)
+        // for (int y = 0; y < YRES / EMCELL; y += 4) {
+        //     int d2 = (y-cy)*(y-cy)+(x-cx)*(x-cx);
+        //     if ((y - cy || x - cx) && d2 > 25) {
+        //         angle = atan2(y - cy, x - cx);
+        //         power = MAGNETIC_RADIUS_MULTIPLIER * i->second/ (d2) / EMCELL / EMCELL;
+        //         for (int dx = 0; dx < 4; ++dx)
+        //         for (int dy = 0; dy < 4; ++dy) {
+        //             index = FASTXY(x + dx, y + dy);
+
+        //             magnetic[index] += power;
+        //             mx[index] += power * cos(angle);
+        //             my[index] += power * sin(angle);
+        //         }
+        //     }
+        // }
+
+        for (int dx = -10; dx <= 10; ++dx)
+        for (int dy = -10; dy <= 10; ++dy) {
+            if ((dx || dy) && cx + dx >= 0 && cy + dy >= 0 && cx + dx < XRES / EMCELL && cy + dy < YRES / EMCELL) {
+                angle = atan2(dy, dx);
+                power = MAGNETIC_RADIUS_MULTIPLIER * i->second/ (dx * dx + dy * dy) / EMCELL / EMCELL;
+                index = FASTXY(cx + dx, cy + dy);
+
+                magnetic[index] += power;
+                mx[index] += power * cos(angle);
+                my[index] += power * sin(angle);
+            }
+        }
+        
+        // for (int x = 0; x < XRES / EMCELL; ++x)
+        // for (int y = 0; y < YRES / EMCELL; ++y) {
+        //     if (cx != x || cy != y) {
+        //         angle = atan2(y - cy, x - cx);
+        //         power = MAGNETIC_RADIUS_MULTIPLIER * i->second/ ((x - cx) * (x - cx) + (y - cy) * (y - cy)) / EMCELL / EMCELL;
+
+        //         magnetic[FASTXY(x, y)] += power;
+        //         mx[FASTXY(x, y)] += power * cos(angle);
+        //         my[FASTXY(x, y)] += power * sin(angle);
+        //     }
+        // }
+    }
+}
+
+void EMField::AddField(int x, int y, float power) {
+    if (!isEnabled) return;
+
+    int index = FASTXY(x / EMCELL, y / EMCELL);
+    if (!added_sources.count(index))
+        added_sources[index] = power;
+    else
+        added_sources[index] += power;
+    changed_this_frame = true;
+}
+
+void EMField::RemoveField(int x, int y) {
+    if (!isEnabled) return;
+
+    int index = FASTXY(x / EMCELL, y / EMCELL);
+    removed_sources.insert(index);
+    changed_this_frame = true;
+}
+
+void EMField::EditField(int x, int y, float power) {
+    RemoveField(x, y);
+    AddField(x, y, power);
+}

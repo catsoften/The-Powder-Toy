@@ -25,6 +25,7 @@
 #include "simulation/Simulation.h"
 #include "simulation/Snapshot.h"
 #include "simulation/Gravity.h"
+#include "simulation/magnetics/magnetics.h"
 #include "simulation/ElementGraphics.h"
 #include "ElementClasses.h"
 
@@ -250,6 +251,9 @@ void GameModel::BuildQuickOptionMenu(GameController * controller)
 	quickOptions.push_back(new AHeatOption(this));
 	quickOptions.push_back(new ConsoleShowOption(this, controller));
 	quickOptions.push_back(new TimeDilationOption(this));
+	quickOptions.push_back(new EMFieldOption(this));
+	quickOptions.push_back(new EMFieldElectricOption(this));
+	quickOptions.push_back(new EMFieldMagneticOption(this));
 
 	notifyQuickOptionsChanged();
 	UpdateQuickOptions();
@@ -1044,8 +1048,7 @@ bool GameModel::GetGravityGrid()
 	return ren->gravityFieldEnabled;
 }
 
-void GameModel::ShowTimeDilation(bool show)
-{
+void GameModel::ShowTimeDilation(bool show) {
 	ren->timeDilationFieldEnabled = show;
 	if (show)
 		SetInfoTip("Draw Time Dilation: On");
@@ -1053,10 +1056,32 @@ void GameModel::ShowTimeDilation(bool show)
 		SetInfoTip("Draw Time Dilation: Off");
 }
 
-bool GameModel::GetTimeDilation()
-{
+bool GameModel::GetElectricField() {
+	return ren->electricFieldEnabled;
+}
+void GameModel::ShowElectricField(bool show) {
+	ren->electricFieldEnabled = show;
+	SetInfoTip(show ? String("Draw Electric Field: On") : String("Draw Electric Field: Off"));
+}
+bool GameModel::GetMagneticField() {
+	return ren->magneticFieldEnabled;
+}
+void GameModel::ShowMagneticField(bool show) {
+	ren->magneticFieldEnabled = show;
+	SetInfoTip(show ? String("Draw Magnetic Field: On") : String("Draw Magnetic Field: Off"));
+}
+bool GameModel::GetEMEnabled() {
+	return sim->emfield->isEnabled;
+}
+void GameModel::SetEMEnabled(bool show) {
+	sim->emfield->isEnabled = show;
+	SetInfoTip(show ? String("Electromagnetism: On") : String("Electromagnetism: Off"));
+}
+
+bool GameModel::GetTimeDilation() {
 	return ren->timeDilationFieldEnabled;
 }
+
 
 void GameModel::FrameStep(int frames)
 {

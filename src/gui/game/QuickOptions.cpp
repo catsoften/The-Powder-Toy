@@ -109,3 +109,31 @@ void TimeDilationOption::perform() {
 	m->ShowTimeDilation(!m->GetTimeDilation());
 }
 
+EMFieldOption::EMFieldOption(GameModel * m):
+QuickOption("M", "Maxwellian Electromagnetism", m, Toggle) {}
+bool EMFieldOption::GetToggle() {
+	return m->GetEMEnabled();
+}
+void EMFieldOption::perform() {
+	m->SetEMEnabled(!m->GetEMEnabled());
+}
+
+EMFieldElectricOption::EMFieldElectricOption(GameModel * m):
+QuickOption("E", "Draw electric field", m, Toggle) {}
+bool EMFieldElectricOption::GetToggle() {
+	return m->GetElectricField();
+}
+void EMFieldElectricOption::perform() {
+	m->ShowElectricField(!m->GetElectricField());
+}
+
+EMFieldMagneticOption::EMFieldMagneticOption(GameModel * m):
+QuickOption("M", "Draw magnetic field", m, Toggle) {}
+bool EMFieldMagneticOption::GetToggle() {
+	return m->GetMagneticField();
+}
+void EMFieldMagneticOption::perform() {
+	m->ShowMagneticField(!m->GetMagneticField());
+}
+
+

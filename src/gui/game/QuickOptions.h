@@ -58,3 +58,27 @@ public:
 	void perform() override;
 };
 
+class EMFieldOption: public QuickOption {
+public:
+	EMFieldOption(GameModel * m);
+	bool GetToggle() override;
+	void perform() override;
+};
+
+class EMFieldElectricOption: public QuickOption {
+public:
+	EMFieldElectricOption(GameModel * m);
+	bool GetToggle() override;
+	void perform() override;
+};
+
+class EMFieldMagneticOption: public QuickOption {
+public:
+	EMFieldMagneticOption(GameModel * m);
+	bool GetToggle() override;
+	void perform() override;
+};
+
+
+
+

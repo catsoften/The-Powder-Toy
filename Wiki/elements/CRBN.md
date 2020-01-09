@@ -11,7 +11,7 @@ A light conductive powder. Sublimes at 3600 C into CO2. If temperature is greate
 
 If it's temperature < 100 K it acts as a superconductor (like INST, but without the need for PSCN or NSCN). In order to superconduct, the point that recieves the SPRK must be touching *at most* 2 other CRBN (no thick wires). However, the middle portion can be as thick as you want.
 
-If tmp2 > 0, CRBN will "act" like a solid, not moving. This makes it useful for liquid filters and wires.
+If tmp2 > 0, CRBN will "act" like a solid, not moving. You can also make "solid" CRBN by mixing CRBN with PSTE. This makes it useful for liquid filters and wires.
 
 Reactions:
 - Purifies WATR into DSTW and salt water into either DSTW or SALT.

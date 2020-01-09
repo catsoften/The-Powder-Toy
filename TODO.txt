@@ -172,13 +172,96 @@ atmosphere setting
 
 custom elements
 
+realistic metal that can be forged and bent
+- TIN
+- acts as negative electrode for battery
+- LITHIUM Is positive
+- let stuff be "dissolved" in water
+
+ZINC -> lose electrons
+Copper -> gain
+    malleabl - only if sudden change in pressure
+ceramic plate allows passage of ions
+
+electric realistic sprk:
+- travels very fast
+- generates magnetic field
+- voltage and charge
+- store a voltage
+- split at junctions? merge with other sprk values
+- save direciton, add directions
+- sprk invisible until powerful enough
+
+IDEA:
+    ok so negative charges send pulses, like sprk
+    same for positive end
+    if they meet then a connection is established by floodfill
+        idk how to handle junctions
+
+ferrofluid
+
+increase vx required to induce electricity
+
+local gravity mode
+
+
+rsprk causes air movement (or electric fields????)
+
+electric field render: RENDER LINES NOT FIELD
+https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
+
+diamond anvil cells
+
+reset electric field if not enabled to 0
+electric field collide with object keeps making velocity, check velocity collides and cancel
+if vx and vy = 0
+
+copper + zinc = brass
+- kills BCTR
+copper oxidates into green in seatwater, water and o2
+
+
+
+
+toggle magnetic field calculation in update
+- only edit source maybe?
+- TODO: neartify first
+- replace cache with set, check sizes then iterate comparing indices
+    - add vx, vy instead of just potentinal?
+
+    - clear() not thread safe
+    - larger grid for rendering, then for individual particles refine resolution maybe
+    - ignore if distance too great 
+        - circles, start at 4x grid size, then work down
+    - interpolate force
+    - larger cell for render, smaller for actual particles
+
+
+
+remove life from stacking limit
+
+jcb1 aim for head
+
+Bug in rock, etc... if ctype invaloid crashes in elements, ie elements[99999]
+
+
+
+hud rectangles drawn wrong -  see non-black background
+
+
+- time stasis field in snapshot?
+- magnetic fields in undo snapshot 
+- simulation->GetSnapshot()
+
+NEW TODO:
+    MGNT, COPR, ZINC
+
 
 laser tool, set point, move mouse to slice
 - laser should bounce off of polished metal
 
  - LDTC seperate, has flags
 PSTN - add movement distance
-
 
  * - PDTC
  * - QLOG

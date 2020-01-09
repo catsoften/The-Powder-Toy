@@ -104,7 +104,7 @@ void ConfigTool::Click(Simulation * sim, Brush * brush, ui::Point position) {
     }
 
     // Draw on ctype
-    if (sim->elements[type].CtypeDraw) {
+    if (type == PT_VOID || sim->elements[type].CtypeDraw) {
         new ConfigCtypeWindow(this, sim, position);
         return;
     }

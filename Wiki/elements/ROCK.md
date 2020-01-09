@@ -27,7 +27,7 @@ Any other powder -> The powder
 Any other gas    -> The gas
 Any other liquid -> The liquid
 ```
-Otherwise, it just turns into a rock powder with its ctype. There is a slight change for shattering ROCK to release GAS or OIL.
+Otherwise, it just turns into a rock powder with its ctype. There is a slight chance for shattering ROCK to release GAS or OIL.
 
 If its ore type is meltable and the ROCK is above the ore element's melting point it will melt into molten [rock ctype]. Non-meltable ctypes will melt at 1000 C into molten ROCK.
 

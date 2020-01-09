@@ -92,7 +92,7 @@ int Element_RCRT::update(UPDATE_FUNC_ARGS) {
 	// Floodfill connected to solid rn property
 	if (parts[i].tmp == 1) {
 		PropertyValue value;
-		value.Integer = 10;
+		value.Integer = 5;
 		sim->flood_prop(x, y, offsetof(Particle, tmp2), value, StructProperty::Integer);
 	}
 	

@@ -81,6 +81,7 @@ int Element_ROCK::update(UPDATE_FUNC_ARGS) {
 	 * - ctype - Type of ORE
 	 * - tmp2  - Is powder form
 	 */
+	bool valid_ctype = parts[i].ctype > 0 && parts[i].ctype < PT_NUM && sim->elements[parts[i].ctype].Enabled;
 
 	// High pressure, fragment and release gas
 	if (sim->pv[y / CELL][x / CELL] > 12.0f) {
@@ -95,9 +96,10 @@ int Element_ROCK::update(UPDATE_FUNC_ARGS) {
 			change_to = PT_OIL;
 		else if (RNG::Ref().chance(1, 500))
 			change_to = PT_GAS;
-		else if (sim->elements[parts[i].ctype].Properties & TYPE_PART ||
+		else if (valid_ctype &&
+				(sim->elements[parts[i].ctype].Properties & TYPE_PART ||
 				 sim->elements[parts[i].ctype].Properties & TYPE_LIQUID ||
-				 sim->elements[parts[i].ctype].Properties & TYPE_GAS)
+				 sim->elements[parts[i].ctype].Properties & TYPE_GAS))
 			change_to = parts[i].ctype;
 		
 		if (change_to) {
@@ -110,11 +112,11 @@ int Element_ROCK::update(UPDATE_FUNC_ARGS) {
 
 	// Melt into the ore
 	// If ore can't melt melt into regular lava
-	if (sim->elements[parts[i].ctype].Meltable && parts[i].temp > sim->elements[parts[i].ctype].HighTemperature) {
+	if (valid_ctype && sim->elements[parts[i].ctype].Meltable && parts[i].temp > sim->elements[parts[i].ctype].HighTemperature) {
 		sim->part_change_type(i, x, y, PT_LAVA);
 		return 1;
 	}
-	else if (!sim->elements[parts[i].ctype].Meltable && parts[i].temp > 1273.15f) {
+	else if (valid_ctype && !sim->elements[parts[i].ctype].Meltable && parts[i].temp > 1273.15f) {
 		parts[i].ctype = PT_ROCK;
 		sim->part_change_type(i, x, y, PT_LAVA);
 		return 1;

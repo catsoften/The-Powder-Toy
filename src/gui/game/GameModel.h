@@ -184,6 +184,13 @@ public:
 	void ShowGravityGrid(bool showGrid);
 	void ShowTimeDilation(bool show);
 	bool GetTimeDilation();
+	void SetEMEnabled(bool enabled);
+	bool GetEMEnabled();
+	void ShowElectricField(bool show);
+	bool GetElectricField();
+	void ShowMagneticField(bool show);
+	bool GetMagneticField();
+
 	void ClearSimulation();
 	std::vector<Menu*> GetMenuList();
 	std::vector<QuickOption*> GetQuickOptions();
