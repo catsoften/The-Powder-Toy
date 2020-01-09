@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_FILL PT_FILL 240
-Element_FILL::Element_FILL()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_FILL()
 {
 	Identifier = "DEFAULT_PT_FILL";
 	Name = "FILL";
@@ -41,18 +43,17 @@ Element_FILL::Element_FILL()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_FILL::update;
-	Graphics = &Element_FILL::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_FILL static int update(UPDATE_FUNC_ARGS)
-int Element_FILL::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	return 1;
 }
 
-//#TPT-Directive ElementHeader Element_FILL static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FILL::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_FILL::~Element_FILL() {}
+
+

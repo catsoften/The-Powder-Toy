@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_BOWR PT_BOWR 200
-Element_BOWR::Element_BOWR()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_BOWR()
 {
 	Identifier = "DEFAULT_PT_BOWR";
 	Name = "BOWR";
@@ -42,12 +44,11 @@ Element_BOWR::Element_BOWR()
 	HighTemperature = ITL;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_BOWR::update;
-	Graphics = &Element_BOWR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_BOWR static int update(UPDATE_FUNC_ARGS)
-int Element_BOWR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	sim->gravmap[(y / CELL)*(XRES / CELL) + (x / CELL)] = 0.2f*(500);
 	sim->create_part(-1, parts[i].x - 1, parts[i].y - 1, PT_THDR);
 	sim->create_part(-1, parts[i].x - 1, parts[i].y + 1, PT_PLSM);
@@ -76,10 +77,10 @@ int Element_BOWR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BOWR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BOWR::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	return 1;
 }
 
-Element_BOWR::~Element_BOWR() {}
+
+

@@ -4,10 +4,12 @@
 #include "simulation/quantum/linalg.h"
 #include "simulation/quantum/quantum.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 #include <iostream>
 
-//#TPT-Directive ElementClass Element_QLOG PT_QLOG 192
-Element_QLOG::Element_QLOG()
+void Element::Element_QLOG()
 {
 	Identifier = "DEFAULT_PT_QLOG";
 	Name = "QLOG";
@@ -49,12 +51,11 @@ Element_QLOG::Element_QLOG()
 
 	DefaultProperties.life = 0;
 
-	Update = &Element_QLOG::update;
-	Graphics = &Element_QLOG::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_QLOG static int update_scan(Particle *parts, int pmap[YRES][XRES], int i, int tx, int ty, bool multi_check)
-int Element_QLOG::update_scan(Particle *parts, int pmap[YRES][XRES], int i, int tx, int ty, bool multi_check) {
+static int update_scan(Particle *parts, int pmap[YRES][XRES], int i, int tx, int ty, bool multi_check) {
 	// Func when sparking, sets life and determines a gate's other inputs
 	int id = ID(pmap[ty][tx]);
 
@@ -69,8 +70,7 @@ int Element_QLOG::update_scan(Particle *parts, int pmap[YRES][XRES], int i, int 
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_QLOG static int find_ion(Particle *parts, int photons[YRES][XRES], int pmap[YRES][XRES], int i)
-int Element_QLOG::find_ion(Particle *parts, int photons[YRES][XRES], int pmap[YRES][XRES], int i) {
+static int find_ion(Particle *parts, int photons[YRES][XRES], int pmap[YRES][XRES], int i) {
 	int dx, dy; dx = dy = 0;
 	int tx = parts[i].x;
 	int ty = parts[i].y;
@@ -92,8 +92,7 @@ int Element_QLOG::find_ion(Particle *parts, int photons[YRES][XRES], int pmap[YR
 	return ID(photons[ty][tx]);
 }
 
-//#TPT-Directive ElementHeader Element_QLOG static int update(UPDATE_FUNC_ARGS)
-int Element_QLOG::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/* 
 	 * Properties
      * - flags: For non-first input, stores location of first input
@@ -298,8 +297,7 @@ int Element_QLOG::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_QLOG static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_QLOG::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Vary color based on ctype
 	if (cpart->ctype % 2 == 0) *colb += 30 * cpart->ctype;
 	else *colg += 30 * cpart->ctype;
@@ -322,4 +320,5 @@ int Element_QLOG::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_QLOG::~Element_QLOG() {}
+
+

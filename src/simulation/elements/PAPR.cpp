@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_PAPR PT_PAPR 271
-Element_PAPR::Element_PAPR()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_PAPR()
 {
 	Identifier = "DEFAULT_PT_PAPR";
 	Name = "PAPR";
@@ -41,12 +43,11 @@ Element_PAPR::Element_PAPR()
 	HighTemperature = 232.8f + 273.15f; // 451 F
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_PAPR::update;
-	Graphics = &Element_PAPR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_PAPR static int update(UPDATE_FUNC_ARGS)
-int Element_PAPR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * - life:    how much water it has
@@ -124,8 +125,7 @@ int Element_PAPR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_PAPR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_PAPR::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	int darker = cpart->life / 200;
 	if (darker > 50)
 		darker = 50;
@@ -136,4 +136,5 @@ int Element_PAPR::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_PAPR::~Element_PAPR() {}
+
+

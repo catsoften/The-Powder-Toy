@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_CLUD PT_CLUD 236
-Element_CLUD::Element_CLUD()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_CLUD()
 {
 	Identifier = "DEFAULT_PT_CLUD";
 	Name = "CLUD";
@@ -41,12 +43,11 @@ Element_CLUD::Element_CLUD()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_CLUD::update;
-	Graphics = &Element_CLUD::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_CLUD static int update(UPDATE_FUNC_ARGS)
-int Element_CLUD::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * - ctype
@@ -90,8 +91,7 @@ int Element_CLUD::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_CLUD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CLUD::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Vary color depending on type of cloud
 	float m = 1.0f;
 
@@ -132,4 +132,5 @@ int Element_CLUD::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_CLUD::~Element_CLUD() {}
+
+

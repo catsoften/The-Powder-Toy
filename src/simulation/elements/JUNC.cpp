@@ -1,7 +1,6 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_JUNC PT_JUNC 259
-Element_JUNC::Element_JUNC()
+void Element::Element_JUNC()
 {
 	Identifier = "DEFAULT_PT_JUNC";
 	Name = "JUNC";
@@ -45,4 +44,5 @@ Element_JUNC::Element_JUNC()
 	Graphics = NULL;
 }
 
-Element_JUNC::~Element_JUNC() {}
+
+

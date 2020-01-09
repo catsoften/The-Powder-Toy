@@ -1,15 +1,17 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/ToolCommon.h"
 
-//#TPT-Directive ToolClass Tool_RSET TOOL_RSET 11
-Tool_RSET::Tool_RSET() {
+static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength);
+
+void SimTool::Tool_RESET() {
     Identifier = "DEFAULT_TOOL_RSET";
     Name = "RSET";
     Colour = PIXPACK(0xfad673);
     Description = "Reset particle properties to default.";
+    Perform = &perform;
 }
 
-int Tool_RSET::Perform(Simulation *sim, Particle *cpart, int x, int y, int brushX, int brushY, float strength) {
+static int perform(Simulation *sim, Particle *cpart, int x, int y, int brushX, int brushY, float strength) {
     if (!cpart)
         return 0;
 
@@ -26,5 +28,3 @@ int Tool_RSET::Perform(Simulation *sim, Particle *cpart, int x, int y, int brush
         sim->elements[rt].Create(sim, ID(sim->pmap[y][x]), x, y, rt, -1);
     return 1;
 }
-
-Tool_RSET::~Tool_RSET() {}

@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_TLNE PT_TLNE 317
-Element_TLNE::Element_TLNE()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_TLNE()
 {
 	Identifier = "DEFAULT_PT_TLNE";
 	Name = "TLNE";
@@ -12,20 +14,18 @@ Element_TLNE::Element_TLNE()
 
 	// element properties here
 
-	Update = &Element_TLNE::update;
-	Graphics = &Element_TLNE::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_TLNE static int update(UPDATE_FUNC_ARGS)
-int Element_TLNE::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	// update code here
 
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_TLNE static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_TLNE::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -33,4 +33,5 @@ int Element_TLNE::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_TLNE::~Element_TLNE() {}
+
+

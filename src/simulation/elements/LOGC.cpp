@@ -2,8 +2,10 @@
 #include "simulation/circuits/framework.h"
 #include "simulation/circuits/circuits.h"
 
-//#TPT-Directive ElementClass Element_LOGC PT_LOGC 316
-Element_LOGC::Element_LOGC() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_LOGC() {
 	Identifier = "DEFAULT_PT_LOGC";
 	Name = "LOGC";
 	Colour = PIXPACK(0xFFFFFF);
@@ -43,12 +45,11 @@ Element_LOGC::Element_LOGC() {
 	HighTemperature = 2300.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_LOGC::update;
-	Graphics = &Element_LOGC::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_LOGC static int update(UPDATE_FUNC_ARGS)
-int Element_LOGC::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp - Type
@@ -76,12 +77,12 @@ int Element_LOGC::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_LOGC static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_LOGC::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
 
 	return 1;
 }
 
-Element_LOGC::~Element_LOGC() {}
+
+

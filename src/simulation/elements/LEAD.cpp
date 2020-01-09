@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/Air.h"
 
-//#TPT-Directive ElementClass Element_LEAD PT_LEAD 262
-Element_LEAD::Element_LEAD()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_LEAD()
 {
 	Identifier = "DEFAULT_PT_LEAD";
 	Name = "LEAD";
@@ -42,12 +44,11 @@ Element_LEAD::Element_LEAD()
 	HighTemperature = 273.15f + 327.0f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_LEAD::update;
-	Graphics = &Element_LEAD::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_LEAD static int update(UPDATE_FUNC_ARGS)
-int Element_LEAD::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Block pressure and air
 	sim->air->bmap_blockair[y / CELL][x / CELL] = 1;
 
@@ -65,9 +66,9 @@ int Element_LEAD::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_LEAD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_LEAD::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_LEAD::~Element_LEAD() {}
+
+

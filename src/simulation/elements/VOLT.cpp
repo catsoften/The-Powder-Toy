@@ -3,8 +3,9 @@
 #include "simulation/circuits/framework.h"
 #include "simulation/circuits/circuits.h"
 
-//#TPT-Directive ElementClass Element_VOLT PT_VOLT 258
-Element_VOLT::Element_VOLT() {
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_VOLT() {
 	Identifier = "DEFAULT_PT_VOLT";
 	Name = "VOLT";
 	Colour = PIXPACK(0x826108);
@@ -44,14 +45,14 @@ Element_VOLT::Element_VOLT() {
 	HighTemperature = 2000.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_VOLT::update;
+	Update = &update;
 	Graphics = NULL;
 }
 
-//#TPT-Directive ElementHeader Element_VOLT static int update(UPDATE_FUNC_ARGS)
-int Element_VOLT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	CIRCUITS::add_circuit(x, y, sim);
 	return 0;
 }
 
-Element_VOLT::~Element_VOLT() {}
+
+

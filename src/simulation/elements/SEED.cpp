@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_SEED PT_SEED 222
-Element_SEED::Element_SEED()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_SEED() {
 	Identifier = "DEFAULT_PT_SEED";
 	Name = "SEED";
 	Colour = PIXPACK(0xA3B808);
@@ -42,13 +44,12 @@ Element_SEED::Element_SEED()
 	HighTemperature = 273.15f + 300.0f;
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_SEED::update;
-	Graphics = &Element_SEED::graphics;
-	Create = &Element_CLST::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_CLST_create;
 }
 
-//#TPT-Directive ElementHeader Element_SEED static int update(UPDATE_FUNC_ARGS)
-int Element_SEED::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/** 
 	 * Properties:
 	 * tmp  - Graphics speckles
@@ -202,8 +203,7 @@ int Element_SEED::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_SEED static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_SEED::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	int z = (cpart->tmp - 5) * 8;//speckles!
 	*colr += z;
 	*colg += z;
@@ -222,4 +222,5 @@ int Element_SEED::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_SEED::~Element_SEED() {}
+
+

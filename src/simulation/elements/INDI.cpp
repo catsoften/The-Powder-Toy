@@ -1,7 +1,6 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_INDI PT_INDI 307
-Element_INDI::Element_INDI()
+void Element::Element_INDI()
 {
 	Identifier = "DEFAULT_PT_INDI";
 	Name = "INDI";
@@ -44,4 +43,5 @@ Element_INDI::Element_INDI()
 	Update = NULL;
 }
 
-Element_INDI::~Element_INDI() {}
+
+

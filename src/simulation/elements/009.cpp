@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_009 PT_009 280
-Element_009::Element_009()
-{
+int Element_009_update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_009() {
 	Identifier = "DEFAULT_PT_009";
 	Name = "009";
 	Colour = PIXPACK(0xf04848);
@@ -42,12 +43,11 @@ Element_009::Element_009()
 	HighTemperature = 273.0f;
 	HighTemperatureTransition = PT_009S;
 
-	Update = &Element_009::update;
-	Graphics = &Element_009::graphics;
+	Update = &Element_009_update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_009 static int update(UPDATE_FUNC_ARGS)
-int Element_009::update(UPDATE_FUNC_ARGS) {
+int Element_009_update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r, rt;
 
 	for (rx = -1; rx < 2; ++rx)
@@ -80,10 +80,7 @@ int Element_009::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_009 static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_009::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 	return 1;
 }
-
-Element_009::~Element_009() {}

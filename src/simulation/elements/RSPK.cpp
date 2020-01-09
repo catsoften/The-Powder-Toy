@@ -4,6 +4,10 @@
 #include "simulation/circuits/resistance.h"
 #include "simulation/circuits/framework.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS);
+
 #include <queue>
 #include <iostream>
 
@@ -22,9 +26,7 @@ float get_power(int x, int y, Simulation *sim) {
 }
 };
 
-//#TPT-Directive ElementClass Element_RSPK PT_RSPK 253
-Element_RSPK::Element_RSPK()
-{
+void Element::Element_RSPK() {
 	Identifier = "DEFAULT_PT_RSPK";
 	Name = "RSPK";
 	Colour = PIXPACK(0xFFFF80);
@@ -66,19 +68,17 @@ Element_RSPK::Element_RSPK()
 
 	DefaultProperties.life = 10;
 
-	Update = &Element_RSPK::update;
-	Graphics = &Element_RSPK::graphics;
-	ChangeType = &Element_RSPK::changeType;
+	Update = &update;
+	Graphics = &graphics;
+	ChangeType = &changeType;
 }
 
-//#TPT-Directive ElementHeader Element_RSPK static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
-void Element_RSPK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	if (circuit_map[i]) circuit_map[i]->flag_recalc();
 	circuit_map[i] = nullptr;
 }
 
-//#TPT-Directive ElementHeader Element_RSPK static int update(UPDATE_FUNC_ARGS)
-int Element_RSPK::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp   - Current node ID, 1 = branch, 0 = not part of skeleton
@@ -255,8 +255,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_RSPK static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_RSPK::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*colr = 255; *colg = *colb = 0;
 	*cola = 255;
 	if (cpart->tmp == 0)
@@ -299,4 +298,5 @@ int Element_RSPK::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_RSPK::~Element_RSPK() {}
+
+

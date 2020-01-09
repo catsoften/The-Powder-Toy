@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_BRKN PT_BRKN 275
-Element_BRKN::Element_BRKN() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_BRKN() {
 	Identifier = "DEFAULT_PT_BRKN";
 	Name = "BRKN";
 	Colour = PIXPACK(0x705060);
@@ -40,12 +42,11 @@ Element_BRKN::Element_BRKN() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_BRKN::update;
-	Graphics = &Element_BRKN::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_BRKN static int update(UPDATE_FUNC_ARGS)
-int Element_BRKN::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	parts[i].tmp = parts[i].ctype;
 
 	bool flammable = false;
@@ -95,8 +96,7 @@ int Element_BRKN::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BRKN static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BRKN::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->ctype > 0 && cpart->ctype < PT_NUM) {
 		*colr = PIXR(ren->sim->elements[cpart->ctype].Colour);
 		*colg = PIXG(ren->sim->elements[cpart->ctype].Colour);
@@ -109,4 +109,5 @@ int Element_BRKN::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_BRKN::~Element_BRKN() {}
+
+

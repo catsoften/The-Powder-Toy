@@ -1,7 +1,6 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_TRST PT_TRST 315
-Element_TRST::Element_TRST() {
+void Element::Element_TRST() {
 	Identifier = "DEFAULT_PT_TRST";
 	Name = "TRST";
 	Colour = PIXPACK(0xE09972);
@@ -43,4 +42,5 @@ Element_TRST::Element_TRST() {
 	HighTemperatureTransition = PT_LAVA;
 }
 
-Element_TRST::~Element_TRST() {}
+
+

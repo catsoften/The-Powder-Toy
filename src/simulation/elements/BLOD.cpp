@@ -1,9 +1,11 @@
 #include "simulation/ElementCommon.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 #define CLOT 180
 
-//#TPT-Directive ElementClass Element_BLOD PT_BLOD 223
-Element_BLOD::Element_BLOD()
+void Element::Element_BLOD()
 {
 	Identifier = "DEFAULT_PT_BLOD";
 	Name = "BLOD";
@@ -47,12 +49,11 @@ Element_BLOD::Element_BLOD()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_BLOD::update;
-	Graphics = &Element_BLOD::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_BLOD static int update(UPDATE_FUNC_ARGS)
-int Element_BLOD::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * life - How much oxygen stored
@@ -158,8 +159,7 @@ int Element_BLOD::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BLOD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BLOD::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->tmp2 < CLOT)
 		*pixel_mode |= PMODE_BLUR;
 	*colr *= 0.2f + 0.8f * cpart->life / 100.0f;
@@ -169,4 +169,5 @@ int Element_BLOD::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_BLOD::~Element_BLOD() {}
+
+

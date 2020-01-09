@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_NTRI PT_NTRI 295
-Element_NTRI::Element_NTRI()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_NEUT_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_NTRI() {
 	Identifier = "DEFAULT_PT_NTRI";
 	Name = "NTRI";
 	Colour = PIXPACK(0xeb34c3);
@@ -42,13 +44,12 @@ Element_NTRI::Element_NTRI()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_NTRI::update;
-	Graphics = &Element_NTRI::graphics;
-	Create = &Element_NEUT::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_NEUT_create;
 }
 
-//#TPT-Directive ElementHeader Element_NTRI static int update(UPDATE_FUNC_ARGS)
-int Element_NTRI::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r;
 	for (rx = -1; rx <= 1; ++rx)
 	for (ry = -1; ry <= 1; ++ry)
@@ -71,8 +72,7 @@ int Element_NTRI::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_NTRI static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_NTRI::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Glow if inside another element
 	if (ren->sim->pmap[ny][nx]) {
 		*firer = *colr;
@@ -85,4 +85,5 @@ int Element_NTRI::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_NTRI::~Element_NTRI() {}
+
+

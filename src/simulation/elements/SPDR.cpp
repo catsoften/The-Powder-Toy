@@ -1,14 +1,15 @@
 #include "simulation/ElementCommon.h"
 #include <iostream>
 
+static int update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
 #define PI 3.14159f
 #define SPOKES 32
 #define NOTEMPTY(x, y) (pmap[y - 1][x - 1] || pmap[y - 1][x] || pmap[y - 1][x + 1] || pmap[y][x + 1] ||\
 					    pmap[y][x - 1] || pmap[y + 1][x - 1] || pmap[y + 1][x] || pmap[y + 1][x + 1])
 
-//#TPT-Directive ElementClass Element_SPDR PT_SPDR 228
-Element_SPDR::Element_SPDR()
-{
+void Element::Element_SPDR() {
 	Identifier = "DEFAULT_PT_SPDR";
 	Name = "SPDR";
 	Colour = PIXPACK(0x444444);
@@ -47,12 +48,11 @@ Element_SPDR::Element_SPDR()
 	HighTemperature = 273.15f + 60.0f;
 	HighTemperatureTransition = PT_DUST;
 
-	Update = &Element_SPDR::update;
-	Create = &Element_SPDR::create;
+	Update = &update;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_SPDR static void intersect_line(Simulation *sim, int sx, int sy, float vx, float vy, int &x, int &y, int type=1, int type2=0)
-void Element_SPDR::intersect_line(Simulation *sim, int sx, int sy, float vx, float vy, int &x, int &y, int type, int type2) {
+void Element_SPDR_intersect_line(Simulation *sim, int sx, int sy, float vx, float vy, int &x, int &y, int type=1, int type2=0) {
 	/**
 	 * Calculate line intersect starting from sx and sy, drawing a line
 	 * along velocity vx, vy, the first object it intersects and returns coordinates
@@ -143,15 +143,13 @@ void Element_SPDR::intersect_line(Simulation *sim, int sx, int sy, float vx, flo
 	}
 }
 
-//#TPT-Directive ElementHeader Element_SPDR static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_SPDR::create(ELEMENT_CREATE_FUNC_ARGS) {
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].tmp = RNG::Ref().chance(1, 2);
 	sim->parts[i].pavg[0] = -1;
 	sim->parts[i].pavg[1] = -1;
 }
 
-//#TPT-Directive ElementHeader Element_SPDR static int update(UPDATE_FUNC_ARGS)
-int Element_SPDR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp: dir (0 = left / up, 1 = right / down)
@@ -244,9 +242,9 @@ int Element_SPDR::update(UPDATE_FUNC_ARGS) {
 		// Attempt to web 5 times
 		for (unsigned char k = 0; k < 5; ++k) {
 			angle = RNG::Ref().uniform01() * 2 * PI;
-			intersect_line(sim, x, y, cos(angle), sin(angle), x1, y1, 5);
+			Element_SPDR_intersect_line(sim, x, y, cos(angle), sin(angle), x1, y1, 5);
 			if (x1 == -1 && y1 == -1)
-				intersect_line(sim, x, y, -cos(angle), -sin(angle), x1, y1, 5);
+				Element_SPDR_intersect_line(sim, x, y, -cos(angle), -sin(angle), x1, y1, 5);
 			if (x1 != -1 && y1 != -1) {
 				// Web must be a certain distance, 30 - 350px
 				int dis = (x1 - x) * (x1 - x) + (y1 - y) * (y1 - y);
@@ -269,7 +267,7 @@ int Element_SPDR::update(UPDATE_FUNC_ARGS) {
 
 		for (unsigned int k = 0; k < SPOKES; ++k) {
 			angle = start + (float)k / SPOKES * 2 * PI;
-			intersect_line(sim, x, y, cos(angle), sin(angle), x1, y1, 6, PT_WEB);
+			Element_SPDR_intersect_line(sim, x, y, cos(angle), sin(angle), x1, y1, 6, PT_WEB);
 			if (x1 != -1 && y1 != -1) {
 				// Web must be a certain distance. Spoke webs can be shorter
 				// between 3 - 350px long
@@ -282,7 +280,7 @@ int Element_SPDR::update(UPDATE_FUNC_ARGS) {
 					for (float ringdis = 0.4f; ringdis < 1; ringdis += 0.2f) {
 						x3 = x + (x1 - x) * ringdis;
 						y3 = y + (y1 - y) * ringdis;
-						intersect_line(sim, x3, y3, cos(angle - PI / 2), sin(angle - PI / 2), x2, y2, 6, PT_WEB);
+						Element_SPDR_intersect_line(sim, x3, y3, cos(angle - PI / 2), sin(angle - PI / 2), x2, y2, 6, PT_WEB);
 
 						if (x2 != -1 && y2 != -1) {
 							int dis = (x2 - x3) * (x2 - x3) + (y2 - y3) * (y2 - y3);
@@ -301,4 +299,5 @@ int Element_SPDR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_SPDR::~Element_SPDR() {}
+
+

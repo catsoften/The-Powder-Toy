@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_SICN PT_SICN 277
-Element_SICN::Element_SICN()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_SICN()
 {
 	Identifier = "DEFAULT_PT_SICN";
 	Name = "SLCN";
@@ -41,12 +43,11 @@ Element_SICN::Element_SICN()
 	HighTemperature = 273.15f + 1414.0f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_SICN::update;
-	Graphics = &Element_SICN::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_SICN static int update(UPDATE_FUNC_ARGS)
-int Element_SICN::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r, rt;
 	for (rx = -1; rx <= 1; ++rx)
 	for (ry = -1; ry <= 1; ++ry)
@@ -92,12 +93,12 @@ int Element_SICN::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_SICN static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_SICN::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
 
 	return 0;
 }
 
-Element_SICN::~Element_SICN() {}
+
+

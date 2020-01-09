@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_POTO PT_POTO 299
-Element_POTO::Element_POTO()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_POTO() {
 	Identifier = "DEFAULT_PT_POTO";
 	Name = "POTO";
 	Colour = PIXPACK(0xb08464);
@@ -44,13 +46,12 @@ Element_POTO::Element_POTO()
 	HighTemperature = 273.15 + 600.0f;
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_POTO::update;
-	Graphics = &Element_POTO::graphics;
-	Create = &Element_CLST::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_CLST_create;
 }
 
-//#TPT-Directive ElementHeader Element_POTO static int update(UPDATE_FUNC_ARGS)
-int Element_POTO::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * pavg0 - max temp
@@ -76,8 +77,7 @@ int Element_POTO::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_POTO static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_POTO::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	int z = (cpart->tmp - 5) * 8; // Speckles!
 	*colr += z;
 	*colg += z;
@@ -86,4 +86,5 @@ int Element_POTO::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_POTO::~Element_POTO() {}
+
+

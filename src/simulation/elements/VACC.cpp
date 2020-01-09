@@ -1,7 +1,6 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_VACC PT_VACC 314
-Element_VACC::Element_VACC()
+void Element::Element_VACC()
 {
 	Identifier = "DEFAULT_PT_VACC";
 	Name = "VACC";
@@ -45,4 +44,5 @@ Element_VACC::Element_VACC()
 	Update = NULL;
 }
 
-Element_VACC::~Element_VACC() {}
+
+

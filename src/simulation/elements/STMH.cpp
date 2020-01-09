@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_STMH PT_STMH 292
-Element_STMH::Element_STMH()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+int Element_FLSH_update(UPDATE_FUNC_ARGS);
+
+void Element::Element_STMH() {
 	Identifier = "DEFAULT_PT_STMH";
 	Name = "STMH";
 	Colour = PIXPACK(0xc4ae95);
@@ -44,12 +46,11 @@ Element_STMH::Element_STMH()
 	HighTemperature = 200.0f + 273.15f;
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_STMH::update;
-	Graphics = &Element_STMH::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_STMH static int update(UPDATE_FUNC_ARGS)
-int Element_STMH::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties
 	 * life:  Graphics
@@ -58,7 +59,7 @@ int Element_STMH::update(UPDATE_FUNC_ARGS) {
 	 * pavg0: Highest temperature
 	 * pavg1: Type 0 = inside, 1 = skin, 2 = dead
 	 */
-	Element_FLSH::update(sim, i, x, y, surround_space, nt, parts, pmap);
+	Element_FLSH_update(sim, i, x, y, surround_space, nt, parts, pmap);
 	if (parts[i].pavg[1] == 1) // Override skin formation
 		parts[i].pavg[1] = 0;
 
@@ -88,8 +89,7 @@ int Element_STMH::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_STMH static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_STMH::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Redden if oxygenated
 	int red = std::min(20, cpart->tmp / 10);
 	*colr += red;
@@ -126,5 +126,3 @@ int Element_STMH::graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-Element_STMH::~Element_STMH() {}

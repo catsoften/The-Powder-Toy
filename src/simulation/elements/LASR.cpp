@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_LASR PT_LASR 207
-Element_LASR::Element_LASR()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_LASR()
 {
 	Identifier = "DEFAULT_PT_LASR";
 	Name = "LASR";
@@ -44,12 +46,11 @@ Element_LASR::Element_LASR()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_LASR::update;
-	Graphics = &Element_LASR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_LASR static int update(UPDATE_FUNC_ARGS)
-int Element_LASR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	parts[i].temp = MAX_TEMP;
 	parts[i].tmp = 0;
 
@@ -81,8 +82,7 @@ int Element_LASR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_LASR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_LASR::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*firer = 255; *fireg = 0; *fireb = 0; *firea = 35;
 	*colr = 255; *colg = 100; *colb = 100;
 	*pixel_mode |= FIRE_ADD;
@@ -97,4 +97,5 @@ int Element_LASR::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_LASR::~Element_LASR() {}
+
+

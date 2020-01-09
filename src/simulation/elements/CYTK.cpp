@@ -2,8 +2,11 @@
 #include "simulation/vehicles/vehicle.h"
 #include "simulation/vehicles/cybertruck.h"
 
-//#TPT-Directive ElementClass Element_CYTK PT_CYTK 190
-Element_CYTK::Element_CYTK() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_CYTK_changeType(ELEMENT_CHANGETYPE_FUNC_ARGS);
+
+void Element::Element_CYTK() {
 	Identifier = "DEFAULT_PT_CYTK";
 	Name = "CYTK";
 	Colour = PIXPACK(0x4D5564);
@@ -43,13 +46,12 @@ Element_CYTK::Element_CYTK() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_CYTK::update;
-	Graphics = &Element_CYTK::graphics;
-	ChangeType = &Element_CYTK::changeType;
+	Update = &update;
+	Graphics = &graphics;
+	ChangeType = &Element_CYTK_changeType;
 }
 
-//#TPT-Directive ElementHeader Element_CYTK static bool check_stkm(playerst *data, Simulation *sim, Particle *parts, int i)
-bool Element_CYTK::check_stkm(playerst *data, Simulation *sim, Particle *parts, int i) {
+bool Element_CYTK_check_stkm(playerst *data, Simulation *sim, Particle *parts, int i) {
 	int xdiff = abs(data->legs[0] - parts[i].x);
 	int ydiff = abs(data->legs[1] - parts[i].y);
 	if (xdiff + ydiff < MIN_STKM_DISTANCE_TO_ENTER) {
@@ -72,8 +74,7 @@ bool Element_CYTK::check_stkm(playerst *data, Simulation *sim, Particle *parts, 
 	return false;
 }
 
-//#TPT-Directive ElementHeader Element_CYTK static bool attempt_move(int dx, int dy, Simulation *sim, Particle *parts, int i, const Vehicle &v)
-bool Element_CYTK::attempt_move(int x, int y, Simulation *sim, Particle *parts, int i, const Vehicle &v) {
+bool Element_CYTK_attempt_move(int x, int y, Simulation *sim, Particle *parts, int i, const Vehicle &v) {
 	if (parts[i].vx == 0 && parts[i].vy == 0)
 		return false;
 
@@ -165,8 +166,7 @@ bool Element_CYTK::attempt_move(int x, int y, Simulation *sim, Particle *parts, 
 	return false;
 }
 
-//#TPT-Directive ElementHeader Element_CYTK static int create_part(Simulation *sim, int x, int y, int type, float theta, Particle *parts, int i)
-int Element_CYTK::create_part(Simulation *sim, int x, int y, int type, float theta, Particle *parts, int i) {
+int Element_CYTK_create_part(Simulation *sim, int x, int y, int type, float theta, Particle *parts, int i) {
 	if (parts[i].pavg[1])
 		x = -x; // Car going other way
 	rotate(x, y, theta);
@@ -174,8 +174,7 @@ int Element_CYTK::create_part(Simulation *sim, int x, int y, int type, float the
 	return sim->create_part(-1, x, y, type);
 }
 
-//#TPT-Directive ElementHeader Element_CYTK static void get_player_command(Simulation *sim, Particle *parts, int i, int &cmd, int &cmd2)
-void Element_CYTK::get_player_command(Simulation *sim, Particle *parts, int i, int &cmd, int &cmd2) {
+void Element_CYTK_get_player_command(Simulation *sim, Particle *parts, int i, int &cmd, int &cmd2) {
 	int command = parts[i].tmp2 == 1 ? sim->player.comm : sim->player2.comm;
 	if (((int)command & 0x03) == 0x03)      cmd = LEFT_AND_RIGHT;
 	else if (((int)command & 0x01) == 0x01) cmd = LEFT;  // Left
@@ -184,14 +183,13 @@ void Element_CYTK::get_player_command(Simulation *sim, Particle *parts, int i, i
 	else if (((int)command & 0x08) == 0x08) cmd2 = DOWN; // Down
 }
 
-//#TPT-Directive ElementHeader Element_CYTK static void initial_collision(Simulation *sim, Particle *parts, int i, const Vehicle &v, bool &has_collision)
-void Element_CYTK::initial_collision(Simulation *sim, Particle *parts, int i, const Vehicle &v, bool &has_collision) {
-	bool pbl = attempt_move(-v.width / 2, v.height / 2, sim, parts, i, v);
-	bool pbr = attempt_move(v.width / 2, v.height / 2, sim, parts, i, v);
-	bool pbc = attempt_move(0, v.height / 2, sim, parts, i, v);
-	bool tbl = attempt_move(-v.width / 2, -v.height / 2, sim, parts, i, v);
-	bool tbr = attempt_move(v.width / 2, -v.height / 2, sim, parts, i, v);
-	bool tbc = attempt_move(0, -v.height / 2, sim, parts, i, v);
+void Element_CYTK_initial_collision(Simulation *sim, Particle *parts, int i, const Vehicle &v, bool &has_collision) {
+	bool pbl = Element_CYTK_attempt_move(-v.width / 2, v.height / 2, sim, parts, i, v);
+	bool pbr = Element_CYTK_attempt_move(v.width / 2, v.height / 2, sim, parts, i, v);
+	bool pbc = Element_CYTK_attempt_move(0, v.height / 2, sim, parts, i, v);
+	bool tbl = Element_CYTK_attempt_move(-v.width / 2, -v.height / 2, sim, parts, i, v);
+	bool tbr = Element_CYTK_attempt_move(v.width / 2, -v.height / 2, sim, parts, i, v);
+	bool tbc = Element_CYTK_attempt_move(0, -v.height / 2, sim, parts, i, v);
 	has_collision = pbl || pbr || pbc || tbl || tbr || tbc;
 
 	// Match terrain rotation
@@ -239,8 +237,7 @@ void Element_CYTK::initial_collision(Simulation *sim, Particle *parts, int i, co
 		sim->vehicle_p2 = i;
 }
 
-///#TPT-Directive ElementHeader Element_CYTK static void get_target(Simulation *sim, Particle *parts, int &tarx, int &tary)
-void Element_CYTK::get_target(Simulation *sim, Particle *parts, int &tarx, int &tary) {
+void Element_CYTK_get_target(Simulation *sim, Particle *parts, int &tarx, int &tary) {
 	if (sim->player.spwn)
 		tarx = sim->player.legs[0], tary = sim->player.legs[1];
 	else if (sim->player2.spwn)
@@ -251,8 +248,7 @@ void Element_CYTK::get_target(Simulation *sim, Particle *parts, int &tarx, int &
 		tarx = parts[sim->vehicle_p2].x, tary = parts[sim->vehicle_p2].y;
 }
 
-///#TPT-Directive ElementHeader Element_CYTK static void exit_vehicle(Simulation *sim, Particle *parts, int i, int x, int y)
-void Element_CYTK::exit_vehicle(Simulation *sim, Particle *parts, int i, int x, int y) {
+void Element_CYTK_exit_vehicle(Simulation *sim, Particle *parts, int i, int x, int y) {
 	// Flag that vehicle has no stkm
 	// Make sure new spawn location isn't too close or STKM
 	// will instantly re-enter
@@ -272,8 +268,7 @@ void Element_CYTK::exit_vehicle(Simulation *sim, Particle *parts, int i, int x, 
 	}
 }
 
-//#TPT-Directive ElementHeader Element_CYTK static void update_vehicle(Simulation *sim, Particle *parts, int i, const Vehicle &v, float ovx, float ovy)
-void Element_CYTK::update_vehicle(Simulation *sim, Particle *parts, int i, const Vehicle &v, float ovx, float ovy) {
+void Element_CYTK_update_vehicle(Simulation *sim, Particle *parts, int i, const Vehicle &v, float ovx, float ovy) {
 	// Limit max speed
 	if (parts[i].vx > v.max_speed)
 		parts[i].vx = v.max_speed;
@@ -309,11 +304,11 @@ void Element_CYTK::update_vehicle(Simulation *sim, Particle *parts, int i, const
 	}
 
 	// Check for nearby STKM and FIGH
-	if (sim->vehicle_p1 < 0 && parts[i].tmp2 == 0 && sim->player.spawnID >= 0 && check_stkm(&sim->player, sim, parts, i)) {
+	if (sim->vehicle_p1 < 0 && parts[i].tmp2 == 0 && sim->player.spawnID >= 0 && Element_CYTK_check_stkm(&sim->player, sim, parts, i)) {
 		parts[i].tmp2 = 1;
 		sim->vehicle_p1 = i;
 	}
-	if (sim->vehicle_p2 < 0 && parts[i].tmp2 == 0 && sim->player2.spawnID >= 0 && check_stkm(&sim->player2, sim, parts, i)) {
+	if (sim->vehicle_p2 < 0 && parts[i].tmp2 == 0 && sim->player2.spawnID >= 0 && Element_CYTK_check_stkm(&sim->player2, sim, parts, i)) {
 		parts[i].tmp2 = 2;
 		sim->vehicle_p2 = i;
 	}
@@ -321,7 +316,7 @@ void Element_CYTK::update_vehicle(Simulation *sim, Particle *parts, int i, const
 		for (unsigned int j = 0; j < MAX_FIGHTERS; ++j) {
 			if (!sim->fighters[j].spwn)
 				continue;
-			if (check_stkm(&sim->fighters[j], sim, parts, i)) {
+			if (Element_CYTK_check_stkm(&sim->fighters[j], sim, parts, i)) {
 				parts[i].tmp2 = 3;
 				break;
 			}
@@ -332,9 +327,29 @@ void Element_CYTK::update_vehicle(Simulation *sim, Particle *parts, int i, const
 // The rest of the stuff below is cybetruck specific
 // Anything above is often used in other vehicles too
 
+void Element_CYTK_changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
+	if (to == PT_NONE && sim->parts[i].life <= 0) {
+		// Upon death, turn into a cybertruck shaped pile of BGLA, BRMT and BREC
+		int j, t;
+		for (auto px = CYBERTRUCK_PIXELS.begin(); px != CYBERTRUCK_PIXELS.end(); ++px) {
+			t = RNG::Ref().between(0, 100);
+			if (t < 20)
+				j = Element_CYTK_create_part(sim, px->x, px->y, PT_BGLA, sim->parts[i].pavg[0], sim->parts, i);
+			else if (t < 70)
+				j = Element_CYTK_create_part(sim, px->x, px->y, PT_BRMT, sim->parts[i].pavg[0], sim->parts, i);
+			else
+				j = Element_CYTK_create_part(sim, px->x, px->y, PT_BREC, sim->parts[i].pavg[0], sim->parts, i);
+			if (j > -1) {
+				sim->parts[j].dcolour = 0xAF000000 | PIXRGB(px->r, px->g, px->b);
+				sim->parts[j].vx = sim->parts[i].vx;
+				sim->parts[j].vy = sim->parts[i].vy;
+				sim->parts[j].temp = sim->parts[i].temp;
+			}
+		}
+	}
+}
 
-//#TPT-Directive ElementHeader Element_CYTK static int update(UPDATE_FUNC_ARGS)
-int Element_CYTK::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// NOTE: Cybertruck UPDATES TWICE PER FRAME
 	/**
 	 * Properties:
@@ -357,7 +372,7 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 	// bounds the cybertruck
 	float ovx = parts[i].vx, ovy = parts[i].vy;
 	bool has_collision;
-	initial_collision(sim, parts, i, Cybertruck, has_collision);
+	Element_CYTK_initial_collision(sim, parts, i, Cybertruck, has_collision);
 
 	// Collision damage
 	if (has_collision && (fabs(ovx) > Cybertruck.collision_speed || fabs(ovy) > Cybertruck.collision_speed)) {
@@ -379,25 +394,25 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 	// If life <= 50 spawn sparks (EMBR)
 	if (parts[i].life <= 50) {
 		if (RNG::Ref().chance(1, 50))
-			create_part(sim, Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK_create_part(sim, Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 		if (RNG::Ref().chance(1, 50))
-			create_part(sim, -Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK_create_part(sim, -Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 		if (RNG::Ref().chance(1, 50))
-			create_part(sim, 0, -Cybertruck.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK_create_part(sim, 0, -Cybertruck.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 	}
 	// If life <= 25 spawn fire damage
 	if (parts[i].life <= 25 && RNG::Ref().chance(1, 30)) {
-		create_part(sim, -Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_FIRE, parts[i].pavg[0], parts, i);
+		Element_CYTK_create_part(sim, -Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_FIRE, parts[i].pavg[0], parts, i);
 	}
 
 	// Player controls
 	int cmd = NOCMD, cmd2 = NOCMD;
 	if (is_stkm(parts[i].tmp2))
-		Element_CYTK::get_player_command(sim, parts, i, cmd, cmd2);
+		Element_CYTK_get_player_command(sim, parts, i, cmd, cmd2);
 	// Fighter AI
 	else if (is_figh(parts[i].tmp2)) {
 		int tarx = -1, tary = -1;
-		get_target(sim, parts, tarx, tary);
+		Element_CYTK_get_target(sim, parts, tarx, tary);
 		if (tarx > 0) {
 			if (parts[i].tmp == 2 || parts[i].tmp == 3) { // Flamethrower / bomb weapon
 				cmd2 = DOWN;
@@ -431,7 +446,7 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 			}
 		}
 		if (cmd2 == UP) { // Exit (up)
-			exit_vehicle(sim, parts, i, x, y);
+			Element_CYTK_exit_vehicle(sim, parts, i, x, y);
 			return 0;
 		}
 		else if (cmd2 == DOWN) { // Fly or shoot (down)
@@ -440,8 +455,8 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 				rotate(ax, ay, parts[i].pavg[0]);
 				parts[i].vx += ax, parts[i].vy += ay;
 
-				int j1 = create_part(sim, Cybertruck.width * 0.4f, Cybertruck.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
-				int j2 = create_part(sim, -Cybertruck.width * 0.4f, Cybertruck.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
+				int j1 = Element_CYTK_create_part(sim, Cybertruck.width * 0.4f, Cybertruck.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
+				int j2 = Element_CYTK_create_part(sim, -Cybertruck.width * 0.4f, Cybertruck.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
 				if (j1 > -1 && j2 > -1) {
 					parts[j1].temp = parts[j2].temp = 400.0f;
 					parts[j1].life = RNG::Ref().between(0, 100) + 50;
@@ -449,7 +464,7 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 				}
 			}
 			else if (parts[i].tmp == 2) { // Flamethrower
-				int j = create_part(sim, -Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_BCOL, parts[i].pavg[0], parts, i);
+				int j = Element_CYTK_create_part(sim, -Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_BCOL, parts[i].pavg[0], parts, i);
 				if (j > -1) {
 					parts[j].life = RNG::Ref().between(0, 100) + 50;
 					parts[j].vx = parts[i].pavg[1] ? 15 : -15;
@@ -458,7 +473,7 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 				}
 			}
 			else if (parts[i].tmp == 3 && sim->timer % 50 == 0) { // BOMB
-				int j = create_part(sim, -Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_BOMB, parts[i].pavg[0], parts, i);
+				int j = Element_CYTK_create_part(sim, -Cybertruck.width * 0.4f, -Cybertruck.height / 2, PT_BOMB, parts[i].pavg[0], parts, i);
 				if (j > -1) {
 					parts[j].life = RNG::Ref().between(0, 100) + 50;
 					parts[j].vx = parts[i].pavg[1] ? 10 : -10;
@@ -469,38 +484,12 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 		}
 	}
 
-	update_vehicle(sim, parts, i, Cybertruck, ovx, ovy);
+	Element_CYTK_update_vehicle(sim, parts, i, Cybertruck, ovx, ovy);
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_CYTK static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CYTK::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*cola = 0;
 	draw_cybertruck(ren, cpart, cpart->pavg[0]);
 	return 0;
 }
-
-//#TPT-Directive ElementHeader Element_CYTK static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
-void Element_CYTK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
-	if (to == PT_NONE && sim->parts[i].life <= 0) {
-		// Upon death, turn into a cybertruck shaped pile of BGLA, BRMT and BREC
-		int j, t;
-		for (auto px = CYBERTRUCK_PIXELS.begin(); px != CYBERTRUCK_PIXELS.end(); ++px) {
-			t = RNG::Ref().between(0, 100);
-			if (t < 20)
-				j = create_part(sim, px->x, px->y, PT_BGLA, sim->parts[i].pavg[0], sim->parts, i);
-			else if (t < 70)
-				j = create_part(sim, px->x, px->y, PT_BRMT, sim->parts[i].pavg[0], sim->parts, i);
-			else
-				j = create_part(sim, px->x, px->y, PT_BREC, sim->parts[i].pavg[0], sim->parts, i);
-			if (j > -1) {
-				sim->parts[j].dcolour = 0xAF000000 | PIXRGB(px->r, px->g, px->b);
-				sim->parts[j].vx = sim->parts[i].vx;
-				sim->parts[j].vy = sim->parts[i].vy;
-				sim->parts[j].temp = sim->parts[i].temp;
-			}
-		}
-	}
-}
-
-Element_CYTK::~Element_CYTK() {}

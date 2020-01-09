@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/mvsd/movingsolids.h"
 
-//#TPT-Directive ElementClass Element_PGEL PT_PGEL 202
-Element_PGEL::Element_PGEL()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_PGEL()
 {
 	Identifier = "DEFAULT_PT_PGEL";
 	Name = "RGEL";
@@ -44,12 +46,11 @@ Element_PGEL::Element_PGEL()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_PGEL::update;
-	Graphics = &Element_PGEL::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_PGEL static int update(UPDATE_FUNC_ARGS)
-int Element_PGEL::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int rx, ry, rt, r;
 	for (rx = -2; rx < 3; rx++)
@@ -136,11 +137,11 @@ int Element_PGEL::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_PGEL static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_PGEL::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	*pixel_mode |= PMODE_BLUR;
 	return 0;
 }
 
-Element_PGEL::~Element_PGEL() {}
+
+

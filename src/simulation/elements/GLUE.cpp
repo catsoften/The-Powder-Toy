@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_GLUE PT_GLUE 198
-Element_GLUE::Element_GLUE()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_GLUE()
 {
 	Identifier = "DEFAULT_PT_GLUE";
 	Name = "GLUE";
@@ -42,12 +44,11 @@ Element_GLUE::Element_GLUE()
 	HighTemperature = 273.15f + 300.0f;
 	HighTemperatureTransition = PT_CRMC;
 
-	Update = &Element_GLUE::update;
-	Graphics = &Element_GLUE::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_GLUE static int update(UPDATE_FUNC_ARGS)
-int Element_GLUE::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, rt;
 	for (rx=-2; rx<3; rx++)
@@ -100,10 +101,10 @@ int Element_GLUE::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_GLUE static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_GLUE::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	return 1;
 }
 
-Element_GLUE::~Element_GLUE() {}
+
+

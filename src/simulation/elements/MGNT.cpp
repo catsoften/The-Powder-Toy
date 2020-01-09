@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/magnetics/magnetics.h"
 
-//#TPT-Directive ElementClass Element_MGNT PT_MGNT 250
-Element_MGNT::Element_MGNT()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_MGNT()
 {
 	Identifier = "DEFAULT_PT_MGNT";
 	Name = "MGNT";
@@ -15,12 +17,11 @@ Element_MGNT::Element_MGNT()
 	Description = "Permanent magnet.";
 	
 
-	Update = &Element_MGNT::update;
-	Graphics = &Element_MGNT::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_MGNT static int update(UPDATE_FUNC_ARGS)
-int Element_MGNT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	if (!parts[i].flags) {
 		parts[i].flags= 1;
 		sim->emfield->change_magnetic[FASTXY(x / EMCELL, y / EMCELL)] = 64.0f;
@@ -34,8 +35,7 @@ int Element_MGNT::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_MGNT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_MGNT::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -43,4 +43,5 @@ int Element_MGNT::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_MGNT::~Element_MGNT() {}
+
+

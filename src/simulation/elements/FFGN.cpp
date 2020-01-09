@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
 #include <set>
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 namespace FFGN {
 	// Keep track when to clear
 	unsigned int previous_sim_timer = 0;
@@ -8,9 +11,7 @@ namespace FFGN {
 	std::set<int> line_generators;
 }
 
-//#TPT-Directive ElementClass Element_FFGN PT_FFGN 205
-Element_FFGN::Element_FFGN()
-{
+void Element::Element_FFGN() {
 	Identifier = "DEFAULT_PT_FFGN";
 	Name = "FFGN";
 	Colour = PIXPACK(0x7F6600);
@@ -50,13 +51,12 @@ Element_FFGN::Element_FFGN()
 	HighTemperature = ITL;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_FFGN::update;
-	Graphics = &Element_FFGN::graphics;
+	Update = &update;
+	Graphics = &graphics;
 	CtypeDraw = &Element::ctypeDrawVInTmp;
 }
 
-//#TPT-Directive ElementHeader Element_FFGN static void flood_fill_FFLD(Particle *parts, Simulation *sim, int i, int x, int y)
-void Element_FFGN::flood_fill_FFLD(Particle *parts, Simulation *sim, int i, int x, int y) {
+static void flood_fill_FFLD(Particle *parts, Simulation *sim, int i, int x, int y) {
 	if (x < 0 || y < 0 || x >= XRES || y >= YRES)
 		return;
 
@@ -69,9 +69,7 @@ void Element_FFGN::flood_fill_FFLD(Particle *parts, Simulation *sim, int i, int 
 	sim->flood_prop(x, y, offsetof(Particle, dcolour), value3, StructProperty::UInteger);
 }
 
-//#TPT-Directive ElementHeader Element_FFGN static int update(UPDATE_FUNC_ARGS)
-int Element_FFGN::update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Props:
 	 * temp: radius / size
@@ -181,8 +179,7 @@ int Element_FFGN::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_FFGN static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FFGN::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Lighter if activated
 	if (cpart->life > 0) {
 		*colr *= 2;
@@ -215,4 +212,5 @@ int Element_FFGN::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_FFGN::~Element_FFGN() {}
+
+

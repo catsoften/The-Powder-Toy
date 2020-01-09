@@ -1,7 +1,8 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_NPLM PT_NPLM 191
-Element_NPLM::Element_NPLM()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_NPLM()
 {
 	Identifier = "DEFAULT_PT_NPLM";
 	Name = "NPLM";
@@ -44,12 +45,11 @@ Element_NPLM::Element_NPLM()
 	HighTemperature = 4000.0f;
 	HighTemperatureTransition = PT_H2;
 	
-	Update = &Element_NPLM::update;
+	Update = &update;
 	
 }
 
-//#TPT-Directive ElementHeader Element_NPLM static int update(UPDATE_FUNC_ARGS)
-int Element_NPLM::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].tmp > 0 && sim->timer % 10 == 0) {
 		int j = sim->create_part(-1, parts[i].x - 1, parts[i].y - 1, PT_FIRE);
@@ -100,4 +100,4 @@ int Element_NPLM::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-Element_NPLM::~Element_NPLM() {}
+

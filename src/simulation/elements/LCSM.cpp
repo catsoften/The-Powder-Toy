@@ -1,8 +1,12 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_LCSM PT_LCSM 257
-Element_LCSM::Element_LCSM()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+int Element_CESM_update(UPDATE_FUNC_ARGS);
+int Element_CESM_graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_LCSM() {
 	Identifier = "DEFAULT_PT_LCSM";
 	Name = "LCSM";
 	Colour = PIXPACK(0xBED15E);
@@ -43,12 +47,11 @@ Element_LCSM::Element_LCSM()
 	HighTemperature = 273.15f + 1100.0f;
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_LCSM::update;
-	Graphics = &Element_LCSM::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_LCSM static int update(UPDATE_FUNC_ARGS)
-int Element_LCSM::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// No conducting if above 671 C
 	// Also "shake"
 	if (parts[i].temp > 671.0f + 273.15f) {
@@ -57,14 +60,13 @@ int Element_LCSM::update(UPDATE_FUNC_ARGS) {
 		parts[i].vy += RNG::Ref().uniform01() - 0.5f;
 	}
 
-	Element_CESM::update(sim, i, x, y, surround_space, nt, parts, pmap);
+	Element_CESM_update(sim, i, x, y, surround_space, nt, parts, pmap);
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_LCSM static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_LCSM::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
-	Element_CESM::graphics(ren, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
+	Element_CESM_graphics(ren, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
 
 	// Glow when hot
 	if (cpart->temp > 671.0f + 273.15f) {
@@ -80,4 +82,5 @@ int Element_LCSM::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_LCSM::~Element_LCSM() {}
+
+

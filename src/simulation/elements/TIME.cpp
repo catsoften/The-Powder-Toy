@@ -1,7 +1,11 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_TIME PT_TIME 234
-Element_TIME::Element_TIME()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element_CBMB_time_dilation(Simulation *sim, int x, int y, int radius, int val);
+
+void Element::Element_TIME()
 {
 	Identifier = "DEFAULT_PT_TIME";
 	Name = "TIME";
@@ -44,12 +48,11 @@ Element_TIME::Element_TIME()
 
 	DefaultProperties.tmp2 = 0;
 
-	Update = &Element_TIME::update;
-	Graphics = &Element_TIME::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_TIME static int update(UPDATE_FUNC_ARGS)
-int Element_TIME::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Let every 16 degrees = 1 level
 	if (parts[i].temp < 273.15f + 16 * sim->MIN_TIME_DILATION)
 		parts[i].temp = 273.15f + 16 * sim->MIN_TIME_DILATION;
@@ -58,7 +61,7 @@ int Element_TIME::update(UPDATE_FUNC_ARGS) {
 
 	// Generate the field
 	if (parts[i].tmp2 > 0) {
-		Element_CBMB::time_dilation(sim, x, y, 15, (parts[i].temp - 273.15f) / 16);
+		Element_CBMB_time_dilation(sim, x, y, 15, (parts[i].temp - 273.15f) / 16);
 	}
 
 	int rx, ry, r, rt;
@@ -110,8 +113,7 @@ int Element_TIME::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_TIME static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_TIME::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	float m = cpart->tmp2 / 10.0f + 1.0f;
 	*colr *= m;
 	*colg *= m;
@@ -129,4 +131,5 @@ int Element_TIME::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_TIME::~Element_TIME() {}
+
+

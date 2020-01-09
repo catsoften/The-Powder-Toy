@@ -1,15 +1,17 @@
 #include "simulation/ToolCommon.h"
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ToolClass Tool_Deco TOOL_DECO 8
-Tool_Deco::Tool_Deco() {
+static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength);
+
+void SimTool::Tool_DECO() {
 	Identifier = "DEFAULT_TOOL_DECO";
 	Name = "DECO";
     Colour = PIXPACK(0xba85ff);
     Description = "Sets the dcolour of non-decorated particles to its element color.";
+	Perform = &perform;
 }
 
-int Tool_Deco::Perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength) {
+static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength) {
 	if (cpart && cpart->type) {
 		int cr, cg, cb, ca, ct, useless;
 		if (sim->elements[cpart->type].Graphics) {
@@ -40,5 +42,3 @@ int Tool_Deco::Perform(Simulation * sim, Particle * cpart, int x, int y, int bru
 	}
 	return 1;
 }
-
-Tool_Deco::~Tool_Deco() {}

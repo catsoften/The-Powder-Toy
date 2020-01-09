@@ -1,15 +1,17 @@
 #include "simulation/ToolCommon.h"
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ToolClass Tool_EROD TOOL_EROD 10
-Tool_EROD::Tool_EROD() {
+static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength);
+
+void SimTool::Tool_ERODE() {
 	Identifier = "DEFAULT_TOOL_EROD";
 	Name = "EROD";
 	Colour = PIXPACK(0xcc361f);
 	Description = "Erode the edges of solids and powders.";
+    Perform = &perform;
 }
 
-int Tool_EROD::Perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength) {
+static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength) {
 	if (!cpart || !(sim->elements[cpart->type].Properties & TYPE_PART || sim->elements[cpart->type].Properties & TYPE_SOLID))
 		return 0;
 	
@@ -30,5 +32,3 @@ int Tool_EROD::Perform(Simulation * sim, Particle * cpart, int x, int y, int bru
         sim->kill_part(ID(sim->pmap[y][x]));
 	return 1;
 }
-
-Tool_EROD::~Tool_EROD() {}

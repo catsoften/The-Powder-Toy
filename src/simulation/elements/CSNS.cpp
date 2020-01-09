@@ -1,9 +1,11 @@
 #include "simulation/ElementCommon.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 #define PIXA(x) (((x)>>24)&0xFF)
 
-//#TPT-Directive ElementClass Element_CSNS PT_CSNS 286
-Element_CSNS::Element_CSNS() {
+void Element::Element_CSNS() {
 	Identifier = "DEFAULT_PT_CSNS";
 	Name = "CSNS";
 	Colour = PIXPACK(0xc242f5);
@@ -45,12 +47,11 @@ Element_CSNS::Element_CSNS() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_CSNS::update;
-	Graphics = &Element_CSNS::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_CSNS static int update(UPDATE_FUNC_ARGS)
-int Element_CSNS::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * temp = difference must be within this value. If temp is negative then must be greater
@@ -139,9 +140,9 @@ int Element_CSNS::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_CSNS static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CSNS::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_CSNS::~Element_CSNS() {}
+
+

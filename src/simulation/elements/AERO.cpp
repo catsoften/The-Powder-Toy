@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_AERO PT_AERO 266
-Element_AERO::Element_AERO()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_AERO()
 {
 	Identifier = "DEFAULT_PT_AERO";
 	Name = "AERO";
@@ -41,18 +43,17 @@ Element_AERO::Element_AERO()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_AERO::update;
-	Graphics = &Element_AERO::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_AERO static int update(UPDATE_FUNC_ARGS)
-int Element_AERO::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	return 1;
 }
 
-//#TPT-Directive ElementHeader Element_AERO static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_AERO::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_AERO::~Element_AERO() {}
+
+

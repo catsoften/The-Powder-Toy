@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_CRNM PT_CRNM 231
-Element_CRNM::Element_CRNM()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_CRNM()
 {
 	Identifier = "DEFAULT_PT_CRNM";
 	Name = "CRNM";
@@ -42,12 +44,11 @@ Element_CRNM::Element_CRNM()
 	HighTemperature = 273.15f + 3000.0f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_CRNM::update;
-	Graphics = &Element_CRNM::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_CRNM static int update(UPDATE_FUNC_ARGS)
-int Element_CRNM::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r;
 
 	if (parts[i].life > 0 && sim->timer % 10 == 0) {
@@ -83,8 +84,7 @@ int Element_CRNM::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_CRNM static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CRNM::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_GLOW;
 
 	if (cpart->life > 4) {
@@ -101,4 +101,5 @@ int Element_CRNM::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_CRNM::~Element_CRNM() {}
+
+

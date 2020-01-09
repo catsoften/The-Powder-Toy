@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_ACOL PT_ACOL 301
-Element_ACOL::Element_ACOL()
-{
+int Element_ACOL_update(UPDATE_FUNC_ARGS);
+int Element_ACOL_graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_ACOL() {
 	Identifier = "DEFAULT_PT_ACOL";
 	Name = "ACOL";
 	Colour = PIXPACK(0x222222);
@@ -45,12 +46,11 @@ Element_ACOL::Element_ACOL()
 	DefaultProperties.life = 110;
 	DefaultProperties.tmp = 50;
 
-	Update = &Element_ACOL::update;
-	Graphics = &Element_ACOL::graphics;
+	Update = &Element_ACOL_update;
+	Graphics = &Element_ACOL_graphics;
 }
 
-//#TPT-Directive ElementHeader Element_ACOL static int update(UPDATE_FUNC_ARGS)
-int Element_ACOL::update(UPDATE_FUNC_ARGS) {
+int Element_ACOL_update(UPDATE_FUNC_ARGS) {
 	if (parts[i].life <= 0) {
 		sim->create_part(i, x, y, PT_CFLM);
 		return 1;
@@ -73,8 +73,7 @@ int Element_ACOL::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_ACOL static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ACOL::graphics(GRAPHICS_FUNC_ARGS) {
+int Element_ACOL_graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->temp < 273.15f) {
 		*colr += 273.15f - cpart->temp;
 		*colg += 273.15f - cpart->temp;
@@ -83,5 +82,3 @@ int Element_ACOL::graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-Element_ACOL::~Element_ACOL() {}

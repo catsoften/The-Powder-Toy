@@ -2,6 +2,11 @@
 #include <cmath>
 #include <iostream>
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void Element_BALI_create(ELEMENT_CREATE_FUNC_ARGS);
+void Element_EXFN_draw_glowy_pixel(Renderer *ren, int nx, int ny, int colr, int colg, int colb, int cola);
+
 // SPOILERS
 // Do not read this element code unless
 // you want to be spoiled for Liu Cixin's Ball Lightning (novel)
@@ -66,8 +71,7 @@ namespace BALI_DATA {
 	}
 }
 
-//#TPT-Directive ElementClass Element_BALI PT_BALI 195
-Element_BALI::Element_BALI()
+void Element::Element_BALI()
 {
 	Identifier = "DEFAULT_PT_BALI";
 	Name = "BALI";
@@ -96,13 +100,12 @@ Element_BALI::Element_BALI()
 	Description = "Ball Lightning. Actually a macroelectron, releases energy onto its ctype.";
 	Properties = TYPE_GAS;
 
-	Update = &Element_BALI::update;
-	Graphics = &Element_BALI::graphics;
-	Create = &Element_BALI::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_BALI_create;
 }
 
-//#TPT-Directive ElementHeader Element_BALI static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_BALI::create(ELEMENT_CREATE_FUNC_ARGS) {
+void Element_BALI_create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].tmp = RNG::Ref().between(600, 4999);
 	sim->parts[i].life = RNG::Ref().between(380, 625);
 
@@ -110,8 +113,7 @@ void Element_BALI::create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].ctype = BALI_DATA::DEFAULT_CTYPES[RNG::Ref().between(0, BALI_DATA::NUM_DEFAULT_CTYPES)];
 }
 
-//#TPT-Directive ElementHeader Element_BALI static int update(UPDATE_FUNC_ARGS)
-int Element_BALI::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * life = energy level
@@ -205,8 +207,7 @@ int Element_BALI::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BALI static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BALI::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Stand still and glow, we can just glow this 1 px
 	if (cpart->tmp2) {
 		*pixel_mode |= FIRE_ADD;
@@ -233,9 +234,9 @@ int Element_BALI::graphics(GRAPHICS_FUNC_ARGS) {
 			r = rx * rx + ry * ry;
 			r *= (1 + 1.5f * RNG::Ref().uniform01());
 			if (r <= FOUR_RADIUS) // Radius 4, pulsates. White glow inside
-				Element_EXFN::draw_glowy_pixel(ren, cpart->x + rx, cpart->y + ry, 255, 255, 255, *cola);
+				Element_EXFN_draw_glowy_pixel(ren, cpart->x + rx, cpart->y + ry, 255, 255, 255, *cola);
 			else if (r <= 36) // Radius 6, outer glow (colored)
-				Element_EXFN::draw_glowy_pixel(ren, cpart->x + rx, cpart->y + ry, *colr, *colg, *colb, *cola);
+				Element_EXFN_draw_glowy_pixel(ren, cpart->x + rx, cpart->y + ry, *colr, *colg, *colb, *cola);
 		}
 
 	// Actual middle particle is invisible, make it white to blend in if its white
@@ -243,4 +244,5 @@ int Element_BALI::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_BALI::~Element_BALI() {}
+
+

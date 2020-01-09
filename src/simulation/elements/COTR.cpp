@@ -1,11 +1,15 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/Spaceship.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS);
+
 #include <climits>
 #include <vector>
 
-//#TPT-Directive ElementClass Element_COTR PT_COTR 208
-Element_COTR::Element_COTR()
+void Element::Element_COTR()
 {
 	Identifier = "DEFAULT_PT_COTR";
 	Name = "COTR";
@@ -16,26 +20,23 @@ Element_COTR::Element_COTR()
 
 
 	// element properties here
-	Update = &Element_COTR::update;
-	Graphics = &Element_COTR::graphics;
-	Create = &Element_COTR::create;
-	ChangeType = &Element_COTR::changeType;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
+	ChangeType = &changeType;
 }
 
-//#TPT-Directive ElementHeader Element_COTR static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_COTR::create(ELEMENT_CREATE_FUNC_ARGS) {
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].pavg[0] = -1;
 }
 
-//#TPT-Directive ElementHeader Element_COTR static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
-void Element_COTR::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	// Remove self if dead
 	if (SHIPS::ships.count(sim->parts[i].pavg[0]) > 0)
 		SHIPS::ships[sim->parts[i].pavg[0]].destroy(sim); // Ship self-destructs if controller dies
 }
 
-//#TPT-Directive ElementHeader Element_COTR static int update(UPDATE_FUNC_ARGS)
-int Element_COTR::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	// pavg[0] is unique ship ID
 	// Generate ship ID or regenerate if it doesn't exist
@@ -48,12 +49,12 @@ int Element_COTR::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_COTR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_COTR::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
 	return 0;
 }
 
-Element_COTR::~Element_COTR() {}
+
+

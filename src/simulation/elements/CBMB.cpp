@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_CBMB PT_CBMB 235
-Element_CBMB::Element_CBMB() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_CBMB() {
 	Identifier = "DEFAULT_PT_CBMB";
 	Name = "CBMB";
 	Colour = PIXPACK(0x4ad998);
@@ -43,12 +45,11 @@ Element_CBMB::Element_CBMB() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_CBMB::update;
-	Graphics = &Element_CBMB::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_CBMB static void time_dilation(Simulation *sim, int x, int y, int radius, int val)
-void Element_CBMB::time_dilation(Simulation *sim, int x, int y, int radius, int val) {
+void Element_CBMB_time_dilation(Simulation *sim, int x, int y, int radius, int val) {
 	x = x / CELL;
 	y = y / CELL;
 
@@ -64,8 +65,7 @@ void Element_CBMB::time_dilation(Simulation *sim, int x, int y, int radius, int 
 		}
 }
 
-//#TPT-Directive ElementHeader Element_CBMB static int update(UPDATE_FUNC_ARGS)
-int Element_CBMB::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// tmp2 is used for detonation timing
 	if (parts[i].tmp2 == 1) {
 		sim->kill_part(i);
@@ -98,11 +98,11 @@ int Element_CBMB::update(UPDATE_FUNC_ARGS) {
 
 	// Detonation
 	if (parts[i].tmp2 > 50) {
-		time_dilation(sim, x, y, 10, -8);
+		Element_CBMB_time_dilation(sim, x, y, 10, -8);
 		parts[i].vx = parts[i].vy = 0;
 	} 
 	else if (parts[i].tmp2 >= 1) {
-		time_dilation(sim, x, y, 10, 4);
+		Element_CBMB_time_dilation(sim, x, y, 10, 4);
 		parts[i].vx = parts[i].vy = 0;
 	}
 
@@ -133,8 +133,7 @@ int Element_CBMB::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_CBMB static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CBMB::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*firea = 8;
 
 	if(cpart->tmp2 > 50) {
@@ -158,4 +157,5 @@ int Element_CBMB::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_CBMB::~Element_CBMB() {}
+
+

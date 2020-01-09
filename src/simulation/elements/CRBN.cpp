@@ -1,7 +1,12 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_CRBN PT_CRBN 215
-Element_CRBN::Element_CRBN()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
+void Element_RDND_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_CRBN()
 {
 	Identifier = "DEFAULT_PT_CRBN";
 	Name = "CRBN";
@@ -42,14 +47,12 @@ Element_CRBN::Element_CRBN()
 	HighTemperature = 3600.0f + 273.15f;
 	HighTemperatureTransition = PT_CO2;
 
-	Update = &Element_CRBN::update;
-	Graphics = &Element_CRBN::graphics;
-	Create = &Element_CLST::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_CLST_create;
 }
 
-//#TPT-Directive ElementHeader Element_CRBN static int update(UPDATE_FUNC_ARGS)
-int Element_CRBN::update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	// Stay still if tmp2
 	if (parts[i].tmp2)
 		parts[i].vx = parts[i].vy = 0;
@@ -57,7 +60,7 @@ int Element_CRBN::update(UPDATE_FUNC_ARGS)
 	// Solidify into realistic diamond
 	if (parts[i].temp > 273.15f + 2500.0f && sim->pv[y/CELL][x/CELL] > 100.0f && RNG::Ref().chance(1, 20)) {
 		sim->part_change_type(i, parts[i].x, parts[i].y, PT_RDND);
-		Element_RDND::create(sim, i, x, y, PT_RDND, -1);
+		Element_RDND_create(sim, i, x, y, PT_RDND, -1);
 		return 0;
 	}
 
@@ -117,8 +120,7 @@ int Element_CRBN::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_CRBN static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CRBN::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	int z = (cpart->tmp - 5) * 5; // Speckles!
 	*colr += z;
 	*colg += z;
@@ -126,5 +128,3 @@ int Element_CRBN::graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-Element_CRBN::~Element_CRBN() {}

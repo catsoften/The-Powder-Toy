@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_FOAM PT_FOAM 310
-Element_FOAM::Element_FOAM()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_FOAM()
 {
 	Identifier = "DEFAULT_PT_FOAM";
 	Name = "FOAM";
@@ -42,12 +44,11 @@ Element_FOAM::Element_FOAM()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_FOAM::update;
-	Graphics = &Element_FOAM::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_FOAM static int update(UPDATE_FUNC_ARGS)
-int Element_FOAM::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp: particles it can create
@@ -84,8 +85,7 @@ int Element_FOAM::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_FOAM static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FOAM::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 
 	*pixel_mode |= FIRE_BLEND;
@@ -95,4 +95,5 @@ int Element_FOAM::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_FOAM::~Element_FOAM() {}
+
+

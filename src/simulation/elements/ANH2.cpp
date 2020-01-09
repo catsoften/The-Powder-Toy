@@ -1,7 +1,8 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_ANH2 PT_ANH2 304
-Element_ANH2::Element_ANH2()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_ANH2()
 {
 	Identifier = "DEFAULT_PT_ANH2";
 	Name = "ANH2";
@@ -41,11 +42,10 @@ Element_ANH2::Element_ANH2()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_ANH2::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_ANH2 static int update(UPDATE_FUNC_ARGS)
-int Element_ANH2::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry, rt;
 	for (rx = -2; rx < 3; rx++)
 	for (ry = -2; ry < 3; ry++)
@@ -149,4 +149,5 @@ int Element_ANH2::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_ANH2::~Element_ANH2() {}
+
+

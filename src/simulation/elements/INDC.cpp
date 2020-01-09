@@ -1,7 +1,8 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_INDC PT_INDC 264
-Element_INDC::Element_INDC()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_INDC()
 {
 	Identifier = "DEFAULT_PT_INDC";
 	Name = "INDC";
@@ -43,12 +44,11 @@ Element_INDC::Element_INDC()
 	HighTemperature = 1085.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_INDC::update;
+	Update = &update;
 	Graphics = NULL;
 }
 
-//#TPT-Directive ElementHeader Element_INDC static int update(UPDATE_FUNC_ARGS)
-int Element_INDC::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * pavg0 - inductance
@@ -58,4 +58,4 @@ int Element_INDC::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_INDC::~Element_INDC() {}
+

@@ -1,7 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_APRT PT_APRT 306
-Element_APRT::Element_APRT()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_PROT_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_APRT()
 {
 	Identifier = "DEFAULT_PT_APRT";
 	Name = "APRT";
@@ -43,13 +46,12 @@ Element_APRT::Element_APRT()
 
 	DefaultProperties.life = 75;
 
-	Update = &Element_APRT::update;
-	Graphics = &Element_APRT::graphics;
-	Create = &Element_PROT::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_PROT_create;
 }
 
-//#TPT-Directive ElementHeader Element_APRT static int update(UPDATE_FUNC_ARGS)
-int Element_APRT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int r, rt, rx, ry, ni;
 	float total_e, vx, vy, angle, difference, direction1, direction2;
 
@@ -205,8 +207,7 @@ int Element_APRT::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_APRT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_APRT::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*firea = 15;
 	*firer = 58;
 	*fireg = 150;
@@ -215,5 +216,3 @@ int Element_APRT::graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= FIRE_BLEND;
 	return 1;
 }
-
-Element_APRT::~Element_APRT() {}

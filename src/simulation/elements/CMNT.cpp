@@ -1,8 +1,12 @@
 #include "simulation/ElementCommon.h"
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
+
 #define MAX_LIFE_CMNT 3000
 
-//#TPT-Directive ElementClass Element_CMNT PT_CMNT 243
-Element_CMNT::Element_CMNT() {
+void Element::Element_CMNT() {
 	Identifier = "DEFAULT_PT_CMNT";
 	Name = "CMNT";
 	Colour = PIXPACK(0xb8b8b8);
@@ -42,13 +46,12 @@ Element_CMNT::Element_CMNT() {
 	HighTemperature = 983.0f;
 	HighTemperatureTransition = PT_STNE;
 
-	Create = &Element_CLST::create;
-	Update = &Element_CMNT::update;
-	Graphics = &Element_CMNT::graphics;
+	Create = &Element_CLST_create;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_CMNT static int update(UPDATE_FUNC_ARGS)
-int Element_CMNT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * life - water absorbed 
@@ -132,8 +135,7 @@ int Element_CMNT::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_CMNT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CMNT::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR | PMODE_BLOB;
 
 	// 184 -> 168 depending on life, 3000 -> 0
@@ -148,7 +150,5 @@ int Element_CMNT::graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-Element_CMNT::~Element_CMNT() {}
 
 #undef MAX_LIFE_CMNT

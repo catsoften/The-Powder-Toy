@@ -1,10 +1,12 @@
 #include "simulation/ElementCommon.h"
 #include <vector>
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 const int MAX_PHOT_SPEED = 30;
 
-//#TPT-Directive ElementClass Element_FIBR PT_FIBR 261
-Element_FIBR::Element_FIBR()
+void Element::Element_FIBR()
 {
 	Identifier = "DEFAULT_PT_FIBR";
 	Name = "FIBR";
@@ -45,12 +47,11 @@ Element_FIBR::Element_FIBR()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_FIBR::update;
-	Graphics = &Element_FIBR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_FIBR static int update(UPDATE_FUNC_ARGS)
-int Element_FIBR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties
 	 * - tmp: Speed
@@ -80,9 +81,9 @@ int Element_FIBR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_FIBR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FIBR::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_FIBR::~Element_FIBR() {}
+
+

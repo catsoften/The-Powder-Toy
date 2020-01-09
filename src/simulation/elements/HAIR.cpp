@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
 #include <iostream>
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 #define HEAD_RADIUS 12
 #define PLAYER_LINK_CHECK(player, newtmp) if (player.spwn) { \
 			xdiff = parts[player.stkmID].x - parts[i].x, \
@@ -11,8 +14,7 @@
 			} \
 		}
 
-//#TPT-Directive ElementClass Element_HAIR PT_HAIR 241
-Element_HAIR::Element_HAIR()
+void Element::Element_HAIR()
 {
 	Identifier = "DEFAULT_PT_HAIR";
 	Name = "HAIR";
@@ -51,12 +53,11 @@ Element_HAIR::Element_HAIR()
 	HighTemperature = 232.778f + 273.15f;
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_HAIR::update;
-	Graphics = &Element_HAIR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_HAIR static int update(UPDATE_FUNC_ARGS)
-int Element_HAIR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp  - attached to STKM currently (-1 = GELed or frozen, 0 = not yet, 1 = STKM, 2 = STKM2, higher = FIGH)
@@ -174,9 +175,9 @@ int Element_HAIR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_HAIR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_HAIR::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_HAIR::~Element_HAIR() {}
+
+

@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_SHRD PT_SHRD 274
-Element_SHRD::Element_SHRD()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_SHRD()
 {
 	Identifier = "DEFAULT_PT_SHRD";
 	Name = "SHRD";
@@ -41,12 +43,11 @@ Element_SHRD::Element_SHRD()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_SHRD::update;
-	Graphics = &Element_SHRD::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_SHRD static int update(UPDATE_FUNC_ARGS)
-int Element_SHRD::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * life - is powered?
@@ -188,8 +189,7 @@ int Element_SHRD::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_SHRD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_SHRD::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	int r = (nx / 2 + ny / 2 + cpart->tmp) % 5;
 	*colr -= r * 10;
 	*colg -= r * 10;
@@ -198,4 +198,5 @@ int Element_SHRD::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_SHRD::~Element_SHRD() {}
+
+

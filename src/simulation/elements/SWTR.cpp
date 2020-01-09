@@ -1,7 +1,8 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_SWTR PT_SWTR 221
-Element_SWTR::Element_SWTR()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_SWTR()
 {
 	Identifier = "DEFAULT_PT_SWTR";
 	Name = "SWTR";
@@ -41,11 +42,10 @@ Element_SWTR::Element_SWTR()
 	HighTemperature = 383.0f;
 	HighTemperatureTransition = ST;
 
-	Update = &Element_SWTR::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_SWTR static int update(UPDATE_FUNC_ARGS)
-int Element_SWTR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
@@ -91,4 +91,5 @@ int Element_SWTR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_SWTR::~Element_SWTR() {}
+
+

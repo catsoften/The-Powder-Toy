@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_FERO PT_FERO 279
-Element_FERO::Element_FERO()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_FERO()
 {
 	Identifier = "DEFAULT_PT_FERO";
 	Name = "FERO";
@@ -12,20 +14,18 @@ Element_FERO::Element_FERO()
 
 	// element properties here
 
-	Update = &Element_FERO::update;
-	Graphics = &Element_FERO::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_FERO static int update(UPDATE_FUNC_ARGS)
-int Element_FERO::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	// update code here
 
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_FERO static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FERO::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -33,4 +33,5 @@ int Element_FERO::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_FERO::~Element_FERO() {}
+
+

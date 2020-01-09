@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/Air.h"
 
-//#TPT-Directive ElementClass Element_ALMN PT_ALMN 282
-Element_ALMN::Element_ALMN()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_ALMN()
 {
 	Identifier = "DEFAULT_PT_ALMN";
 	Name = "ALMN";
@@ -41,12 +43,11 @@ Element_ALMN::Element_ALMN()
 	HighTemperature = 993.7f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_ALMN::update;
-	Graphics = &Element_ALMN::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_ALMN static int update(UPDATE_FUNC_ARGS)
-int Element_ALMN::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Only solid blocks
 	if (parts[i].type == PT_ALMN) {
 		sim->air->bmap_blockair[y/CELL][x/CELL] = 1;
@@ -92,9 +93,9 @@ int Element_ALMN::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_ALMN static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ALMN::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_ALMN::~Element_ALMN() {}
+
+

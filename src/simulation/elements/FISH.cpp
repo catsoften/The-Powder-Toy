@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_FISH PT_FISH 220
-Element_FISH::Element_FISH()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_FISH()
 {
 	Identifier = "DEFAULT_PT_FISH";
 	Name = "FISH";
@@ -42,12 +44,11 @@ Element_FISH::Element_FISH()
 	HighTemperature = 273.15f + 90.0f;
 	HighTemperatureTransition = PT_DUST;
 
-	Update = &Element_FISH::update;
-	Graphics = &Element_FISH::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_FISH static int update(UPDATE_FUNC_ARGS)
-int Element_FISH::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/** 
 	 * Literally just move around randomly
 	 * Flock like behavior is difficult with liquid swapping
@@ -129,10 +130,10 @@ int Element_FISH::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_FISH static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FISH::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	return 1;
 }
 
-Element_FISH::~Element_FISH() {}
+
+

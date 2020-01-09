@@ -19,10 +19,10 @@
 #include "simulation/ElementGraphics.h"
 #include "simulation/Air.h"
 #include "simulation/Gravity.h"
+
 #include "simulation/magnetics/magnetics.h"
 #include "simulation/stress/stress.h"
-
-#include "ElementClasses.h"
+#include "simulation/ElementClasses.h"
 
 
 #ifdef LUACONSOLE
@@ -1224,7 +1224,7 @@ void Renderer::render_parts()
 	if(!sim)
 		return;
 	parts = sim->parts;
-	elements = sim->elements;
+	elements = sim->elements.data();
 #ifdef OGLR
 	float fnx, fny;
 	int cfireV = 0, cfireC = 0, cfire = 0;

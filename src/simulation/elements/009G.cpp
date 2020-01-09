@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_009G PT_009G 298
-Element_009G::Element_009G()
-{
+int Element_009_update(UPDATE_FUNC_ARGS);
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_009G() {
 	Identifier = "DEFAULT_PT_009G";
 	Name = "009G";
 	Colour = PIXPACK(0xff3636);
@@ -42,12 +43,9 @@ Element_009G::Element_009G()
 	HighTemperature = 171.0f;
 	HighTemperatureTransition = PT_009;
 
-	Update = &Element_009G::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_009G static int update(UPDATE_FUNC_ARGS)
-int Element_009G::update(UPDATE_FUNC_ARGS) {
-	return Element_009::update(sim, i, x, y, surround_space, nt, parts, pmap);
+static int update(UPDATE_FUNC_ARGS) {
+	return Element_009_update(sim, i, x, y, surround_space, nt, parts, pmap);
 }
-
-Element_009G::~Element_009G() {}

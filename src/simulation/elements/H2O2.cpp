@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_H2O2 PT_H2O2 296
-Element_H2O2::Element_H2O2() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_H2O2() {
 	Identifier = "DEFAULT_PT_H2O2";
 	Name = "H2O2";
 	Colour = PIXPACK(0x2738e6);
@@ -41,12 +43,11 @@ Element_H2O2::Element_H2O2() {
 	HighTemperature = 373.0f + 50.2f;
 	HighTemperatureTransition = PT_WTRV;
 
-	Update = &Element_H2O2::update;
-	Graphics = &Element_H2O2::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_H2O2 static int update(UPDATE_FUNC_ARGS)
-int Element_H2O2::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r, rt;
 
 	if (RNG::Ref().chance(1, 30000 - 10 * (int)parts[i].temp)) {
@@ -84,10 +85,10 @@ int Element_H2O2::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_H2O2 static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_H2O2::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 	return 1;
 }
 
-Element_H2O2::~Element_H2O2() {}
+
+

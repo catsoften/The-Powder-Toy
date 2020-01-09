@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_RADR PT_RADR 209
-Element_RADR::Element_RADR()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_RADR()
 {
 	Identifier = "DEFAULT_PT_RADR";
 	Name = "RADR";
@@ -12,20 +14,18 @@ Element_RADR::Element_RADR()
 
 	// element properties here
 
-	Update = &Element_RADR::update;
-	Graphics = &Element_RADR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_RADR static int update(UPDATE_FUNC_ARGS)
-int Element_RADR::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	// update code here
 
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_RADR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_RADR::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -33,4 +33,5 @@ int Element_RADR::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_RADR::~Element_RADR() {}
+
+

@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_PHSP PT_PHSP 281
-Element_PHSP::Element_PHSP()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_PHSP()
 {
 	Identifier = "DEFAULT_PT_PHSP";
 	Name = "PHSP";
@@ -42,12 +44,11 @@ Element_PHSP::Element_PHSP()
 	HighTemperature = 280.5f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_PHSP::update;
-	Graphics = &Element_PHSP::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_PHSP static int update(UPDATE_FUNC_ARGS)
-int Element_PHSP::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * life: Fire burn
 	 * tmp:  Phot absorb timer
@@ -101,8 +102,7 @@ int Element_PHSP::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_PHSP static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_PHSP::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->tmp > 0) {
 		*firea = 150;
 		*firer = *fireg = *fireb = 255;
@@ -112,4 +112,5 @@ int Element_PHSP::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_PHSP::~Element_PHSP() {}
+
+

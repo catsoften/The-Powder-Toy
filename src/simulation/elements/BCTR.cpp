@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
 #include <iostream>
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 #define DIE() {parts[i].tmp2=1;return 0;}
 #define EAT(other) {\
 	sim->part_change_type(ID(r), parts[ID(r)].x, parts[ID(r)].y, RNG::Ref().chance(1, 30) ? other : PT_NONE);\
@@ -139,8 +142,7 @@ Multiplier for speed of growth
 Bacteria requires less sugar to grow as time goes on or if it has enough food
  */
 
-//#TPT-Directive ElementClass Element_BCTR PT_BCTR 187
-Element_BCTR::Element_BCTR()
+void Element::Element_BCTR()
 {
 	Identifier = "DEFAULT_PT_BCTR";
 	Name = "BCTR";
@@ -182,12 +184,11 @@ Element_BCTR::Element_BCTR()
 	DefaultProperties.life = BCTR::START_LIFE;
 
 	// Element properties here
-	Update = &Element_BCTR::update;
-	Graphics = &Element_BCTR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_BCTR static int update(UPDATE_FUNC_ARGS)
-int Element_BCTR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Dead, dissolvable by SOAP
 	if (parts[i].tmp2) {
 		if (parts[i].temp < 273.15f) {
@@ -394,8 +395,7 @@ int Element_BCTR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BCTR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BCTR::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	*pixel_mode |= PMODE_BLUR;
 
@@ -432,4 +432,5 @@ int Element_BCTR::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_BCTR::~Element_BCTR() {}
+
+

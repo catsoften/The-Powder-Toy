@@ -1,7 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_ROCK PT_ROCK 246
-Element_ROCK::Element_ROCK()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_ROCK()
 {
 	Identifier = "DEFAULT_PT_ROCK";
 	Name = "ROCK";
@@ -41,13 +44,12 @@ Element_ROCK::Element_ROCK()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Create = &Element_ROCK::create;
-	Update = &Element_ROCK::update;
-	Graphics = &Element_ROCK::graphics;
+	Create = &create;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_ROCK static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_ROCK::create(ELEMENT_CREATE_FUNC_ARGS) {
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	// Ores:
 	// COAL, IRON, TTAN, GOLD, RDMD, URAN, PLUT, TUNG, STNE
 	int ore = RNG::Ref().between(0, 100);
@@ -73,8 +75,7 @@ void Element_ROCK::create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].tmp = RNG::Ref().between(0, 6);
 }
 
-//#TPT-Directive ElementHeader Element_ROCK static int update(UPDATE_FUNC_ARGS)
-int Element_ROCK::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties
 	 * - tmp   - Used for graphics
@@ -161,8 +162,7 @@ int Element_ROCK::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_ROCK static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ROCK::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	int m = (cpart->tmp - 3) * 10;
 	*colr += m;
 	*colg += m;
@@ -171,4 +171,5 @@ int Element_ROCK::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_ROCK::~Element_ROCK() {}
+
+

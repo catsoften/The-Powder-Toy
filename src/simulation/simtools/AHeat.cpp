@@ -1,14 +1,16 @@
 #include "simulation/ToolCommon.h"
 
-//#TPT-Directive ToolClass Tool_AHeat TOOL_AHET 15
-Tool_AHeat::Tool_AHeat() {
+static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength);
+
+void SimTool::Tool_AHEAT() {
     Identifier = "DEFAULT_TOOL_AHET";
     Name = "AHET";
     Colour = PIXPACK(0xFFDD00);
     Description = "Heats the local air (Ambient heat required).";
+    Perform = &perform;
 }
 
-int Tool_AHeat::Perform(Simulation *sim, Particle *cpart, int x, int y, int brushX, int brushY, float strength) {
+static int perform(Simulation *sim, Particle *cpart, int x, int y, int brushX, int brushY, float strength) {
     if (!sim->aheat_enable)
         return 0;
     
@@ -19,5 +21,3 @@ int Tool_AHeat::Perform(Simulation *sim, Particle *cpart, int x, int y, int brus
         sim->hv[y / CELL][x / CELL] = 0;
     return 1;
 }
-
-Tool_AHeat::~Tool_AHeat() {}

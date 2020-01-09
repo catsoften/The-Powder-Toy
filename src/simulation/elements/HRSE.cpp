@@ -3,8 +3,19 @@
 #include "simulation/vehicles/vehicle.h"
 #include <iostream>
 
-//#TPT-Directive ElementClass Element_HRSE PT_HRSE 318
-Element_HRSE::Element_HRSE() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS);
+
+int  Element_CYTK_create_part(Simulation *sim, int x, int y, int type, float theta, Particle *parts, int i);
+void Element_CYTK_get_player_command(Simulation *sim, Particle *parts, int i, int &cmd, int &cmd2);
+void Element_CYTK_initial_collision(Simulation *sim, Particle *parts, int i, const Vehicle &v, bool &has_collision);
+void Element_CYTK_get_target(Simulation *sim, Particle *parts, int &tarx, int &tary);
+void Element_CYTK_exit_vehicle(Simulation *sim, Particle *parts, int i, int x, int y);
+void Element_CYTK_update_vehicle(Simulation *sim, Particle *parts, int i, const Vehicle &v, float ovx, float ovy);
+
+void Element::Element_HRSE() {
 	Identifier = "DEFAULT_PT_HRSE";
 	Name = "HRSE";
 	Colour = PIXPACK(0xC27536);
@@ -46,21 +57,18 @@ Element_HRSE::Element_HRSE() {
 	DefaultProperties.life = 100;
 	DefaultProperties.pavg[1] = -PI / 4; // About 45 deg upwards default neck rotation
 
-	Update = &Element_HRSE::update;
-	Graphics = &Element_HRSE::graphics;
-	Create = &Element_HRSE::create;
-	CreateAllowed = &Element_HRSE::createAllowed;
-	ChangeType = &Element_HRSE::changeType;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
+	ChangeType = &changeType;
 }
 
-//#TPT-Directive ElementHeader Element_HRSE static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_HRSE::create(ELEMENT_CREATE_FUNC_ARGS) {
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	if (RNG::Ref().chance(1, 2))
 		sim->parts[i].tmp |= 2; // Randomize direction it's facing
 }
 
-//#TPT-Directive ElementHeader Element_HRSE static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
-void Element_HRSE::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	if (to == PT_NONE && sim->parts[i].life <= 0) {
 		int rx, ry, r;
 		for (rx = -2; rx <= 2; rx++)
@@ -78,8 +86,7 @@ void Element_HRSE::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	}
 }
 
-//#TPT-Directive ElementHeader Element_HRSE static int update(UPDATE_FUNC_ARGS)
-int Element_HRSE::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// NOTE: HORSE UPDATES TWICE PER FRAME
 	/* Properties:
 	 * vx, vy (velocity)
@@ -96,7 +103,7 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 	float ovx = parts[i].vx, ovy = parts[i].vy;
 	int rx, ry, r;
 	bool has_collision;
-	Element_CYTK::initial_collision(sim, parts, i, Horse, has_collision);
+	Element_CYTK_initial_collision(sim, parts, i, Horse, has_collision);
 
 	// Self destruction
 	if (parts[i].life <= 0) {
@@ -162,11 +169,11 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 
 	// Player controls
 	else if (is_stkm(parts[i].tmp2))
-		Element_CYTK::get_player_command(sim, parts, i, cmd, cmd2);
+		Element_CYTK_get_player_command(sim, parts, i, cmd, cmd2);
 	// Fighter AI
 	else if (is_figh(parts[i].tmp2)) {
 		int tarx = -1, tary = -1; // Get target and run towards it
-		Element_CYTK::get_target(sim, parts, tarx, tary);
+		Element_CYTK_get_target(sim, parts, tarx, tary);
 		if (tarx > 0 && has_collision)
 			cmd = tarx > parts[i].x ? RIGHT : LEFT;
 	}
@@ -222,15 +229,15 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 			}
 		}
 		if (cmd2 == DOWN) { // Exit (down)
-			Element_CYTK::exit_vehicle(sim, parts, i, x, y);
+			Element_CYTK_exit_vehicle(sim, parts, i, x, y);
 			return 0;
 		}
 		else if (cmd2 == UP) { // Jump
 			float ax = 0.0f, ay = 0.0f;
 			if (parts[i].tmp & 1) {
 				ay = -Horse.fly_acceleration / 4.0f;
-				int j1 = Element_CYTK::create_part(sim, Horse.width * 0.4f, Horse.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
-				int j2 = Element_CYTK::create_part(sim, -Horse.width * 0.4f, Horse.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
+				int j1 = Element_CYTK_create_part(sim, Horse.width * 0.4f, Horse.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
+				int j2 = Element_CYTK_create_part(sim, -Horse.width * 0.4f, Horse.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
 				if (j1 > -1 && j2 > -1) {
 					parts[j1].temp = parts[j2].temp = 400.0f;
 					parts[j1].life = RNG::Ref().between(0, 100) + 50;
@@ -246,19 +253,13 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 		}
 	}
 
-	Element_CYTK::update_vehicle(sim, parts, i, Horse, ovx, ovy);
+	Element_CYTK_update_vehicle(sim, parts, i, Horse, ovx, ovy);
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_HRSE static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_HRSE::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*cola = 0;
 	draw_horse(ren, cpart, cpart->vx, cpart->vy);
 	return 0;
 }
 
-// This is defined if it's ever needed for some reason
-//#TPT-Directive ElementHeader Element_HRSE static bool createAllowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
-bool Element_HRSE::createAllowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS) { return true; }
-
-Element_HRSE::~Element_HRSE() {}

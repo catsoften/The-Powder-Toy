@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_HOLY PT_HOLY 249
-Element_HOLY::Element_HOLY()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_HOLY()
 {
 	Identifier = "DEFAULT_PT_HOLY";
 	Name = "HOLY";
@@ -42,12 +44,11 @@ Element_HOLY::Element_HOLY()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_HOLY::update;
-	Graphics = &Element_HOLY::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_HOLY static int update(UPDATE_FUNC_ARGS)
-int Element_HOLY::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Holy WATR kills:
 	// JCB1, FIGH, STKM, STKM2, MONY, OIL, DEST, BOMB, SING, TANK
 	// ACID, BCTR, VIRS, SPDR, Any fire type, EMP, WARP, GNSH
@@ -85,10 +86,10 @@ int Element_HOLY::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_HOLY static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_HOLY::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 	return 0;
 }
 
-Element_HOLY::~Element_HOLY() {}
+
+

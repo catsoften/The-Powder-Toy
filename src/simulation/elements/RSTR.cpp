@@ -1,7 +1,8 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_RSTR PT_RSTR 256
-Element_RSTR::Element_RSTR() {
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_RSTR() {
 	Identifier = "DEFAULT_PT_RSTR";
 	Name = "RSTR";
 	Colour = PIXPACK(0xEACE9E);
@@ -40,16 +41,16 @@ Element_RSTR::Element_RSTR() {
 	HighTemperature = 1400.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_RSTR::update;
+	Update = &update;
 	Graphics = NULL;
 }
 
-//#TPT-Directive ElementHeader Element_RSTR static int update(UPDATE_FUNC_ARGS)
-int Element_RSTR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// pavg0 = restivity
 	if (parts[i].pavg[0] <= 0.0f)
 		parts[i].pavg[0] = 1.0f;
 	return 0;
 }
 
-Element_RSTR::~Element_RSTR() {}
+
+

@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_ANT PT_ANT 216
-Element_ANT::Element_ANT()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_ANT()
 {
 	Identifier = "DEFAULT_PT_ANT";
 	Name = "ANT";
@@ -41,12 +43,11 @@ Element_ANT::Element_ANT()
 	HighTemperature = 50.0f + 273.15f;
 	HighTemperatureTransition = PT_DUST;
 
-	Update = &Element_ANT::update;
-	Graphics = &Element_ANT::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_ANT static int update(UPDATE_FUNC_ARGS)
-int Element_ANT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * tmp: dir: 0 = up, 1 = right, 2 = down, 3 = left
 	 * tmp2: state (0 or 1)
@@ -154,9 +155,9 @@ int Element_ANT::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_ANT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ANT::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_ANT::~Element_ANT() {}
+
+

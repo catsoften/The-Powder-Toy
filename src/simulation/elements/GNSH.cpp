@@ -3,8 +3,20 @@
 #include "simulation/vehicles/gunship.h"
 #include "gui/game/GameModel.h"
 
-//#TPT-Directive ElementClass Element_GNSH PT_GNSH 214
-Element_GNSH::Element_GNSH() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element_GNSH_changeType(ELEMENT_CHANGETYPE_FUNC_ARGS);
+int  Element_CYTK_create_part(Simulation *sim, int x, int y, int type, float theta, Particle *parts, int i);
+void Element_CYTK_get_player_command(Simulation *sim, Particle *parts, int i, int &cmd, int &cmd2);
+void Element_CYTK_initial_collision(Simulation *sim, Particle *parts, int i, const Vehicle &v, bool &has_collision);
+void Element_CYTK_get_target(Simulation *sim, Particle *parts, int &tarx, int &tary);
+void Element_CYTK_exit_vehicle(Simulation *sim, Particle *parts, int i, int x, int y);
+void Element_CYTK_update_vehicle(Simulation *sim, Particle *parts, int i, const Vehicle &v, float ovx, float ovy);
+void Element_SPDR_intersect_line(Simulation *sim, int sx, int sy, float vx, float vy, int &x, int &y, int type=1, int type2=0);
+
+
+void Element::Element_GNSH() {
 	Identifier = "DEFAULT_PT_GNSH";
 	Name = "GNSH";
 	Colour = PIXPACK(0x8fa7b3);
@@ -44,13 +56,12 @@ Element_GNSH::Element_GNSH() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_GNSH::update;
-	Graphics = &Element_GNSH::graphics;
-	ChangeType = &Element_GNSH::changeType;
+	Update = &update;
+	Graphics = &graphics;
+	ChangeType = &Element_GNSH_changeType;
 }
 
-//#TPT-Directive ElementHeader Element_GNSH static void accelerate_air(float rx, float ry, Simulation *sim, Particle *parts, int i, int x, int y, float t_angle, float speed)
-void Element_GNSH::accelerate_air(float rx, float ry, Simulation *sim, Particle *parts, int i, int x, int y, float t_angle, float speed) {
+static void accelerate_air(float rx, float ry, Simulation *sim, Particle *parts, int i, int x, int y, float t_angle, float speed) {
 	rotate(rx, ry, parts[i].pavg[0]);
 	sim->vx[(int)(y + ry) / CELL][(int)(x + rx) / CELL] += speed * cos(t_angle);
 	sim->vy[(int)(y + ry) / CELL][(int)(x + rx) / CELL] += speed * sin(t_angle);
@@ -65,12 +76,11 @@ void Element_GNSH::accelerate_air(float rx, float ry, Simulation *sim, Particle 
 			}
 }
 
-//#TPT-Directive ElementHeader Element_GNSH static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
-void Element_GNSH::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
+void Element_GNSH_changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	if (to == PT_NONE && sim->parts[i].life <= 0) {
 		// Upon death, turn into a gunship shaped pile of CRBN
 		for (auto px = GUNSHIP_BASE.begin(); px != GUNSHIP_BASE.end(); ++px) {
-			int j = Element_CYTK::create_part(sim, px->x, px->y, PT_CRBN, sim->parts[i].pavg[0], sim->parts, i);
+			int j = Element_CYTK_create_part(sim, px->x, px->y, PT_CRBN, sim->parts[i].pavg[0], sim->parts, i);
 			if (j > -1) {
 				sim->parts[j].dcolour = 0xAF000000 | PIXRGB(px->r, px->g, px->b);
 				sim->parts[j].vx = sim->parts[i].vx;
@@ -81,8 +91,7 @@ void Element_GNSH::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	}
 }
 
-//#TPT-Directive ElementHeader Element_GNSH static int update(UPDATE_FUNC_ARGS)
-int Element_GNSH::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// NOTE: GNSH UPDATES TWICE PER FRAME
 	/**
 	 * Properties:
@@ -98,7 +107,7 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 	 */
 	float ovx = parts[i].vx, ovy = parts[i].vy;
 	bool has_collision;
-	Element_CYTK::initial_collision(sim, parts, i, Gunship, has_collision);
+	Element_CYTK_initial_collision(sim, parts, i, Gunship, has_collision);
 
 	// Heat damage
 	if (parts[i].temp > 273.15f + 9000.0f)
@@ -112,25 +121,25 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 	// If life <= 1000 spawn sparks (EMBR)
 	if (parts[i].life <= 1000) {
 		if (RNG::Ref().chance(1, 50))
-			Element_CYTK::create_part(sim, Gunship.width * 0.4f, -Gunship.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK_create_part(sim, Gunship.width * 0.4f, -Gunship.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 		if (RNG::Ref().chance(1, 50))
-			Element_CYTK::create_part(sim, -Gunship.width * 0.4f, -Gunship.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK_create_part(sim, -Gunship.width * 0.4f, -Gunship.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 		if (RNG::Ref().chance(1, 50))
-			Element_CYTK::create_part(sim, 0, -Gunship.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK_create_part(sim, 0, -Gunship.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 	}
 	// If life <= 300 spawn fire damage
 	if (parts[i].life <= 300 && RNG::Ref().chance(1, 30)) {
-		Element_CYTK::create_part(sim, -Gunship.width * 0.4f, -Gunship.height / 2, PT_FIRE, parts[i].pavg[0], parts, i);
+		Element_CYTK_create_part(sim, -Gunship.width * 0.4f, -Gunship.height / 2, PT_FIRE, parts[i].pavg[0], parts, i);
 	}
 
 	// Player controls
 	int cmd = NOCMD, cmd2 = NOCMD;
 	int tarx = -1, tary = -1;
 	if (is_stkm(parts[i].tmp2))
-		Element_CYTK::get_player_command(sim, parts, i, cmd, cmd2);
+		Element_CYTK_get_player_command(sim, parts, i, cmd, cmd2);
 	// Fighter AI
 	else if (is_figh(parts[i].tmp2)) {
-		Element_CYTK::get_target(sim, parts, tarx, tary);
+		Element_CYTK_get_target(sim, parts, tarx, tary);
 		if (tarx > 0) {
 			cmd = tarx > parts[i].x ? RIGHT : LEFT;
 			cmd2 = RNG::Ref().chance(1, 3) ? UP : NOCMD;
@@ -156,7 +165,7 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 			parts[i].y -= 0.5;
 		}
 		else if (cmd == LEFT_AND_RIGHT && cmd2 == DOWN) { // Exit (left and right and down)
-			Element_CYTK::exit_vehicle(sim, parts, i, x, y);
+			Element_CYTK_exit_vehicle(sim, parts, i, x, y);
 			return 0;
 		}
 		// Thruster angle calculation
@@ -181,7 +190,7 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 
 			if (parts[i].tmp == 1) { // Laser
 				int tx, ty;
-				Element_SPDR::intersect_line(sim, x, y, cos(theta), sin(theta), tx, ty, 9);
+				Element_SPDR_intersect_line(sim, x, y, cos(theta), sin(theta), tx, ty, 9);
 				sim->CreateLine(x + 8 * cos(theta), y + 3 * sin(theta), tx, ty, PT_LASR);
 			}
 			else if (parts[i].tmp != 1 && sim->timer % 50 == 0) { // Guided missile
@@ -202,8 +211,8 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 			accelerate_air(Gunship.width * 0.4f, Gunship.height / 2, sim, parts, i, x, y, tangle, 7.0f);
 			accelerate_air(-Gunship.width * 0.4f, Gunship.height / 2, sim, parts, i, x, y, tangle, 7.0f);
 
-			int j1 = Element_CYTK::create_part(sim, Gunship.width * 0.4f, Gunship.height / 2, PT_SMKE, parts[i].pavg[0], parts, i);
-			int j2 = Element_CYTK::create_part(sim, -Gunship.width * 0.4f, Gunship.height / 2, PT_SMKE, parts[i].pavg[0], parts, i);
+			int j1 = Element_CYTK_create_part(sim, Gunship.width * 0.4f, Gunship.height / 2, PT_SMKE, parts[i].pavg[0], parts, i);
+			int j2 = Element_CYTK_create_part(sim, -Gunship.width * 0.4f, Gunship.height / 2, PT_SMKE, parts[i].pavg[0], parts, i);
 			if (j1 > -1 && j2 > -1) {
 				parts[j1].temp = parts[j2].temp = 400.0f;
 				parts[j1].life = RNG::Ref().between(0, 100) + 50;
@@ -212,14 +221,14 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 		}
 	}
 
-	Element_CYTK::update_vehicle(sim, parts, i, Gunship, ovx, ovy);
+	Element_CYTK_update_vehicle(sim, parts, i, Gunship, ovx, ovy);
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_GNSH static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_GNSH::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	draw_gunship(ren, cpart, cpart->vx, cpart->vy);
 	return 0;
 }
 
-Element_GNSH::~Element_GNSH() {}
+
+
