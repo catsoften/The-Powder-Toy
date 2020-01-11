@@ -2366,6 +2366,15 @@ void GameView::OnDraw()
 				}
 				sampleInfo << "   ";
 			}
+			// Cesium stuff
+			if (type == PT_CESM && sample.particle.tmp == 1)
+				sampleInfo << "(Cesium oxide)   ";
+			else if (type == PT_CESM && sample.particle.tmp == 2)
+				sampleInfo << "(Cesium auride)   ";
+			else if (type == PT_LCSM && sample.particle.tmp == 1)
+				sampleInfo << "(Liquid cesium oxide)   ";
+			else if (type == PT_LCSM && sample.particle.tmp == 2)
+				sampleInfo << "(Liquid cesium auride)   ";
 
 			sampleInfo << Format::Precision(2);
 

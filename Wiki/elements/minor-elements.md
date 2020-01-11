@@ -76,3 +76,16 @@ Holy WATR kills:
 JCB1, FIGH, STKM, STKM2, MONY, OIL, DEST, BOMB, SING, TANK, ACID, BCTR, VIRS, SPDR, Any fire type, EMP, WARP, GNSH, FFLD, SHLD, LOVE, NPLM
 
 Cools any hot particles down to room temperature. May produce SMKE when cleansing.
+
+## CESM (Cesium)
+A supped up rubidium, as suggested [https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21682](here). Explodes like TNT but slightly 
+stronger on contact with any varient of water or water vapor. Conducts electricity. Melts at 28 C in LCSM. Changes PHOT into ELEC. Can 
+react with O2 to form cesium oxide and Au to form cesium auride. CsAu conducts as fast as gold.
+
+There are also some reactions with ACID / CAUS to form SALT and HYGN or WATR or GOLD depending on the type of CESM. Cesium oxide 
+is darker than regualr CESM and cesium auride is more golden.
+
+## LCSM (Liquid cesium)
+Same as CESM, but liquid. Explodes at 1600 C. When it goes above 671 C it will 
+start to glow and bubble a bit, and won't conduct electricity. Same reactions as CESM.
+

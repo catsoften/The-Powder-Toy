@@ -22,6 +22,19 @@ Element_VOLT::Element_VOLT()
 int Element_VOLT::update(UPDATE_FUNC_ARGS)
 {
 	// update code here
+	int rx, ry, r;
+	for (rx = -1; rx <= 1; ++rx)
+		for (ry = -1; ry <= 1; ++ry)
+			if (BOUNDS_CHECK && (rx || ry)) {
+				r = sim->photons[y + ry][x + rx];
+				if (TYP(r) == PT_RSPK && parts[ID(r)].tmp == 0 && parts[ID(r)].tmp2 == 0) {
+					
+					parts[ID(r)].pavg[0] = 1000;
+					parts[ID(r)].tmp = 1;
+
+					// parts[ID(r)].pavg[1] = 100;
+				}
+			}
 
 	return 0;
 }

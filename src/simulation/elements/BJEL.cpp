@@ -7,7 +7,7 @@ Element_BJEL::Element_BJEL()
 	Name = "BJEL";
 	Colour = PIXPACK(0xbdb47d);
 	MenuVisible = 1;
-	MenuSection = SC_SOLIDS;
+	MenuSection = SC_SENSOR;
 	Enabled = 1;
 
 	Advection = 0.0f;

@@ -137,9 +137,9 @@ int Element_CMNT::graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR | PMODE_BLOB;
 
 	// 184 -> 168 depending on life, 3000 -> 0
-	*colr = 184 - (184 - 168) * (float)MAX_LIFE_CMNT / cpart->life;
-	*colg = 184 - (184 - 168) * (float)MAX_LIFE_CMNT / cpart->life;
-	*colb = 184 - (184 - 168) * (float)MAX_LIFE_CMNT / cpart->life;
+	*colr = 184 - (184 - 168) * std::min(cpart->life / (float)MAX_LIFE_CMNT, 1.0f);
+	*colg = 184 - (184 - 168) * std::min(cpart->life / (float)MAX_LIFE_CMNT, 1.0f);
+	*colb = 184 - (184 - 168) * std::min(cpart->life / (float)MAX_LIFE_CMNT, 1.0f);
 
 	int z = (cpart->tmp - 5) * 4; //speckles!
 	*colr += z;

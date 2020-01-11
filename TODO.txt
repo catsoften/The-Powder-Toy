@@ -66,9 +66,6 @@ moving solid tool, solid -> moving solid
 
 guide on adding new render modes
 
-quick options
-- electro
-- magnetic 
 
 
 breakpoint element
@@ -177,6 +174,7 @@ realistic metal that can be forged and bent
 - acts as negative electrode for battery
 - LITHIUM Is positive
 - let stuff be "dissolved" in water
+    - tmp sets polyatomic ion
 
 ZINC -> lose electrons
 Copper -> gain
@@ -184,26 +182,34 @@ Copper -> gain
 ceramic plate allows passage of ions
 
 electric realistic sprk:
-- travels very fast
 - generates magnetic field
 - voltage and charge
-- store a voltage
-- split at junctions? merge with other sprk values
-- save direciton, add directions
+- st elmos fire
 - sprk invisible until powerful enough
 
+Add GRND (ground, removes charge)
+    or use void
+
 IDEA:
-    ok so negative charges send pulses, like sprk
-    same for positive end
-    if they meet then a connection is established by floodfill
-        idk how to handle junctions
+-rspk makes pressure, remove conflict of location maybe
+    - rsprk heats up depending up VOLTAGE DROP, not the actual voltage value at the point
+    - voltage at end is calculated somehow?
+        if != 0 then voltage drop multi = 0, so no delta V exists across the wire
+        otherwise set multiplier for drop so collective drop = initial v
+
+    remove idea of electri field
+
+RCRT laggy af
+- floodfilling constantly
+
+water  reactinos - add Carbonated water and ISOL
 
 ferrofluid
 
-increase vx required to induce electricity
-
 local gravity mode
 
+
+debug element, stuff like a compass or clock dsplay
 
 rsprk causes air movement (or electric fields????)
 
@@ -235,15 +241,6 @@ toggle magnetic field calculation in update
         - circles, start at 4x grid size, then work down
     - interpolate force
     - larger cell for render, smaller for actual particles
-
-
-
-remove life from stacking limit
-
-jcb1 aim for head
-
-Bug in rock, etc... if ctype invaloid crashes in elements, ie elements[99999]
-
 
 
 hud rectangles drawn wrong -  see non-black background
