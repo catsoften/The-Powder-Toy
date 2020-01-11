@@ -14,27 +14,102 @@ public:
 	float voltage;
 };
 
-float get_voltage_drop(int type) {
-	if (type == PT_RSTR) {
-		return 1.0f;
+bool valid_conductor(int typ, Simulation *sim, int i) {
+	if (typ == PT_SWCH)
+		return sim->parts[i].life;
+	return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST;
+}
+
+float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
+	if (type <= 0 || type > PT_NUM) // Should never happen
+		return 100.0f;
+	if (!valid_conductor(type, sim, i)) // Most stuff isn't that doesn't conduct has uberhigh resistance
+		return 100000000.0f;
+
+	switch(type) {
+		case PT_SWCH:
+			if (parts[i].life)
+				return 0.1f; // On
+			return 10000000000.0f; // Off
+		case PT_RSTR: // Stores resitivity in pavg0
+			return parts[i].pavg[0];
+		case PT_COPR:
+			return 0.0168f;
+		case PT_ZINC:
+			return 0.059f;
+		case PT_METL:
+		case PT_BMTL:
+		case PT_BRMT:
+			return 0.46f;
+		case PT_CRBN:
+			if (parts[i].temp < 100.0f) // Superconduction < 100 K
+				return 0;
+			return 5.0f;
+		case PT_NEON:
+		case PT_NBLE:
+			return 0.4f;
+		case PT_NICH:
+			return 1.00f;
+		case PT_TUNG:
+			return 0.056f;
+		case PT_MERC:
+			if (parts[i].temp < 4.0f) // Superconduction < 4 K
+				return 0;
+			return 0.98f;
+		case PT_WATR:
+			return 20000000000.0f;
+		case PT_SLTW:
+		case PT_SWTR:
+		case PT_IOSL:
+			return 3000000000.0f;
+		case PT_IRON:
+			return 0.0971f;
+		case PT_GOLD:
+			return 0.0244;
+		case PT_TTAN:
+			return 0.43f;
+		case PT_RBDM:
+		case PT_LRBD:
+			return 8.3f;
+		case PT_CESM:
+		case PT_LCSM:
+			return 0.2f;
+		case PT_PSCN:
+		case PT_NSCN:
+			return 32.0f;
+		case PT_INST:
+			return 0.0f;
 	}
 
-	return 0; // Default no voltage drop
+	return 0.5f; // Default conductor resistance
+}
+
+float get_power(int x, int y, Simulation *sim) {
+	int r = sim->photons[y][x];
+	float voltage = sim->parts[ID(r)].pavg[1];
+	r = sim->pmap[y][x];
+	float resistance = get_resistance(TYP(r), sim->parts, ID(r), sim);
+	if (resistance == 0.0f)
+		return 0.0f;
+	return voltage / resistance * voltage;
+}
+
+bool is_ground(Particle *parts, int i) {
+	if (!i) return false;
+	if (parts[i].type == PT_VOID)
+		return true;
+	return false;
 }
 
 bool is_voltage_valid(Simulation *sim, Particle *parts, int x, int y, int counter, float voltage) {
 	// New location must have an rspk
 	int r = sim->photons[y][x];
 	int r2 = sim->pmap[y][x];
-	if (TYP(r) != PT_RSPK && !(sim->elements[TYP(r2)].Properties & PROP_CONDUCTS))
+	if (TYP(r) != PT_RSPK && !valid_conductor(TYP(r2), sim, ID(r2)))
 		return false;
 
 	// New rspk location must not have been visited (tmp2 = 1)
 	if (r && parts[ID(r)].tmp2 == 1)
-		return false;
-
-	// Die if no voltage
-	if (voltage <= 0)
 		return false;
 	return true;
 }
@@ -42,8 +117,11 @@ bool is_voltage_valid(Simulation *sim, Particle *parts, int x, int y, int counte
 // Generates the voltage and charge movement gradient from a voltage source
 void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float voltage_i, int counter = 1) {
 	std::queue<VoltagePoint*> queue;
+	std::vector<int> ids;
 	queue.push(new VoltagePoint(x, y, counter, voltage_i));
-	float newvol;
+	float newvol, resistance, lowest_voltage = voltage_i;
+	bool connected_to_ground = false, current_branch_past_ground = false;
+	int id;
 
 	while (queue.size()) {
 		VoltagePoint * p = queue.front();
@@ -53,25 +131,62 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 		if (parts[ID(sim->photons[p->y][p->x])].tmp2 > 0 && parts[ID(sim->photons[p->y][p->x])].tmp != 1)
 			goto loopend;
 
-		parts[ID(sim->photons[p->y][p->x])].pavg[0] = p->voltage;
-		parts[ID(sim->photons[p->y][p->x])].tmp = p->counter;
-		parts[ID(sim->photons[p->y][p->x])].tmp2 = 1;
-		parts[ID(sim->photons[p->y][p->x])].life = REFRESH_EVERY_FRAMES + 1;
+		id = ID(sim->photons[p->y][p->x]);
+		resistance = get_resistance(TYP(sim->pmap[p->y][p->x]), parts, ID(sim->pmap[p->y][p->x]), sim);
+		current_branch_past_ground = false;
+
+		parts[id].pavg[0] = p->voltage;
+		parts[id].pavg[1] = resistance;
+		parts[id].tmp = p->counter;
+		parts[id].tmp2 = 1;
+		parts[id].life = REFRESH_EVERY_FRAMES + 1;
+		ids.push_back(id);
 		
 		// Reduce voltage
-		newvol = p->voltage - get_voltage_drop(TYP(sim->pmap[p->y][p->x]));
-		
+		newvol = p->voltage - resistance;
+
+		// Check if ground is connected
+		for (int rx = -1; rx <= 1; ++rx)
+		for (int ry = -1; ry <= 1; ++ry)
+		if ((rx || ry)) {
+			if (is_ground(parts, ID(sim->pmap[p->y + ry][p->x + rx]) )) {
+				if (newvol < lowest_voltage)
+					lowest_voltage = newvol;
+				connected_to_ground = current_branch_past_ground = true;
+				goto loopend;
+			}
+		}
+
 		// Floodfill
 		for (int rx = -1; rx <= 1; ++rx)
 		for (int ry = -1; ry <= 1; ++ry)
-			if ((rx || ry) && is_voltage_valid(sim, parts, p->x + rx, p->y + ry, p->counter + 1, newvol)) {
+		if ((rx || ry)) {
+			if (!current_branch_past_ground && is_voltage_valid(sim, parts, p->x + rx, p->y + ry, p->counter + 1, newvol))
 				queue.push(new VoltagePoint(p->x + rx, p->y + ry, p->counter + 1, newvol));
-			}
+		}
 
 		// Memory cleanup
 		loopend:
 		delete p;
 		queue.pop();
+	}
+
+	// Make sure voltage decays to 0 at the end of the wire
+	// Or no voltage difference exists without a ground
+	if (ids.size() > 1) {
+		float dv = voltage_i - lowest_voltage;
+		for (unsigned int i = 0; i < ids.size(); i++) {
+			if (connected_to_ground && parts[ids[i]].tmp != 1) {
+				float percentin = (parts[ids[i]].pavg[0] - lowest_voltage) / dv;
+				parts[ids[i]].pavg[0] = percentin * voltage_i;
+				parts[ids[i]].pavg[1] *= voltage_i / dv;
+			}
+			else if (parts[ids[i]].tmp != 1) {
+				// parts[ids[i]].pavg[0] = voltage_i;
+				// parts[ids[i]].pavg[1] = 0.0f;
+				sim->kill_part(ids[i]);
+			}
+		}
 	}
 }
 
@@ -81,7 +196,7 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 Element_RSPK::Element_RSPK()
 {
 	Identifier = "DEFAULT_PT_RSPK";
-	Name = "RSPK";
+	Name = "VSPK";
 	Colour = PIXPACK(0xFFFF80);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
@@ -106,7 +221,7 @@ Element_RSPK::Element_RSPK()
 	Weight = -1;
 
 	HeatConduct = 0;
-	Description = "More realistic spark.";
+	Description = "Instant spark with voltage.";
 
 	Properties = TYPE_ENERGY;
 
@@ -131,10 +246,10 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	 * 			0 = never visited
 	 * 			1 = visited and valid connection
 	 * pavg0 - Voltage
+	 * pavg1 - Voltage drop across pixel
 	 * 
 	 * RSPK makes an electric field in the direction it goes
 	 */
-	int rx, ry, r;
 
 	// Negate velocity, or it can be affected by Newtonian gravity
 	parts[i].vx = parts[i].vy = 0;
@@ -145,67 +260,56 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 
 	// Kill on low life, life decrements below 0 if no longer connected to a voltage source
 	// that regenerates life
+	// Also kill self if no voltage drop (no current)
+	// Also kill self if no longer on a conductor and not a source (tmp = 1)
 	parts[i].life--;
-	if (parts[i].life <= 0) {
+	if (parts[i].life <= 0 ||
+			// (parts[i].pavg[1] == 0.0f && parts[i].tmp != 1) ||
+			(!RSPK::valid_conductor(TYP(pmap[y][x]), sim, ID(pmap[y][x])) && parts[i].tmp != 1)) {
 		sim->kill_part(i);
 		return 1;
 	}
-		
 
-	// if (sim->timer % 20 == 1 && parts[i].tmp != 1) {
-	// 	sim->kill_part(i);
-	// 	return 1;
-	// }
-
-	// Temp code, move to create
-	if (!parts[i].flags) {
-		parts[i].flags = 1;
-		parts[i].pavg[0] = 1000;
-	}
-
-	if (parts[i].tmp == 1) {
+	if (sim->timer % RSPK::REFRESH_EVERY_FRAMES == 0 && parts[i].tmp == 1) {
 		RSPK::floodfill_voltage(sim, parts, x, y, parts[i].pavg[0]);
 	}
 
-	// Spread
-	for (rx = -1; rx <= 1; ++rx)
-	for (ry = -1; ry <= 1; ++ry)
-		if (BOUNDS_CHECK && (rx || ry)) {
-			r = sim->photons[y + ry][x + rx];
-			if (r && TYP(r) == PT_RSPK) {
-				// Found untouched region
-				//if (parts[i].tmp2 == 1 && parts[ID(r)].tmp <= 0)
-				//	RSPK::floodfill_voltage(sim, parts, x + rx, y + ry, parts[i].pavg[0], parts[i].tmp);
+	// Heat up the conductor its on
+	int r = pmap[y][x];
+	float power = RSPK::get_power(x, y, sim);
+	parts[ID(r)].temp += power / 500.0f;
+
+	// Make sure self conductor can't be SPRKed
+	parts[ID(r)].life = 4;
+
+	// St Elmo's fire
+	if (parts[i].pavg[0] > 10000000) {
+		for (int rx = -1; rx <= 1; ++rx)
+		for (int ry = -1; ry <= 1; ++ry)
+			if (BOUNDS_CHECK && (rx || ry)) {
+				r = pmap[y + ry][x + rx];
+				if (!r && RNG::Ref().chance(1, 100)) {
+					int ni = sim->create_part(-1, x + rx ,y + ry, PT_PLSM);
+					parts[ni].temp = parts[i].temp;
+					parts[ni].life = RNG::Ref().between(0, 70);
+				}
 			}
-
-			// r = pmap[y + ry][x + rx];
-			// if (!r) continue;
-			// if (sim->elements[TYP(r)].Properties & PROP_CONDUCTS && TYP(sim->photons[y + ry][x + rx]) != PT_RSPK)
-			// 	sim->create_part(-3, x + rx, y + ry, PT_RSPK);
-		}
-
+	}
 
 	return 0;
 }
 
 //#TPT-Directive ElementHeader Element_RSPK static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_RSPK::graphics(GRAPHICS_FUNC_ARGS) {
-	int x = 255 - (cpart->tmp % 255);
-	*colr = *colg = *colb = x;
+	// Power = V^2 / R and is used for brightness
+	float power = RSPK::get_power(nx, ny, ren->sim);
+	*firea = clamp_flt(power / 10.0f, 0, 500);
 
-	if (cpart->tmp2 == 2) {
-		*colr = 255;
-		*colg = *colb = 0;
-	}
-
-	*firea = 255 - (cpart->tmp % 255); // 30;
 	*firer = *colr / 2;
 	*fireg = *colg / 2;
 	*fireb = *colb / 2;
 	*pixel_mode |= FIRE_SPARK;
-
-	// if (cpart->tmp2 > 0)
-	//	*colr = 0, *colg = 05, *colb = 0;
+	*cola = *firea;
 	return 0;
 }
 

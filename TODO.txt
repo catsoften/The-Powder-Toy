@@ -181,23 +181,31 @@ Copper -> gain
     malleabl - only if sudden change in pressure
 ceramic plate allows passage of ions
 
-electric realistic sprk:
-- generates magnetic field
-- voltage and charge
-- st elmos fire
-- sprk invisible until powerful enough
+holy water can be used to make a holy thermonuclear bomb
 
-Add GRND (ground, removes charge)
-    or use void
+
+RSTR 
+    - randomly delete nearby sprk (chance depends on resistivity)
+
+- capacitors
+- inductors
+- leds?
+- speakers
+- tesla coil
+- laser diode
+- voltage divider
+- voltage collector 
+ - (sums input voltage, outputs to output port)
+
+- high voltage ionizes gas into electrons
+- thermonic emission: PSCN can emit electrons at high voltage?
 
 IDEA:
--rspk makes pressure, remove conflict of location maybe
-    - rsprk heats up depending up VOLTAGE DROP, not the actual voltage value at the point
-    - voltage at end is calculated somehow?
-        if != 0 then voltage drop multi = 0, so no delta V exists across the wire
-        otherwise set multiplier for drop so collective drop = initial v
+    NEON glow with RSPK
+    generate eletric field
+    generates magnetic field
 
-    remove idea of electri field
+text tool not saving settings
 
 RCRT laggy af
 - floodfilling constantly
@@ -211,7 +219,10 @@ local gravity mode
 
 debug element, stuff like a compass or clock dsplay
 
-rsprk causes air movement (or electric fields????)
+
+C-6
+
+Paper
 
 electric field render: RENDER LINES NOT FIELD
 https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect

@@ -8,3 +8,7 @@ when particles hit it. JCB1 spawns this.
 ## MSSL (Missile)
 Guided missile, tries to accelerate to its target x, y coordinates (determined by pavg0, pavg1). If it hits a solid / powder detonates 
 (transforms into BOMB). Can go through gas and liquid without interruption. Leaves behind a smoke trail.
+
+## LCSM (Liquid cesium)
+Same as CESM, but liquid. Explodes at 1600 C. When it goes above 671 C it will 
+start to glow and bubble a bit, and won't conduct electricity. Same reactions as CESM.

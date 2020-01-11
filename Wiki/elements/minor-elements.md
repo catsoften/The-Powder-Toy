@@ -85,7 +85,6 @@ react with O2 to form cesium oxide and Au to form cesium auride. CsAu conducts a
 There are also some reactions with ACID / CAUS to form SALT and HYGN or WATR or GOLD depending on the type of CESM. Cesium oxide 
 is darker than regualr CESM and cesium auride is more golden.
 
-## LCSM (Liquid cesium)
-Same as CESM, but liquid. Explodes at 1600 C. When it goes above 671 C it will 
-start to glow and bubble a bit, and won't conduct electricity. Same reactions as CESM.
-
+## MMSH
+Metallic mesh, blocks life (SPDR, BEE, ANT, BIRD, FISH) and allows liquids, powders, gases and all energy particles through. Liquids 
+and powders might randomly be stopped for a single frame while passing through. Doesn't get sparked by electron.

@@ -51,12 +51,14 @@ Element_RSTR::Element_RSTR()
 
 //#TPT-Directive ElementHeader Element_RSTR static int update(UPDATE_FUNC_ARGS)
 int Element_RSTR::update(UPDATE_FUNC_ARGS) {
+	// pavg0 = restivity
+	// pavg1 = max rated voltage
 	if (parts[i].pavg[0] <= 0.0f)
-		parts[i].pavg[1] = 1.0f;
+		parts[i].pavg[0] = 1.0f;
 
 	int r = sim->photons[y][x];
 	if (r && TYP(r) == PT_RSPK) {
-		float voltage = parts[ID(r)].pavg[0];
+		float voltage = parts[ID(r)].pavg[1];
 
 		// Nearing max rated voltage, smoke
 		if (voltage > parts[i].pavg[1] * 0.95f) {

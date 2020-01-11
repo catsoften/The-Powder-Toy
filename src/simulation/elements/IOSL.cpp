@@ -54,8 +54,7 @@ int Element_IOSL::update(UPDATE_FUNC_ARGS) {
 }
 
 //#TPT-Directive ElementHeader Element_IOSL static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_IOSL::graphics(GRAPHICS_FUNC_ARGS)
-{
+int Element_IOSL::graphics(GRAPHICS_FUNC_ARGS) {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
 
