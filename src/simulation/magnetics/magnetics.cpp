@@ -72,15 +72,16 @@ void EMField::ApplyElectromagneticForces(int i) {
     switch(rt) {
         // Negative charged
         case PT_ELEC:
-        case PT_ION: {
-            sim.parts[i].vx -= ex[FASTXY(x, y)];
-            sim.parts[i].vy -= ey[FASTXY(x, y)];
+        case PT_ION:
+        case PT_BALI: {
+            sim.parts[i].vx -= ex[FASTXY(x, y)] * 0.1f;
+            sim.parts[i].vy -= ey[FASTXY(x, y)] * 0.1f;
             break;
         }
         // Positive charged
         case PT_PROT: {
-            sim.parts[i].vx += ex[FASTXY(x, y)];
-            sim.parts[i].vy += ey[FASTXY(x, y)];
+            sim.parts[i].vx += ex[FASTXY(x, y)] * 0.1f;
+            sim.parts[i].vy += ey[FASTXY(x, y)] * 0.1f;
             break;
         }
     }

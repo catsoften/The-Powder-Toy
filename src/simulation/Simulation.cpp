@@ -2406,6 +2406,10 @@ void Simulation::init_can_move()
 		//RSPK invisible to all
 		can_move[movingType][PT_RSPK] = 2;
 
+		can_move[movingType][PT_WEB] = 2; // Everything can go through web
+		can_move[movingType][PT_CLUD] = 2; // Everything can go through cloud
+		can_move[movingType][PT_JCB1] = 2; // JCB1 can go through anything
+
 		// Metallic mesh only blocks life
 		if (!(movingType == PT_BEE || movingType == PT_SPDR || movingType == PT_ANT || movingType == PT_BIRD || movingType == PT_FISH))
 			can_move[movingType][PT_MMSH] = 2;
@@ -2425,16 +2429,12 @@ void Simulation::init_can_move()
 	// TODO: replace with property
 	for (destinationType = 0; destinationType < PT_NUM; destinationType++)
 	{
-		can_move[destinationType][PT_WEB] = 2; // Everything can go through web
-		can_move[destinationType][PT_CLUD] = 2; // Everything can go through cloud
-		can_move[destinationType][PT_JCB1] = 2; // JCB1 can go through anything
-
 		if (destinationType == PT_GLAS || destinationType == PT_PHOT || destinationType == PT_FILT || destinationType == PT_INVIS
 		 || destinationType == PT_CLNE || destinationType == PT_PCLN || destinationType == PT_BCLN || destinationType == PT_PBCN
 		 || destinationType == PT_WATR || destinationType == PT_DSTW || destinationType == PT_SLTW || destinationType == PT_GLOW
 		 || destinationType == PT_ISOZ || destinationType == PT_ISZS || destinationType == PT_QRTZ || destinationType == PT_PQRT
-		 || destinationType == PT_H2   || destinationType == PT_BGLA || destinationType == PT_C5 || destinationType == PT_FILL
-		 || destinationType == PT_RDND || destinationType == PT_SWTR)
+		 || destinationType == PT_H2   || destinationType == PT_BGLA || destinationType == PT_C5   || destinationType == PT_FILL
+		 || destinationType == PT_RDND || destinationType == PT_SWTR || destinationType == PT_FIBR || destinationType == PT_IOSL)
 			can_move[PT_PHOT][destinationType] = 2;
 		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTI && destinationType != PT_PRTO)
 		{

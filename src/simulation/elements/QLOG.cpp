@@ -13,7 +13,7 @@ Element_QLOG::Element_QLOG()
 	Name = "QLOG";
 	Colour = PIXPACK(0xCF3A3A);
 	MenuVisible = 1;
-	MenuSection = SC_ELEC;
+	MenuSection = SC_POWERED;
 	Enabled = 1;
 
 	Advection = 0.0f;

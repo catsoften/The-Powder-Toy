@@ -68,6 +68,8 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 			parts[i].life = 14;
 		else if (ct == PT_NEON)
 			parts[i].life = 54;
+		else if (ct == PT_LEAD)
+			parts[i].life = 16;
 		if (sim->part_change_type(i,x,y,ct))
 			return 1;
 		return 0;
@@ -295,6 +297,10 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 					if (receiver==PT_NSCN || receiver==PT_PSCN)
 						goto conduct;
 					continue;
+				case PT_LEAD:
+					if (receiver==PT_PSCN)
+						goto conduct;
+					continue;
 				default:
 					break;
 				}
@@ -327,6 +333,10 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 					continue;
 				case PT_PSCN:
 					if (sender!=PT_NSCN)
+						goto conduct;
+					continue;
+				case PT_LEAD:
+					if (sender!=PT_PSCN)
 						goto conduct;
 					continue;
 				default:

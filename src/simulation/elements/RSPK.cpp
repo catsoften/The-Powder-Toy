@@ -58,6 +58,8 @@ float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 			if (parts[i].temp < 4.0f) // Superconduction < 4 K
 				return 0;
 			return 0.98f;
+		case PT_LEAD:
+			return 0.22f;
 		case PT_WATR:
 			return 20000000000.0f;
 		case PT_SLTW:
@@ -163,7 +165,12 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 		for (int rx = -1; rx <= 1; ++rx)
 		for (int ry = -1; ry <= 1; ++ry)
 		if ((rx || ry)) {
-			if (!current_branch_past_ground && is_voltage_valid(sim, parts, p->x + rx, p->y + ry, p->counter + 1, newvol))
+			// Floodfill if valid spot. If currently on switch don't conduct to PSCN or NSCN
+			// or the switch can't be toggled
+			if (!current_branch_past_ground && is_voltage_valid(sim, parts, p->x + rx, p->y + ry, p->counter + 1, newvol)
+					&& (TYP(sim->pmap[p->y][p->x]) != PT_SWCH ||
+						(TYP(sim->pmap[p->y + ry][p->x + rx]) != PT_PSCN &&
+						 TYP(sim->pmap[p->y + ry][p->x + rx]) != PT_NSCN)))
 				queue.push(new VoltagePoint(p->x + rx, p->y + ry, p->counter + 1, newvol));
 		}
 
@@ -253,6 +260,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	 * 
 	 * RSPK makes an electric field in the direction it goes
 	 */
+	float res = RSPK::get_resistance(parts[i].ctype, parts, ID(pmap[y][x]), sim);
 
 	// Negate velocity, or it can be affected by Newtonian gravity
 	parts[i].vx = parts[i].vy = 0;
@@ -260,7 +268,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	// Set ctype and temp to whats under it
 	parts[i].ctype = TYP(pmap[y][x]);
 	parts[i].temp = parts[ID(pmap[y][x])].temp;
-	parts[i].dcolour = 10000 * RSPK::get_resistance(parts[i].ctype, parts, ID(pmap[y][x]), sim);
+	parts[i].dcolour = 10000 * res;
 
 	// Reset code
 	if (sim->timer % RSPK::REFRESH_EVERY_FRAMES == 1 && parts[i].tmp != 1) // TODO remove tmp = 1, voltage sourcec keeps updating
@@ -292,7 +300,8 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	parts[ID(r)].life = 4;
 
 	// Project electric field
-	sim->emfield->electric[FASTXY(x / EMCELL, y / EMCELL)] += parts[i].pavg[0];
+	float efield = res == 0.0f ? 0.0f : isign(parts[i].pavg[0]) * parts[i].pavg[1] / res;
+	sim->emfield->electric[FASTXY(x / EMCELL, y / EMCELL)] += efield;
 
 	// St Elmo's fire
 	if (parts[i].pavg[0] > 10000000) {

@@ -137,7 +137,7 @@ std::vector<menu_section> LoadMenus()
 		// Column 2 (right)
 		{0xE041, String("Walls"), 0, 1},
 		{0xE042, String("Electronics"), 0, 1},
-		{0xE056, String("Powered Materials"), 0, 1},
+		{0xE056, String("Activated Materials"), 0, 1},
 		{0x81,   String("Electromagnetic"), 0, 1},
 		{0xE019, String("Sensors"), 0, 1},
 		{0xE062, String("Force"), 0, 1},

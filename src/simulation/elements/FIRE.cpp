@@ -151,6 +151,16 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 							parts[ID(r)].ctype = PT_HEAC;
 						}
 					}
+
+					// Molten LEAD destroys nearby electronics
+					if (parts[i].ctype == PT_LEAD &&
+						(rt == PT_WIFI || rt == PT_SWCH || rt == PT_INST || rt == PT_ARAY || rt == PT_CRAY ||
+						 rt == PT_DRAY || rt == PT_TESC || rt == PT_EMP  || rt == PT_ETRD ||
+						 rt == PT_DTEC || rt == PT_TSNS || rt == PT_LDTC || rt == PT_PSNS ||
+						 rt == PT_PDTC || rt == PT_TRBN || rt == PT_PSTN || rt == PT_FRAY ||
+						 rt == PT_FILT || rt == PT_HEAC || rt == PT_LSNS ||
+						 sim->elements[rt].MenuSection == SC_POWERED))
+						sim->part_change_type(ID(r), x, y, PT_BREC);
 				}
 
 				if ((surround_space || sim->elements[rt].Explosive) &&
