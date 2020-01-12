@@ -2376,6 +2376,14 @@ void GameView::OnDraw()
 			else if (type == PT_LCSM && sample.particle.tmp == 2)
 				sampleInfo << "(Liquid cesium auride)   ";
 
+			// Voltage
+			else if (type == PT_RSPK) {
+				sampleInfo << Format::Precision(4);
+				sampleInfo << "R = " << sample.particle.dcolour / 100.0f << "e-8 ohms  ";
+				sampleInfo << "" << sample.particle.pavg[0] << " V (" << sample.particle.pavg[1] << " V drop)";
+				sampleInfo << "   ";
+			}
+
 			sampleInfo << Format::Precision(2);
 
 			if (type)

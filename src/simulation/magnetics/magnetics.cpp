@@ -58,6 +58,7 @@ void EMField::ApplyElectromagneticForces(int i) {
 
     int x = (int)(sim.parts[i].x + 0.5f) / EMCELL;
     int y = (int)(sim.parts[i].y + 0.5f) / EMCELL;
+    int rt = sim.parts[i].type;
 
     if (sim.parts[i].type == PT_BRMT) {
 
@@ -67,6 +68,23 @@ void EMField::ApplyElectromagneticForces(int i) {
         sim.parts[i].vx += ex[FASTXY(x, y)];
         sim.parts[i].vy += ey[FASTXY(x, y)];
     }
+
+    switch(rt) {
+        // Negative charged
+        case PT_ELEC:
+        case PT_ION: {
+            sim.parts[i].vx -= ex[FASTXY(x, y)];
+            sim.parts[i].vy -= ey[FASTXY(x, y)];
+            break;
+        }
+        // Positive charged
+        case PT_PROT: {
+            sim.parts[i].vx += ex[FASTXY(x, y)];
+            sim.parts[i].vy += ey[FASTXY(x, y)];
+            break;
+        }
+    }
+
     // else if (fabs(electric[FASTXY(x, y)]) > 0.1f && sim.elements[sim.parts[i].type].Properties & PROP_CONDUCTS) {
     //     if (!sim.photons[(int)sim.parts[i].y][(int)sim.parts[i].x])
     //         sim.create_part(-3, sim.parts[i].x, sim.parts[i].y, PT_RSPK);

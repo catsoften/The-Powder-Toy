@@ -7,10 +7,39 @@ Element_VCMB::Element_VCMB()
 	Name = "VCMB";
 	Colour = PIXPACK(0xFFFFFF);
 	MenuVisible = 1;
-	MenuSection = SC_SPECIAL;
+	MenuSection = SC_ELECTROMAG;
 	Enabled = 1;
 
-	// element properties here
+	Advection = 0.0f;
+	AirDrag = 0.00f * CFDS;
+	AirLoss = 0.90f;
+	Loss = 0.00f;
+	Collision = 0.0f;
+	Gravity = 0.0f;
+	Diffusion = 0.00f;
+	HotAir = 0.000f * CFDS;
+	Falldown = 0;
+
+	Flammable = 0;
+	Explosive = 0;
+	Meltable = 0;
+	Hardness = 1;
+
+	Weight = 100;
+
+	HeatConduct = 251;
+	Description = "Combiner junction. Accepts voltage from PSCN, outputs combined voltage to NSCN.";
+
+	Properties = TYPE_SOLID;
+
+	LowPressure = IPL;
+	LowPressureTransition = NT;
+	HighPressure = IPH;
+	HighPressureTransition = NT;
+	LowTemperature = ITL;
+	LowTemperatureTransition = NT;
+	HighTemperature = ITH;
+	HighTemperatureTransition = NT;
 
 	Update = &Element_VCMB::update;
 	Graphics = &Element_VCMB::graphics;

@@ -3,8 +3,7 @@
 // Resitivity values are computed in RSPK.cpp
 
 //#TPT-Directive ElementClass Element_RSTR PT_RSTR 256
-Element_RSTR::Element_RSTR()
-{
+Element_RSTR::Element_RSTR() {
 	Identifier = "DEFAULT_PT_RSTR";
 	Name = "RSTR";
 	Colour = PIXPACK(0xEACE9E);
@@ -87,10 +86,7 @@ int Element_RSTR::update(UPDATE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_RSTR static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_RSTR::graphics(GRAPHICS_FUNC_ARGS) {
-	// graphics code here
-	// return 1 if nothing dymanic happens here
-
-	return 0;
+	return 1;
 }
 
 Element_RSTR::~Element_RSTR() {}

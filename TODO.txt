@@ -160,6 +160,11 @@ bleach, tear gas, nitrogen
 bedrock, absorbs liquid
 anti hydrogen
 
+scale https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23708
+
+ERAY - property setter ray
+
+
 
 heat seeking missiles
 
@@ -197,12 +202,15 @@ RSTR
 - voltage collector 
  - (sums input voltage, outputs to output port)
 
-- high voltage ionizes gas into electrons
+toggle displays with shift-2 and shift-3 and so on
+
+
+- high voltage ionizes gas into plsm
 - thermonic emission: PSCN can emit electrons at high voltage?
 
 IDEA:
+    negative electric field too strong
     NEON glow with RSPK
-    generate eletric field
     generates magnetic field
 
 text tool not saving settings

@@ -23,6 +23,8 @@ bool valid_conductor(int typ, Simulation *sim, int i) {
 float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 	if (type <= 0 || type > PT_NUM) // Should never happen
 		return 100.0f;
+	if (type == PT_VOLT)
+		return 0.0f;
 	if (!valid_conductor(type, sim, i)) // Most stuff isn't that doesn't conduct has uberhigh resistance
 		return 100000000.0f;
 
@@ -247,12 +249,18 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	 * 			1 = visited and valid connection
 	 * pavg0 - Voltage
 	 * pavg1 - Voltage drop across pixel
+	 * dcolour - Resistance of the value its on * 10000
 	 * 
 	 * RSPK makes an electric field in the direction it goes
 	 */
 
 	// Negate velocity, or it can be affected by Newtonian gravity
 	parts[i].vx = parts[i].vy = 0;
+
+	// Set ctype and temp to whats under it
+	parts[i].ctype = TYP(pmap[y][x]);
+	parts[i].temp = parts[ID(pmap[y][x])].temp;
+	parts[i].dcolour = 10000 * RSPK::get_resistance(parts[i].ctype, parts, ID(pmap[y][x]), sim);
 
 	// Reset code
 	if (sim->timer % RSPK::REFRESH_EVERY_FRAMES == 1 && parts[i].tmp != 1) // TODO remove tmp = 1, voltage sourcec keeps updating
@@ -264,8 +272,9 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	// Also kill self if no longer on a conductor and not a source (tmp = 1)
 	parts[i].life--;
 	if (parts[i].life <= 0 ||
-			// (parts[i].pavg[1] == 0.0f && parts[i].tmp != 1) ||
-			(!RSPK::valid_conductor(TYP(pmap[y][x]), sim, ID(pmap[y][x])) && parts[i].tmp != 1)) {
+			// Valid conductor check (source sprk must be on VOLT, others on a valid conductor)
+			(!RSPK::valid_conductor(TYP(pmap[y][x]), sim, ID(pmap[y][x])) && parts[i].tmp != 1) ||
+			(TYP(pmap[y][x]) != PT_VOLT && parts[i].tmp == 1)) {
 		sim->kill_part(i);
 		return 1;
 	}
@@ -277,10 +286,13 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	// Heat up the conductor its on
 	int r = pmap[y][x];
 	float power = RSPK::get_power(x, y, sim);
-	parts[ID(r)].temp += power / 500.0f;
+	parts[ID(r)].temp += power / 200.0f;
 
 	// Make sure self conductor can't be SPRKed
 	parts[ID(r)].life = 4;
+
+	// Project electric field
+	sim->emfield->electric[FASTXY(x / EMCELL, y / EMCELL)] += parts[i].pavg[0];
 
 	// St Elmo's fire
 	if (parts[i].pavg[0] > 10000000) {
@@ -308,7 +320,7 @@ int Element_RSPK::graphics(GRAPHICS_FUNC_ARGS) {
 	*firer = *colr / 2;
 	*fireg = *colg / 2;
 	*fireb = *colb / 2;
-	*pixel_mode |= FIRE_SPARK;
+	*pixel_mode |= FIRE_SPARK | PMODE_NONE;
 	*cola = *firea;
 	return 0;
 }

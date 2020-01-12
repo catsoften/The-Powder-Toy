@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_MMSH PT_MMSH 258
+//#TPT-Directive ElementClass Element_MMSH PT_MMSH 254
 Element_MMSH::Element_MMSH()
 {
 	Identifier = "DEFAULT_PT_MMSH";
@@ -34,8 +34,8 @@ Element_MMSH::Element_MMSH()
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
-	HighPressure = 1.0f;
-	HighPressureTransition = ST;
+	HighPressure = ITH;
+	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
