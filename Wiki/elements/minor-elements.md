@@ -44,3 +44,6 @@ is darker than regualr CESM and cesium auride is more golden.
 
 ## AERO (Aerogel)
 Perfect heat insulator (But doesn't block SPRK). Destroyed under pressure > 9.0. Does not block most radiation.
+
+## C6
+A more powerful version of C4, releases red EMBR, FIRE, and burning BCOL on exploding. Also releases more pressure and heat.

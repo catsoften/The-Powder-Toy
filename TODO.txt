@@ -227,8 +227,11 @@ conductor channels
 generates magnetic field
 
 copper + zinc = brass
-- kills BCTR
 copper oxidates into green in seatwater, water and o2
+
+- https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
+    - only with BRAS maybe
+- kills BCTR
 
 
 
@@ -250,12 +253,7 @@ local gravity mode
 debug element, stuff like a compass or clock dsplay
 
 
-C-6
-
 Paper
-
-electric field render: RENDER LINES NOT FIELD
-https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
 
 diamond anvil cells
 
@@ -285,6 +283,7 @@ hud rectangles drawn wrong -  see non-black background
 - time stasis field in snapshot?
 - magnetic fields in undo snapshot 
 - simulation->GetSnapshot()
+- also simulation timer in snapshot
 
 NEW TODO:
     MGNT, COPR, ZINC
