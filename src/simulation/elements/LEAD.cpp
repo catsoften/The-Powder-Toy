@@ -8,7 +8,7 @@ Element_LEAD::Element_LEAD()
 	Name = "LEAD";
 	Colour = PIXPACK(0xD6D6FF);
 	MenuVisible = 1;
-	MenuSection = SC_ELECTROMAG;
+	MenuSection = SC_SOLIDS;
 	Enabled = 1;
 
 	Advection = 0.05f;

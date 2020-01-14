@@ -597,7 +597,7 @@ void GameView::NotifyToolListChanged(GameModel * sender)
 	toolButtons.clear();
 	std::vector<Tool*> toolList = sender->GetToolList();
 	int currentX = 0;
-	int currentDY = toolList.size() <= MENUS_PER_ROW ? 17 : 1; // less populated menus don't have 2 rows - flush with bottom
+	int currentDY = 17;
 	element_menu_count = toolList.size();
 
 	for (size_t i = 0; i < toolList.size(); i++)
@@ -609,9 +609,9 @@ void GameView::NotifyToolListChanged(GameModel * sender)
 		// About 21 menu buttons fit without too much scrolling, so first we fill top row,
 		// then we fill bottom, then we alternate
 		if (i >= MENUS_PER_ROW * 2)
-			currentDY = i % 2 == 0 ? 1 : 20;
+			currentDY = i % 2 == 0 ? 17 : 0;
 		else if (i == MENUS_PER_ROW) {
-			currentDY = 20;
+			currentDY = 0;
 			currentX = 0;
 		}
 
@@ -1231,7 +1231,7 @@ void GameView::ToolTip(ui::Point senderPosition, String toolTip)
 	else
 	{
 		this->toolTip = toolTip;
-		int topY = element_menu_count <= MENUS_PER_ROW ? Size.Y-MENUSIZE+6 : Size.Y-MENUSIZE-10;
+		int topY = element_menu_count <= MENUS_PER_ROW ? Size.Y-MENUSIZE+5 : Size.Y-MENUSIZE-12;
 		toolTipPosition = ui::Point(Size.X-BARSIZE-Graphics::textwidth(toolTip), topY);
 		isToolTipFadingIn = true;
 	}

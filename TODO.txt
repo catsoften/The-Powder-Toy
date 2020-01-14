@@ -211,11 +211,17 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21953&PageNum=1 - silver 
 
 
-- fixes todo commit:
-- fix hud rectangles
-- make 2 row categories
-- move QLOG, NOTE back to electronics
-- unhide LCSM
+Paper
+- stained by liquids and powders
+- dissolves in water
+    - ink diffuses in wet paper
+    - wet paper is darker and dries out eventually
+- make paper somehow with SAWD
+- idea: printer using pdtc and shit and paper and cray
+
+RCRT laggy af
+- floodfilling constantly
+
 
 - tesla coil
 - voltage divider
@@ -234,8 +240,8 @@ copper oxidates into green in seatwater, water and o2
 
 - https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
     - only with BRAS maybe
+    - add bras resitivity
 - kills BCTR
-
 
 
 toggle displays with shift-2 and shift-3 and so on
@@ -243,8 +249,6 @@ toggle displays with shift-2 and shift-3 and so on
 
 text tool not saving settings
 
-RCRT laggy af
-- floodfilling constantly
 
 water  reactinos - add Carbonated water and ISOL
 
@@ -256,11 +260,6 @@ local gravity mode
 debug element, stuff like a compass or clock dsplay
 
 
-Paper
-- stained by liquids and powders
-- burns into crbn
-- dissolves in water
-- idea: printer using pdtc and shit and paper and cray
 
 diamond anvil cells
 
