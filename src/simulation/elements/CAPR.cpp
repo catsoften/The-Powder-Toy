@@ -1,6 +1,7 @@
 #include "simulation/ElementCommon.h"
 
-#define MAX_C 1000.0f
+#define MAX_C 10000000.0f // Also check in GameView.cpp
+#define LOWEST_EFFECTIVE_RES 0.001f // Also check in GameView.cpp
 
 //#TPT-Directive ElementClass Element_CAPR PT_CAPR 263
 Element_CAPR::Element_CAPR() {
@@ -59,8 +60,8 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 	if (parts[i].pavg[0] <= 0.001f) // No invalid capacitance (too small = division by 0 or overflow)
 		parts[i].pavg[0] = 0.001f; 
 
-	if (parts[i].pavg[1] <= 0.01f) // Effective resistance can't be "0"
-		parts[i].pavg[1] = 0.01f; 
+	if (parts[i].pavg[1] <= LOWEST_EFFECTIVE_RES) // Effective resistance can't be "0"
+		parts[i].pavg[1] = LOWEST_EFFECTIVE_RES; 
 
 	// Currently being charged by a non-voltage source
 	int r = sim->photons[y][x];
@@ -74,7 +75,7 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 		parts[i].tmp2 = 1;
 	}
 	// Discharging
-	else if (parts[i].pavg[1] > 0.01f) {
+	else if (parts[i].pavg[1] > LOWEST_EFFECTIVE_RES) {
 		if (!r || TYP(r) != PT_RSPK)
 			sim->create_part(-3, x, y, PT_RSPK);
 		r = sim->photons[y][x];
@@ -87,7 +88,7 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 		parts[i].tmp2 = 0;
 	}
 	// Kill the source, discharge over
-	else if (parts[i].pavg[1] <= 0.01f) {
+	else if (parts[i].pavg[1] <= LOWEST_EFFECTIVE_RES) {
 		if (r && TYP(r) == PT_RSPK)
 			sim->kill_part(ID(r));
 	}
@@ -103,3 +104,4 @@ int Element_CAPR::graphics(GRAPHICS_FUNC_ARGS) {
 Element_CAPR::~Element_CAPR() {}
 
 #undef MAX_C
+#undef LOWEST_EFFECTIVE_RES

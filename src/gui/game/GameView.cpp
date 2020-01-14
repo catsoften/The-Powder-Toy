@@ -2383,7 +2383,19 @@ void GameView::OnDraw()
 				sample.particle.dcolour == 0 ?
 					sampleInfo << "INF A,  " :
 					sampleInfo << (sample.particle.pavg[1] / sample.particle.dcolour * 10000.0f) << " A,  ";
-				if (sample.particle.ctype != PT_VOLT)
+				
+				if (sample.particle.ctype == PT_CAPR) {
+					if (sample.particle.dcolour / 100.0f <= 0.001f) // Empty
+						sampleInfo << "Empty,  ";
+					else if (sample.particle.dcolour / 100.0f >= 10000000.0f) // Full
+						sampleInfo << "Full,  ";
+					else
+						sampleInfo << "Charge changing,  ";
+				}
+				else if (sample.particle.ctype == PT_INDC) {
+					// Do nothing because idk what to put for inductor
+				}
+				else if (sample.particle.ctype != PT_VOLT)
 					sampleInfo << "R = " << sample.particle.dcolour / 100.0f << "e-8 ohms,  ";
 				sampleInfo << Format::Precision(3);
 				sampleInfo << "" << sample.particle.pavg[0] << " V (" << sample.particle.pavg[1] << " V drop)";

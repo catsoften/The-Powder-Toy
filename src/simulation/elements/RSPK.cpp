@@ -36,6 +36,12 @@ float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 			if (parts[i].tmp2 == 0)
 				return 0.0f;
 			return parts[i].pavg[1];
+		case PT_INDC:
+			// Inductors have very high initial resistance when there is a positive change in current
+			// that slowly reduces, and vice versa. Effective resistance is saved in pavg1
+			if (parts[i].tmp2 == 0)
+				return 0.0f;
+			return parts[i].pavg[1];
 		case PT_SWCH:
 			if (parts[i].life)
 				return 0.1f; // On
@@ -67,12 +73,13 @@ float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 			return 0.98f;
 		case PT_LEAD:
 			return 0.22f;
-		case PT_WATR:
-			return 20000000000.0f;
-		case PT_SLTW:
-		case PT_SWTR:
-		case PT_IOSL:
-			return 3000000000.0f;
+		// Leads to buggy super high voltage drops
+		// case PT_WATR:
+		// 	return 20000000000.0f;
+		// case PT_SLTW:
+		// case PT_SWTR:
+		// case PT_IOSL:
+		// 	return 3000000000.0f;
 		case PT_IRON:
 			return 0.0971f;
 		case PT_GOLD:
@@ -177,13 +184,18 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 			// We also make sure rspk can't flow from consecutive components like
 			// VOLT, CAPR, etc...
 			// to avoid flickering and weird bugs
+			// We can't conduct to water unless voltage is high enough to avoid super high
+			// voltage drops resulting from low voltages
 			int fromtype = TYP(sim->pmap[p->y][p->x]);
 			int totype = TYP(sim->pmap[p->y + ry][p->x + rx]);
 			if (!current_branch_past_ground && is_voltage_valid(sim, parts, p->x + rx, p->y + ry, p->counter + 1, newvol)
 					 && (fromtype != PT_SWCH ||
 						(totype != PT_PSCN && totype != PT_NSCN))
 					 && (fromtype != PT_CAPR || totype != PT_CAPR)
-					 && (fromtype != PT_VOLT || totype != PT_VOLT))
+					 && (fromtype != PT_VOLT || totype != PT_VOLT)
+					 && (fromtype != PT_INDC || totype != PT_INDC)
+					 && ((totype != PT_WATR && totype != PT_SLTW && totype != PT_CBNW &&
+					 	  totype != PT_IOSL) || p->voltage > 1000.0f))
 				queue.push(new VoltagePoint(p->x + rx, p->y + ry, p->counter + 1, newvol));
 		}
 
@@ -295,7 +307,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	if (parts[i].life <= 0 ||
 			// Valid conductor check (source sprk must be on VOLT or CAPR, others on a valid conductor)
 			(!RSPK::valid_conductor(TYP(pmap[y][x]), sim, ID(pmap[y][x])) && parts[i].tmp != 1) ||
-			(TYP(pmap[y][x]) != PT_VOLT && TYP(pmap[y][x]) != PT_CAPR && parts[i].tmp == 1)) {
+			(TYP(pmap[y][x]) != PT_VOLT && TYP(pmap[y][x]) != PT_CAPR && TYP(pmap[y][x]) != PT_INDC && parts[i].tmp == 1)) {
 		sim->kill_part(i);
 		return 1;
 	}

@@ -1,5 +1,8 @@
 #include "simulation/ElementCommon.h"
 
+#define MAX_L 10000000.0f
+#define HIGHEST_EFFECTIVE_RES 10000000.0f
+
 //#TPT-Directive ElementClass Element_INDC PT_INDC 264
 Element_INDC::Element_INDC()
 {
@@ -29,6 +32,8 @@ Element_INDC::Element_INDC()
 
 	HeatConduct = 251;
 	Description = "Inductor. Resists sudden changes in current. pavg0 = inductance.";
+	DefaultProperties.pavg[0] = 1.0f;
+	DefaultProperties.pavg[1] = MAX_L;
 
 	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
 
@@ -50,17 +55,48 @@ int Element_INDC::update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * pavg0 - inductance
-	 * pavg1 - current last frame
+	 * pavg1 - effective resistance
+	 * tmp   - 1000 * highest voltage
+	 * tmp2  - Is current increasing?
 	 */
+	if (parts[i].pavg[0] <= 0.001f) // No invalid inductance (too small = division by 0 or overflow)
+		parts[i].pavg[0] = 0.001f;
 
+	if (parts[i].pavg[1] < 0.001f) // Avoid effective resistance turning to 0
+		parts[i].pavg[1] = 0.001f;
+	if (parts[i].pavg[1] > HIGHEST_EFFECTIVE_RES) // Effective resistance can't go to infinity
+		parts[i].pavg[1] = HIGHEST_EFFECTIVE_RES; 
+
+	// Currently being charged by a non-voltage source
 	int r = sim->photons[y][x];
-	if (r && TYP(r) == PT_RSPK) {
-		// V = IR, so previous resistance is just voltage across div current across
-		float effective_resistance = 1.0f;
+	float efactor = pow(2.718, 1 / parts[i].pavg[0]);
 
-		float current_current = effective_resistance == 0.0f ? 9999999999999.0f : parts[ID(r)].pavg[1] / effective_resistance;
-		float dI = current_current - parts[i].pavg[1];
-		parts[i].pavg[1] = current_current;
+	// Resisting increasing current
+	if (r && TYP(r) == PT_RSPK && parts[ID(r)].tmp != 1) {
+		parts[i].pavg[1] /= efactor;
+
+		float current_v = 1000 * parts[ID(r)].pavg[1];
+		if (current_v > parts[i].tmp)
+			parts[i].tmp = current_v;
+		parts[i].tmp2 = 1;
+	}
+	// Resisting decreasing current
+	else if (parts[i].pavg[1] < HIGHEST_EFFECTIVE_RES) {
+		if (!r || TYP(r) != PT_RSPK)
+			sim->create_part(-3, x, y, PT_RSPK);
+		r = sim->photons[y][x];
+		parts[ID(r)].tmp = 1;
+		parts[ID(r)].life = 2;
+
+		parts[ID(r)].pavg[0] = parts[i].tmp / 1000.0f;
+		parts[i].tmp /= efactor;
+		parts[i].pavg[1] *= efactor;
+		parts[i].tmp2 = 0;
+	}
+	// // Kill the source, no more net discharge
+	else if (parts[i].pavg[1] >= HIGHEST_EFFECTIVE_RES) {
+		if (r && TYP(r) == PT_RSPK)
+			sim->kill_part(ID(r));
 	}
 
 	return 0;
@@ -72,3 +108,6 @@ int Element_INDC::graphics(GRAPHICS_FUNC_ARGS) {
 }
 
 Element_INDC::~Element_INDC() {}
+
+#undef MAX_L
+#undef HIGHEST_EFFECTIVE_RES
