@@ -12,7 +12,7 @@ Element_BRAS::Element_BRAS()
 
 	Advection = 0.0f;
 	AirDrag = 0.00f * CFDS;
-	AirLoss = 0.90f;
+	AirLoss = 1.00f;
 	Loss = 0.00f;
 	Collision = 0.0f;
 	Gravity = 0.0f;
@@ -28,14 +28,14 @@ Element_BRAS::Element_BRAS()
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Brass. Kills bacteria, can be used for thermoelectric generation.";
+	Description = "Brass. Kills bacteria, made from mixing copper and zinc.";
 	PhotonReflectWavelengths = 0xFFA0000;
 
 	Properties = TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
-	HighPressure = 1.0f;
+	HighPressure = ITH;
 	HighPressureTransition = ST;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
@@ -47,20 +47,16 @@ Element_BRAS::Element_BRAS()
 }
 
 //#TPT-Directive ElementHeader Element_BRAS static int update(UPDATE_FUNC_ARGS)
-int Element_BRAS::update(UPDATE_FUNC_ARGS)
-{
-	// update code here
+int Element_BRAS::update(UPDATE_FUNC_ARGS) {
+	sim->vx[y / CELL][x / CELL] *= 1.002f;
+	sim->vy[y / CELL][x / CELL] *= 1.002f;
 
 	return 0;
 }
 
 //#TPT-Directive ElementHeader Element_BRAS static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BRAS::graphics(GRAPHICS_FUNC_ARGS)
-{
-	// graphics code here
-	// return 1 if nothing dymanic happens here
-
-	return 0;
+int Element_BRAS::graphics(GRAPHICS_FUNC_ARGS) {
+	return 1;
 }
 
 Element_BRAS::~Element_BRAS() {}

@@ -4,7 +4,7 @@
 Element_C6::Element_C6()
 {
 	Identifier = "DEFAULT_PT_C6";
-	Name = "C6";
+	Name = "C-6";
 	Colour = PIXPACK(0xff40b6);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;

@@ -143,6 +143,11 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 							parts[ID(r)].ctype = PT_CRMC;
 						}
 					}
+					// LAVA(ZINC) + LAVA(COPR) = LAVA(BRAS)
+					else if (parts[i].ctype == PT_ZINC && rt == PT_LAVA && parts[ID(r)].ctype == PT_COPR) {
+						parts[i].ctype = PT_BRAS;
+						parts[ID(r)].ctype = PT_BRAS;
+					}
 					else if (rt == PT_HEAC && parts[i].ctype == PT_HEAC)
 					{
 						if (parts[ID(r)].temp > sim->elements[PT_HEAC].HighTemperature)

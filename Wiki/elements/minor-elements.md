@@ -47,3 +47,6 @@ Perfect heat insulator (But doesn't block SPRK). Destroyed under pressure > 9.0.
 
 ## C6
 A more powerful version of C4, releases red EMBR, FIRE, and burning BCOL on exploding. Also releases more pressure and heat.
+
+## BRAS (Brass)
+Kills BCTR. Melts at 900 C. Accelerates air velocity. Make by melting ZINC and COPR together.

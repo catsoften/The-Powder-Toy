@@ -168,8 +168,6 @@ infinite spark - subframe spark https://powdertoy.co.uk/Discussions/Thread/View.
 
 scale https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23708
 
-ERAY - property setter ray
-
 
 
 heat seeking missiles
@@ -211,6 +209,23 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21953&PageNum=1 - silver 
 
 
+
+
+copper oxidates into green in seatwater, water and o2
+
+- https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
+    - Low temperature materials (up to around 450 K): Alloys based on bismuth (Bi) in combinations with antimony (Sb), tellurium (Te) or selenium (Se).
+        Intermediate temperature (up to 850 K): such as materials based on alloys of lead (Pb)
+        Highest temperatures material (up to 1300 K): materials fabricated from silicon-germanium (SiGe) alloys.[11]
+
+BISMTH rainbow crystals
+
+rspk diodes - 0.7 V drop
+- only if threshold voltage is met otherwise fail
+
+grinder - converts into broken form
+    sawd -> broken (sawd) -> make pulp -> paper
+
 Paper
 - stained by liquids and powders
 - dissolves in water
@@ -235,16 +250,17 @@ conductor channels
     - maybe powerful electric fields induce current
 generates magnetic field
 
-copper + zinc = brass
-copper oxidates into green in seatwater, water and o2
 
-- https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
-    - only with BRAS maybe
-    - add bras resitivity
-- kills BCTR
+eco fuels
+
+wheat crops and shit
 
 
 toggle displays with shift-2 and shift-3 and so on
+
+bug report button by the new save?
+
+scp-009 http://www.scp-wiki.net/scp-009
 
 
 text tool not saving settings

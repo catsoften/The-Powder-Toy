@@ -97,6 +97,8 @@ float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 			return 32.0f;
 		case PT_INST:
 			return 0.0f;
+		case PT_BRAS:
+			return 0.60f;
 	}
 
 	return 0.5f; // Default conductor resistance
@@ -186,6 +188,7 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 			// to avoid flickering and weird bugs
 			// We can't conduct to water unless voltage is high enough to avoid super high
 			// voltage drops resulting from low voltages
+			// Also we can't conduct from NSCN to PSCN (diodes)
 			int fromtype = TYP(sim->pmap[p->y][p->x]);
 			int totype = TYP(sim->pmap[p->y + ry][p->x + rx]);
 			if (!current_branch_past_ground && is_voltage_valid(sim, parts, p->x + rx, p->y + ry, p->counter + 1, newvol)
@@ -195,8 +198,14 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 					 && (fromtype != PT_VOLT || totype != PT_VOLT)
 					 && (fromtype != PT_INDC || totype != PT_INDC)
 					 && ((totype != PT_WATR && totype != PT_SLTW && totype != PT_CBNW &&
-					 	  totype != PT_IOSL) || p->voltage > 1000.0f))
+					 	  totype != PT_IOSL) || p->voltage > 1000.0f)
+					 && (fromtype != PT_NSCN || totype != PT_PSCN))
+			{
+				// 0.7 V drop across diodes
+				if (fromtype == PT_PSCN && totype == PT_NSCN)
+					newvol -= 0.7f;
 				queue.push(new VoltagePoint(p->x + rx, p->y + ry, p->counter + 1, newvol));
+			}
 		}
 
 		// Memory cleanup
