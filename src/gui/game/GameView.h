@@ -12,6 +12,7 @@
 
 #define FPSWINDOWW 100
 #define FPSWINDOWH 105
+#define MENUS_PER_ROW 19
 
 enum DrawMode
 {
@@ -113,6 +114,9 @@ private:
 		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 	int part_history[25] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	std::chrono::steady_clock::time_point time_last_fps_measurement = std::chrono::steady_clock::now();
+
+	// Used for element tooltips
+	int element_menu_count = 0;
 
 	ui::Button * colourPicker;
 	std::vector<ToolButton*> colourPresets;

@@ -225,7 +225,7 @@ GameView::GameView():
 	int currentX = 1;
 	//Set up UI
 
-	scrollBar = new ui::Button(ui::Point(0,YRES+21), ui::Point(XRES, 2), "");
+	scrollBar = new ui::Button(ui::Point(0,YRES+21+16), ui::Point(XRES, 2), "");
 	scrollBar->Appearance.BorderHover = ui::Colour(200, 200, 200);
 	scrollBar->Appearance.BorderActive = ui::Colour(200, 200, 200);
 	scrollBar->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
@@ -328,7 +328,7 @@ GameView::GameView():
 	pauseButton->SetActionCallback({ [this] { c->SetPaused(pauseButton->GetToggleState()); } });
 	AddComponent(pauseButton);
 
-	ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-32, WINDOWH-80), ui::Point(15, 15), 0xE065, "Search for elements");
+	ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-32, WINDOWH-96), ui::Point(15, 15), 0xE065, "Search for elements");
 	tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 	tempButton->SetActionCallback({ [this] { c->OpenElementSearch(); } });
 	AddComponent(tempButton);
@@ -426,7 +426,7 @@ void GameView::NotifyQuickOptionsChanged(GameModel * sender)
 
 void GameView::NotifyMenuListChanged(GameModel * sender) {
 	// Menu listing
-	int currentY = WINDOWH-96;//-(sender->GetMenuList().size()*16);
+	int currentY = WINDOWH-112;//-(sender->GetMenuList().size()*16);
 	int currentX = WINDOWW-32; // Start on left col
 
 	for (size_t i = 0; i < menuButtons.size(); i++) {
@@ -597,23 +597,36 @@ void GameView::NotifyToolListChanged(GameModel * sender)
 	toolButtons.clear();
 	std::vector<Tool*> toolList = sender->GetToolList();
 	int currentX = 0;
+	int currentDY = toolList.size() <= MENUS_PER_ROW ? 17 : 1; // less populated menus don't have 2 rows - flush with bottom
+	element_menu_count = toolList.size();
+
 	for (size_t i = 0; i < toolList.size(); i++)
 	{
 		auto *tool = toolList[i];
 		VideoBuffer * tempTexture = tool->GetTexture(26, 14);
 		ToolButton * tempButton;
 
+		// About 21 menu buttons fit without too much scrolling, so first we fill top row,
+		// then we fill bottom, then we alternate
+		if (i >= MENUS_PER_ROW * 2)
+			currentDY = i % 2 == 0 ? 1 : 20;
+		else if (i == MENUS_PER_ROW) {
+			currentDY = 20;
+			currentX = 0;
+		}
+
 		//get decotool texture manually, since it changes depending on it's own color
 		if (sender->GetActiveMenu() == SC_DECO)
 			tempTexture = ((DecorationTool*)tool)->GetIcon(tool->GetToolID(), 26, 14);
 
 		if(tempTexture)
-			tempButton = new ToolButton(ui::Point(currentX, YRES+1), ui::Point(30, 18), "", tool->GetIdentifier(), tool->GetDescription());
+			tempButton = new ToolButton(ui::Point(currentX, YRES+currentDY), ui::Point(30, 18), "", tool->GetIdentifier(), tool->GetDescription());
 		else
-			tempButton = new ToolButton(ui::Point(currentX, YRES+1), ui::Point(30, 18), tool->GetName(), tool->GetIdentifier(), tool->GetDescription());
+			tempButton = new ToolButton(ui::Point(currentX, YRES + currentDY), ui::Point(30, 18), tool->GetName(), tool->GetIdentifier(), tool->GetDescription());
 
 		//currentY -= 17;
-		currentX -= 31;
+		if (i < 2 * MENUS_PER_ROW || i % 2 == 1)
+			currentX -= 31;
 		tempButton->tool = tool;
 		tempButton->SetActionCallback({ [this, tempButton] {
 			auto *tool = tempButton->tool;
@@ -950,7 +963,7 @@ void GameView::updateToolButtonScroll()
 	{
 		int x = currentMouse.X, y = currentMouse.Y;
 		int newInitialX = WINDOWW-56;
-		int totalWidth = (toolButtons[0]->Size.X+1)*toolButtons.size();
+		int totalWidth = (toolButtons[0]->Size.X+1)*toolButtons.size() / 2;
 		int scrollSize = (int)(((float)(XRES-BARSIZE))/((float)totalWidth) * ((float)XRES-BARSIZE));
 		if (scrollSize>XRES-1)
 			scrollSize = XRES-1;
@@ -988,7 +1001,8 @@ void GameView::updateToolButtonScroll()
 		{
 			for(auto *button : toolButtons)
 			{
-				if(button->Position.X < x && button->Position.X+button->Size.X > x)
+				if(button->Position.X < x && button->Position.X+button->Size.X > x &&
+				   button->Position.Y < y && button->Position.Y+button->Size.Y > y)
 					button->OnMouseEnter(x, y);
 				else
 					button->OnMouseLeave(x, y);
@@ -1217,7 +1231,8 @@ void GameView::ToolTip(ui::Point senderPosition, String toolTip)
 	else
 	{
 		this->toolTip = toolTip;
-		toolTipPosition = ui::Point(Size.X-BARSIZE-Graphics::textwidth(toolTip), Size.Y-MENUSIZE-10);
+		int topY = element_menu_count <= MENUS_PER_ROW ? Size.Y-MENUSIZE+6 : Size.Y-MENUSIZE-10;
+		toolTipPosition = ui::Point(Size.X-BARSIZE-Graphics::textwidth(toolTip), topY);
 		isToolTipFadingIn = true;
 	}
 }
@@ -2273,7 +2288,7 @@ void GameView::OnDraw()
 		}
 
 		int textWidth3 = Graphics::textwidth(sampleInfo2.Build());
-		g->fillrect(XRES - 20 - textWidth3, 42, textWidth3 + 8, 15, 0, 0, 0, alpha*0.5f);
+		g->fillrect(XRES - 20 - textWidth3, 41, textWidth3 + 8, 15, 0, 0, 0, alpha*0.5f);
 		g->drawtext(XRES - 16 - textWidth3, 44, sampleInfo2.Build(), 255, 255, 255, alpha*0.75f);
 
 		// 4th line where it displays the pvag and stuff
@@ -2289,7 +2304,7 @@ void GameView::OnDraw()
 		}
 
 		int textWidth4 = Graphics::textwidth(sampleInfo3.Build());
-		g->fillrect(XRES - 20 - textWidth4, 56, textWidth3 + 8, 15, 0, 0, 0, alpha*0.5f);
+		g->fillrect(XRES - 20 - textWidth4, 56, textWidth4 + 8, 15, 0, 0, 0, alpha*0.5f);
 		g->drawtext(XRES - 16 - textWidth4, 58, sampleInfo3.Build(), 255, 255, 255, alpha*0.75f);
 
 #ifndef OGLI
@@ -2459,7 +2474,7 @@ void GameView::OnDraw()
 
 		int textWidth2 = Graphics::textwidth(fpsInfo2.Build());
 		int alpha2 = 255 - introText * 5;
-		g->fillrect(12, 30, textWidth2 + 8, 15, 0, 0, 0, alpha2 * 0.5);
+		g->fillrect(12, 27, textWidth2 + 8, 15, 0, 0, 0, alpha2 * 0.5);
 		g->drawtext(16, 28, fpsInfo2.Build(), 32, 216, 255, alpha2 * 0.75);
 	}
 
@@ -2525,6 +2540,10 @@ void GameView::OnDraw()
 		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding + 24, "Particles", 0, 100, 255, 255);
 	}
 
+	// Clear menu areas, to ensure particle graphics don't overlap
+	memset(g->vid+((XRES+BARSIZE)*YRES), 0, (PIXELSIZE*(XRES+BARSIZE))*MENUSIZE);
+	g->clearrect(XRES, 1, BARSIZE, YRES-1);
+
 	//Tooltips
 	if(infoTipPresence)
 	{
@@ -2551,10 +2570,6 @@ void GameView::OnDraw()
 		g->fillrect(0, 0, WINDOWW, WINDOWH, 0, 0, 0, introText>51?102:introText*2);
 		g->drawtext(16, 20, introTextMessage, 255, 255, 255, introText>51?255:introText*5);
 	}
-
-	// Clear menu areas, to ensure particle graphics don't overlap
-	memset(g->vid+((XRES+BARSIZE)*YRES), 0, (PIXELSIZE*(XRES+BARSIZE))*MENUSIZE);
-	g->clearrect(XRES, 1, BARSIZE, YRES-1);
 }
 
 ui::Point GameView::lineSnapCoords(ui::Point point1, ui::Point point2)

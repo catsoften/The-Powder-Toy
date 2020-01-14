@@ -199,8 +199,6 @@ holy water can be used to make a holy thermonuclear bomb
 
 stress simulation
 
-double menu buttons
-
 lbp's command manipulator thing
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23295 - baking soda
@@ -213,6 +211,11 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21953&PageNum=1 - silver 
 
 
+- fixes todo commit:
+- fix hud rectangles
+- make 2 row categories
+- move QLOG, NOTE back to electronics
+- unhide LCSM
 
 - tesla coil
 - voltage divider
@@ -254,6 +257,10 @@ debug element, stuff like a compass or clock dsplay
 
 
 Paper
+- stained by liquids and powders
+- burns into crbn
+- dissolves in water
+- idea: printer using pdtc and shit and paper and cray
 
 diamond anvil cells
 
@@ -276,8 +283,6 @@ toggle magnetic field calculation in update
     - interpolate force
     - larger cell for render, smaller for actual particles
 
-
-hud rectangles drawn wrong -  see non-black background
 
 
 - time stasis field in snapshot?

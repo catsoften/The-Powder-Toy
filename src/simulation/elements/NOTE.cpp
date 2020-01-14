@@ -11,7 +11,7 @@ Element_NOTE::Element_NOTE()
 	Name = "NOTE";
 	Colour = PIXPACK(0xDDDDDD);
 	MenuVisible = 1;
-	MenuSection = SC_POWERED;
+	MenuSection = SC_ELEC;
 	Enabled = 1;
 
 	Advection = 0.00f;

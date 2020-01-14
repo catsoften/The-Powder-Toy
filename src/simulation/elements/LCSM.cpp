@@ -6,7 +6,7 @@ Element_LCSM::Element_LCSM()
 	Identifier = "DEFAULT_PT_LCSM";
 	Name = "LCSM";
 	Colour = PIXPACK(0xBED15E);
-	MenuVisible = 0;
+	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;
 	Enabled = 1;
 
