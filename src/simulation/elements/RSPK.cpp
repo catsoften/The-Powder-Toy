@@ -25,6 +25,7 @@ float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 		return 100.0f;
 	if (type == PT_VOLT)
 		return 0.0f;
+	// This should also never happen
 	if (!valid_conductor(type, sim, i)) // Most stuff isn't that doesn't conduct has uberhigh resistance
 		return 100000000.0f;
 	switch(type) {
@@ -73,13 +74,12 @@ float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 			return 0.98f;
 		case PT_LEAD:
 			return 0.22f;
-		// Leads to buggy super high voltage drops
-		// case PT_WATR:
-		// 	return 20000000000.0f;
-		// case PT_SLTW:
-		// case PT_SWTR:
-		// case PT_IOSL:
-		// 	return 3000000000.0f;
+		case PT_WATR:
+			return 20000000000.0f;
+		case PT_SLTW:
+		case PT_SWTR:
+		case PT_IOSL:
+			return 3000000000.0f;
 		case PT_IRON:
 			return 0.0971f;
 		case PT_GOLD:

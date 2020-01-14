@@ -2435,7 +2435,8 @@ void Simulation::init_can_move()
 		 || destinationType == PT_WATR || destinationType == PT_DSTW || destinationType == PT_SLTW || destinationType == PT_GLOW
 		 || destinationType == PT_ISOZ || destinationType == PT_ISZS || destinationType == PT_QRTZ || destinationType == PT_PQRT
 		 || destinationType == PT_H2   || destinationType == PT_BGLA || destinationType == PT_C5   || destinationType == PT_FILL
-		 || destinationType == PT_RDND || destinationType == PT_SWTR || destinationType == PT_FIBR || destinationType == PT_IOSL)
+		 || destinationType == PT_RDND || destinationType == PT_SWTR || destinationType == PT_FIBR || destinationType == PT_IOSL
+		 || destinationType == PT_AERO)
 			can_move[PT_PHOT][destinationType] = 2;
 		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTI && destinationType != PT_PRTO)
 		{

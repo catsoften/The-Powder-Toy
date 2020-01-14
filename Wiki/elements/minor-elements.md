@@ -41,3 +41,6 @@ react with O2 to form cesium oxide and Au to form cesium auride. CsAu conducts a
 
 There are also some reactions with ACID / CAUS to form SALT and HYGN or WATR or GOLD depending on the type of CESM. Cesium oxide 
 is darker than regualr CESM and cesium auride is more golden.
+
+## AERO (Aerogel)
+Perfect heat insulator (But doesn't block SPRK). Destroyed under pressure > 9.0. Does not block most radiation.
