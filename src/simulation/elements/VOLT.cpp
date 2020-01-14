@@ -50,23 +50,22 @@ Element_VOLT::Element_VOLT()
 //#TPT-Directive ElementHeader Element_VOLT static int update(UPDATE_FUNC_ARGS)
 int Element_VOLT::update(UPDATE_FUNC_ARGS) {
 	int r = sim->photons[y][x];
+
 	if (!r || TYP(r) != PT_RSPK) {
 		int ni = sim->create_part(-3, x, y, PT_RSPK);
 		parts[ni].tmp = 1;
-		parts[ni].life = 10;
+		parts[ni].life = 9;
 		parts[ni].pavg[0] = parts[i].pavg[0];
 	}
+	else if (TYP(r) == PT_RSPK)
+		parts[ID(r)].pavg[0] = parts[i].pavg[0];
 
 	return 0;
 }
 
 //#TPT-Directive ElementHeader Element_VOLT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_VOLT::graphics(GRAPHICS_FUNC_ARGS)
-{
-	// graphics code here
-	// return 1 if nothing dymanic happens here
-
-	return 0;
+int Element_VOLT::graphics(GRAPHICS_FUNC_ARGS) {
+	return 1;
 }
 
 Element_VOLT::~Element_VOLT() {}

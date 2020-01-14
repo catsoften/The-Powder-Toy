@@ -29,7 +29,7 @@ Element_LEAD::Element_LEAD()
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Soft metal with low melting point. Blocks pressure, absorbs energy particles.";
+	Description = "Soft metal with a low melting point. Blocks pressure, absorbs energy particles.";
 
 	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC | PROP_DEADLY;
 
@@ -56,7 +56,7 @@ int Element_LEAD::update(UPDATE_FUNC_ARGS) {
 	for (int ry = -1; ry <= 1; ++ry)
 		if (BOUNDS_CHECK) {
 			int r = sim->photons[y + ry][x + rx];
-			if (!r) continue;
+			if (!r || TYP(r) == PT_RSPK || TYP(r) == PT_BALI || TYP(r) == PT_JCB1) continue;
 
 			parts[i].temp += parts[ID(r)].temp;
 			sim->kill_part(ID(r));

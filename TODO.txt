@@ -193,37 +193,50 @@ Copper -> gain
 ceramic plate allows passage of ions
 
 
+laser beam thing, shoots LASR, can be used to superheat hydrogen
+
 holy water can be used to make a holy thermonuclear bomb
+
+stress simulation
+
+double menu buttons
+
+lbp's command manipulator thing
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23295 - baking soda
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23149 - FARADAY WALL
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17671 - fiber optics
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=1069 - UI Shit
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM waves
+    - slow down in certain solids, can be used as a scanner
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21953&PageNum=1 - silver 
 
 
-RSTR 
-    - randomly delete nearby sprk (chance depends on resistivity)
-
-- capacitors
 - inductors
-- leds?
-- speakers
+    - initially high resitivity, which slowly goes down as current comes in
+    - reverses, creates magnetic field too
+
+hover over capacitor, dont show resistance, show "charge"
+hover over inductor show voltage drop or something idk
+
+
 - tesla coil
-- laser diode
 - voltage divider
 - voltage collector 
  - (sums input voltage, outputs to output port)
 
- TUNG to electromag maybe
-
 conductor channels
 
 - high voltage ionizes gas into plsm
-- thermonic emission: PSCN can emit electrons at high voltage?
-    NEON glow with RSPK
-    generates magnetic field
+- jump through air gaps
+    - maybe powerful electric fields induce current
+generates magnetic field
 
-copper and zinc ore
+copper + zinc = brass
+- kills BCTR
+copper oxidates into green in seatwater, water and o2
+
 
 
 toggle displays with shift-2 and shift-3 and so on
@@ -256,11 +269,6 @@ diamond anvil cells
 reset electric field if not enabled to 0
 electric field collide with object keeps making velocity, check velocity collides and cancel
 if vx and vy = 0
-
-copper + zinc = brass
-- kills BCTR
-copper oxidates into green in seatwater, water and o2
-
 
 
 

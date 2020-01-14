@@ -4,7 +4,7 @@
 #include <iostream>
 
 namespace RSPK {
-const int REFRESH_EVERY_FRAMES = 20;
+const int REFRESH_EVERY_FRAMES = 5;
 
 class VoltagePoint {
 public:
@@ -27,8 +27,15 @@ float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 		return 0.0f;
 	if (!valid_conductor(type, sim, i)) // Most stuff isn't that doesn't conduct has uberhigh resistance
 		return 100000000.0f;
-
 	switch(type) {
+		case PT_CAPR:
+			// Capacitor effective 'resistance' starts from 0 and goes to a really big number
+			// as charge builds up. We're modeling a capacitor as a resistor because
+			// it's easier. We set effective resistance to 0 when discharging to avoid all the voltage
+			// disappearing into the capacitor itself
+			if (parts[i].tmp2 == 0)
+				return 0.0f;
+			return parts[i].pavg[1];
 		case PT_SWCH:
 			if (parts[i].life)
 				return 0.1f; // On
@@ -167,10 +174,16 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 		if ((rx || ry)) {
 			// Floodfill if valid spot. If currently on switch don't conduct to PSCN or NSCN
 			// or the switch can't be toggled
+			// We also make sure rspk can't flow from consecutive components like
+			// VOLT, CAPR, etc...
+			// to avoid flickering and weird bugs
+			int fromtype = TYP(sim->pmap[p->y][p->x]);
+			int totype = TYP(sim->pmap[p->y + ry][p->x + rx]);
 			if (!current_branch_past_ground && is_voltage_valid(sim, parts, p->x + rx, p->y + ry, p->counter + 1, newvol)
-					&& (TYP(sim->pmap[p->y][p->x]) != PT_SWCH ||
-						(TYP(sim->pmap[p->y + ry][p->x + rx]) != PT_PSCN &&
-						 TYP(sim->pmap[p->y + ry][p->x + rx]) != PT_NSCN)))
+					 && (fromtype != PT_SWCH ||
+						(totype != PT_PSCN && totype != PT_NSCN))
+					 && (fromtype != PT_CAPR || totype != PT_CAPR)
+					 && (fromtype != PT_VOLT || totype != PT_VOLT))
 				queue.push(new VoltagePoint(p->x + rx, p->y + ry, p->counter + 1, newvol));
 		}
 
@@ -186,9 +199,9 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 		float dv = voltage_i - lowest_voltage;
 		for (unsigned int i = 0; i < ids.size(); i++) {
 			if (connected_to_ground && parts[ids[i]].tmp != 1) {
-				float percentin = (parts[ids[i]].pavg[0] - lowest_voltage) / dv;
+				float percentin = dv == 0.0f ? 1.0f : (parts[ids[i]].pavg[0] - lowest_voltage) / dv;
 				parts[ids[i]].pavg[0] = percentin * voltage_i;
-				parts[ids[i]].pavg[1] *= voltage_i / dv;
+				parts[ids[i]].pavg[1] *= dv == 0.0f ? 0.0f : voltage_i / dv;
 			}
 			else if (parts[ids[i]].tmp != 1) {
 				// parts[ids[i]].pavg[0] = voltage_i;
@@ -205,7 +218,7 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 Element_RSPK::Element_RSPK()
 {
 	Identifier = "DEFAULT_PT_RSPK";
-	Name = "VSPK";
+	Name = "RSPK";
 	Colour = PIXPACK(0xFFFF80);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
@@ -271,7 +284,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	parts[i].dcolour = 10000 * res;
 
 	// Reset code
-	if (sim->timer % RSPK::REFRESH_EVERY_FRAMES == 1 && parts[i].tmp != 1) // TODO remove tmp = 1, voltage sourcec keeps updating
+	if (sim->timer % RSPK::REFRESH_EVERY_FRAMES == 1 && parts[i].tmp != 1)
 		parts[i].tmp = parts[i].tmp2 = 0;
 
 	// Kill on low life, life decrements below 0 if no longer connected to a voltage source
@@ -280,14 +293,14 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	// Also kill self if no longer on a conductor and not a source (tmp = 1)
 	parts[i].life--;
 	if (parts[i].life <= 0 ||
-			// Valid conductor check (source sprk must be on VOLT, others on a valid conductor)
+			// Valid conductor check (source sprk must be on VOLT or CAPR, others on a valid conductor)
 			(!RSPK::valid_conductor(TYP(pmap[y][x]), sim, ID(pmap[y][x])) && parts[i].tmp != 1) ||
-			(TYP(pmap[y][x]) != PT_VOLT && parts[i].tmp == 1)) {
+			(TYP(pmap[y][x]) != PT_VOLT && TYP(pmap[y][x]) != PT_CAPR && parts[i].tmp == 1)) {
 		sim->kill_part(i);
 		return 1;
 	}
 
-	if (sim->timer % RSPK::REFRESH_EVERY_FRAMES == 0 && parts[i].tmp == 1) {
+	if (parts[i].tmp == 1 && (sim->timer % RSPK::REFRESH_EVERY_FRAMES == 0 || parts[i].life == 1)) {
 		RSPK::floodfill_voltage(sim, parts, x, y, parts[i].pavg[0]);
 	}
 
@@ -303,19 +316,26 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	float efield = res == 0.0f ? 0.0f : isign(parts[i].pavg[0]) * parts[i].pavg[1] / res;
 	sim->emfield->electric[FASTXY(x / EMCELL, y / EMCELL)] += efield;
 
-	// St Elmo's fire
-	if (parts[i].pavg[0] > 10000000) {
-		for (int rx = -1; rx <= 1; ++rx)
-		for (int ry = -1; ry <= 1; ++ry)
-			if (BOUNDS_CHECK && (rx || ry)) {
-				r = pmap[y + ry][x + rx];
-				if (!r && RNG::Ref().chance(1, 100)) {
+	// St Elmo's fire and thermonic emission
+	for (int rx = -1; rx <= 1; ++rx)
+	for (int ry = -1; ry <= 1; ++ry)
+		if (BOUNDS_CHECK && (rx || ry)) {
+			r = pmap[y + ry][x + rx];
+			if (!r && RNG::Ref().chance(1, 100)) {
+				if (parts[i].pavg[0] > 10000000) {
 					int ni = sim->create_part(-1, x + rx ,y + ry, PT_PLSM);
 					parts[ni].temp = parts[i].temp;
 					parts[ni].life = RNG::Ref().between(0, 70);
 				}
+				if (parts[i].pavg[0] > 1000) {
+					int ni = sim->create_part(-3, x + rx, y + ry, PT_ELEC);
+					parts[ni].temp = parts[i].temp;
+					parts[ni].life = RNG::Ref().between(0, 570);
+					parts[ni].vx = rx;
+					parts[ni].vy = ry;
+				}
 			}
-	}
+		}
 
 	return 0;
 }
@@ -330,7 +350,22 @@ int Element_RSPK::graphics(GRAPHICS_FUNC_ARGS) {
 	*fireg = *colg / 2;
 	*fireb = *colb / 2;
 	*pixel_mode |= FIRE_SPARK | PMODE_NONE;
-	*cola = *firea;
+
+	if (cpart->ctype == PT_NEON) {
+		int r = ren->sim->pmap[ny][nx];
+		*colr = PIXR(ren->sim->parts[ID(r)].dcolour);
+		*colg = PIXG(ren->sim->parts[ID(r)].dcolour);
+		*colb = PIXB(ren->sim->parts[ID(r)].dcolour);
+	}
+	else if (*firea < 20 && cpart->ctype > 0 && cpart->ctype < PT_NUM) {
+		int o_r = PIXR(ren->sim->elements[cpart->ctype].Colour);
+		int o_g = PIXG(ren->sim->elements[cpart->ctype].Colour);
+		int o_b = PIXB(ren->sim->elements[cpart->ctype].Colour);
+
+		*colr = (*colr - o_r) * (*firea + 1) / 20.0f + o_r;
+		*colg = (*colg - o_g) * (*firea + 1) / 20.0f + o_g;
+		*colb = (*colb - o_b) * (*firea + 1) / 20.0f + o_b;
+	}
 	return 0;
 }
 

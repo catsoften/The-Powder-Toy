@@ -2408,7 +2408,6 @@ void Simulation::init_can_move()
 
 		can_move[movingType][PT_WEB] = 2; // Everything can go through web
 		can_move[movingType][PT_CLUD] = 2; // Everything can go through cloud
-		can_move[movingType][PT_JCB1] = 2; // JCB1 can go through anything
 
 		// Metallic mesh only blocks life
 		if (!(movingType == PT_BEE || movingType == PT_SPDR || movingType == PT_ANT || movingType == PT_BIRD || movingType == PT_FISH))
@@ -2429,6 +2428,8 @@ void Simulation::init_can_move()
 	// TODO: replace with property
 	for (destinationType = 0; destinationType < PT_NUM; destinationType++)
 	{
+		can_move[PT_JCB1][destinationType] = 2; // JCB1 can go through anything
+
 		if (destinationType == PT_GLAS || destinationType == PT_PHOT || destinationType == PT_FILT || destinationType == PT_INVIS
 		 || destinationType == PT_CLNE || destinationType == PT_PCLN || destinationType == PT_BCLN || destinationType == PT_PBCN
 		 || destinationType == PT_WATR || destinationType == PT_DSTW || destinationType == PT_SLTW || destinationType == PT_GLOW

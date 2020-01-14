@@ -2383,7 +2383,8 @@ void GameView::OnDraw()
 				sample.particle.dcolour == 0 ?
 					sampleInfo << "INF A,  " :
 					sampleInfo << (sample.particle.pavg[1] / sample.particle.dcolour * 10000.0f) << " A,  ";
-				sampleInfo << "R = " << sample.particle.dcolour / 100.0f << "e-8 ohms,  ";
+				if (sample.particle.ctype != PT_VOLT)
+					sampleInfo << "R = " << sample.particle.dcolour / 100.0f << "e-8 ohms,  ";
 				sampleInfo << Format::Precision(3);
 				sampleInfo << "" << sample.particle.pavg[0] << " V (" << sample.particle.pavg[1] << " V drop)";
 				sampleInfo << "   ";

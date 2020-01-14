@@ -383,8 +383,8 @@ int Element_BCTR::update(UPDATE_FUNC_ARGS) {
 						RNG::Ref().chance(1, 10) && (restype != 7 || (restype == 7 && !should_res)))
 					parts[i].ctype = BCTR::mutate(parts[i].ctype);
 
-				// Dies when touching LEAD
-				else if (rt == PT_LEAD)
+				// Dies when touching LEAD or BRAS
+				else if (rt == PT_LEAD || rt == PT_BRAS)
 					DIE()
 			}
 		}
