@@ -1,5 +1,33 @@
 #include "simulation/ElementCommon.h"
+#include <queue>
 #define MAX_RCRT_CONNECT 5
+
+// Floodfills connecting RCRT to tmp2 = 5, only does this for nearest 5
+void floodfill_valid_connect(Simulation *sim, Particle *parts, int x, int y) {
+	std::queue<std::pair<int, int> > queue;
+	queue.push(std::make_pair(x, y));
+	int flood_filled = 0;
+
+	while (queue.size() && flood_filled < MAX_RCRT_CONNECT) {
+		std::pair<int, int> p = queue.front();
+		if (parts[ID(sim->pmap[p.second][p.first])].tmp2 == 5)
+			goto loopend;
+		parts[ID(sim->pmap[p.second][p.first])].tmp2 = 5;
+
+		// Floodfill
+		for (int rx = -1; rx <= 1; ++rx)
+		for (int ry = -1; ry <= 1; ++ry)
+		if ((rx || ry)) {
+			int fromtype = TYP(sim->pmap[p.second][p.first]);
+			int totype = TYP(sim->pmap[p.second + ry][p.first + rx]);
+			if (totype == PT_RCRT)
+				queue.push(std::make_pair(p.first + rx, p.second + ry));
+		}
+
+		loopend:
+		queue.pop();
+	}
+}
 
 //#TPT-Directive ElementClass Element_RCRT PT_RCRT 245
 Element_RCRT::Element_RCRT()
@@ -91,9 +119,10 @@ int Element_RCRT::update(UPDATE_FUNC_ARGS) {
 
 	// Floodfill connected to solid rn property
 	if (parts[i].tmp == 1) {
-		PropertyValue value;
-		value.Integer = 5;
-		sim->flood_prop(x, y, offsetof(Particle, tmp2), value, StructProperty::Integer);
+		floodfill_valid_connect(sim, parts, x, y);
+		// PropertyValue value;
+		// value.Integer = 5;
+		// sim->flood_prop(x, y, offsetof(Particle, tmp2), value, StructProperty::Integer);
 	}
 	
 	if (parts[i].tmp > 0 && parts[i].tmp <= MAX_RCRT_CONNECT && parts[i].tmp2 > 0) {

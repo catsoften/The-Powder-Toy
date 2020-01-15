@@ -90,11 +90,11 @@ int Element_BSMH::update(UPDATE_FUNC_ARGS) {
 	// Just cooled, set crystal growth state
 	if (parts[i].ctype == 0 && parts[i].tmp == 0) {
 		parts[i].tmp = RNG::Ref().chance(1, 30) ? RNG::Ref().between(2, 14) : 1; // 1 / 30 chance to be a grow start location
-		parts[i].pavg[1] = BSMH_COLORS[RNG::Ref().between(0, BSMH_COLORS.size())];
+		parts[i].pavg[1] = BSMH_COLORS[RNG::Ref().between(0, BSMH_COLORS.size() - 1)];
 	}
 
 	// Grow crystal if hot enough and less than max size (20)
-	if (parts[i].temp > 400.0f && parts[i].tmp > 1 && parts[i].tmp2 < parts[i].tmp) {
+	if (sim->timer % 3 == 0 && parts[i].temp > 400.0f && parts[i].tmp > 1 && parts[i].tmp2 < parts[i].tmp) {
 		// Top line
 		if (y - parts[i].tmp2 >= 0) {
 			for (int x2 = x -parts[i].tmp2; x2 <= x + parts[i].tmp2; x2++)
@@ -118,7 +118,7 @@ int Element_BSMH::update(UPDATE_FUNC_ARGS) {
 		parts[i].tmp2++;
 
 		if (RNG::Ref().chance(1, 3)) // Randomly change color again
-			parts[i].pavg[1] = BSMH_COLORS[RNG::Ref().between(0, BSMH_COLORS.size())];
+			parts[i].pavg[1] = BSMH_COLORS[RNG::Ref().between(0, BSMH_COLORS.size() - 1)];
 	}
 
 	return 0;

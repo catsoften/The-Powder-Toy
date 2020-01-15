@@ -148,6 +148,12 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 						parts[i].ctype = PT_BRAS;
 						parts[ID(r)].ctype = PT_BRAS;
 					}
+					// LAVA(BSMH) resets tmp and tmp2 and pavg0
+					else if (parts[i].ctype == PT_BSMH) {
+						parts[i].tmp = 0;
+						parts[i].tmp2 = 0;
+						parts[i].pavg[0] = 0;
+					}
 					else if (rt == PT_HEAC && parts[i].ctype == PT_HEAC)
 					{
 						if (parts[ID(r)].temp > sim->elements[PT_HEAC].HighTemperature)

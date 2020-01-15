@@ -56,4 +56,6 @@ Turns into PULP when soaked in excessive water. Soaking in water or water vapor 
 dcolor to "diffuse" a bit. Will dry out over time. Drying increases by 1 life value for every 10 degrees above 0 C. 
 There is no rate penalty if below 0 C. Becomes stained by liquids and powders.
 
+Paper will lose its dcolor when turning into PULP, so you can use this to "recycle" paper.
+
 ## PULP (Paper pulp)

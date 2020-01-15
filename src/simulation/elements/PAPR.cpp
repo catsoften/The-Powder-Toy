@@ -54,7 +54,8 @@ int Element_PAPR::update(UPDATE_FUNC_ARGS) {
 	 */
 
 	// Chance to dissolve if too wet
-	if (parts[i].life > 30000 && RNG::Ref().chance(1, 500)) {
+	if (parts[i].life > 4000 && RNG::Ref().chance(1, 900)) {
+		parts[i].dcolour = 0;
 		sim->part_change_type(i, x, y, PT_PULP);
 		return 1;
 	}
@@ -88,8 +89,10 @@ int Element_PAPR::update(UPDATE_FUNC_ARGS) {
 				}
 			}
 
+			bool is_water = rt == PT_IOSL || rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_CBNW || rt == PT_SWTR || rt == PT_WTRV;
+
 			// Stain self
-			if (rt != PT_PULP && (rx == 0 || ry == 0) &&
+			if (rt != PT_PULP && (rx == 0 || ry == 0) && !is_water &&
 					(sim->elements[rt].Properties & TYPE_LIQUID || sim->elements[rt].Properties & TYPE_PART)) {
 				int color = sim->elements[rt].Colour;
 				int ro = PIXR(color), go = PIXG(color), bo = PIXB(color);
@@ -104,14 +107,14 @@ int Element_PAPR::update(UPDATE_FUNC_ARGS) {
 			}
 
 			// Get "wetter" with water
-			if (rt == PT_IOSL || rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_CBNW || rt == PT_SWTR || rt == PT_WTRV) {
-				parts[i].life += 500;
+			if (is_water && parts[i].life < 40000) {
+				parts[i].life += 800;
 				sim->kill_part(ID(r));
 				continue;
 			}
 
 			// Diffuse wetness
-			if (rt == PT_PAPR && parts[ID(r)].life < parts[i].life) {
+			if (RNG::Ref().chance(1, 8) && rt == PT_PAPR && parts[ID(r)].life < parts[i].life) {
 				int lose = std::min(parts[i].life, 1000);
 				parts[i].life -= lose;
 				parts[ID(r)].life += lose;

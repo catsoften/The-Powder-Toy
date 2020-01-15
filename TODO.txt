@@ -227,6 +227,8 @@ ionic solutions gerow crystals from metals
 rspk diodes - 0.7 V drop
 - only if threshold voltage is met otherwise fail
 
+rotate - creating new fill pixels should copy properties
+
 shredder - converts into broken form
     sawd -> broken (sawd) -> make pulp -> paper
 
@@ -235,9 +237,8 @@ dimagnetism: repeled by magnetics instead
 
 - idea: printer using pdtc and shit and paper and cray
 
-RCRT laggy af
-- floodfilling constantly
 
+exotic chemistires - create heavy elements from fusion or something
 
 - tesla coil
 - voltage divider
