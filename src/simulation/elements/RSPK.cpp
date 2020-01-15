@@ -99,6 +99,8 @@ float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 			return 0.0f;
 		case PT_BRAS:
 			return 0.60f;
+		case PT_BSMH:
+			return 1.29f;
 	}
 
 	return 0.5f; // Default conductor resistance

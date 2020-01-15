@@ -1231,8 +1231,8 @@ void GameView::ToolTip(ui::Point senderPosition, String toolTip)
 	else
 	{
 		this->toolTip = toolTip;
-		int topY = element_menu_count <= MENUS_PER_ROW ? Size.Y-MENUSIZE+5 : Size.Y-MENUSIZE-12;
-		toolTipPosition = ui::Point(Size.X-BARSIZE-Graphics::textwidth(toolTip), topY);
+		int topY = element_menu_count <= MENUS_PER_ROW ? Size.Y-MENUSIZE+5 : Size.Y-MENUSIZE-14;
+		toolTipPosition = ui::Point(Size.X-BARSIZE-Graphics::textwidth(toolTip)-4, topY);
 		isToolTipFadingIn = true;
 	}
 }
@@ -2553,10 +2553,14 @@ void GameView::OnDraw()
 
 	if(toolTipPresence && toolTipPosition.X!=-1 && toolTipPosition.Y!=-1 && toolTip.length())
 	{
-		if (toolTipPosition.Y == Size.Y-MENUSIZE-10)
+		if (toolTipPosition.Y == Size.Y-MENUSIZE-10) {
 			g->drawtext_outline(toolTipPosition.X, toolTipPosition.Y, toolTip, 255, 255, 255, toolTipPresence>51?255:toolTipPresence*5);
-		else
+		}
+		else {
+			g->fillrect(toolTipPosition.X - 4, toolTipPosition.Y - 4, Graphics::textwidth(toolTip) + 8,
+				20, 0, 0, 0, (toolTipPresence>51?255:toolTipPresence*5) * 120 / 255);
 			g->drawtext(toolTipPosition.X, toolTipPosition.Y, toolTip, 255, 255, 255, toolTipPresence>51?255:toolTipPresence*5);
+		}
 	}
 
 	if(buttonTipShow > 0)

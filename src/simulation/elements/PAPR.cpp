@@ -55,9 +55,14 @@ int Element_PAPR::update(UPDATE_FUNC_ARGS) {
 
 	// Chance to dissolve if too wet
 	if (parts[i].life > 30000 && RNG::Ref().chance(1, 500)) {
-		sim->kill_part(i);
+		sim->part_change_type(i, x, y, PT_PULP);
 		return 1;
 	}
+
+	int life_dec_bonus = std::max(0, (int)((parts[i].temp - 273.15f) / 10.0f));
+	parts[i].life -= life_dec_bonus;
+	if (parts[i].life <= 0)
+		parts[i].life = 0;
 
 	int rx, ry, r, rt;
 	int ri = PIXR(parts[i].dcolour), gi = PIXG(parts[i].dcolour), bi = PIXB(parts[i].dcolour);
@@ -69,30 +74,37 @@ int Element_PAPR::update(UPDATE_FUNC_ARGS) {
 			if (!r) continue;
 			rt = TYP(r);
 
-			// Diffuse color to neighbours
-			if (rt == PT_PAPR && parts[i].dcolour) {
-				int ro = PIXR(parts[ID(r)].dcolour);
-				int go = PIXG(parts[ID(r)].dcolour);
-				int bo = PIXB(parts[ID(r)].dcolour);
-				int nc = 0xFF000000 + 0xFF00 * (ro + ri) / 2 + 0xFF * (go + gi) / 2 + (bo + bi) / 2;
-
-				parts[i].dcolour = nc;
-				parts[ID(r)].dcolour = nc;
+			// Diffuse color to neighbours if self alpha is 255
+			if (rt == PT_PAPR && parts[i].dcolour && parts[i].life > 800) {
+				int alpha = (parts[i].dcolour & 0xFF000000) / 0x1000000;
+				int other_alpha = (parts[ID(r)].dcolour & 0xFF000000) / 0x1000000;
+				if (other_alpha < alpha && alpha > 100) {
+					int ro = PIXR(parts[ID(r)].dcolour);
+					int go = PIXG(parts[ID(r)].dcolour);
+					int bo = PIXB(parts[ID(r)].dcolour);
+					float diffuse_multi = std::max(std::min(0.9f, parts[i].life / 6000.0f), 0.3f);
+					int nc = (int)(alpha * diffuse_multi * 0x1000000) + 0xFF00 * (ro + ri) / 2 + 0xFF * (go + gi) / 2 + (bo + bi) / 2;
+					parts[ID(r)].dcolour = nc;
+				}
 			}
 
 			// Stain self
-			if (sim->elements[rt].Properties & TYPE_LIQUID || sim->elements[rt].Properties & TYPE_PART) {
+			if (rt != PT_PULP && (rx == 0 || ry == 0) &&
+					(sim->elements[rt].Properties & TYPE_LIQUID || sim->elements[rt].Properties & TYPE_PART)) {
 				int color = sim->elements[rt].Colour;
 				int ro = PIXR(color), go = PIXG(color), bo = PIXB(color);
 
 				// Either self is not stained, or staining with same color
 				if (parts[i].dcolour == 0 || (ro == ri && go == gi && bo == bi)) {
-					
+					color = PIXRGB(std::min((int)(ro * 1.5f), 255),
+								   std::min((int)(go * 1.5f), 255),
+								   std::min((int)(bo * 1.5f), 255));
+					parts[i].dcolour = color + 0xFF000000;
 				}
 			}
 
-			// Get "wetter" with liquid
-			if (sim->elements[rt].Properties & TYPE_LIQUID || rt == PT_WTRV) {
+			// Get "wetter" with water
+			if (rt == PT_IOSL || rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_CBNW || rt == PT_SWTR || rt == PT_WTRV) {
 				parts[i].life += 500;
 				sim->kill_part(ID(r));
 				continue;

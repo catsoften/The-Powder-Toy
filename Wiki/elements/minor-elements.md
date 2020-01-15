@@ -50,3 +50,10 @@ A more powerful version of C4, releases red EMBR, FIRE, and burning BCOL on expl
 
 ## BRAS (Brass)
 Kills BCTR. Melts at 900 C. Accelerates air velocity. Make by melting ZINC and COPR together.
+
+## PAPR (Paper)
+Turns into PULP when soaked in excessive water. Soaking in water or water vapor turns it slightly darker, and causes 
+dcolor to "diffuse" a bit. Will dry out over time. Drying increases by 1 life value for every 10 degrees above 0 C. 
+There is no rate penalty if below 0 C. Becomes stained by liquids and powders.
+
+## PULP (Paper pulp)

@@ -1,0 +1,142 @@
+#include "simulation/ElementCommon.h"
+
+void create_crystal_at_point(Simulation *sim, int x, int y, int tmp2, float color) {
+	if (y < 0 || y >= YRES) return;
+	if (x < 0 || x >= XRES) return;
+
+	int r = sim->pmap[y][x];
+	if ((r && TYP(r) != PT_BSMH) || (TYP(r) == PT_BSMH && sim->parts[ID(r)].tmp > 1))
+		return;
+	int id = (TYP(r) == PT_BSMH && sim->parts[ID(r)].tmp <= 1) ?
+		ID(r) : sim->create_part(-1, x, y, PT_BSMH);
+	sim->parts[id].pavg[0] = tmp2 % 2;
+	sim->parts[id].tmp = 1;
+	sim->parts[id].ctype = 0;
+	sim->parts[id].pavg[1] = color;
+}
+
+const std::vector<int> BSMH_COLORS({
+	0xd3cc71,
+	0xd96280,
+	0x39ec9b,
+	0xe77da4,
+	0x3dd9ef,
+	0xe0f2bb
+});
+
+//#TPT-Directive ElementClass Element_BSMH PT_BSMH 276
+Element_BSMH::Element_BSMH()
+{
+	Identifier = "DEFAULT_PT_BSMH";
+	Name = "BSMH";
+	Colour = PIXPACK(0xd0dbdb);
+	MenuVisible = 1;
+	MenuSection = SC_SOLIDS;
+	Enabled = 1;
+
+	Advection = 0.0f;
+	AirDrag = 0.00f * CFDS;
+	AirLoss = 0.90f;
+	Loss = 0.00f;
+	Collision = 0.0f;
+	Gravity = 0.0f;
+	Diffusion = 0.00f;
+	HotAir = 0.000f * CFDS;
+	Falldown = 0;
+
+	Flammable = 0;
+	Explosive = 0;
+	Meltable = 1;
+	Hardness = 1;
+
+	Weight = 100;
+
+	HeatConduct = 25;
+	Description = "Bismuth. Forms square crystals when melted then cooled, can be used as a thermoelectric generator.";
+
+	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
+	DefaultProperties.ctype = 1;
+
+	LowPressure = IPL;
+	LowPressureTransition = NT;
+	HighPressure = 5.0f;
+	HighPressureTransition = PT_BRMT;
+	LowTemperature = ITL;
+	LowTemperatureTransition = NT;
+	HighTemperature = 544.7f;
+	HighTemperatureTransition = PT_LAVA;
+
+	Update = &Element_BSMH::update;
+	Graphics = &Element_BSMH::graphics;
+}
+
+//#TPT-Directive ElementHeader Element_BSMH static int update(UPDATE_FUNC_ARGS)
+int Element_BSMH::update(UPDATE_FUNC_ARGS) {
+	/**
+	 * Properties:
+	 * ctype = 1 is pure non-crystallized bismuth, otherwise crystal
+	 * tmp
+	 * 	 0 - Not set yet
+	 * 	 1 - Inert crystal
+	 * 	 >1 - Growing crystal, max crystal size
+	 * pavg0
+	 * 	 Used for setting "dark" color bands
+	 * pavg1
+	 * 	 Used to store color varient
+	 * tmp2
+	 * 	 Crystal growing size, decrements as size grows
+	 */
+
+	// Just cooled, set crystal growth state
+	if (parts[i].ctype == 0 && parts[i].tmp == 0) {
+		parts[i].tmp = RNG::Ref().chance(1, 30) ? RNG::Ref().between(2, 14) : 1; // 1 / 30 chance to be a grow start location
+		parts[i].pavg[1] = BSMH_COLORS[RNG::Ref().between(0, BSMH_COLORS.size())];
+	}
+
+	// Grow crystal if hot enough and less than max size (20)
+	if (parts[i].temp > 400.0f && parts[i].tmp > 1 && parts[i].tmp2 < parts[i].tmp) {
+		// Top line
+		if (y - parts[i].tmp2 >= 0) {
+			for (int x2 = x -parts[i].tmp2; x2 <= x + parts[i].tmp2; x2++)
+				create_crystal_at_point(sim, x2, y - parts[i].tmp2, parts[i].tmp2, parts[i].pavg[1]);
+		}
+		// Bottom line
+		if (y + parts[i].tmp2 < YRES) {
+			for (int x2 = x -parts[i].tmp2; x2 <= x + parts[i].tmp2; x2++)
+				create_crystal_at_point(sim, x2, y + parts[i].tmp2, parts[i].tmp2, parts[i].pavg[1]);
+		}
+		// Left line
+		if (x - parts[i].tmp2 >= 0) {
+			for (int y2 = y -parts[i].tmp2; y2 <= y + parts[i].tmp2; y2++)
+				create_crystal_at_point(sim, x - parts[i].tmp2, y2, parts[i].tmp2, parts[i].pavg[1]);
+		}
+		// Right line
+		if (x + parts[i].tmp2 < XRES) {
+			for (int y2 = y -parts[i].tmp2; y2 <= y + parts[i].tmp2; y2++)
+				create_crystal_at_point(sim, x + parts[i].tmp2, y2, parts[i].tmp2, parts[i].pavg[1]);
+		}
+		parts[i].tmp2++;
+
+		if (RNG::Ref().chance(1, 3)) // Randomly change color again
+			parts[i].pavg[1] = BSMH_COLORS[RNG::Ref().between(0, BSMH_COLORS.size())];
+	}
+
+	return 0;
+}
+
+//#TPT-Directive ElementHeader Element_BSMH static int graphics(GRAPHICS_FUNC_ARGS)
+int Element_BSMH::graphics(GRAPHICS_FUNC_ARGS) {
+	if (cpart->pavg[1]) {
+		*colr = PIXR((int)cpart->pavg[1]);
+		*colg = PIXG((int)cpart->pavg[1]);
+		*colb = PIXB((int)cpart->pavg[1]);
+	}
+	if (cpart->pavg[0]) {
+		*colr *= 0.5f;
+		*colg *= 0.5f;
+		*colb *= 0.5f;
+	}
+	return 0;
+}
+
+Element_BSMH::~Element_BSMH() {}

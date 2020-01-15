@@ -47,9 +47,34 @@ Element_COPR::Element_COPR() {
 
 //#TPT-Directive ElementHeader Element_COPR static int update(UPDATE_FUNC_ARGS)
 int Element_COPR::update(UPDATE_FUNC_ARGS) {
+	/**
+	 * Properties:
+	 * tmp, 0 = not green, anything > 0 = green speckles
+	 */
+
 	int rx, ry, r;
 	static int checkCoordsX[] = { -4, 4, 0, 0 };
 	static int checkCoordsY[] = { 0, 0, -4, 4 };
+
+	// Normal corrosion
+	for (rx = -1; rx <= 1; ++rx)
+	for (ry = -1; ry <= 1; ++ry)
+		if (BOUNDS_CHECK && (rx || ry)) {
+			r = pmap[y + ry][x + rx];
+			if (!r) continue;
+
+			// Corrode
+			if (RNG::Ref().chance(1, 100)) {
+				if (TYP(r) == PT_ACID || TYP(r) == PT_CAUS || TYP(r) == PT_WATR || TYP(r) == PT_SLTW || TYP(r) == PT_O2) {
+					if (parts[i].tmp == 0)
+						parts[i].tmp = RNG::Ref().between(1, 7);
+				}
+
+				// Corrode randomly depending on self ID if touching corroded COPR
+				if (parts[i].tmp == 0 && TYP(r) == PT_COPR && parts[ID(r)].tmp > 0 && ((i + ID(r)*(i- ID(r)))) % 5 == 0)
+					parts[i].tmp = RNG::Ref().between(1, 7);
+			}
+		}
 
 	// Fast SPRK code, stolen from GOLD
 	if (!parts[i].life) {
@@ -73,8 +98,13 @@ int Element_COPR::update(UPDATE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_COPR static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_COPR::graphics(GRAPHICS_FUNC_ARGS) {
-	// graphics code here
-	// return 1 if nothing dymanic happens here
+	// Green
+	if (cpart->tmp > 0) {
+		int r = std::min(cpart->tmp, 10);
+		*colr = 3 + 15 * r;
+		*colg = 252 - 15 * r;
+		*colb = 190 - 15 * r;
+	}
 
 	return 0;
 }
