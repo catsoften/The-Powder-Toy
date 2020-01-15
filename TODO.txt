@@ -131,10 +131,6 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13325
 
 high pressure pipe 
 
-quatntum category
-- particles 
--sfld 
-- qlog
 
 config tool 
      https://github.com/The-Powder-Toy/The-Powder-Toy/pull/589/commits
@@ -178,18 +174,6 @@ atmosphere setting
 
 custom elements
 
-realistic metal that can be forged and bent
-- TIN
-- acts as negative electrode for battery
-- LITHIUM Is positive
-- let stuff be "dissolved" in water
-    - tmp sets polyatomic ion
-
-ZINC -> lose electrons
-Copper -> gain
-    malleabl - only if sudden change in pressure
-ceramic plate allows passage of ions
-
 
 laser beam thing, shoots LASR, can be used to superheat hydrogen
 
@@ -219,8 +203,21 @@ sniper tool, displays crosair, shoot anything on screen
         Highest temperatures material (up to 1300 K): materials fabricated from silicon-germanium (SiGe) alloys.[11]
 
 
+realistic metal that can be forged and bent
+- TIN
+- acts as negative electrode for battery
+- LITHIUM Is positive
+- let stuff be "dissolved" in water
+    - tmp sets polyatomic ion
+
+ZINC -> lose electrons
+Copper -> gain
+    malleabl - only if sudden change in pressure
+ceramic plate allows passage of ions
+
 bismuth wiki
 bismuth should do thermonic generation
+voltages should add together
 
 ionic solutions gerow crystals from metals
 
@@ -228,9 +225,6 @@ rspk diodes - 0.7 V drop
 - only if threshold voltage is met otherwise fail
 
 rotate - creating new fill pixels should copy properties
-
-shredder - converts into broken form
-    sawd -> broken (sawd) -> make pulp -> paper
 
 dimagnetism: repeled by magnetics instead
     https://en.wikipedia.org/wiki/Diamagnetism
@@ -247,7 +241,6 @@ exotic chemistires - create heavy elements from fusion or something
 
 conductor channels
 
-- high voltage ionizes gas into plsm
 - jump through air gaps
     - maybe powerful electric fields induce current
 generates magnetic field
@@ -450,17 +443,12 @@ have lua mod to place down quantum gates?
 - or website?
 
 
-Two more particlemaps
-electric field
-magnetic fields
 
 
 food
 
 
 fancy black holes
-
-2 row elements?
 
 
 

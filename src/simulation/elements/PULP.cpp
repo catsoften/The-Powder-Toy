@@ -55,6 +55,20 @@ int Element_PULP::update(UPDATE_FUNC_ARGS) {
 		return 1;
 	}
 
+	for (int rx = -1; rx <= 1; ++rx)
+	for (int ry = -1; ry <= 1; ++ry)
+		if (BOUNDS_CHECK && (rx || ry)) {
+			int r = pmap[y + ry][x + rx];
+			if (!r) continue;
+			int rt = TYP(r);
+			bool is_water = rt == PT_IOSL || rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_CBNW || rt == PT_SWTR || rt == PT_WTRV;
+		
+			if (parts[i].life < 40000 && is_water) {
+				parts[i].life += 100;
+				sim->kill_part(ID(r));
+			}
+		}
+
 	int life_dec_bonus = std::max(0, (int)((parts[i].temp - 273.15f) / 10.0f));
 	parts[i].life -= life_dec_bonus;
 	return 0;

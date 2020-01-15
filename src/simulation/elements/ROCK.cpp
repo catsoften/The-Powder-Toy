@@ -13,7 +13,7 @@ Element_ROCK::Element_ROCK()
 	Advection = 0.2f;
 	AirDrag = 0.00f * CFDS;
 	AirLoss = 0.90f;
-	Loss = 0.00f;
+	Loss = 0.90f;
 	Collision = 0.0f;
 	Gravity = 0.5f;
 	Diffusion = 0.00f;

@@ -31,7 +31,7 @@ Element_VOLT::Element_VOLT()
 	HeatConduct = 251;
 	Description = "Voltage battery. Set output voltage with pavg0.";
 
-	Properties = TYPE_SOLID | PROP_HOT_GLOW;
+	Properties = TYPE_SOLID;
 	DefaultProperties.pavg[0] = 10.0f;
 
 	LowPressure = IPL;

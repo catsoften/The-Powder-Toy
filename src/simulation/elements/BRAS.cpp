@@ -36,7 +36,7 @@ Element_BRAS::Element_BRAS()
 	LowPressure = IPL;
 	LowPressureTransition = NT;
 	HighPressure = ITH;
-	HighPressureTransition = ST;
+	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
 	HighTemperature = 900.0f + 273.15f;

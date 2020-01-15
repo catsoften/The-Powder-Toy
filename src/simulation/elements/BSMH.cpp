@@ -121,6 +121,22 @@ int Element_BSMH::update(UPDATE_FUNC_ARGS) {
 			parts[i].pavg[1] = BSMH_COLORS[RNG::Ref().between(0, BSMH_COLORS.size() - 1)];
 	}
 
+	// Thermoelectric generation
+	float lowestT = 0.0f;
+	float highestT = 0.0f;
+
+	for (int rx = -1; rx <= 1; ++rx)
+	for (int ry = -1; ry <= 1; ++ry)
+		if (BOUNDS_CHECK && (rx || ry)) {
+			int r = pmap[y + ry][x + rx];
+			if (!r) continue;
+
+			if (parts[ID(r)].temp > highestT)
+				highestT = parts[ID(r)].temp;
+			if (parts[ID(r)].temp < lowestT)
+				lowestT = parts[ID(r)].temp;
+		}
+
 	return 0;
 }
 

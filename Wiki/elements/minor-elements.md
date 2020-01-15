@@ -59,3 +59,6 @@ There is no rate penalty if below 0 C. Becomes stained by liquids and powders.
 Paper will lose its dcolor when turning into PULP, so you can use this to "recycle" paper.
 
 ## PULP (Paper pulp)
+Slowly turns into PAPR. Solidifies faster when hot (Bonus 1 life for each 10 C above 0 C). Max life of 40000. Life increases 
+by 100 for each water it touches. At 451 F (232.8 C) PULP ignites. PULP can be created by puting SAWD into SHRD then mixing 
+the broken SAWD with water.

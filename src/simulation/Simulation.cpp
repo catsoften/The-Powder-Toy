@@ -2405,6 +2405,7 @@ void Simulation::init_can_move()
 		can_move[movingType][PT_FILL] = 2;
 		//RSPK invisible to all
 		can_move[movingType][PT_RSPK] = 2;
+		can_move[movingType][PT_SHRD] = 2;
 
 		can_move[movingType][PT_WEB] = 2; // Everything can go through web
 		can_move[movingType][PT_CLUD] = 2; // Everything can go through cloud
@@ -2429,6 +2430,7 @@ void Simulation::init_can_move()
 	for (destinationType = 0; destinationType < PT_NUM; destinationType++)
 	{
 		can_move[PT_JCB1][destinationType] = 2; // JCB1 can go through anything
+		can_move[PT_RSPK][destinationType] = 2;
 
 		if (destinationType == PT_GLAS || destinationType == PT_PHOT || destinationType == PT_FILT || destinationType == PT_INVIS
 		 || destinationType == PT_CLNE || destinationType == PT_PCLN || destinationType == PT_BCLN || destinationType == PT_PBCN

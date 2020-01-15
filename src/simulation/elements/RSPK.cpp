@@ -157,8 +157,8 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 		resistance = get_resistance(TYP(sim->pmap[p->y][p->x]), parts, ID(sim->pmap[p->y][p->x]), sim);
 		current_branch_past_ground = false;
 
-		parts[id].pavg[0] = p->voltage;
-		parts[id].pavg[1] = resistance;
+		parts[id].pavg[0] += p->voltage;
+		parts[id].pavg[1] += resistance;
 		parts[id].tmp = p->counter;
 		parts[id].tmp2 = 1;
 		parts[id].life = REFRESH_EVERY_FRAMES + 1;
@@ -231,6 +231,7 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 				// parts[ids[i]].pavg[1] = 0.0f;
 				sim->kill_part(ids[i]);
 			}
+			parts[ids[i]].tmp2 = 0;
 		}
 	}
 }
@@ -254,7 +255,7 @@ Element_RSPK::Element_RSPK()
 	Collision = 0.0f;
 	Gravity = 0.0f;
 	Diffusion = 0.00f;
-	HotAir = 0.001f	* CFDS;
+	HotAir = 0.000f	* CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -339,26 +340,55 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	float efield = res == 0.0f ? 0.0f : isign(parts[i].pavg[0]) * parts[i].pavg[1] / res;
 	sim->emfield->electric[FASTXY(x / EMCELL, y / EMCELL)] += efield;
 
-	// St Elmo's fire and thermonic emission
-	for (int rx = -1; rx <= 1; ++rx)
-	for (int ry = -1; ry <= 1; ++ry)
-		if (BOUNDS_CHECK && (rx || ry)) {
-			r = pmap[y + ry][x + rx];
-			if (!r && RNG::Ref().chance(1, 100)) {
-				if (parts[i].pavg[0] > 10000000) {
-					int ni = sim->create_part(-1, x + rx ,y + ry, PT_PLSM);
-					parts[ni].temp = parts[i].temp;
-					parts[ni].life = RNG::Ref().between(0, 70);
+	// Due to float point precision issues voltage drops are 0 when high voltages are present
+	// So the solution: we superheat metals when resistance is non-zero
+	// Electric field also doesn't exist, so we just set it to 2560
+	if (res != 0.0f && parts[i].pavg[0] > 1000000) {
+		parts[ID(pmap[y][x])].temp += 9000.0f;
+		sim->emfield->electric[FASTXY(x / EMCELL, y / EMCELL)] += isign(parts[i].pavg[0]) * 2560.0f;
+	}
+
+	if (parts[i].ctype != PT_VOLT) {
+		for (int rx = -1; rx <= 1; ++rx)
+		for (int ry = -1; ry <= 1; ++ry)
+			if (BOUNDS_CHECK && (rx || ry)) {
+				r = pmap[y + ry][x + rx];
+				if (!r && RNG::Ref().chance(1, 100)) {
+					// St elmo's fire
+					if (parts[i].pavg[0] > 100000) {
+						int ni = sim->create_part(-1, x + rx ,y + ry, PT_PLSM);
+						parts[ni].temp = parts[i].temp;
+						parts[ni].life = RNG::Ref().between(0, 70);
+					}
+					// Thermonic emission
+					if (parts[i].pavg[0] > 1000) {
+						int ni = sim->create_part(-3, x + rx, y + ry, PT_ELEC);
+						parts[ni].temp = parts[i].temp;
+						parts[ni].life = RNG::Ref().between(0, 570);
+						parts[ni].vx = rx;
+						parts[ni].vy = ry;
+					}
 				}
-				if (parts[i].pavg[0] > 1000) {
-					int ni = sim->create_part(-3, x + rx, y + ry, PT_ELEC);
-					parts[ni].temp = parts[i].temp;
-					parts[ni].life = RNG::Ref().between(0, 570);
-					parts[ni].vx = rx;
-					parts[ni].vy = ry;
+				// Ionizing gases
+				if (parts[i].pavg[0] > 1000 && sim->elements[TYP(r)].Properties & TYPE_GAS) {
+					sim->part_change_type(ID(r), x + rx, y + ry, PT_PLSM);
+					parts[ID(r)].life = RNG::Ref().between(0, 570);
 				}
 			}
+	}
+
+	// Merge self with any RSPK occupying same space
+	while (true) {
+		r = sim->photons[y][x];
+		if (r && ID(r) != i && TYP(r) == PT_RSPK) {
+			parts[i].pavg[0] += parts[ID(r)].pavg[0];
+			parts[i].pavg[1] += parts[ID(r)].pavg[1];
+			sim->kill_part(ID(r));
 		}
+		else {
+			break;
+		}
+	}
 
 	return 0;
 }

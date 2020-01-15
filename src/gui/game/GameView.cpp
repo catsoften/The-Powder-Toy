@@ -2176,9 +2176,11 @@ void GameView::OnDraw()
 
 			if (showDebug)
 			{
-				if (type == PT_LAVA && c->IsValidElement(ctype))
-				{
+				if (type == PT_LAVA && c->IsValidElement(ctype)) {
 					sampleInfo << "Molten " << c->ElementResolve(ctype, -1);
+				}
+				else if (type == PT_BRKN && c->IsValidElement(ctype)) {
+					sampleInfo << "Broken " << c->ElementResolve(ctype, -1);
 				}
 				else if ((type == PT_PIPE || type == PT_PPIP) && c->IsValidElement(ctype))
 				{

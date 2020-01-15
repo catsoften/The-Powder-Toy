@@ -12,3 +12,7 @@ Guided missile, tries to accelerate to its target x, y coordinates (determined b
 ## LCSM (Liquid cesium)
 Same as CESM, but liquid. Explodes at 1600 C. When it goes above 671 C it will 
 start to glow and bubble a bit, and won't conduct electricity. Same reactions as CESM.
+
+## BRKN (Broken)
+Represents a generic broken form. Flammability is a bit broken. Mimics ctype's update and graphics. Broken paper 
+cannot be colored. Broken stuff can only melt. Broken metals fuse when sparked.
