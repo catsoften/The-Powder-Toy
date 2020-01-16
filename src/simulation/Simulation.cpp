@@ -230,6 +230,7 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 					parts[i].ctype = 0;
 				}
 				Element_FIGH::NewFighter(this, parts[i].tmp, i, parts[i].ctype);
+				fighters[parts[i].tmp].elem = PT_DUST;
 				if (fan)
 					fighters[parts[i].tmp].fan = true;
 				for (unsigned int fighNum : save->stkm.rocketBootsFigh)
@@ -1781,13 +1782,9 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 			(photons[y][x] && TYP(photons[y][x]) == replaceModeSelected))
 		{
 			if (c)
-			{
-				part_change_type(photons[y][x] ? ID(photons[y][x]) : ID(pmap[y][x]), x, y, TYP(c));
-			}
+				create_part(photons[y][x] ? ID(photons[y][x]) : ID(pmap[y][x]), x, y, TYP(c));
 			else
-			{
 				delete_part(x, y);
-			}
 		}
 		return 0;
 	}

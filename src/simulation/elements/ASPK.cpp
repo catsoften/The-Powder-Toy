@@ -20,7 +20,7 @@ Element_ASPK::Element_ASPK()
 	HotAir = 0.000f	* CFDS;
 	Falldown = 1;
 
-	Flammable = 50;
+	Flammable = 0;
 	Explosive = 0;
 	Meltable = 5;
 	Hardness = 1;
@@ -38,7 +38,7 @@ Element_ASPK::Element_ASPK()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = 583.0f;
+	HighTemperature = 1583.0f;
 	HighTemperatureTransition = PT_FIRE;
 
 	Update = &Element_ASPK::update;

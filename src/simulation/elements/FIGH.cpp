@@ -204,7 +204,7 @@ void Element_FIGH::Free(Simulation *sim, unsigned char i)
 void Element_FIGH::NewFighter(Simulation *sim, int fighterID, int i, int elem)
 {
 	Element_STKM::STKM_init_legs(sim, &sim->fighters[fighterID], i);
-	if (elem >= 0 && elem < PT_NUM)
+	if (elem > 0 && elem < PT_NUM)
 		sim->fighters[fighterID].elem = elem;
 	sim->fighters[fighterID].spwn = 1;
 }

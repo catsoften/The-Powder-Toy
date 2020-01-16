@@ -100,7 +100,8 @@ int Element_RCRT::update(UPDATE_FUNC_ARGS) {
 				if (!r) continue;
 				rt = TYP(r);
 
-				if (sim->elements[rt].Properties & TYPE_SOLID) {
+				if (sim->elements[rt].Properties & TYPE_SOLID || (rt == PT_ROCK && !parts[ID(r)].tmp2) ||
+						(rt == PT_CRBN && parts[ID(r)].tmp2)) {
 					parts[i].tmp = 1;
 					found_solid = true;
 				}

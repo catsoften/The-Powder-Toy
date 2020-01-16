@@ -57,6 +57,8 @@ namespace http
 	void Request::AddPostData(std::map<ByteString, ByteString> data)
 	{
 #ifndef NOHTTP
+		// Even if the map is empty, calling this function signifies you want to do a POST request
+		isPost = true;
 		if (!data.size())
 		{
 			return;
@@ -134,10 +136,6 @@ namespace http
 			{
 				curl_easy_setopt(easy, CURLOPT_MIMEPOST, post_fields);
 			}
-			else
-			{
-				curl_easy_setopt(easy, CURLOPT_HTTPGET, 1L);
-			}
 #else
 			if (!post_fields_map.empty())
 			{
@@ -163,11 +161,16 @@ namespace http
 				}
 				curl_easy_setopt(easy, CURLOPT_HTTPPOST, post_fields_first);
 			}
+#endif
+			else if (isPost)
+			{
+				curl_easy_setopt(easy, CURLOPT_POST, 1L);
+				curl_easy_setopt(easy, CURLOPT_POSTFIELDS, "");
+			}
 			else
 			{
 				curl_easy_setopt(easy, CURLOPT_HTTPGET, 1L);
 			}
-#endif
 
 			curl_easy_setopt(easy, CURLOPT_FOLLOWLOCATION, 1L);
 #ifdef ENFORCE_HTTPS

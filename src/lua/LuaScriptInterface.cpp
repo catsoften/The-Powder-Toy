@@ -153,9 +153,7 @@ LuaScriptInterface::LuaScriptInterface(GameController * c, GameModel * m):
 	initFileSystemAPI();
 	initPlatformAPI();
 	initEventAPI();
-#ifndef NOHTTP
 	initHttpAPI();
-#endif
 
 	//Old TPT API
 	int currentElementMeta, currentElement;
@@ -3698,7 +3696,7 @@ class RequestHandle
 	bool dead;
 
 public:
-	RequestHandle(ByteString &uri, std::map<ByteString, ByteString> &post_data, std::map<ByteString, ByteString> &headers)
+	RequestHandle(ByteString &uri, bool isPost, std::map<ByteString, ByteString> &post_data, std::map<ByteString, ByteString> &headers)
 	{
 		dead = false;
 		request = new http::Request(uri);
@@ -3706,7 +3704,8 @@ public:
 		{
 			request->AddHeader(header.first, header.second);
 		}
-		request->AddPostData(post_data);
+		if (isPost)
+			request->AddPostData(post_data);
 		request->Start();
 	}
 
@@ -3726,11 +3725,6 @@ public:
 	bool Done() const
 	{
 		return dead || request->CheckDone();
-	}
-
-	bool Running() const
-	{
-		return !dead && request->CheckStarted();
 	}
 
 	void Progress(int *total, int *done)
@@ -3783,13 +3777,9 @@ static int http_request_status(lua_State *l)
 	{
 		lua_pushliteral(l, "done");
 	}
-	else if (rh->Running())
-	{
-		lua_pushliteral(l, "running");
-	}
 	else
 	{
-		lua_pushliteral(l, "queued");
+		lua_pushliteral(l, "running");
 	}
 	return 1;
 }
@@ -3832,25 +3822,29 @@ static int http_request_finish(lua_State *l)
 	return 0;
 }
 
-static int http_request(lua_State *l)
+static int http_request(lua_State *l, bool isPost)
 {
 	ByteString uri(luaL_checkstring(l, 1));
 	std::map<ByteString, ByteString> post_data;
-	if (lua_istable(l, 2))
+	if (isPost)
 	{
-		lua_pushnil(l);
-		while (lua_next(l, 2))
+		if (lua_istable(l, 2))
 		{
-			lua_pushvalue(l, -2);
-			post_data.emplace(lua_tostring(l, -1), lua_tostring(l, -2));
-			lua_pop(l, 2);
+			lua_pushnil(l);
+			while (lua_next(l, 2))
+			{
+				lua_pushvalue(l, -2);
+				post_data.emplace(lua_tostring(l, -1), lua_tostring(l, -2));
+				lua_pop(l, 2);
+			}
 		}
 	}
+
 	std::map<ByteString, ByteString> headers;
-	if (lua_istable(l, 3))
+	if (lua_istable(l, isPost ? 3 : 2))
 	{
 		lua_pushnil(l);
-		while (lua_next(l, 3))
+		while (lua_next(l, isPost ? 3 : 2))
 		{
 			lua_pushvalue(l, -2);
 			headers.emplace(lua_tostring(l, -1), lua_tostring(l, -2));
@@ -3862,10 +3856,21 @@ static int http_request(lua_State *l)
 	{
 		return 0;
 	}
-	new(rh) RequestHandle(uri, post_data, headers);
+	new(rh) RequestHandle(uri, isPost, post_data, headers);
 	luaL_newmetatable(l, "HTTPRequest");
 	lua_setmetatable(l, -2);
 	return 1;
+}
+
+
+int LuaScriptInterface::http_get(lua_State * l)
+{
+	return http_request(l, false);
+}
+
+int LuaScriptInterface::http_post(lua_State * l)
+{
+	return http_request(l, true);
 }
 
 void LuaScriptInterface::initHttpAPI()
@@ -3884,7 +3889,8 @@ void LuaScriptInterface::initHttpAPI()
 	lua_setfield(l, -2, "finish");
 	lua_setfield(l, -2, "__index");
 	struct luaL_Reg httpAPIMethods [] = {
-		{"request", http_request},
+		{"get", http_get},
+		{"post", http_post},
 		{NULL, NULL}
 	};
 	luaL_register(l, "http", httpAPIMethods);

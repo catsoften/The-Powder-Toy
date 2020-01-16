@@ -6,7 +6,7 @@ Tool_EROD::Tool_EROD() {
 	Identifier = "DEFAULT_TOOL_EROD";
 	Name = "EROD";
 	Colour = PIXPACK(0xcc361f);
-	Description = "Erode solids.";
+	Description = "Erode the edges of solids and powders.";
 }
 
 int Tool_EROD::Perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength) {

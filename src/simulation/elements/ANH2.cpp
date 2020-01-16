@@ -105,6 +105,7 @@ int Element_ANH2::update(UPDATE_FUNC_ARGS) {
 
 					sim->kill_part(ID(r));
 					sim->kill_part(i);
+					return 1;
 				}
 			}
 		}

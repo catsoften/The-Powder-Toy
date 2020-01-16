@@ -144,6 +144,10 @@ coffee
 test all tools repeatedly! -ask bwbellairs to do it
 
 
+TPT Ultimia website
+- JS Gallery thing
+- drag / drop / grid / pattern / fill / dynamic / get / set / videos / autoplay settings
+
 
 bleach, tear gas, nitrogen
 
@@ -170,20 +174,35 @@ custom elements
 holy water can be used to make a holy thermonuclear bomb
 
 
+How about the cool tool getting automatically selected for right button when you select the heat tool for left button
+and vice-versa. also similar for air/vac, pgrv/ngrv
+that way its easier to go back after overshooting your target
+
+
+
 shred moving solids
 move shred to another func
 time dilation GOL
 -TRBN seralize to FILT?
 - also range like other sensors?
 ambident heat time dilation
-RCRT rock is powder
-EROD - also powders in desc + wiki
-ASPK not flammable
-bees update location stamp, cut or copy
-BOMB, MSSL, LASR ignore FFLD
+
+literally any solid checking - rock isn't a solid :|
 bug fix: literally whenever create_part is used check if created
 - elements
 - tools
+
+EROD - also powders in desc + wiki
+erod NO WIKI ALSO CHECK OTHER TOOLS LIKE NROM WITH NO WIKI
+
+bees update location stamp, cut or copy
+BOMB, MSSL, LASR ignore FFLD
+TIME tool
+
+    RCRT rock is powder - DONE
+    FIXED - ASPK not flammable
+    FIXED - 2503762 - place down antihydrogen crash pfree create_part line 94 ANh2
+
 
 VNGR / FUSN
 
