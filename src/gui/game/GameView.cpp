@@ -2171,7 +2171,7 @@ void GameView::OnDraw()
 		{
 			int ctype = sample.particle.ctype;
 
-			if (type == PT_PHOT || type == PT_BIZR || type == PT_BIZRG || type == PT_BIZRS || type == PT_FILT || type == PT_BRAY || type == PT_C5)
+			if (type == PT_PHOT || type == PT_BIZR || type == PT_BIZRG || type == PT_BIZRS || type == PT_FILT || type == PT_BRAY || type == PT_C5 || type == PT_PFLT)
 				wavelengthGfx = (ctype&0x3FFFFFFF);
 
 			if (showDebug)
@@ -2197,7 +2197,7 @@ void GameView::OnDraw()
 				{
 					sampleInfo << c->ElementResolve(type, ctype);
 				}
-				else if (type == PT_FILT)
+				else if (type == PT_FILT || type == PT_PFLT)
 				{
 					sampleInfo << c->ElementResolve(type, ctype);
 					String filtModes[] = {"set colour", "AND", "OR", "subtract colour", "red shift", "blue shift", "no effect", "XOR", "NOT", "old QRTZ scattering", "variable red shift", "variable blue shift"};

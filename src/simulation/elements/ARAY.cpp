@@ -118,7 +118,7 @@ int Element_ARAY::update(UPDATE_FUNC_ARGS)
 										parts[r].dcolour = 0xFF000000;
 								}
 								// get color if passed through FILT
-								else if (rt == PT_FILT)
+								else if (rt == PT_FILT || (parts[r].life > 0 && rt == PT_PFLT))
 								{
 									if (parts[r].tmp != 6)
 									{
@@ -187,7 +187,7 @@ int Element_ARAY::update(UPDATE_FUNC_ARGS)
 										parts[r].tmp = 0;
 										parts[r].life = 0;
 									}
-									else if (rt == PT_FILT)
+									else if (rt == PT_FILT || (parts[r].life > 0 && rt == PT_PFLT))
 									{
 										isBlackDeco = (parts[r].dcolour==0xFF000000);
 										parts[r].life = 2;

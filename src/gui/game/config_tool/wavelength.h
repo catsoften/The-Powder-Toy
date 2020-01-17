@@ -113,7 +113,7 @@ ConfigWavelengthWindow::ConfigWavelengthWindow(ConfigTool * tool_, Simulation * 
     AddComponent(ctype);
 
     // FILT: gets extra option
-    if (ptype == PT_FILT) {
+    if (ptype == PT_FILT || ptype == PT_PFLT) {
         // Selector for FILT mode
         ui::Label * tempLabel = make_left_label(ui::Point(8, 75), ui::Point(40, 15), "FILT Operation");
         AddComponent(tempLabel);
@@ -146,7 +146,7 @@ ConfigWavelengthWindow::ConfigWavelengthWindow(ConfigTool * tool_, Simulation * 
         value1.Integer = wavelength;
         sim->flood_prop(pos.X, pos.Y, offsetof(Particle, ctype), value1, StructProperty::Integer);
 
-        if (ptype == PT_FILT) {
+        if (ptype == PT_FILT || ptype == PT_PFLT) {
             PropertyValue value2;
             value2.Integer = mode->GetOption().second;
             sim->flood_prop(pos.X, pos.Y, offsetof(Particle, tmp), value2, StructProperty::Integer);

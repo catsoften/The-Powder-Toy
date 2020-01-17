@@ -32,7 +32,7 @@ In addition, there are some additional transitions:
 SAWD -> Broken sawdust
 PAPR -> Broken paper
 MONY -> Broken paper
-Conducting solids not mentioned above -> broken solid (fuses when sparked)
+Conducting solids not mentioned above -> broken solid (chance to fuse when sparked)
 ```
 
 ## Technical

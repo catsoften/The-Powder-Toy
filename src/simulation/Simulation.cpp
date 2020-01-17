@@ -2425,6 +2425,10 @@ void Simulation::init_can_move()
 		if (elements[movingType].Properties & TYPE_PART)
 			can_move[movingType][PT_SAWD] = 1;
 	}
+
+	// Whether PHOT can move through powered filter depends on on off state
+	can_move[PT_PHOT][PT_PFLT] = 3;
+
 	//a list of lots of things PHOT can move through
 	// TODO: replace with property
 	for (destinationType = 0; destinationType < PT_NUM; destinationType++)
@@ -2470,6 +2474,8 @@ void Simulation::init_can_move()
 	can_move[PT_ELEC][PT_BIZRS] = 2;
 	can_move[PT_BIZR][PT_FILT] = 2;
 	can_move[PT_BIZRG][PT_FILT] = 2;
+	can_move[PT_BIZR][PT_PFLT] = 2;
+	can_move[PT_BIZRG][PT_PFLT] = 2;
 
 	can_move[PT_ANAR][PT_WHOL] = 1; //WHOL eats ANAR
 	can_move[PT_ANAR][PT_NWHL] = 1;
@@ -2564,6 +2570,12 @@ int Simulation::eval_move(int pt, int nx, int ny, unsigned *rr)
 					return 0;
 			}
 			break;
+		case PT_PFLT:
+			if (parts[ID(r)].life > 0)
+				result = 2;
+			else
+				result = 0;
+			break;
 		default:
 			// This should never happen
 			// If it were to happen, try_move would interpret a 3 as a 1
@@ -2611,7 +2623,7 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 			if (rt == PT_COAL || rt == PT_BCOL)
 				parts[ID(r)].temp = parts[i].temp;
 
-			if (rt < PT_NUM && elements[rt].HeatConduct && (rt!=PT_HSWC||parts[ID(r)].life==10) && rt!=PT_FILT)
+			if (rt < PT_NUM && elements[rt].HeatConduct && (rt!=PT_HSWC||parts[ID(r)].life==10) && rt!=PT_FILT && rt != PT_PFLT)
 				parts[i].temp = parts[ID(r)].temp = restrict_flt((parts[ID(r)].temp+parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
 		}
 		else if ((parts[i].type==PT_NEUT || parts[i].type==PT_ELEC) && (rt==PT_CLNE || rt==PT_PCLN || rt==PT_BCLN || rt==PT_PBCN))
@@ -2660,6 +2672,9 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 			case PT_FILT:
 				parts[i].ctype = Element_FILT::interactWavelengths(&parts[ID(r)], parts[i].ctype);
 				break;
+			case PT_PFLT:
+				if (parts[ID(r)].life > 0)
+					parts[i].ctype = Element_FILT::interactWavelengths(&parts[ID(r)], parts[i].ctype);
 			case PT_C5:
 				if (parts[ID(r)].life > 0 && (parts[ID(r)].ctype & parts[i].ctype & 0xFFFFFFC0))
 				{
@@ -2756,7 +2771,7 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 			break;
 		case PT_BIZR:
 		case PT_BIZRG:
-			if (TYP(r) == PT_FILT)
+			if (TYP(r) == PT_FILT || TYP(r) == PT_PFLT)
 				parts[i].ctype = Element_FILT::interactWavelengths(&parts[ID(r)], parts[i].ctype);
 			break;
 		}
@@ -3757,10 +3772,14 @@ void Simulation::UpdateParticles(int start, int end)
 						if (rt && elements[rt].HeatConduct && (rt!=PT_HSWC||parts[ID(r)].life==10)
 						        && (t!=PT_FILT||(rt!=PT_BRAY&&rt!=PT_BIZR&&rt!=PT_BIZRG))
 						        && (rt!=PT_FILT||(t!=PT_BRAY&&t!=PT_PHOT&&t!=PT_BIZR&&t!=PT_BIZRG))
+								&& (t!=PT_PFLT||(rt!=PT_BRAY&&rt!=PT_BIZR&&rt!=PT_BIZRG))
+						        && (rt!=PT_PFLT||(t!=PT_BRAY&&t!=PT_PHOT&&t!=PT_BIZR&&t!=PT_BIZRG))
 						        && (t!=PT_ELEC||rt!=PT_DEUT)
 						        && (t!=PT_DEUT||rt!=PT_ELEC)
 						        && (t!=PT_HSWC || rt!=PT_FILT || parts[i].tmp != 1)
-						        && (t!=PT_FILT || rt!=PT_HSWC || parts[ID(r)].tmp != 1))
+						        && (t!=PT_FILT || rt!=PT_HSWC || parts[ID(r)].tmp != 1)
+								&& (t!=PT_HSWC || rt!=PT_PFLT || parts[i].tmp != 1)
+						        && (t!=PT_PFLT || rt!=PT_HSWC || parts[ID(r)].tmp != 1))
 						{
 							surround_hconduct[j] = ID(r);
 #ifdef REALISTIC
@@ -4973,7 +4992,7 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 				{
 					// Particles are sometimes allowed to go inside INVS and FILT
 					// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
-					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT))
+					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && t!=PT_PFLT))
 						pmap[y][x] = PMAP(i, t);
 					// (there are a few exceptions, including energy particles - currently no limit on stacking those)
 					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t != PT_FILL &&

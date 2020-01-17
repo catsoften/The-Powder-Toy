@@ -103,7 +103,7 @@ int Element_PHOT::update(UPDATE_FUNC_ARGS)
 					parts[i].vx = vx;
 					parts[i].vy = vy;
 				}
-				else if (TYP(r) == PT_FILT && parts[ID(r)].tmp==9)
+				else if (((TYP(r) == PT_FILT) || (parts[ID(r)].life > 0 && TYP(r) == PT_PFLT)) && parts[ID(r)].tmp==9)
 				{
 					parts[i].vx += ((float)RNG::Ref().between(-500, 500))/1000.0f;
 					parts[i].vy += ((float)RNG::Ref().between(-500, 500))/1000.0f;
@@ -151,7 +151,7 @@ void Element_PHOT::create(ELEMENT_CREATE_FUNC_ARGS)
 	float a = RNG::Ref().between(0, 7) * 0.78540f;
 	sim->parts[i].vx = 3.0f * cosf(a);
 	sim->parts[i].vy = 3.0f * sinf(a);
-	if (TYP(sim->pmap[y][x]) == PT_FILT)
+	if (TYP(sim->pmap[y][x]) == PT_FILT || TYP(sim->pmap[y][x]) == PT_PFLT)
 		sim->parts[i].ctype = Element_FILT::interactWavelengths(&sim->parts[ID(sim->pmap[y][x])], sim->parts[i].ctype);
 }
 

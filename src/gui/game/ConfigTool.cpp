@@ -48,6 +48,7 @@ void ConfigTool::Click(Simulation * sim, Brush * brush, ui::Point position) {
             return;
         case PT_FILT:
         case PT_PHOT:
+        case PT_PFLT:
             new ConfigWavelengthWindow(this, sim, position);
             return;
         case PT_FFGN:

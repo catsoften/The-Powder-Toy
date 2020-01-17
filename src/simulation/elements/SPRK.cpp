@@ -52,12 +52,6 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 	int r, rx, ry, nearp, pavg, ct = parts[i].ctype, sender, receiver;
 	Element_FIRE::update(UPDATE_FUNC_SUBCALL_ARGS);
 
-	// Check for broken ctype and change ctype to BRKN's tmp
-	if (parts[i].ctype == PT_BRKN) {
-		parts[i].ctype = parts[i].tmp;
-		parts[i].tmp = 0;
-	}
-
 	if (parts[i].life<=0)
 	{
 		if (ct==PT_WATR||ct==PT_SLTW||ct==PT_PSCN||ct==PT_NSCN||ct==PT_ETRD||ct==PT_INWR)
@@ -66,7 +60,9 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 			ct = PT_METL;
 		parts[i].ctype = PT_NONE;
 		parts[i].life = 4;
-		if (ct == PT_WATR)
+		if (ct == PT_BRKN) // Broken change back into broken form
+			parts[i].ctype = parts[i].tmp;
+		else if (ct == PT_WATR)
 			parts[i].life = 64;
 		else if (ct == PT_SLTW)
 			parts[i].life = 54;
