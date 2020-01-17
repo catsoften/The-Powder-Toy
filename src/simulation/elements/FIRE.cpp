@@ -277,9 +277,16 @@ int Element_FIRE::graphics(GRAPHICS_FUNC_ARGS)
 	*colb = (unsigned char)ren->flm_data[caddress+2];
 
 	*firea = 255;
-	*firer = *colr;
-	*fireg = *colg;
-	*fireb = *colb;
+	if (cpart->dcolour == 0) {
+		*firer = *colr;
+		*fireg = *colg;
+		*fireb = *colb;
+	}
+	else {
+		*firer = (2 * *colr + PIXR(cpart->dcolour)) / 3;
+		*fireg = (2 * *colg + PIXG(cpart->dcolour)) / 3;
+		*fireb = (2 * *colb + PIXB(cpart->dcolour)) / 3;
+	}
 
 	*pixel_mode = PMODE_NONE; //Clear default, don't draw pixel
 	*pixel_mode |= FIRE_ADD;

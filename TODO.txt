@@ -222,6 +222,18 @@ RSPRK shouldn't blend, just display if above power threshold
 
 metal alloy making element?
 
+limit voltage max disatance
+
+
+
+
+1:Sodium Extreme yellow flame
+2:Barium Green flame
+3:Lithium Red Flame
+4:Rubidium blue-purple flame
+5:Potassium Yellow-purple
+
+
 
 voltages should add together
 - add to volt divider or whatever

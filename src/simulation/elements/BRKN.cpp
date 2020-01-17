@@ -49,6 +49,8 @@ int Element_BRKN::update(UPDATE_FUNC_ARGS) {
 	parts[i].tmp = parts[i].ctype;
 
 	bool flammable = false;
+	bool is_aluminium = parts[i].ctype == PT_ALMN;
+
 	if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM) {
 		if (!(sim->elements[parts[i].ctype].Properties & PROP_CONDUCTS))
 			parts[i].life = 4; // Prevent spark conducting if not actually conductable
@@ -78,6 +80,11 @@ int Element_BRKN::update(UPDATE_FUNC_ARGS) {
 			else if (parts[i].ctype == PT_SAWD && is_water) {
 				sim->part_change_type(i, x, y, PT_PULP);
 				parts[i].life += 1000;
+				return 1;
+			}
+			else if (is_aluminium && rt == PT_BRMT && parts[i].temp > 240.0f + 273.15f && RNG::Ref().chance(1, 100)) {
+				sim->part_change_type(ID(r), x + rx, y + ry, PT_THRM);
+				sim->part_change_type(i, x, y, PT_THRM);
 				return 1;
 			}
 		}
