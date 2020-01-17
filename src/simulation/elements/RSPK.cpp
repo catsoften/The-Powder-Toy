@@ -116,11 +116,19 @@ float get_power(int x, int y, Simulation *sim) {
 	return voltage / resistance * voltage;
 }
 
-bool is_ground(Particle *parts, int i) {
-	if (!i) return false;
+/**
+ * Returns type of ground
+ * 0 = Not a ground
+ * 1 = Ground voltage is 0
+ * 2 = Don't multiply voltage drop
+ */
+int is_ground(Particle *parts, int i) {
+	if (!i) return 0;
 	if (parts[i].type == PT_VOID)
-		return true;
-	return false;
+		return 1;
+	else if (parts[i].type == PT_VCMB)
+		return 2;
+	return 0;
 }
 
 bool is_voltage_valid(Simulation *sim, Particle *parts, int x, int y, int counter, float voltage) {
@@ -143,7 +151,7 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 	queue.push(new VoltagePoint(x, y, counter, voltage_i));
 	float newvol, resistance, lowest_voltage = voltage_i;
 	bool connected_to_ground = false, current_branch_past_ground = false;
-	int id;
+	int id, ground_type = 0;
 
 	while (queue.size()) {
 		VoltagePoint * p = queue.front();
@@ -157,8 +165,8 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 		resistance = get_resistance(TYP(sim->pmap[p->y][p->x]), parts, ID(sim->pmap[p->y][p->x]), sim);
 		current_branch_past_ground = false;
 
-		parts[id].pavg[0] += p->voltage;
-		parts[id].pavg[1] += resistance;
+		parts[id].pavg[0] = p->voltage;
+		parts[id].pavg[1] = resistance;
 		parts[id].tmp = p->counter;
 		parts[id].tmp2 = 1;
 		parts[id].life = REFRESH_EVERY_FRAMES + 1;
@@ -171,7 +179,8 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 		for (int rx = -1; rx <= 1; ++rx)
 		for (int ry = -1; ry <= 1; ++ry)
 		if ((rx || ry)) {
-			if (is_ground(parts, ID(sim->pmap[p->y + ry][p->x + rx]) )) {
+			ground_type = is_ground(parts, ID(sim->pmap[p->y + ry][p->x + rx]));
+			if (ground_type != 0) {
 				if (newvol < lowest_voltage)
 					lowest_voltage = newvol;
 				connected_to_ground = current_branch_past_ground = true;
@@ -201,7 +210,9 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 					 && (fromtype != PT_INDC || totype != PT_INDC)
 					 && ((totype != PT_WATR && totype != PT_SLTW && totype != PT_CBNW &&
 					 	  totype != PT_IOSL) || p->voltage > 1000.0f)
-					 && (fromtype != PT_NSCN || totype != PT_PSCN))
+					 && (fromtype != PT_NSCN || totype != PT_PSCN)
+					 && (fromtype != PT_VCMB || totype != PT_PSCN)
+					 && (fromtype != PT_VDIV || totype != PT_PSCN))
 			{
 				// 0.7 V drop across diodes
 				if (fromtype == PT_PSCN && totype == PT_NSCN)
@@ -222,16 +233,17 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 		float dv = voltage_i - lowest_voltage;
 		for (unsigned int i = 0; i < ids.size(); i++) {
 			if (connected_to_ground && parts[ids[i]].tmp != 1) {
-				float percentin = dv == 0.0f ? 1.0f : (parts[ids[i]].pavg[0] - lowest_voltage) / dv;
-				parts[ids[i]].pavg[0] = percentin * voltage_i;
-				parts[ids[i]].pavg[1] *= dv == 0.0f ? 0.0f : voltage_i / dv;
+				if (ground_type == 1) {
+					float percentin = dv == 0.0f ? 1.0f : (parts[ids[i]].pavg[0] - lowest_voltage) / dv;
+					parts[ids[i]].pavg[0] = percentin * voltage_i;
+					parts[ids[i]].pavg[1] *= dv == 0.0f ? 0.0f : voltage_i / dv;
+				}
 			}
 			else if (parts[ids[i]].tmp != 1) {
 				// parts[ids[i]].pavg[0] = voltage_i;
 				// parts[ids[i]].pavg[1] = 0.0f;
 				sim->kill_part(ids[i]);
 			}
-			parts[ids[i]].tmp2 = 0;
 		}
 	}
 }

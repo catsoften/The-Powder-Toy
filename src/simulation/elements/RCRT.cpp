@@ -18,7 +18,6 @@ void floodfill_valid_connect(Simulation *sim, Particle *parts, int x, int y) {
 		for (int rx = -1; rx <= 1; ++rx)
 		for (int ry = -1; ry <= 1; ++ry)
 		if ((rx || ry)) {
-			int fromtype = TYP(sim->pmap[p.second][p.first]);
 			int totype = TYP(sim->pmap[p.second + ry][p.first + rx]);
 			if (totype == PT_RCRT)
 				queue.push(std::make_pair(p.first + rx, p.second + ry));

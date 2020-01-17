@@ -30,7 +30,7 @@ Element_SHRD::Element_SHRD()
 	HeatConduct = 251;
 	Description = "Shredder. Breaks solids and certain powders when they enter.";
 
-	Properties = TYPE_SOLID;
+	Properties = TYPE_SOLID | PROP_DEADLY;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

@@ -31,7 +31,7 @@ Element_INDC::Element_INDC()
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Inductor. Resists sudden changes in current. pavg0 = inductance.";
+	Description = "Inductor. Resists sudden changes in current. pavg0 = inductance. Use 1px.";
 	DefaultProperties.pavg[0] = 1.0f;
 	DefaultProperties.pavg[1] = MAX_L;
 

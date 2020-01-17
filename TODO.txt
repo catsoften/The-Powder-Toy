@@ -187,6 +187,10 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23295 - baking soda
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23149 - FARADAY WALL
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17671 - fiber optics
+    - speed adjustability
+    - maybe kill the PHOT, then check for more, savign all extra phot to an array
+    - or make PHOT follow logic, not FIBR to fix layering problem
+
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=1069 - UI Shit
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM waves
     - slow down in certain solids, can be used as a scanner
@@ -194,7 +198,6 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21953&PageNum=1 - si
 
 
 sniper tool, displays crosair, shoot anything on screen
-
 
 
 - https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
@@ -216,8 +219,35 @@ Copper -> gain
 ceramic plate allows passage of ions
 
 bismuth wiki
-bismuth should do thermonic generation
+
+
+bismuth dope silicon -> n type
+phosophorus -> ntype 
+aluminium -> ptype
+
+silicon 
+- can be doped
+    - either with gas or ion beam or solid
+- can overlap spark
+q- maybe change to cant conduct diagonals
+DONE:
+- activates powered eleemnts when sparked, deactivates when not
+- let all air go through
+
+metal alloy making element?
+
+
 voltages should add together
+- add to volt divider or whatever
+
+
+microwaves
+0xF7F2F3
+heats metal
+damages stkm and plnt and water shit
+dries liquids
+
+
 
 ionic solutions gerow crystals from metals
 
@@ -232,12 +262,55 @@ dimagnetism: repeled by magnetics instead
 - idea: printer using pdtc and shit and paper and cray
 
 
+fusion chain:
+- H2 - realistic hydrogen?
+-   tmp = neutron isotope perhaps
+- H + H -> neutrino + positron + H(isotope 2)
+  H isotope 2 + H -> gamma + He3
+
+  helium small amount of Li
+
+- He - helium? - turns into superfluid (fix description)
+- He3 + He3 -> 2 x H + He4
+- 2x He4 -> gamma + Be8
+- Be8 + He4 -> gamma + C12
+
+- C12 + He4 -> O + gamma
+- He4 + O -> Ne + gamma
+- Ne + He4 -> MG + gamma
+- Mg + He4 -> Si + gamma
+- Si + He4 -> Sulfur + gamma
+- Sulfur -> Argon 
+- Argon -> Calcium
+- Calcium -> Titanium
+- Titanium -> Chromium
+- Chromium -> Iron
+- Iron -> Nickel
+
+C + C = Ne + He
+C + C = Na + H
+C + C = Mg + neutrino
+C + C = Mg + gamma
+C + C = O + 2 x He4
+
+O + O = Si + 2 x H
+O + O = Si + He4
+
+Neutron capture -> gain atomic number
+same for protons
+
+
+
 exotic chemistires - create heavy elements from fusion or something
 
 - tesla coil
 - voltage divider
 - voltage collector 
  - (sums input voltage, outputs to output port)
+- transofmrer
+
+ezy terrain tool - set elements and layers and draw :D
+
 
 conductor channels
 
@@ -258,7 +331,6 @@ bug report button by the new save?
 scp-009 http://www.scp-wiki.net/scp-009
 
 
-text tool not saving settings
 
 
 water  reactinos - add Carbonated water and ISOL

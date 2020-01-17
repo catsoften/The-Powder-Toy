@@ -30,7 +30,7 @@ Element_CAPR::Element_CAPR() {
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Capacitor. Stores charge from current and releases it when not charging. pavg0 = capacitance.";
+	Description = "Capacitor. Stores charge from current and releases it when not charging. pavg0 = capacitance. Use 1px.";
 
 	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
 	DefaultProperties.pavg[0] = 10.0f;

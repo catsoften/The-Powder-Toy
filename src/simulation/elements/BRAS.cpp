@@ -28,7 +28,7 @@ Element_BRAS::Element_BRAS()
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Brass. Kills bacteria, made from mixing copper and zinc.";
+	Description = "Brass. Kills bacteria, made from mixing copper and zinc. Accelerates air.";
 	PhotonReflectWavelengths = 0xFFA0000;
 
 	Properties = TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW;

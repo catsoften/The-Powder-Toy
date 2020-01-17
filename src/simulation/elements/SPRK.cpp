@@ -52,7 +52,7 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 	int r, rx, ry, nearp, pavg, ct = parts[i].ctype, sender, receiver;
 	Element_FIRE::update(UPDATE_FUNC_SUBCALL_ARGS);
 
-	// Check for broken ctype
+	// Check for broken ctype and change ctype to BRKN's tmp
 	if (parts[i].ctype == PT_BRKN) {
 		parts[i].ctype = parts[i].tmp;
 		parts[i].tmp = 0;
@@ -173,9 +173,35 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 		if(parts[i].temp < 3595.0){
 			parts[i].temp += RNG::Ref().between(-4, 15);
 		}
+		break;
+	case PT_SICN:
+		for (rx=-1; rx<2; rx++)
+		for (ry=-1; ry<2; ry++)
+			if (BOUNDS_CHECK && (rx || ry)) {
+				r = pmap[y + ry][x + rx];
+				if (!r) continue;
+				
+				// Activate powered stuff
+				bool is_powered = TYP(r) == PT_SWCH || sim->elements[TYP(r)].MenuSection == SC_POWERED;
+				if (is_powered && parts[i].life > 0 && parts[ID(r)].life == 0) {
+					PropertyValue value;
+					value.Integer = 10;
+					sim->flood_prop(x + rx, y + ry, offsetof(Particle, life), value, StructProperty::Integer);
+
+					// LCRY needs tmp & tmp2 for some reason
+					if (TYP(r) == PT_LCRY) {
+						value.Integer = 3;
+						sim->flood_prop(x + rx, y + ry, offsetof(Particle, tmp), value, StructProperty::Integer);
+						value.Integer = 10;
+						sim->flood_prop(x + rx, y + ry, offsetof(Particle, tmp2), value, StructProperty::Integer);
+					}
+				}
+			}
+		break;
 	default:
 		break;
 	}
+
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -211,6 +237,10 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 					}
 					break;
 				}
+				case PT_SICN: // Don't conduct diagonals
+					if (rx != 0 && ry != 0)
+						continue;
+					break;
 				case PT_SPRK:
 					if (pavg!=PT_INSL && parts[i].life<4)
 					{

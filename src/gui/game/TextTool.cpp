@@ -132,7 +132,7 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 	justification->AddOption(std::pair<String, int>(0xE01F + String(" Right"), TexterFont::Right));
 
     int just = Client::Ref().GetPrefInteger("Text.Align", 1);
-    if (just < 1 || just > 3) just = 1;
+    if (just < 0 || just > 3) just = 1;
 	justification->SetOption(just);
 	justification->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 
