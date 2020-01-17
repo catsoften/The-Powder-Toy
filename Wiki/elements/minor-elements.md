@@ -62,3 +62,6 @@ Paper will lose its dcolor when turning into PULP, so you can use this to "recyc
 Slowly turns into PAPR. Solidifies faster when hot (Bonus 1 life for each 10 C above 0 C). Max life of 40000. Life increases 
 by 100 for each water it touches. At 451 F (232.8 C) PULP ignites. PULP can be created by puting SAWD into SHRD then mixing 
 the broken SAWD with water.
+
+## ASPK (Anti-static powder)
+Light powder, sticks to conductors within 2px and prevents them from conducting spark. Ignites at 583 K, burns. Poor heat conductor.
