@@ -52,7 +52,7 @@ Element_BSMH::Element_BSMH()
 	Weight = 100;
 
 	HeatConduct = 25;
-	Description = "Bismuth. Forms square crystals when melted then cooled, can be used as a thermoelectric generator.";
+	Description = "Bismuth. Forms square crystals when melted then cooled.";
 
 	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
 	DefaultProperties.ctype = 1;
@@ -120,22 +120,6 @@ int Element_BSMH::update(UPDATE_FUNC_ARGS) {
 		if (RNG::Ref().chance(1, 3)) // Randomly change color again
 			parts[i].pavg[1] = BSMH_COLORS[RNG::Ref().between(0, BSMH_COLORS.size() - 1)];
 	}
-
-	// Thermoelectric generation
-	float lowestT = 0.0f;
-	float highestT = 0.0f;
-
-	for (int rx = -1; rx <= 1; ++rx)
-	for (int ry = -1; ry <= 1; ++ry)
-		if (BOUNDS_CHECK && (rx || ry)) {
-			int r = pmap[y + ry][x + rx];
-			if (!r) continue;
-
-			if (parts[ID(r)].temp > highestT)
-				highestT = parts[ID(r)].temp;
-			if (parts[ID(r)].temp < lowestT)
-				lowestT = parts[ID(r)].temp;
-		}
 
 	return 0;
 }

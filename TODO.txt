@@ -218,21 +218,7 @@ Copper -> gain
     malleabl - only if sudden change in pressure
 ceramic plate allows passage of ions
 
-bismuth wiki
-
-
-bismuth dope silicon -> n type
-phosophorus -> ntype 
-aluminium -> ptype
-
-silicon 
-- can be doped
-    - either with gas or ion beam or solid
-- can overlap spark
-q- maybe change to cant conduct diagonals
-DONE:
-- activates powered eleemnts when sparked, deactivates when not
-- let all air go through
+RSPRK shouldn't blend, just display if above power threshold
 
 metal alloy making element?
 

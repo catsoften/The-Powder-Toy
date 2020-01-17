@@ -53,6 +53,8 @@ float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 			return 0.0168f;
 		case PT_ZINC:
 			return 0.059f;
+		case PT_SICN:
+			return 30000000.0f;
 		case PT_METL:
 		case PT_BMTL:
 		case PT_BRMT:

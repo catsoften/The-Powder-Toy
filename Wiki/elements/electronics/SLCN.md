@@ -9,6 +9,8 @@ Silicon melts at 1414 C. Sparked SLCN should activate most powered materials, an
 
 If > 400 C SLCN can be "doped". Touching hot SLCN with bismuth, molten bismuth, phosphorous or molten phosphorous has a chance to turn it into NSCN, and touching hot SLCN with aluminum, molten aluminum or ION will have a chance to turn it into PSCN.
 
+Silicon does not block air.
+
 ## Technical
 #### Properties
 In the source it's labeled as PT_SICN
