@@ -213,9 +213,16 @@ realistic metal that can be forged and bent
 - let stuff be "dissolved" in water
     - tmp sets polyatomic ion
 
+PHSP
+- glow 
+- burns easily, embr
+- absorbs phot and glows
+
+
+
 ZINC -> lose electrons
 Copper -> gain
-    malleabl - only if sudden change in pressure
+
 ceramic plate allows passage of ions
 
 RSPRK shouldn't blend, just display if above power threshold

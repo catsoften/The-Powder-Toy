@@ -7,7 +7,7 @@ Element_ASPK::Element_ASPK()
 	Name = "ASPK";
 	Colour = PIXPACK(0x45a9c4);
 	MenuVisible = 1;
-	MenuSection = SC_POWDERS;
+	MenuSection = SC_ELEC;
 	Enabled = 1;
 
 	Advection = 0.4f;
