@@ -400,7 +400,7 @@ int Element_STKM::run_stickman(playerst *playerp, UPDATE_FUNC_ARGS) {
 					continue;
 
 				STKM_set_element(sim, playerp, TYP(r));
-				if ((TYP(r) == PT_PLNT || TYP(r) == PT_HONY) && parts[i].life<100) //Plant gives him 5 HP
+				if ((TYP(r) == PT_PLNT || TYP(r) == PT_HONY || TYP(r) == PT_MILK) && parts[i].life<100) //Plant gives him 5 HP
 				{
 					if (parts[i].life<=95)
 						parts[i].life += 5;

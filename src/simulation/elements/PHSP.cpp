@@ -80,6 +80,12 @@ int Element_PHSP::update(UPDATE_FUNC_ARGS) {
 				parts[ni].temp = parts[i].temp;
 				parts[ni].dcolour = 0xffffb37d;
 			}
+			// Fertilize plnt
+			else if (TYP(r) == PT_PLNT) {
+				sim->part_change_type(ID(r), x + rx, y + ry, PT_VINE);
+				sim->kill_part(i);
+				return 1;
+			}
 
 			// Absorb PHOT
 			r = sim->photons[y + ry][x + rx];

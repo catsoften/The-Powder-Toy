@@ -99,9 +99,9 @@ int Element_CMNT::update(UPDATE_FUNC_ARGS) {
 				}
 
 				// Touching water
-				if (rt == PT_WATR || rt == PT_DSTW || rt == PT_SWTR || rt == PT_SLTW) {
+				if (rt == PT_WATR || rt == PT_DSTW || rt == PT_SWTR || rt == PT_SLTW || rt == PT_CBNW || rt == PT_IOSL) {
 					// Sugar water and salt water are impure and will make low quality concrete
-					if (rt == PT_SWTR || rt == PT_SLTW)
+					if (rt == PT_SWTR || rt == PT_SLTW || rt == PT_CBNW || rt == PT_IOSL)
 						parts[i].tmp2 += 5;
 					// Stores at most 3000 life per px
 					if (parts[i].life > MAX_LIFE_CMNT)

@@ -190,7 +190,7 @@ Element_BCTR::Element_BCTR()
 int Element_BCTR::update(UPDATE_FUNC_ARGS) {
 	// Dead, dissolvable by SOAP
 	if (parts[i].tmp2) {
-		if (parts[i].temp < 0.0f) {
+		if (parts[i].temp < 273.15f) {
 			parts[i].ctype = PT_BCTR;
 			sim->part_change_type(i, parts[i].x, parts[i].y, PT_ICEI);
 			return 0;
@@ -333,7 +333,7 @@ int Element_BCTR::update(UPDATE_FUNC_ARGS) {
 					// Reproduce if enough energy stored and spot is empty
 					if (parts[i].life >= 2 * BCTR::START_LIFE) {
 						parts[i].life -= BCTR::START_LIFE;
-						int ni = sim->create_part(-3, x + rx, y + ry, PT_BCTR);
+						int ni = r ? ID(r) : sim->create_part(-1, x + rx, y + ry, PT_BCTR);
 						parts[ni].dcolour = parts[i].dcolour;
 						parts[ni].ctype = parts[i].ctype;
 

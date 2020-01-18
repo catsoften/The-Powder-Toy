@@ -75,7 +75,6 @@ sparkling water, actually made of diamond
 
 polish, polishes metal?
 
-potato
 
 nuclear stuff
 
@@ -186,6 +185,7 @@ lbp's command manipulator thing
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23295 - baking soda
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23149 - FARADAY WALL
+    See https://github.com/china-richway2/The-Powder-Toy/tree/chinamod which implements
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17671 - fiber optics
     - speed adjustability
     - maybe kill the PHOT, then check for more, savign all extra phot to an array
@@ -213,12 +213,6 @@ realistic metal that can be forged and bent
 - let stuff be "dissolved" in water
     - tmp sets polyatomic ion
 
-PHSP
-- glow 
-- burns easily, embr
-- absorbs phot and glows
-
-
 
 ZINC -> lose electrons
 Copper -> gain
@@ -231,13 +225,14 @@ metal alloy making element?
 
 limit voltage max disatance
 
+hair forms BHOL
+
 
 
 
 1:Sodium Extreme yellow flame
 2:Barium Green flame
 3:Lithium Red Flame
-4:Rubidium blue-purple flame
 5:Potassium Yellow-purple
 
 
@@ -305,6 +300,8 @@ Neutron capture -> gain atomic number
 same for protons
 
 
+ taste tool for food - how good it tastes
+
 
 exotic chemistires - create heavy elements from fusion or something
 
@@ -323,6 +320,7 @@ conductor channels
     - maybe powerful electric fields induce current
 generates magnetic field
 
+shred moving solids
 
 eco fuels
 
@@ -333,7 +331,15 @@ toggle displays with shift-2 and shift-3 and so on
 
 bug report button by the new save?
 
-scp-009 http://www.scp-wiki.net/scp-009
+NORM TOOL
+
+
+BCTR eat flesh
+
+
+something raibow fire
+
+taste sensor, gravity sensor, magnetism sensor, etc...
 
 
 
@@ -417,8 +423,6 @@ https://starcatcher.us/scripts?view=47
 
 
 
-Bullet - https://github.com/RCAProduction/The-Alliance-Toy/commit/40bc8704aaa0e0b93a6322398a5e4ce2b2d8cf2f
-
 
 
 	ui::Slider * fpsSlider = new ui::Slider(ui::Point(4, 0), ui::Point(70, 10), 5);
@@ -465,8 +469,9 @@ potatoes
 2. mash
 3. burn
 4. jacob1 control with mind
+5. plant
 
-MEAT, UDDR, MILK - realistic cow hmm
+MEAT, UDDR - realistic cow hmm
 BONE, FLSH maybe
 
 sophon

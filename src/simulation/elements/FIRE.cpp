@@ -283,9 +283,9 @@ int Element_FIRE::graphics(GRAPHICS_FUNC_ARGS)
 		*fireb = *colb;
 	}
 	else {
-		*firer = (2 * *colr + PIXR(cpart->dcolour)) / 3;
-		*fireg = (2 * *colg + PIXG(cpart->dcolour)) / 3;
-		*fireb = (2 * *colb + PIXB(cpart->dcolour)) / 3;
+		*firer = (1 * *colr + PIXR(cpart->dcolour)) / 2;
+		*fireg = (1 * *colg + PIXG(cpart->dcolour)) / 2;
+		*fireb = (1 * *colb + PIXB(cpart->dcolour)) / 2;
 	}
 
 	*pixel_mode = PMODE_NONE; //Clear default, don't draw pixel

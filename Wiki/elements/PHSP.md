@@ -5,7 +5,8 @@
 
 **Description:**  *Phosphorus. Highly flammable powder.*
 
-Burns for a while, emitting orange flame and ember. Melts at 280.5 C. Glows for 30 frames when it absorbs a photon. 
+Burns for a while, emitting orange flame and ember. Melts at 280.5 C. Glows for 30 frames when it absorbs a photon. Can be used to 
+dope SLCN (See SLCN wiki). Fertilizes PLNT (changes it to VINE).
 
 ## Technical
 #### Properties

@@ -2435,6 +2435,7 @@ void Simulation::init_can_move()
 	{
 		can_move[PT_JCB1][destinationType] = 2; // JCB1 can go through anything
 		can_move[PT_RSPK][destinationType] = 2;
+		can_move[PT_NTRI][destinationType] = 2;
 
 		if (destinationType == PT_GLAS || destinationType == PT_PHOT || destinationType == PT_FILT || destinationType == PT_INVIS
 		 || destinationType == PT_CLNE || destinationType == PT_PCLN || destinationType == PT_BCLN || destinationType == PT_PBCN

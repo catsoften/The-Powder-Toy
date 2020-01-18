@@ -65,3 +65,22 @@ the broken SAWD with water.
 
 ## ASPK (Anti-static powder)
 Light powder, sticks to conductors within 2px and prevents them from conducting spark. Ignites at 583 K, burns. Poor heat conductor.
+
+## NTRI (Neutrino)
+Glows when inside of another element, turns NEUT -> ELEC + PHOT and ELEC -> PHOT. Goes through everything (even DMND), doesn't conduct heat.
+
+# MILK
+Heals STKM, slowly spoils. Can slow down spoiling by keeping it cold (< 5 C) or pasturizing it (heating it to around 70 C for a while. Putting it near SOIL, MUD, BCOL, COAL or BCTR will increase the rate it spoils. Turns into BCTR when spoiled. Evaporates into calcium and water.
+
+## SUFR (Sulfur)
+Burns quickly into a blue flame. Melts at 115.2 C. Turns into CAUS when near fire, turns into ACID when mixed with GLOW and turns 
+into GUN when mixed with BCOL.
+
+## H2O2 (Hydrogen Peroxide)
+Explosive fuel. Kills BCTR and VIRS (Deletes it completely). Deadly to STKM. Freezes at -0.4 C and boils at 150.2 C. Mix with 
+sulfur to make acid. (There's no sulfur dioxide in TPT sorry). Slowly decays into hydrogen and distilled water, this process 
+can be sped up by heating it.
+
+## 009 (SCP-009)
+Water, but it freezes at 0 C+ and turns into a gas at -100 C-. Solid SCP-009 grows crystals. SCP-009 spreads in most water 
+based elements, including PLNT, FLSH, water, MILK, etc...
