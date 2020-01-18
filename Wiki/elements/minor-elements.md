@@ -79,7 +79,7 @@ into GUN when mixed with BCOL.
 ## H2O2 (Hydrogen Peroxide)
 Explosive fuel. Kills BCTR and VIRS (Deletes it completely). Deadly to STKM. Freezes at -0.4 C and boils at 150.2 C. Mix with 
 sulfur to make acid. (There's no sulfur dioxide in TPT sorry). Slowly decays into hydrogen and distilled water, this process 
-can be sped up by heating it.
+can be sped up by heating it. Slightly corrosive.
 
 ## 009 (SCP-009)
 Water, but it freezes at 0 C+ and turns into a gas at -100 C-. Solid SCP-009 grows crystals. SCP-009 spreads in most water 

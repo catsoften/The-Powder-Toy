@@ -331,9 +331,6 @@ toggle displays with shift-2 and shift-3 and so on
 
 bug report button by the new save?
 
-NORM TOOL
-
-
 BCTR eat flesh
 
 
@@ -341,12 +338,15 @@ something raibow fire
 
 taste sensor, gravity sensor, magnetism sensor, etc...
 
+alage
 
 
 
 water  reactinos - add Carbonated water and ISOL
 
 ferrofluid
+
+aircraft carrier
 
 local gravity mode
 

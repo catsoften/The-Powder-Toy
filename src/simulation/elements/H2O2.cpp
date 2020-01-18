@@ -72,6 +72,13 @@ int Element_H2O2::update(UPDATE_FUNC_ARGS) {
 				sim->part_change_type(i, x, y, PT_ACID);
 				return 1;
 			}
+
+			else if (sim->elements[rt].Hardness && RNG::Ref().between(1, 100) > sim->elements[rt].Hardness &&
+					RNG::Ref().chance(1, 500)) {
+				sim->kill_part(ID(r));
+				sim->kill_part(i);
+				return 1;
+			}
 		}
 
 	return 0;
