@@ -60,7 +60,8 @@ int Element_NTRI::update(UPDATE_FUNC_ARGS) {
 			// ELEC -> PHOT
 			if (TYP(r) == PT_NEUT) {
 				sim->part_change_type(ID(r), x + rx, y + ry, PT_ELEC);
-				sim->create_part(-3, x + rx, y + ry, PT_PHOT);
+				int ni = sim->create_part(-3, x + rx, y + ry, PT_PHOT);
+				parts[ni].temp = parts[i].temp;
 			}
 			else if (TYP(r) == PT_ELEC) {
 				sim->part_change_type(ID(r), x + rx, y + ry, PT_PHOT);

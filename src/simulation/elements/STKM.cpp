@@ -408,6 +408,17 @@ int Element_STKM::run_stickman(playerst *playerp, UPDATE_FUNC_ARGS) {
 						parts[i].life = 100;
 					sim->kill_part(ID(r));
 				}
+				if ((TYP(r) == PT_STMH || TYP(r) == PT_UDDR || TYP(r) == PT_FLSH) && parts[i].life<100) {
+					bool is_cooked = parts[ID(r)].pavg[0] > 40.0f + 273.15f;
+					bool is_edible = parts[ID(r)].pavg[0] > 273.15f; // Frozen meat is inedible
+
+					if (is_edible) {
+						parts[i].life += is_cooked ? 10 : -5;
+						if (parts[i].life < 0) parts[i].life = 0;
+						if (parts[i].life > 100) parts[i].life = 100;
+						sim->kill_part(ID(r));
+					}
+				}
 
 				if (TYP(r) == PT_NEUT)
 				{

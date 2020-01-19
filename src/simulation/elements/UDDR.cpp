@@ -32,6 +32,9 @@ Element_UDDR::Element_UDDR()
 
 	Properties = TYPE_SOLID | PROP_NEUTPENETRATE;
 
+	DefaultProperties.tmp = 1000;
+	DefaultProperties.tmp2 = 1500;
+
 	LowPressure = IPL;
 	LowPressureTransition = NT;
 	HighPressure = IPH;
@@ -42,32 +45,37 @@ Element_UDDR::Element_UDDR()
 	HighTemperatureTransition = PT_FIRE;
 
 	Update = &Element_UDDR::update;
-	Graphics = &Element_UDDR::graphics;
+	Graphics = &Element_FLSH::graphics;
 }
 
 //#TPT-Directive ElementHeader Element_UDDR static int update(UPDATE_FUNC_ARGS)
 int Element_UDDR::update(UPDATE_FUNC_ARGS) {
-	// TEMP CODE
-	if (sim->pv[y / CELL][x / CELL] > 1.0f) {
-		int rx, ry, r, rt;
+	/**
+	 * Properties
+	 * life:  Graphics
+	 * tmp:   Oxygen stored
+	 * tmp2:  Nutrients stored
+	 * pavg0: Highest temperature
+	 * pavg1: Type 0 = inside, 1 = skin, 2 = dead
+	 */
+	Element_FLSH::update(sim, i, x, y, surround_space, nt, parts, pmap);
+	if (parts[i].pavg[1] == 1) // Override skin formation
+		parts[i].pavg[1] = 0;
 
+	if (sim->pv[y / CELL][x / CELL] > 1.0f && parts[i].pavg[1] != 2) {
+		int rx, ry, r;
 		for (rx = -1; rx < 2; ++rx)
 		for (ry = -1; ry < 2; ++ry)
 			if (BOUNDS_CHECK && (rx || ry)) {
 				r = pmap[y + ry][x + rx];
-				if (!r) {
+				if (!r && parts[i].tmp2 > 0 && RNG::Ref().chance(1, 50)) {
 					sim->create_part(-1, x + rx, y + ry, PT_MILK);
+					parts[i].tmp2 -= 50;
+					if (parts[i].tmp2 < 0)
+						parts[i].tmp2 = 0;
 				}
 			}
 	}
-
-	return 0;
-}
-
-//#TPT-Directive ElementHeader Element_UDDR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_UDDR::graphics(GRAPHICS_FUNC_ARGS) {
-	// graphics code here
-	// return 1 if nothing dymanic happens here
 
 	return 0;
 }

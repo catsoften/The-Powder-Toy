@@ -349,7 +349,9 @@ int Element_BCTR::update(UPDATE_FUNC_ARGS) {
 				// Metabolism is % chance of eating / 5
 				if (parts[i].life < energy_capcity && RNG::Ref().between(0, 500) < metabolism) {
 					if ((foodtype == 1 && (rt == PT_YEST || rt == PT_DYST)) ||
-						(foodtype == 2 && (rt == PT_WOOD || rt == PT_PLNT || rt == PT_SAWD)) ||
+						(foodtype == 2 && (rt == PT_WOOD || rt == PT_PLNT || rt == PT_SAWD || 
+							((rt == PT_FLSH || rt == PT_POTO || rt == PT_STMH || rt == PT_UDDR) && RNG::Ref().chance(1, 50))
+						)) ||
 						(foodtype == 4 && (rt == PT_NEUT || rt == PT_PROT))
 					)
 						EAT(PT_GAS)

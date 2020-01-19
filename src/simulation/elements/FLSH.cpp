@@ -20,12 +20,15 @@ Element_FLSH::Element_FLSH()
 	HotAir = 0.000f	* CFDS;
 	Falldown = 0;
 
-	Flammable = 10;
+	Flammable = 3;
 	Explosive = 0;
 	Meltable = 0;
 	Hardness = 15;
 
 	Weight = 100;
+
+	DefaultProperties.tmp = 1000;
+	DefaultProperties.tmp2 = 1000;
 
 	HeatConduct = 104;
 	Description = "Flesh. Requires food, oxygen and water to stay alive, can be cooked.";
@@ -38,56 +41,16 @@ Element_FLSH::Element_FLSH()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = 200.0f + 273.15f;
+	HighTemperature = 600.0f + 273.15f;
 	HighTemperatureTransition = PT_FIRE;
 
 	Update = &Element_FLSH::update;
 	Graphics = &Element_FLSH::graphics;
+	Create = &Element_FLSH::create;
 }
 
-//#TPT-Directive ElementHeader Element_FLSH static int update(UPDATE_FUNC_ARGS)
-int Element_FLSH::update(UPDATE_FUNC_ARGS) {
-	/**
-	 * Properties
-	 * tmp:   Water stored
-	 * tmp2:  Food stored
-	 * pavg0: Highest temperature
-	 * pavg1: Type 0 = inside, 1 = skin, 2 = dead
-	 */
-	if (parts[i].temp > parts[i].pavg[0])
-		parts[i].pavg[0] = parts[i].temp;
-
-	int rx, ry, r, rt;
-
-	for (rx = -1; rx < 2; ++rx)
-	for (ry = -1; ry < 2; ++ry)
-		if (BOUNDS_CHECK && (rx || ry)) {
-			r = pmap[y + ry][x + rx];
-			if (!r) continue;
-			rt = TYP(r);
-
-			// Alive flesh
-			if (parts[i].pavg[1] != 2) {
-				// Distribute nutrients
-				if (rt == PT_FLSH) {
-					int diff = parts[i].tmp - parts[ID(r)].tmp;
-					parts[i].tmp -= diff / 2;
-					parts[ID(r)].tmp += (diff + 1) / 2;
-					diff = parts[i].tmp2 - parts[ID(r)].tmp2;
-					parts[i].tmp2 -= diff / 2;
-					parts[ID(r)].tmp2 += (diff + 1) / 2;
-				}
-				// Create skin
-			}
-		}
-
-	return 0;
-}
-
-//#TPT-Directive ElementHeader Element_FLSH static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FLSH::graphics(GRAPHICS_FUNC_ARGS) {
-	// TODO move to a create func
-	int x = nx, y = ny;
+//#TPT-Directive ElementHeader Element_FLSH static void create(ELEMENT_CREATE_FUNC_ARGS)
+void Element_FLSH::create(ELEMENT_CREATE_FUNC_ARGS) {
 	int gx = x / 50 * 50;
 	int gy = y / 50 * 50;
 	float theta = x + y;
@@ -98,9 +61,157 @@ int Element_FLSH::graphics(GRAPHICS_FUNC_ARGS) {
 
 	int thickness = (x / 4 + y / 4) % 5;
 	if ((x + y) % 25 < thickness || abs(x - y) % 25 < thickness) {
+		sim->parts[i].life = 1; // White part
+	}
+}
+
+//#TPT-Directive ElementHeader Element_FLSH static int update(UPDATE_FUNC_ARGS)
+int Element_FLSH::update(UPDATE_FUNC_ARGS) {
+	/**
+	 * Properties
+	 * life:  Graphics
+	 * tmp:   Oxygen stored
+	 * tmp2:  Nutrients stored
+	 * pavg0: Highest temperature
+	 * pavg1: Type 0 = inside, 1 = skin, 2 = dead
+	 */
+
+	if (parts[i].pavg[1] != 2) {
+		if (parts[i].tmp > 0)
+			parts[i].tmp--;
+		if (parts[i].tmp2 > 0)
+			parts[i].tmp2--;
+	}
+
+	// The randomization is to avoid easily burning meat and creating
+	// a more realistic crystallization effect
+	if (parts[i].temp > 110.0f + 273.15f && RNG::Ref().chance(1, 100))
+		parts[i].pavg[0] = parts[i].temp;
+	if (parts[i].temp > parts[i].pavg[0] && (parts[i].temp < 110.0f + 273.15f ||
+			parts[i].temp > 150.0f + 273.15f))
+		parts[i].pavg[0] = parts[i].temp;
+	
+	// Rot if dead and not cooked or frozen
+	if (parts[i].temp > 3.0f + 273.15f && parts[i].pavg[0] < 40.0f + 273.15f && parts[i].pavg[1] == 2
+			&& RNG::Ref().chance(1, 5000)) {
+		sim->part_change_type(i, x, y, PT_BCTR);
+		parts[i].ctype = 512; // Meat eating gene
+		parts[i].tmp = 0;
+		parts[i].tmp2 = 0;
+		return 1;
+	}
+
+	// Death
+	// Radiation burns
+	int r = sim->photons[y][x];
+	if (r && TYP(r) != PT_JCB1 && TYP(r) != PT_NTRI && RNG::Ref().chance(1, 10)) {
+		parts[i].pavg[1] = 2;
+		if (parts[ID(r)].temp > 273.15f + 110.0f)
+			parts[i].pavg[0] = 273.15f + 150.0f;
+	}
+	// Pressure
+	if (fabs(sim->pv[y / CELL][x / CELL]) > 10.0f)
+		parts[i].pavg[1] = 2;
+	// Temperature
+	if (parts[i].temp < 273.15f - 5.0f || parts[i].temp > 50.0f + 273.15f)
+		parts[i].pavg[1] = 2;
+	// Lack of oxygen or nutrients
+	if ((parts[i].tmp <= 0 || parts[i].tmp2 <= 0) && RNG::Ref().chance(1, 3000))
+		parts[i].pavg[1] = 2;
+
+	int rx, ry, rt;
+
+	for (rx = -1; rx < 2; ++rx)
+	for (ry = -1; ry < 2; ++ry)
+		if (BOUNDS_CHECK && (rx || ry)) {
+			r = pmap[y + ry][x + rx];
+			if (!r) {
+				// Alive flesh
+				if (parts[i].pavg[1] != 2 && RNG::Ref().chance(1, 1000)) {
+					// Create skin
+					parts[i].pavg[1] = 1;
+				}
+				continue;
+			}
+			rt = TYP(r);
+
+			// Alive flesh
+			if (parts[i].pavg[1] != 2) {
+				// Distribute nutrients
+				if (rt == PT_FLSH || rt == PT_UDDR || rt == PT_STMH) {
+					int diff = parts[i].tmp - parts[ID(r)].tmp;
+					parts[i].tmp -= diff / 2;
+					parts[ID(r)].tmp += (diff + 1) / 2;
+					diff = parts[i].tmp2 - parts[ID(r)].tmp2;
+					parts[i].tmp2 -= diff / 2;
+					parts[ID(r)].tmp2 += (diff + 1) / 2;
+				}
+
+				// Die if touching toxic chemicals
+				else if (rt == PT_H2O2 || rt == PT_ACID || rt == PT_CAUS || rt == PT_PLUT || rt == PT_URAN ||
+					rt == PT_ISOZ || rt == PT_ISZS || rt == PT_POLO || rt == PT_MERC) {
+					parts[i].pavg[1] = 2;
+				}
+
+				// Absorb oxygen from blood
+				// Pretend there are some nutrients in the blood
+				if (rt == PT_BLOD) {
+					int amount = std::min(50, parts[ID(r)].life);
+					parts[i].tmp += amount;
+					parts[i].tmp2 += 10;
+					parts[ID(r)].life -= amount;
+				}
+			}
+		}
+
+	return 0;
+}
+
+//#TPT-Directive ElementHeader Element_FLSH static int graphics(GRAPHICS_FUNC_ARGS)
+int Element_FLSH::graphics(GRAPHICS_FUNC_ARGS) {
+	if (cpart->pavg[1] == 1) { // Skin
 		*colr = 255;
-		*colg = 255;
-		*colb = 255;
+		*colg = 226;
+		*colb = 204;
+	}
+	else if (cpart->life == 1) { // White part
+		*colr = 255;
+		*colg = 238;
+		*colb = 230;
+	}
+	else { // Redden if oxygenated
+		int red = std::min(40, cpart->tmp / 10);
+		*colr += red;
+		*colg -= red;
+		*colb -= red;
+	}
+
+	// Cooking
+	// Well done (Around 70 - 80 C)
+	if (cpart->pavg[0] > 273.15f + 40.0f) {
+		float percent_fade = std::min(cpart->pavg[0] - 273.15f, 80.0f) / 80.0f;
+		percent_fade += ((abs(nx - ny) * (nx + ny) + nx) % 5) / 10.0f; // Noise
+
+		*colr -= (*colr - 160) * percent_fade;
+		*colg -= (*colg - 96) * percent_fade;
+		*colb -= (*colb - 69) * percent_fade;
+
+		// Grill lines
+		if ((nx + ny) % 30 < 3) {
+			*colr *= 0.9f, *colg *= 0.9f, *colb *= 0.9f;
+		}
+	}
+	// Burnt (Above 110 C)
+	if (cpart->pavg[0] > 273.15f + 110.0f) {
+		float m = 1.0f - std::min(cpart->pavg[0] - 273.15f + 90.0f, 200.0f) / 200.0f;
+		m = 0.2 + 0.8 * m; // Prevent 100% black
+		*colr *= m, *colg *= m, *colb *= m;
+	}
+	// Blue when cold
+	if (cpart->temp < 273 && cpart->pavg[0] < 273.15f + 110.0f) {
+		*colr -= (int)restrict_flt((273-cpart->temp)/5,0,80);
+		*colg += (int)restrict_flt((273-cpart->temp)/4,0,40);
+		*colb += (int)restrict_flt((273-cpart->temp)/1.5,0,100);
 	}
 
 	return 0;

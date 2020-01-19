@@ -67,7 +67,7 @@ int Element_009S::update(UPDATE_FUNC_ARGS) {
 		int rt = TYP(r);
 		int ni = -1;
 
-		if (rt == PT_PLNT || rt == PT_FLSH) {
+		if (rt == PT_PLNT || rt == PT_FLSH || rt == PT_UDDR || rt == PT_STMH) {
 			sim->kill_part(ID(r));
 			r = 0;
 		}
