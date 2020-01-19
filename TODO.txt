@@ -186,10 +186,8 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23295 - baking soda
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23149 - FARADAY WALL
     See https://github.com/china-richway2/The-Powder-Toy/tree/chinamod which implements
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17671 - fiber optics
-    - speed adjustability
-    - maybe kill the PHOT, then check for more, savign all extra phot to an array
-    - or make PHOT follow logic, not FIBR to fix layering problem
+
+
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=1069 - UI Shit
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM waves
@@ -470,6 +468,7 @@ potatoes
 3. burn
 4. jacob1 control with mind
 5. plant
+6. Posion if in sunlight
 
 MEAT, UDDR - realistic cow hmm
 BONE, FLSH maybe

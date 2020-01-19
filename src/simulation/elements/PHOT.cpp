@@ -61,6 +61,76 @@ int Element_PHOT::update(UPDATE_FUNC_ARGS)
 	if (parts[i].temp > 506)
 		if (RNG::Ref().chance(1, 10))
 			Element_FIRE::update(UPDATE_FUNC_SUBCALL_ARGS);
+
+	// PHOT has different code for moving through FIBR
+	if (TYP(pmap[y][x]) == PT_FIBR) {
+		int max_speed = parts[ID(pmap[y][x])].tmp;
+		int vx = isign(parts[i].vx);
+		int vy = isign(parts[i].vy);
+		int dx = 0, dy = 0;
+
+		// In the special case where we have no velocity just do nothing
+		if (vx == 0 && vy == 0) {
+			return 0;
+		}
+		// Freezing fiber
+		else if (max_speed == 0) {
+			parts[i].vx = parts[i].vy = 0.0f;
+			return 0;
+		}
+		
+		while (abs(dx) < max_speed && abs(dy) < max_speed) {
+			dx += vx, dy += vy;
+
+			// Bounds check and make sure velocity is not 0
+			if (x + dx >= 0 && x + dx < XRES && y + dy >= 0 && y + dy < YRES) {
+				int r2 = pmap[y + dy][x + dx];
+				if (TYP(r2) != PT_FIBR) {
+					std::vector<std::pair<int, int> > branches;
+					dx -= vx;
+					dy -= vy;
+
+					// Look for nearby FIBR to redirect to
+					for (int rx = -1; rx <= 1; ++rx)
+					for (int ry = -1; ry <= 1; ++ry)
+						if (BOUNDS_CHECK && (rx || ry)) {
+							int r2 = pmap[y + dy + ry][x + dx + rx];
+							if (r2 && TYP(r2) == PT_FIBR && (rx != -vx || ry != -vy) && (rx == 0 || ry == 0))
+								branches.push_back(std::make_pair(rx, ry));
+						}
+
+					if (branches.size() == 0) {
+						// Avoid stopping at end
+						dx = vx * max_speed;
+						dy = vy * max_speed;
+					}
+					if (branches.size() == 1) {
+						parts[i].x += dx;
+						parts[i].y += dy;
+						dx = branches[0].first;
+						dy = branches[0].second;
+					}
+					else if (branches.size() > 1) {
+						int j = RNG::Ref().between(0, branches.size() - 1);
+						parts[i].x += dx;
+						parts[i].y += dy;
+						dx = branches[j].first;
+						dy = branches[j].second;
+					}
+
+					break;
+				}
+			}
+			else { // Out of bounds
+				dx = vx;
+				dy = vy;
+				break;
+			}
+		}
+		parts[i].vx = dx;
+		parts[i].vy = dy;
+	}
+	
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK) {
