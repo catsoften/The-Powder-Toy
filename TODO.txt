@@ -126,8 +126,6 @@ TODO: (maybe move to settings menu)
 votes on saves, timestamps on comments
 
 
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13325
-
 high pressure pipe 
 
 
@@ -158,8 +156,6 @@ anti hydrogen
 extra wifi channels
 
 add / subtract /multiply/ div element math https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12219
-
-infinite spark - subframe spark https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23298
 
 scale https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23708
 
@@ -340,10 +336,13 @@ something raibow fire
 
 taste sensor, gravity sensor, magnetism sensor, etc...
 
-alage
 
-anti coal - cflm
-
+after that:
+- stress
+- star
+- planets
+- sophons and shit
+- bug fixes 
 
 
 water  reactinos - add Carbonated water and ISOL
@@ -476,8 +475,6 @@ potatoes
 5. plant
 6. Posion if in sunlight
 
-MEAT, UDDR - realistic cow hmm
-BONE, FLSH maybe
 
 sophon
 - breaks entanglement
@@ -488,22 +485,6 @@ STKM portla opens to another save
 
 spaceships generate heat
 - raidators
-
-How to add new icon
-do not used the precompiled
-1. cd font
-2. make editor unpacker packer
-3. ./unpacker > output1.txt
-4. ./editor
-5. Press + until u reach empty (looks like thermoeter)
-6. Draw, then exit
-7. rm font.h
-8. ./unpacker > font.h
-9. go to output1.txt, see last line whats the hex code
-10. conversion: convert hex to decimal, add 57194, convert back to hex
-11. copy ur font.h into data/font.cpp and add extern const in front of the arrays. Be careful NOT to delete the header or last couple lines
-12. simulation./SimulationData.cpp is where u add the hex code u calculated earlier to menu
-
 
 
 
@@ -529,10 +510,6 @@ write guide about quantum
 have lua mod to place down quantum gates?
 - or website?
 
-
-
-
-food
 
 
 fancy black holes

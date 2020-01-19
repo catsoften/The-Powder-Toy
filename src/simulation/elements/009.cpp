@@ -64,7 +64,7 @@ int Element_009::update(UPDATE_FUNC_ARGS) {
 					continue;
 				}
 			else if (rt == PT_PLNT || rt == PT_BEE || rt == PT_FISH || rt == PT_SPDR || rt == PT_ANT || rt == PT_BIRD ||
-					(rt == PT_ICEI || rt == PT_SNOW) || rt == PT_FLSH || rt == PT_POTO) {
+					(rt == PT_ICEI || rt == PT_SNOW) || rt == PT_FLSH || rt == PT_POTO || rt == PT_ALGE) {
 					if (RNG::Ref().chance(1, 200)) {
 						sim->part_change_type(ID(r), x + rx, y + ry, PT_009);
 						continue;

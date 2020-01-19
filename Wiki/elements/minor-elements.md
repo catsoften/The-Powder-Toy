@@ -84,3 +84,12 @@ can be sped up by heating it. Slightly corrosive.
 ## 009 (SCP-009)
 Water, but it freezes at 0 C+ and turns into a gas at -100 C-. Solid SCP-009 grows crystals. SCP-009 spreads in most water 
 based elements, including PLNT, FLSH, water, MILK, etc...
+
+## ACOL (Anti coal)
+Like coal, but burns with CFLM. Shatters under pressure into BACL
+
+## BCAL (Broken anti coal)
+Like anti coal, but a powder.
+
+## ALGE (Algae)
+Converts SMKE / CO2 into O2, grows on the surface of water.
