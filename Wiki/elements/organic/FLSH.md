@@ -3,7 +3,7 @@
 
 ![Element](https://i.imgur.com/NiUSy2t.gif)
 
-**Description:**  *Flesh. Requires food, oxygen and water to stay alive, can be cooked.*
+**Description:**  *Flesh. Absorbs food and oxygen from BLOD and STMH, can be cooked.*
 
 Flesh will die if burned by radiation particles (regardless of temperature), greater than 10 or less than -10 pressure, < -5 C or > 50 C, running out of oxygen or nutrients (small chance per frame), or touching "toxic" chemicals like H2O2, ACID, POLO, PLUT, URAN, ISOZ, ISZS, MERC and CAUS. After dying, it will slowly randomly decay into meat eating bacteria. The decay can be stopped by cooling flesh below 3 C or cooking it to above 40 C.
 

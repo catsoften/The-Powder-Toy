@@ -101,7 +101,7 @@ void ConsoleShowOption::perform()
 
 
 TimeDilationOption::TimeDilationOption(GameModel * m):
-QuickOption("T", "Draw Time Dilation", m, Toggle) {}
+QuickOption("T", "Draw Time Dilation", m, Toggle, true) {}
 bool TimeDilationOption::GetToggle() {
 	return m->GetTimeDilation();
 }
@@ -119,7 +119,7 @@ void EMFieldOption::perform() {
 }
 
 EMFieldElectricOption::EMFieldElectricOption(GameModel * m):
-QuickOption("E", "Draw electric field", m, Toggle) {}
+QuickOption("E", "Draw electric field", m, Toggle, true) {}
 bool EMFieldElectricOption::GetToggle() {
 	return m->GetElectricField();
 }
@@ -127,8 +127,7 @@ void EMFieldElectricOption::perform() {
 	m->ShowElectricField(!m->GetElectricField());
 }
 
-EMFieldMagneticOption::EMFieldMagneticOption(GameModel * m):
-QuickOption("M", "Draw magnetic field", m, Toggle) {}
+EMFieldMagneticOption::EMFieldMagneticOption(GameModel *m) : QuickOption("M", "Draw magnetic field", m, Toggle, true) {}
 bool EMFieldMagneticOption::GetToggle() {
 	return m->GetMagneticField();
 }
@@ -136,4 +135,19 @@ void EMFieldMagneticOption::perform() {
 	m->ShowMagneticField(!m->GetMagneticField());
 }
 
+StressOption::StressOption(GameModel *m) : QuickOption("S", "Stress Simulation", m, Toggle) {}
+bool StressOption::GetToggle() {
+	return m->GetStress();
+}
+void StressOption::perform() {
+	m->ToggleStress(!m->GetStress());
+}
+
+StressViewOption::StressViewOption(GameModel *m) : QuickOption("S", "Stress View", m, Toggle, true) {}
+bool StressViewOption::GetToggle() {
+	return m->GetStressView();
+}
+void StressViewOption::perform() {
+	m->ToggleStressView(!m->GetStressView());
+}
 

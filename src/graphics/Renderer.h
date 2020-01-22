@@ -61,6 +61,7 @@ public:
 	bool timeDilationFieldEnabled;
 	bool magneticFieldEnabled;
 	bool electricFieldEnabled;
+	bool stressFieldEnabled;
 	int decorations_enable;
 	bool blackDecorations;
 	bool debugLines;
@@ -96,6 +97,7 @@ public:
 	void draw_time_dilation();
 	void draw_magnetic_field();
 	void draw_electric_field();
+	void draw_stress_field();
 	void draw_other();
 	void FinaliseParts();
 

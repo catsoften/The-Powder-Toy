@@ -132,6 +132,7 @@ RotateWindow::RotateWindow(RotateTool * tool_, Simulation * sim_, ui::Point pos)
                 for (int ry1 = -1; ry1 <= 1; ++ry1) {
                     if (!stacking_check.count(map_key(point.first.X + rx1, point.first.Y + ry1))) { // Potentional gap?
                         int element = 0, key;
+                        int copyx, copyy;
                         for (int rx2 = -1; rx2 <= 1; ++rx2)
                         for (int ry2 = -1; ry2 <= 1; ++ry2) {
                             if (!((rx2 == 0 || ry2 == 0) && (rx2 || ry2)))
@@ -139,10 +140,20 @@ RotateWindow::RotateWindow(RotateTool * tool_, Simulation * sim_, ui::Point pos)
                             key = map_key(point.first.X + rx1 + rx2, point.first.Y + ry1 + ry2);
                             if (!stacking_check.count(key))
                                 goto failed; // A gap must have at least 4 surrounding elements not diagonal
-                            else
+                            else {
                                 element = stacking_check[key];
+                                copyx = point.first.X + rx1 + rx2;
+                                copyy = point.first.Y + ry1 + ry2;
+                            }
                         }
-                        sim->create_part(-1, point.first.X + rx1, point.first.Y + ry1, element);
+                        int ni = sim->create_part(-1, point.first.X + rx1, point.first.Y + ry1, element);
+                        int r = sim->pmap[copyy][copyx];
+                        sim->parts[ni].ctype = sim->parts[ID(r)].ctype;
+                        sim->parts[ni].life = sim->parts[ID(r)].life;
+                        sim->parts[ni].tmp = sim->parts[ID(r)].tmp;
+                        sim->parts[ni].tmp2 = sim->parts[ID(r)].tmp2;
+                        sim->parts[ni].pavg[0] = sim->parts[ID(r)].pavg[0];
+                        sim->parts[ni].pavg[1] = sim->parts[ID(r)].pavg[1];
                     }
                     failed:
                     continue;

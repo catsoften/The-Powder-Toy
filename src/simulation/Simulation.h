@@ -35,6 +35,7 @@ class Air;
 // Class Stasis defined in Stasis.h
 class EMField;
 class GameSave;
+class StressField;
 
 class Simulation
 {
@@ -88,6 +89,8 @@ public:
 	int portal_rx[8];
 	int portal_ry[8];
 	int wireless[CHANNELS][2];
+	//Stress sim
+	StressField * stressField;
 	//Gol sim
 	int CGOL;
 	int GSPEED;

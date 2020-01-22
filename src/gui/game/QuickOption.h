@@ -26,11 +26,13 @@ protected:
 	Type type;
 	String icon;
 	String description;
-	QuickOption(String icon, String description, GameModel * m, Type type) :
+	bool left_bottom;
+	QuickOption(String icon, String description, GameModel * m, Type type, bool left_bottom=false) :
 		m(m),
 		type(type),
 		icon(icon),
-		description(description)
+		description(description),
+		left_bottom(left_bottom)
 	{
 
 	}
@@ -57,11 +59,12 @@ public:
 	virtual bool GetToggle() { return true;}
 	virtual int GetMutli() { return 0;}
 	virtual int GetMultiCount() { return 0;}
-
+	
 	String GetIcon() { return icon; }
 	void SetIcon(String icon) { this->icon = icon; }
 	String GetDescription() { return description; }
 	void SetDescription(String description) { this->description = description; }
+	bool GetBottomLeft() { return left_bottom; }
 	void Perform()
 	{
 		perform();

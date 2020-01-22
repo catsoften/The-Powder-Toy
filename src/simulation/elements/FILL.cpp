@@ -5,7 +5,7 @@ Element_FILL::Element_FILL()
 {
 	Identifier = "DEFAULT_PT_FILL";
 	Name = "FILL";
-	Colour = PIXPACK(0x000000);
+	Colour = PIXPACK(0x172642);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;
 	Enabled = 1;

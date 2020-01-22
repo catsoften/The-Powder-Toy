@@ -31,7 +31,7 @@ Element_FLSH::Element_FLSH()
 	DefaultProperties.tmp2 = 1000;
 
 	HeatConduct = 104;
-	Description = "Flesh. Requires food, oxygen and water to stay alive, can be cooked.";
+	Description = "Flesh. Absorbs food and oxygen from BLOD and STMH, can be cooked.";
 
 	Properties = TYPE_SOLID | PROP_NEUTPENETRATE;
 

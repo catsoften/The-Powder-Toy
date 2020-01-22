@@ -347,7 +347,7 @@ GameView::GameView():
 	AddComponent(resetSparkButton);
 
 	// Toggle button for FPS options and gauge
-	ui::Button *FPSButton = new ui::Button(ui::Point(WINDOWW - 32, WINDOWH - 16 * 19), ui::Point(15, 47), "P", "Performance Graph");
+	ui::Button *FPSButton = new ui::Button(ui::Point(WINDOWW - 32, WINDOWH - 16 * 19), ui::Point(15, 16), "P", "Performance Graph");
 	FPSButton->SetActionCallback({ [this] { fpsSettingsPanelOpen = !fpsSettingsPanelOpen; }});
 	AddComponent(FPSButton);
 }
@@ -399,11 +399,16 @@ void GameView::NotifyQuickOptionsChanged(GameModel * sender)
 
 	int currentY = 1;
 	int currentDX = -32;
+	int currentLeftY = WINDOWH - 16 * 18;
+	int currentLeftDX = -32;
 	unsigned short i = 0;
 
 	std::vector<QuickOption*> optionList = sender->GetQuickOptions();
 	for(auto *option : optionList) {
-		ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW + currentDX, currentY), ui::Point(15, 15), option->GetIcon(), option->GetDescription());
+		ui::Button * tempButton = new ui::Button(
+			option->GetBottomLeft() ?
+				ui::Point(WINDOWW + currentLeftDX, currentLeftY) : ui::Point(WINDOWW + currentDX, currentY),
+			ui::Point(15, 15), option->GetIcon(), option->GetDescription());
 		//tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 		tempButton->SetTogglable(true);
 		tempButton->SetActionCallback({ [option] {
@@ -414,13 +419,20 @@ void GameView::NotifyQuickOptionsChanged(GameModel * sender)
 
 		quickOptionButtons.push_back(tempButton);
 
-		// Switch to right col when reached max size
-		if (i == MAX_QUICKOPTIONS_PER_COL - 1) {
-			currentY = 1;
-			currentDX = -16;
-		} else
-			currentY += 15;
-		++i;
+		// Top quick options
+		if (!option->GetBottomLeft()) {
+			// Switch to right col when reached max size
+			if (i == MAX_QUICKOPTIONS_PER_COL - 1) {
+				currentY = 1;
+				currentDX = -16;
+			} else
+				currentY += 15;
+			++i;
+		}
+		// Side quick options
+		else {
+			currentLeftY += 16;
+		}
 	}
 }
 
@@ -2431,6 +2443,8 @@ void GameView::OnDraw()
 
 			if (c->GetAHeatEnable())
 				sampleInfo << ", AHeat: " << sample.AirTemperature - 273.15f << " C";
+			if (sample.stressEnabled)
+				sampleInfo << ", Stress: " << sample.Stress;
 
 			textWidth = Graphics::textwidth(sampleInfo.Build());
 			g->fillrect(XRES-20-textWidth, 27, textWidth+8, 14, 0, 0, 0, alpha*0.5f);

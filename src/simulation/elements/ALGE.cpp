@@ -20,7 +20,7 @@ Element_ALGE::Element_ALGE()
 	HotAir = 0.000f	* CFDS;
 	Falldown = 1;
 
-	Flammable = 10;
+	Flammable = 20;
 	Explosive = 0;
 	Meltable = 0;
 	Hardness = 30;
@@ -71,7 +71,6 @@ int Element_ALGE::update(UPDATE_FUNC_ARGS) {
 
 			else if (rt == PT_SMKE || rt == PT_CO2)
 				sim->part_change_type(ID(r), x + rx, y + ry, PT_O2);
-			
 	}
 
 	return 0;

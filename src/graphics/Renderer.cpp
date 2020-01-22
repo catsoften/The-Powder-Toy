@@ -19,6 +19,7 @@
 #include "simulation/Air.h"
 #include "simulation/Gravity.h"
 #include "simulation/magnetics/magnetics.h"
+#include "simulation/stress/stress.h"
 #include "ElementClasses.h"
 
 #ifdef LUACONSOLE
@@ -52,6 +53,7 @@ void Renderer::RenderBegin()
 	DrawWalls();
 	render_parts();
 	render_fire();
+	draw_stress_field();
 	draw_other();
 	draw_grav_zones();
 	DrawSigns();
@@ -79,6 +81,7 @@ void Renderer::RenderBegin()
 	draw_electric_field();
 	DrawWalls();
 	render_parts();
+	draw_stress_field();
 	if(display_mode & DISPLAY_PERS)
 	{
 		int i,r,g,b;
@@ -126,6 +129,7 @@ void Renderer::RenderBegin()
 	draw_electric_field();
 	DrawWalls();
 	render_parts();
+	draw_stress_field();
 	if(display_mode & DISPLAY_PERS)
 	{
 		int i,r,g,b;
@@ -2472,6 +2476,18 @@ void Renderer::draw_electric_field() {
 	}
 }
 
+void Renderer::draw_stress_field() {
+	if (!stressFieldEnabled || !sim->stressField->enabled)
+		return;
+	
+	for (int y = 0; y < YRES; y++)
+	for (int x = 0; x < XRES; x++) {
+		if (!sim->stressField->stress_map[y][x])
+			continue;
+		drawrect(x, y, 1, 1, clamp_flt(sim->stressField->stress_map[y][x], 0.0f, 16.0f), 0, 0, 200);
+	}
+}
+
 
 void Renderer::draw_air()
 {
@@ -2669,6 +2685,7 @@ Renderer::Renderer(Graphics * g, Simulation * sim):
 	timeDilationFieldEnabled(false),
 	magneticFieldEnabled(false),
 	electricFieldEnabled(false),
+	stressFieldEnabled(false),
 	decorations_enable(1),
 	blackDecorations(false),
 	debugLines(false),

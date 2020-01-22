@@ -10,7 +10,7 @@ Tool_EROD::Tool_EROD() {
 }
 
 int Tool_EROD::Perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength) {
-	if (!cpart || !(sim->elements[cpart->type].Properties & TYPE_SOLID))
+	if (!cpart || !(sim->elements[cpart->type].Properties & TYPE_PART || sim->elements[cpart->type].Properties & TYPE_SOLID))
 		return 0;
 	
     bool has_edge = false;

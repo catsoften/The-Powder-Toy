@@ -59,14 +59,19 @@ int Element_009::update(UPDATE_FUNC_ARGS) {
 
 			if (rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_CBNW || rt == PT_IOSL || rt == PT_SWTR ||
 				rt == PT_MILK || rt == PT_PULP || rt == PT_GLUE || rt == PT_WTRV || rt == PT_MUD || rt == PT_BCTR ||
-				rt == PT_BLOD) {
+				rt == PT_BLOD || rt == PT_HONY) {
 					sim->part_change_type(ID(r), x + rx, y + ry, PT_009);
+					parts[ID(r)].tmp = 0;
+					parts[ID(r)].tmp2 = 0;
 					continue;
 				}
 			else if (rt == PT_PLNT || rt == PT_BEE || rt == PT_FISH || rt == PT_SPDR || rt == PT_ANT || rt == PT_BIRD ||
-					(rt == PT_ICEI || rt == PT_SNOW) || rt == PT_FLSH || rt == PT_POTO || rt == PT_ALGE) {
+					(rt == PT_ICEI || rt == PT_SNOW) || rt == PT_FLSH || rt == PT_POTO || rt == PT_ALGE ||
+					 rt == PT_UDDR || rt == PT_STMH) {
 					if (RNG::Ref().chance(1, 200)) {
 						sim->part_change_type(ID(r), x + rx, y + ry, PT_009);
+						parts[ID(r)].tmp = 0;
+						parts[ID(r)].tmp2 = 0;
 						continue;
 					}
 				}

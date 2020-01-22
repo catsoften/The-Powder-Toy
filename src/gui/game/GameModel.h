@@ -190,6 +190,10 @@ public:
 	bool GetElectricField();
 	void ShowMagneticField(bool show);
 	bool GetMagneticField();
+	void ToggleStress(bool enabled);
+	bool GetStress();
+	void ToggleStressView(bool enabled);
+	bool GetStressView();
 
 	void ClearSimulation();
 	std::vector<Menu*> GetMenuList();

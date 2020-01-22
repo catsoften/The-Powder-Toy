@@ -79,6 +79,21 @@ public:
 	void perform() override;
 };
 
+class StressOption: public QuickOption {
+public:
+	StressOption(GameModel * m);
+	bool GetToggle() override;
+	void perform() override;
+};
+
+class StressViewOption: public QuickOption {
+public:
+	StressViewOption(GameModel * m);
+	bool GetToggle() override;
+	void perform() override;
+};
+
+
 
 
 

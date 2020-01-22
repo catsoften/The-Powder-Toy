@@ -170,11 +170,25 @@ atmosphere setting
 custom elements
 
 
-laser beam thing, shoots LASR, can be used to superheat hydrogen
-
 holy water can be used to make a holy thermonuclear bomb
 
-stress simulation
+
+rotate - creating new fill pixels should copy properties
+shred moving solids
+move shred to another func
+time dilation GOL
+
+
+
+after that:
+- stress
+    - TRUSS element that allows cybertruck and shit to go through
+    - a base element that removes stress?
+    - walls should remove stress too
+    - save stress settingsi n save?
+
+laser beam thing, shoots LASR, can be used to superheat hydrogen
+
 
 lbp's command manipulator thing
 
@@ -219,7 +233,6 @@ metal alloy making element?
 
 limit voltage max disatance
 
-hair forms BHOL
 
 
 
@@ -248,7 +261,7 @@ ionic solutions gerow crystals from metals
 rspk diodes - 0.7 V drop
 - only if threshold voltage is met otherwise fail
 
-rotate - creating new fill pixels should copy properties
+
 
 dimagnetism: repeled by magnetics instead
     https://en.wikipedia.org/wiki/Diamagnetism
@@ -314,7 +327,7 @@ conductor channels
     - maybe powerful electric fields induce current
 generates magnetic field
 
-shred moving solids
+
 
 eco fuels
 
@@ -332,13 +345,26 @@ egg / yolk
 
 
 
+realstic fire
+- consumes oxuygen
+
 something raibow fire
 
 taste sensor, gravity sensor, magnetism sensor, etc...
 
 
-after that:
-- stress
+save magnetism in save
+
+
+paint, mix colors?
+
+night display, dont render particles but show glow
+
+spark keys - press key on keyboard, spark
+- KSNS (keyboard sensor)
+
+
+
 - star
 - planets
 - sophons and shit

@@ -35,6 +35,7 @@
 #include "simulation/quantum/quantum.h"
 #include "simulation/mvsd/movingsolids.h"
 #include "simulation/magnetics/magnetics.h"
+#include "simulation/stress/stress.h"
 #include "gui/game/GameModel.h"
 
 #ifdef LUACONSOLE
@@ -704,6 +705,7 @@ SimulationSample Simulation::GetSample(int x, int y)
 	sample.frames = timer;
 	sample.PositionX = x;
 	sample.PositionY = y;
+	sample.stressEnabled = stressField->enabled;
 	if (x >= 0 && x < XRES && y >= 0 && y < YRES)
 	{
 		if (photons[y][x])
@@ -724,6 +726,7 @@ SimulationSample Simulation::GetSample(int x, int y)
 		sample.AirTemperature = hv[y/CELL][x/CELL];
 		sample.AirVelocityX = vx[y/CELL][x/CELL];
 		sample.AirVelocityY = vy[y/CELL][x/CELL];
+		sample.Stress = stressField->stress_map[y][x];
 
 		if(grav->IsEnabled())
 		{
@@ -3546,6 +3549,9 @@ void Simulation::UpdateParticles(int start, int end)
 		}
 	}
 
+	// Recalc stress field
+	stressField->Clear();
+
 	//the main particle loop function, goes over all particles.
 	unsigned char update_count;
 	for (i = start; i <= end && i <= parts_lastActiveIndex; i++) {
@@ -4187,6 +4193,10 @@ void Simulation::UpdateParticles(int start, int end)
 				else s = 0;
 			} else s = 0;
 
+			// Stress computation
+			stressField->ComputeStress(parts[i].x + 0.5f, parts[i].y + 0.5f);
+
+
 			// particle type change occurred
 			if (s)
 			{
@@ -4826,6 +4836,7 @@ movedone:
 	}
 
 	emfield->Update();
+	stressField->AggregateStress();
 
 	//'f' was pressed (single frame)
 	if (framerender)
@@ -4997,7 +5008,7 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 						pmap[y][x] = PMAP(i, t);
 					// (there are a few exceptions, including energy particles - currently no limit on stacking those)
 					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t != PT_FILL &&
-						t!=PT_SPDR && t!=PT_BIRD && t!=PT_ANT && t!=PT_BEE && t!=PT_FISH)
+						t!=PT_SPDR && t!=PT_BIRD && t!=PT_ANT && t!=PT_BEE && t!=PT_FISH && t!=PT_HAIR)
 						pmap_count[y][x]++;
 				}
 				inBounds = true;
@@ -5346,8 +5357,7 @@ void Simulation::BeforeSim()
 
 		// Simulate GoL
 		// GSPEED is frames per generation
-		if (elementCount[PT_LIFE]>0 && ++CGOL>=GSPEED)
-		{
+		if (elementCount[PT_LIFE]>0 && ++CGOL>=GSPEED) {
 			SimulateGoL();
 		}
 
@@ -5452,8 +5462,9 @@ Simulation::Simulation():
 	// Create stasis map
 	stasis = new Stasis(*this);
 
-	// EM
+	// EM and stress
 	emfield = new EMField(*this);
+	stressField = new StressField(this);
 
 	msections = LoadMenus();
 

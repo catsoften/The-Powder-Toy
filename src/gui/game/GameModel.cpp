@@ -27,6 +27,7 @@
 #include "simulation/Gravity.h"
 #include "simulation/magnetics/magnetics.h"
 #include "simulation/ElementGraphics.h"
+#include "simulation/stress/stress.h"
 #include "ElementClasses.h"
 
 #include "gui/game/DecorationTool.h"
@@ -250,10 +251,14 @@ void GameModel::BuildQuickOptionMenu(GameController * controller)
 	quickOptions.push_back(new NGravityOption(this));
 	quickOptions.push_back(new AHeatOption(this));
 	quickOptions.push_back(new ConsoleShowOption(this, controller));
-	quickOptions.push_back(new TimeDilationOption(this));
 	quickOptions.push_back(new EMFieldOption(this));
+	quickOptions.push_back(new StressOption(this));
+
+	quickOptions.push_back(new StressViewOption(this));
+	quickOptions.push_back(new TimeDilationOption(this));
 	quickOptions.push_back(new EMFieldElectricOption(this));
 	quickOptions.push_back(new EMFieldMagneticOption(this));
+	
 
 	notifyQuickOptionsChanged();
 	UpdateQuickOptions();
@@ -1076,6 +1081,20 @@ bool GameModel::GetEMEnabled() {
 void GameModel::SetEMEnabled(bool show) {
 	sim->emfield->isEnabled = show;
 	SetInfoTip(show ? String("Electromagnetism: On") : String("Electromagnetism: Off"));
+}
+void GameModel::ToggleStress(bool enabled) {
+	sim->stressField->enabled = enabled;
+	SetInfoTip(enabled ? String("Stress Simulation: On") : String("Stress Simulation: Off"));
+}
+bool GameModel::GetStress() {
+	return sim->stressField->enabled;
+}
+void GameModel::ToggleStressView(bool enabled) {
+	ren->stressFieldEnabled = enabled;
+	SetInfoTip(enabled ? String("Stress View: On") : String("Stress View: Off"));
+}
+bool GameModel::GetStressView() {
+	return ren->stressFieldEnabled;
 }
 
 bool GameModel::GetTimeDilation() {
