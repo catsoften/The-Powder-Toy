@@ -2446,11 +2446,12 @@ void Simulation::init_can_move()
 		 || destinationType == PT_ISOZ || destinationType == PT_ISZS || destinationType == PT_QRTZ || destinationType == PT_PQRT
 		 || destinationType == PT_H2   || destinationType == PT_BGLA || destinationType == PT_C5   || destinationType == PT_FILL
 		 || destinationType == PT_RDND || destinationType == PT_FIBR || destinationType == PT_H2O2
-		 || destinationType == PT_AERO)
+		 || destinationType == PT_AERO || destinationType == PT_ANH2)
 			can_move[PT_PHOT][destinationType] = 2;
 		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTI && destinationType != PT_PRTO)
 		{
 			can_move[PT_PROT][destinationType] = 2;
+			can_move[PT_APRT][destinationType] = 2;
 			can_move[PT_GRVT][destinationType] = 2;
 			can_move[PT_BALI][destinationType] = 2;
 		}
@@ -2751,6 +2752,16 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 					parts[i].tmp2 = 0x1;
 
 					create_part(ID(r), x, y, PT_ELEC);
+					return 1;
+				}
+				break;
+			case PT_ANH2:
+				if (!(parts[i].tmp & 0x1)) {
+					part_change_type(i, x, y, PT_APRT);
+					parts[i].ctype = 0;
+					parts[i].tmp2 = 0x1;
+
+					create_part(ID(r), x, y, PT_POSI);
 					return 1;
 				}
 				break;

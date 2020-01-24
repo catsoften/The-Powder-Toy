@@ -187,22 +187,11 @@ have a 10% chance of releasing one POSI. It will also generate one particle of P
 add 30 pressure, and raise its own temperature by 1000±250 °C.
 
 
-anti protons
-- fuse into antimatter
-- disappear on contact with matter, heats materials in flash of energy?
-- INVIS -> neut
-- Annhiliate normal PROT
-- LCRY -> Phot
-    - wavelength depends on temp?
-- PLUT -> URAN and other lowering reactions
-    URAN -> POLO
-    POLO -> STNE
-- doesn't trigger deut
-- PHOT + antihydrogen = positron + antiproton
-- hits VIRS freezes it
-- sparks conductors?
-- absorbs heat from particles?
 
+indestructible mode - all elements indestructible?
+or a wall or a field?
+
+diamond powder can make something indestructible
 
 indestructible insulator
 indestructible conductor?

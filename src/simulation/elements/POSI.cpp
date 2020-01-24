@@ -124,7 +124,7 @@ int Element_POSI::update(UPDATE_FUNC_ARGS) {
 					parts[ID(r)].life = 0;
 					parts[ID(r)].ctype = 0;
 					sim->kill_part(i);
-					break;
+					return 1;
 				case PT_DEUT:
 					sim->part_change_type(ID(r), x + rx, y + ry, PT_RH2);
 					sim->kill_part(i);
