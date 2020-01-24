@@ -159,6 +159,9 @@ int Element_SHRD::update(UPDATE_FUNC_ARGS) {
 				// We wish to shred some solids without a broken state
 				// so we change it to BRKN (ctype the solid)
 				if (change_type == -1) {
+					if (sim->elements[rt].Properties & PROP_INDESTRUCTIBLE)
+						continue;
+
 					switch (rt) {
 						case PT_SAWD:
 							sim->part_change_type(ID(r), x + rx, y + ry, PT_BRKN);

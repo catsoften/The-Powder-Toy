@@ -55,11 +55,11 @@ int Element_CMTP::update(UPDATE_FUNC_ARGS) {
 				rt = TYP(r);
 
 				// Touching water
-				if (rt == PT_WATR || rt == PT_DSTW || rt == PT_SWTR || rt == PT_SLTW) {
+				if (sim->elements[rt].Properties & PROP_WATER) {
 					sim->part_change_type(i, x, y, PT_CMNT);
 
 					// Sugar water and salt water are impure and will make low quality concrete
-					if (rt == PT_SWTR || rt == PT_SLTW)
+ 					if (rt == PT_SWTR || rt == PT_SLTW || rt == PT_IOSL || rt == PT_CBNW)
 						parts[i].tmp2 = 100;
 					parts[i].life += 500;
 					return 1;

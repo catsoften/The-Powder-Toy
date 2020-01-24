@@ -30,7 +30,7 @@ Element_FILL::Element_FILL()
 	HeatConduct = 0;
 	Description = "Filler. Does not interact with most elements, can be used for backgrounds.";
 
-	Properties = TYPE_SOLID;
+	Properties = TYPE_SOLID | PROP_INDESTRUCTIBLE;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

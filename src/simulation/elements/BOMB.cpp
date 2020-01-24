@@ -58,7 +58,7 @@ int Element_BOMB::update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = TYP(r);
-				if (rt!=PT_BOMB && rt!=PT_EMBR && rt!=PT_DMND && rt!=PT_CLNE && rt!=PT_PCLN && rt!=PT_BCLN && rt!=PT_VIBR)
+				if (!(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) && rt!=PT_BOMB && rt!=PT_EMBR && rt!=PT_CLNE && rt!=PT_PCLN && rt!=PT_BCLN && rt!=PT_VIBR)
 				{
 					int rad = 8, nt;
 					int nxi, nxj;
@@ -111,7 +111,6 @@ int Element_BOMB::update(UPDATE_FUNC_ARGS)
 
 //#TPT-Directive ElementHeader Element_BOMB static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_BOMB::graphics(GRAPHICS_FUNC_ARGS)
-
 {
 	*pixel_mode |= PMODE_FLARE;
 	return 1;

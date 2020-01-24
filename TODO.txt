@@ -179,10 +179,29 @@ ambident heat time dilation
 
 ANH2 / TRUS
 
+
+anti hydrogen
+When hydrogen is over 50 pressure and heated to over 2,000 degrees, 
+it will transform into NBLE and release one NEUT, one yellow PHOT, and 
+have a 10% chance of releasing one POSI. It will also generate one particle of PLSM, 
+add 30 pressure, and raise its own temperature by 1000±250 °C.
+
+
 anti protons
 - fuse into antimatter
-
-PROP_INDESTRUCTIBLE
+- disappear on contact with matter, heats materials in flash of energy?
+- INVIS -> neut
+- Annhiliate normal PROT
+- LCRY -> Phot
+    - wavelength depends on temp?
+- PLUT -> URAN and other lowering reactions
+    URAN -> POLO
+    POLO -> STNE
+- doesn't trigger deut
+- PHOT + antihydrogen = positron + antiproton
+- hits VIRS freezes it
+- sparks conductors?
+- absorbs heat from particles?
 
 
 indestructible insulator

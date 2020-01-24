@@ -76,7 +76,7 @@ int Element_PGEL::update(UPDATE_FUNC_ARGS)
 				}
 
 				// Washing away with water
-				if (rt == PT_WATR || rt == PT_SLTW || rt == PT_DSTW) {
+				if (sim->elements[rt].Properties & PROP_WATER) {
 					parts[i].tmp = 0;
 					sim->part_change_type(i, parts[i].x, parts[i].y, parts[i].ctype);
 					return 0;
@@ -85,10 +85,10 @@ int Element_PGEL::update(UPDATE_FUNC_ARGS)
 				// Stain with the gel. Basically, don't stain any of the elements below
 				else if (parts[i].tmp == 0 && 
 							!(sim->elements[rt].Properties & PROP_VEHICLE) &&
-							rt != PT_BRAY && rt != PT_GEL && rt != PT_PRTI  && rt != PT_DMND && rt != PT_CLNE &&
-							rt != PT_BCLN  && rt != PT_PCLN &&
+							rt != PT_BRAY && rt != PT_GEL && rt != PT_PRTI &&
+							rt != PT_BCLN  && rt != PT_PCLN && !(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) &&
 							rt != PT_PRTO && !(sim->elements[rt].Properties & TYPE_LIQUID) &&
-							!(sim->elements[rt].Properties & TYPE_GAS) && rt != PT_STKM&& rt != PT_STKM2 &&
+							!(sim->elements[rt].Properties & TYPE_GAS) && rt != PT_STKM && rt != PT_STKM2 &&
 							rt != PT_FIGH && rt != PT_PGEL && rt != PT_MVSD && rt != PT_FFLD) {
 					parts[i].tmp = 1;
 					parts[ID(r)].ctype = rt;

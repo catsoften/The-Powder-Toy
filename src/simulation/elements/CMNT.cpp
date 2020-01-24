@@ -99,7 +99,7 @@ int Element_CMNT::update(UPDATE_FUNC_ARGS) {
 				}
 
 				// Touching water
-				if (rt == PT_WATR || rt == PT_DSTW || rt == PT_SWTR || rt == PT_SLTW || rt == PT_CBNW || rt == PT_IOSL) {
+				if (sim->elements[rt].Properties & PROP_WATER) {
 					// Sugar water and salt water are impure and will make low quality concrete
 					if (rt == PT_SWTR || rt == PT_SLTW || rt == PT_CBNW || rt == PT_IOSL)
 						parts[i].tmp2 += 5;

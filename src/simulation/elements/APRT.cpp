@@ -5,7 +5,7 @@ Element_APRT::Element_APRT()
 {
 	Identifier = "DEFAULT_PT_APRT";
 	Name = "APRT";
-	Colour = PIXPACK(0x000099);
+	Colour = PIXPACK(0x3a9ad6);
 	MenuVisible = 1;
 	MenuSection = SC_NUCLEAR;
 	Enabled = 1;
@@ -44,7 +44,7 @@ Element_APRT::Element_APRT()
 	DefaultProperties.life = 75;
 
 	Update = &Element_APRT::update;
-	Graphics = &Element_PROT::graphics;
+	Graphics = &Element_APRT::graphics;
 	Create = &Element_PROT::create;
 }
 
@@ -58,9 +58,9 @@ int Element_APRT::update(UPDATE_FUNC_ARGS) {
 //#TPT-Directive ElementHeader Element_APRT static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_APRT::graphics(GRAPHICS_FUNC_ARGS) {
 	*firea = 7;
-	*firer = 170;
-	*fireg = 170;
-	*fireb = 250;
+	*firer = 58;
+	*fireg = 150;
+	*fireb = 220;
 
 	*pixel_mode |= FIRE_BLEND;
 	return 1;

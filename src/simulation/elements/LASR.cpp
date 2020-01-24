@@ -67,7 +67,8 @@ int Element_LASR::update(UPDATE_FUNC_ARGS) {
 					parts[ID(r)].temp = MAX_TEMP;
 
 				// Chance to kill non-indestructible elements
-				if (rt != PT_FILL && rt != PT_GNSH && rt != PT_BOMB && rt != PT_EMBR && rt != PT_DMND && rt != PT_CLNE && rt != PT_PCLN && rt != PT_BCLN && rt != PT_VIBR) {
+				if (!(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) && rt != PT_GNSH && rt != PT_BOMB && rt != PT_EMBR &&
+						rt != PT_PCLN && rt != PT_BCLN && rt != PT_VIBR) {
 					if (RNG::Ref().chance(1, 5))
 						sim->kill_part(ID(r));
 				}
