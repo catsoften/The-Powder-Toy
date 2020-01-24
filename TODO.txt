@@ -176,15 +176,13 @@ time dilation GOL
 -TRBN seralize to FILT?
 - also range like other sensors?
 ambident heat time dilation
+RCRT rock is powder
+EROD - also powders in desc + wiki
+bug fix: literally whenever create_part is used check if created
 
 ANH2 / TRUS
 
-
-anti hydrogen
-When hydrogen is over 50 pressure and heated to over 2,000 degrees, 
-it will transform into NBLE and release one NEUT, one yellow PHOT, and 
-have a 10% chance of releasing one POSI. It will also generate one particle of PLSM, 
-add 30 pressure, and raise its own temperature by 1000±250 °C.
+vaccine - makes STKM invicible?
 
 
 
@@ -272,6 +270,7 @@ damages stkm and plnt and water shit
 dries liquids
 
 
+TRFR : transformer
 
 ionic solutions gerow crystals from metals
 

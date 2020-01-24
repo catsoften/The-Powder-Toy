@@ -42,7 +42,6 @@ Element_ANH2::Element_ANH2()
 	HighTemperatureTransition = NT;
 
 	Update = &Element_ANH2::update;
-	// Graphics = &Element_ANH2::graphics;
 }
 
 //#TPT-Directive ElementHeader Element_ANH2 static int update(UPDATE_FUNC_ARGS)
@@ -68,34 +67,83 @@ int Element_ANH2::update(UPDATE_FUNC_ARGS) {
 						parts[ID(r)].temp = 2473.15f;
 					parts[ID(r)].tmp |= 1;
 					int ni = sim->create_part(i, x, y,PT_FIRE);
-					parts[ni].life = RNG::Ref().between(10, 120);
+					if (ni >= 0)
+						parts[ni].life = RNG::Ref().between(10, 120);
 					parts[i].temp += RNG::Ref().between(0, 99);
 					parts[i].tmp |= 1;
 					return 1;
 				}
 				else if ((rt == PT_PLSM && !(parts[ID(r)].tmp & 4)) || (rt == PT_LAVA && parts[ID(r)].ctype != PT_BMTL)) {
 					int ni = sim->create_part(i, x, y,PT_FIRE);
-					parts[ni].life = RNG::Ref().between(10, 120);
+					if (ni >= 0)
+						parts[ni].life = RNG::Ref().between(10, 120);
 					parts[i].temp += RNG::Ref().between(0, 99);
 					parts[i].tmp |= 1;
 					return 1;
 				}
 
 				// Destroy on contact with ordinary matter
-				// TODO dont die on clone or void or pvod or shit
-				if (!(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE)) {
+				if (!(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) && rt!=PT_AMTR && 
+						rt!=PT_PCLN && rt!=PT_VOID && rt!=PT_BHOL && rt!=PT_NBHL && rt!=PT_PRTI && rt!=PT_PRTO &&
+						rt!=PT_ANH2 && rt!=PT_FIRE && rt!=PT_PLSM && rt != PT_PBCN && rt != PT_BCLN) {
+					sim->pv[y/CELL][x/CELL] += 10.0f;
+					parts[ID(r)].temp += 9000.0f;
 
+					int count = RNG::Ref().between(4, 50);
+					for (int j = 0; j < count; j++) {
+						int ni = sim->create_part(-3, x, y, PT_PHOT);
+						if (ni >= 0) {
+							parts[ni].temp = MAX_TEMP;
+							parts[ni].life = RNG::Ref().between(0, 299);
+
+							float angle = RNG::Ref().uniform01() * 2.0f * M_PI;
+							float v = RNG::Ref().uniform01() * 5.0f;
+							parts[ni].vx = v * cosf(angle);
+							parts[ni].vy = v * sinf(angle);
+						}
+					}
+
+					sim->kill_part(ID(r));
+					sim->kill_part(i);
 				}
 			}
 		}
 
-	return 0;
-}
+	// Stolen from hydrogen
+	if (parts[i].temp > 2273.15 && sim->pv[y/CELL][x/CELL] > 50.0f) {
+		if (RNG::Ref().chance(1, 5)) {
+			int j;
+			float temp = parts[i].temp;
+			sim->create_part(i,x,y,PT_AMTR);
+			parts[i].tmp2 = 1;
 
-//#TPT-Directive ElementHeader Element_ANH2 static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ANH2::graphics(GRAPHICS_FUNC_ARGS) {
-	// graphics code here
-	// return 1 if nothing dymanic happens here
+			j = sim->create_part(-3,x,y,PT_NEUT);
+			if (j>-1)
+				parts[j].temp = temp;
+			if (RNG::Ref().chance(1, 10)) {
+				j = sim->create_part(-3,x,y,PT_POSI);
+				if (j>-1)
+					parts[j].temp = temp;
+			}
+			j = sim->create_part(-3,x,y,PT_PHOT);
+			if (j>-1) {
+				parts[j].ctype = 0x7C0000;
+				parts[j].temp = temp;
+				parts[j].tmp = 0x1;
+			}
+			rx = x + RNG::Ref().between(-1, 1), ry = y + RNG::Ref().between(-1, 1), rt = TYP(pmap[ry][rx]);
+			if (sim->can_move[PT_PLSM][rt] || rt == PT_ANH2) {
+				j = sim->create_part(-3,rx,ry,PT_PLSM);
+				if (j>-1) {
+					parts[j].temp = temp;
+					parts[j].tmp |= 4;
+				}
+			}
+			parts[i].temp = temp + RNG::Ref().between(750, 1249);
+			sim->pv[y/CELL][x/CELL] += 30;
+			return 1;
+		}
+	}
 
 	return 0;
 }

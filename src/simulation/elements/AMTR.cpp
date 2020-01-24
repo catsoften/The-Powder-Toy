@@ -67,13 +67,15 @@ int Element_AMTR::update(UPDATE_FUNC_ARGS)
 						int count = RNG::Ref().between(4, 50);
 						for (int j = 0; j < count; j++) {
 							int ni = sim->create_part(-3, x, y, PT_PHOT);
-							parts[ni].temp = MAX_TEMP;
-							parts[ni].life = RNG::Ref().between(0, 299);
+							if (ni >= 0) {
+								parts[ni].temp = MAX_TEMP;
+								parts[ni].life = RNG::Ref().between(0, 299);
 
-							float angle = RNG::Ref().uniform01() * 2.0f * M_PI;
-							float v = RNG::Ref().uniform01() * 5.0f;
-							parts[ni].vx = v * cosf(angle);
-							parts[ni].vy = v * sinf(angle);
+								float angle = RNG::Ref().uniform01() * 2.0f * M_PI;
+								float v = RNG::Ref().uniform01() * 5.0f;
+								parts[ni].vx = v * cosf(angle);
+								parts[ni].vy = v * sinf(angle);
+							}
 						}
 
 						sim->kill_part(ID(r));
