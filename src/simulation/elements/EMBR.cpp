@@ -63,6 +63,13 @@ int Element_EMBR::update(UPDATE_FUNC_ARGS) {
 					return 1;
 				}
 			}
+
+	// Thanks ChemGuy
+	// https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=20347
+	if (parts[i].tmp == 3) { // POSI + ELEC flash effect
+		parts[i].vx = parts[i].vy = 0;
+		parts[i].life -= 3; // "Cheated" to get a bright but short-lived spark
+	}
 	return 0;
 }
 
@@ -111,6 +118,12 @@ int Element_EMBR::graphics(GRAPHICS_FUNC_ARGS)
 	else if (cpart->tmp==2)
 	{
 		*pixel_mode = PMODE_FLAT | FIRE_ADD;
+		*firea = 255;
+	}
+	// https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=20347
+	// Thanks ChemGuy
+	else if (cpart->tmp == 3) {
+		*pixel_mode = PMODE_SPARK | FIRE_ADD;
 		*firea = 255;
 	}
 	else

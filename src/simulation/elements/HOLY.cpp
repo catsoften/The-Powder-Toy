@@ -68,7 +68,7 @@ int Element_HOLY::update(UPDATE_FUNC_ARGS) {
 					rt == PT_ACID || rt == PT_CAUS || rt == PT_VIRS || rt == PT_BCTR || rt == PT_SPDR ||
 					rt == PT_CFLM || rt == PT_FIRE || rt == PT_PLSM || rt == PT_DFLM || rt == PT_FFLD ||
 					rt == PT_SHLD4 || rt == PT_SHLD1 || rt == PT_SHLD2 || rt == PT_SHLD3 || rt == PT_LOVE ||
-					rt == PT_NPLM) {
+					rt == PT_NPLM || rt == PT_009 || rt == PT_009S || rt == PT_009G) {
 					if (RNG::Ref().chance(1, 10) || rt == PT_MONY || rt == PT_LOVE || rt == PT_DFLM) {
 						if (RNG::Ref().chance(9, 10))
 							sim->kill_part(ID(r));

@@ -143,10 +143,7 @@ coffee
 
 test all tools repeatedly! -ask bwbellairs to do it
 
--TRBN seralize to FILT?
-- also range like other sensors?
 
-ambident heat time dilation
 
 bleach, tear gas, nitrogen
 
@@ -173,11 +170,19 @@ custom elements
 holy water can be used to make a holy thermonuclear bomb
 
 
-rotate - creating new fill pixels should copy properties
 shred moving solids
 move shred to another func
 time dilation GOL
+-TRBN seralize to FILT?
+- also range like other sensors?
+ambident heat time dilation
 
+POSI / ANH2 / TRUS
+
+anti protons
+- fuse into antimatter
+
+add a PROP_WATER - use in electron too
 
 
 after that:

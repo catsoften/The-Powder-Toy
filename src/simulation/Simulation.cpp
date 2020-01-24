@@ -2467,15 +2467,21 @@ void Simulation::init_can_move()
 	can_move[PT_ELEC][PT_LCRY] = 2;
 	can_move[PT_ELEC][PT_EXOT] = 2;
 	can_move[PT_ELEC][PT_GLOW] = 2;
+	can_move[PT_POSI][PT_LCRY] = 2;
+	can_move[PT_POSI][PT_EXOT] = 2;
+	can_move[PT_POSI][PT_GLOW] = 2;
 	can_move[PT_PHOT][PT_LCRY] = 3; //varies according to LCRY life
 	can_move[PT_PHOT][PT_GPMP] = 3;
 
 	can_move[PT_PHOT][PT_BIZR] = 2;
 	can_move[PT_ELEC][PT_BIZR] = 2;
+	can_move[PT_POSI][PT_BIZR] = 2;
 	can_move[PT_PHOT][PT_BIZRG] = 2;
 	can_move[PT_ELEC][PT_BIZRG] = 2;
+	can_move[PT_POSI][PT_BIZRG] = 2;
 	can_move[PT_PHOT][PT_BIZRS] = 2;
 	can_move[PT_ELEC][PT_BIZRS] = 2;
+	can_move[PT_POSI][PT_BIZRS] = 2;
 	can_move[PT_BIZR][PT_FILT] = 2;
 	can_move[PT_BIZRG][PT_FILT] = 2;
 	can_move[PT_BIZR][PT_PFLT] = 2;
@@ -2484,6 +2490,7 @@ void Simulation::init_can_move()
 	can_move[PT_ANAR][PT_WHOL] = 1; //WHOL eats ANAR
 	can_move[PT_ANAR][PT_NWHL] = 1;
 	can_move[PT_ELEC][PT_DEUT] = 1;
+	can_move[PT_POSI][PT_DEUT] = 1;
 	can_move[PT_THDR][PT_THDR] = 2;
 	can_move[PT_EMBR][PT_EMBR] = 2;
 	can_move[PT_TRON][PT_SWCH] = 3;
@@ -2630,7 +2637,7 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 			if (rt < PT_NUM && elements[rt].HeatConduct && (rt!=PT_HSWC||parts[ID(r)].life==10) && rt!=PT_FILT && rt != PT_PFLT)
 				parts[i].temp = parts[ID(r)].temp = restrict_flt((parts[ID(r)].temp+parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
 		}
-		else if ((parts[i].type==PT_NEUT || parts[i].type==PT_ELEC) && (rt==PT_CLNE || rt==PT_PCLN || rt==PT_BCLN || rt==PT_PBCN))
+		else if ((parts[i].type==PT_NEUT || parts[i].type==PT_ELEC || parts[i].type==PT_POSI) && (rt==PT_CLNE || rt==PT_PCLN || rt==PT_BCLN || rt==PT_PBCN))
 		{
 			if (!parts[ID(r)].ctype)
 				parts[ID(r)].ctype = parts[i].type;
@@ -2763,6 +2770,7 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 					create_cherenkov_photon(i);
 			break;
 		case PT_ELEC:
+		case PT_POSI:
 			if (TYP(r) == PT_GLOW)
 			{
 				part_change_type(i, x, y, PT_PHOT);
@@ -2814,10 +2822,16 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 		}
 		break;
 	case PT_DEUT:
-		if (parts[i].type == PT_ELEC)
-		{
+		if (parts[i].type == PT_ELEC) {
 			if(parts[ID(r)].life < 6000)
 				parts[ID(r)].life += 1;
+			parts[ID(r)].temp = 0;
+			kill_part(i);
+			return 0;
+		}
+		else if (parts[i].type == PT_POSI) {
+			if(parts[ID(r)].life > 0)
+				parts[ID(r)].life -= 1;
 			parts[ID(r)].temp = 0;
 			kill_part(i);
 			return 0;
@@ -3783,6 +3797,8 @@ void Simulation::UpdateParticles(int start, int end)
 						        && (rt!=PT_PFLT||(t!=PT_BRAY&&t!=PT_PHOT&&t!=PT_BIZR&&t!=PT_BIZRG))
 						        && (t!=PT_ELEC||rt!=PT_DEUT)
 						        && (t!=PT_DEUT||rt!=PT_ELEC)
+								&& (t!=PT_POSI||rt!=PT_DEUT)
+						        && (t!=PT_DEUT||rt!=PT_POSI)
 						        && (t!=PT_HSWC || rt!=PT_FILT || parts[i].tmp != 1)
 						        && (t!=PT_FILT || rt!=PT_HSWC || parts[ID(r)].tmp != 1)
 								&& (t!=PT_HSWC || rt!=PT_PFLT || parts[i].tmp != 1)

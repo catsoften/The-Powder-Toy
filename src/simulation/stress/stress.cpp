@@ -44,9 +44,7 @@ void StressField::ComputeStress(int x, int y) {
     // Compute which cells the angle will intersect and do a weighted distribution
     // Only distribute to cells with a particle, and not away from direction of stress
 
-    // Temp test code
-    fy = 10;
-    fx = 0;
+
 
     float force_angle = atan2(fy, fx);
     float stress = fabs(sqrtf(fy * fy + fx * fx));

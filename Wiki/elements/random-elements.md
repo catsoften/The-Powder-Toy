@@ -14,6 +14,7 @@ Like a magnet, attracts STKM and STKM2. Turns OIL, COAL, BCOL and GOLD into MONY
 
 ## HOLY (Holy water)
 Holy WATR kills:
-JCB1, FIGH, STKM, STKM2, MONY, OIL, DEST, BOMB, SING, TANK, ACID, BCTR, VIRS, SPDR, Any fire type, EMP, WARP, GNSH, FFLD, SHLD, LOVE, NPLM
+JCB1, FIGH, STKM, STKM2, MONY, OIL, DEST, BOMB, SING, TANK, ACID, BCTR, VIRS, SPDR, Any fire type, EMP, WARP, GNSH, FFLD, SHLD, LOVE, NPLM,
+All forms of SCP-009
 
 Cools any hot particles down to room temperature. May produce SMKE when cleansing.
