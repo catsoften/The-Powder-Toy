@@ -30,7 +30,7 @@ Element_SWTR::Element_SWTR()
 	HeatConduct = 75;
 	Description = "Sugar water.";
 
-	Properties = TYPE_LIQUID | PROP_CONDUCTS | PROP_LIFE_DEC | PROP_NEUTPENETRATE;
+	Properties = TYPE_LIQUID | PROP_CONDUCTS | PROP_LIFE_DEC | PROP_NEUTPENETRATE | PROP_WATER;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

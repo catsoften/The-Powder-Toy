@@ -98,8 +98,8 @@ int Element_CESM::update(UPDATE_FUNC_ARGS) {
 
 				if (parts[i].tmp != -1) {
 					if (parts[i].temp > 273.15f + 1600.0f ||
-						(rt == PT_FIRE || rt == PT_PLSM || rt == PT_DFLM || rt == PT_WATR || rt == PT_DSTW ||
-						 rt == PT_CBNW || rt == PT_SWTR || rt == PT_SLTW || rt == PT_IOSL || rt == PT_WTRV)) {
+						(rt == PT_FIRE || rt == PT_PLSM || rt == PT_DFLM ||
+						 sim->elements[rt].Properties & PROP_WATER || rt == PT_WTRV)) {
 						explosion_type = rt;
 						PropertyValue value;
 						value.Integer = -1;

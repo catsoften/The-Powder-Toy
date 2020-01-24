@@ -56,7 +56,7 @@ int Element_ALGE::update(UPDATE_FUNC_ARGS) {
 			// Look for nearby water
 			int rt = TYP(r);
 			if (RNG::Ref().chance(1, 100)) {
-				if (rt == PT_WATR || rt == PT_SLTW || rt == PT_SWTR || rt == PT_IOSL) {
+				if (sim->elements[rt].Properties & PROP_WATER) {
 					// Look for empty spot near the water
 					for (int rx2 = -1; rx2 <= 1; ++rx2)
 					for (int ry2 = -1; ry2 <= 1; ++ry2) {

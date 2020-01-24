@@ -177,12 +177,16 @@ time dilation GOL
 - also range like other sensors?
 ambident heat time dilation
 
-POSI / ANH2 / TRUS
+ANH2 / TRUS
 
 anti protons
 - fuse into antimatter
 
-add a PROP_WATER - use in electron too
+PROP_INDESTRUCTIBLE
+
+
+indestructible insulator
+indestructible conductor?
 
 
 after that:

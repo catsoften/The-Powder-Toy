@@ -139,7 +139,7 @@ int Element_ROCK::update(UPDATE_FUNC_ARGS) {
 					sim->part_change_type(ID(r), x + rx, y + ry, PT_SLTW);
 
 				// Erode
-				if ((rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_SWTR)
+				if (sim->elements[rt].Properties & PROP_WATER
 						&& RNG::Ref().chance(1, 2000) &&
 						(fabs(parts[ID(r)].vy) + fabs(parts[ID(r)].vx) > 0.1f)) {
 					sim->kill_part(i);

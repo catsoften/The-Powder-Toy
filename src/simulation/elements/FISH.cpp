@@ -89,7 +89,7 @@ int Element_FISH::update(UPDATE_FUNC_ARGS) {
 
 				if (abs(rx) < 2 && abs(ry) < 2) {
 					// Water touch check
-					if (rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_SWTR)
+					if (sim->elements[rt].Properties & PROP_WATER)
 						touching_water = true;
 
 					// Eat SEED and ANT

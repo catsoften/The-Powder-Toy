@@ -248,7 +248,7 @@ int Element_FIRE::updateLegacy(UPDATE_FUNC_ARGS) {
 						sim->part_change_type(i,x,y,PT_STNE);
 					}
 				}
-				if (rt==PT_WATR || rt==PT_DSTW || rt==PT_SLTW || rt == PT_SWTR)
+				if (sim->elements[rt].Properties & PROP_WATER)
 				{
 					sim->kill_part(ID(r));
 					if (t==PT_FIRE)

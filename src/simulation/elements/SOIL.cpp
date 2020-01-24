@@ -76,7 +76,7 @@ int Element_SOIL::update(UPDATE_FUNC_ARGS) {
 						sim->part_change_type(i, parts[i].x, parts[i].y, PT_MUD);
 						return 0;
 					}
-					else if (rt == PT_SLTW || rt == PT_SWTR || rt == PT_WATR || rt == PT_DSTW) {
+					else if (sim->elements[rt].Properties & PROP_WATER) {
 						sim->kill_part(ID(r));
 						sim->part_change_type(i, parts[i].x, parts[i].y, PT_MUD);
 						return 0;

@@ -79,16 +79,6 @@ int Element_ELEC::update(UPDATE_FUNC_ARGS)
 				case PT_LCRY:
 					parts[ID(r)].tmp2 = RNG::Ref().between(5, 9);
 					break;
-				case PT_WATR:
-				case PT_DSTW:
-				case PT_SLTW:
-				case PT_CBNW:
-					if (RNG::Ref().chance(1, 3))
-						sim->create_part(ID(r), x+rx, y+ry, PT_O2);
-					else
-						sim->create_part(ID(r), x+rx, y+ry, PT_H2);
-					sim->kill_part(i);
-					return 1;
 				case PT_PROT: // this is the correct reaction, not NEUT, but leaving NEUT in anyway
 					if (parts[ID(r)].tmp2 & 0x1)
 						break;
@@ -111,6 +101,15 @@ int Element_ELEC::update(UPDATE_FUNC_ARGS)
 				case PT_NONE: //seems to speed up ELEC even if it isn't used
 					break;
 				default:
+					if (sim->elements[rt].Properties & PROP_WATER) {
+						if (RNG::Ref().chance(1, 3))
+							sim->create_part(ID(r), x+rx, y+ry, PT_O2);
+						else
+							sim->create_part(ID(r), x+rx, y+ry, PT_H2);
+						sim->kill_part(i);
+						return 1;
+					}
+
 					if ((sim->elements[rt].Properties & PROP_CONDUCTS) && rt != PT_MMSH && (rt!=PT_NBLE||parts[i].temp<2273.15))
 					{
 						sim->create_part(-1, x+rx, y+ry, PT_SPRK);

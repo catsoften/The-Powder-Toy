@@ -31,7 +31,7 @@ Element_IOSL::Element_IOSL()
 	HeatConduct = 29;
 	Description = "Ionic solution. ";
 
-	Properties = TYPE_LIQUID | PROP_CONDUCTS | PROP_LIFE_DEC | PROP_NEUTPASS;
+	Properties = TYPE_LIQUID | PROP_CONDUCTS | PROP_LIFE_DEC | PROP_NEUTPASS | PROP_WATER;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

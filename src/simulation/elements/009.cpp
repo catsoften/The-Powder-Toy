@@ -57,7 +57,7 @@ int Element_009::update(UPDATE_FUNC_ARGS) {
 			if (!r) continue;
 			rt = TYP(r);
 
-			if (rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_CBNW || rt == PT_IOSL || rt == PT_SWTR ||
+			if (sim->elements[rt].Properties & PROP_WATER ||
 				rt == PT_MILK || rt == PT_PULP || rt == PT_GLUE || rt == PT_WTRV || rt == PT_MUD || rt == PT_BCTR ||
 				rt == PT_BLOD || rt == PT_HONY) {
 					sim->part_change_type(ID(r), x + rx, y + ry, PT_009);

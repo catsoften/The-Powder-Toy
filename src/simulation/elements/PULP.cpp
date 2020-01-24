@@ -61,7 +61,7 @@ int Element_PULP::update(UPDATE_FUNC_ARGS) {
 			int r = pmap[y + ry][x + rx];
 			if (!r) continue;
 			int rt = TYP(r);
-			bool is_water = rt == PT_IOSL || rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_CBNW || rt == PT_SWTR || rt == PT_WTRV;
+			bool is_water = sim->elements[rt].Properties & PROP_WATER || rt == PT_WTRV;
 		
 			if (parts[i].life < 40000 && is_water) {
 				parts[i].life += 100;

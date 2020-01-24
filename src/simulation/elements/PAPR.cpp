@@ -89,7 +89,7 @@ int Element_PAPR::update(UPDATE_FUNC_ARGS) {
 				}
 			}
 
-			bool is_water = rt == PT_IOSL || rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_CBNW || rt == PT_SWTR || rt == PT_WTRV;
+			bool is_water = sim->elements[rt].Properties & PROP_WATER || rt == PT_WTRV;
 
 			// Stain self
 			if (rt != PT_PULP && (rx == 0 || ry == 0) && !is_water &&

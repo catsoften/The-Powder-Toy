@@ -65,7 +65,9 @@ int Element_COPR::update(UPDATE_FUNC_ARGS) {
 
 			// Corrode
 			if (RNG::Ref().chance(1, 100)) {
-				if (TYP(r) == PT_ACID || TYP(r) == PT_CAUS || TYP(r) == PT_WATR || TYP(r) == PT_SLTW || TYP(r) == PT_O2) {
+				if (TYP(r) == PT_ACID || TYP(r) == PT_CAUS ||
+					sim->elements[TYP(r)].Properties & PROP_WATER || TYP(r) == PT_O2 ||
+					TYP(r) == PT_WTRV) {
 					if (parts[i].tmp == 0)
 						parts[i].tmp = RNG::Ref().between(1, 7);
 				}
