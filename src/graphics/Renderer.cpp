@@ -2484,7 +2484,18 @@ void Renderer::draw_stress_field() {
 	for (int x = 0; x < XRES; x++) {
 		if (!sim->stressField->stress_map[y][x])
 			continue;
-		drawrect(x, y, 1, 1, clamp_flt(sim->stressField->stress_map[y][x], 0.0f, 16.0f), 0, 0, 200);
+		
+		const int max_stress = 64.0f;
+		if (sim->stressField->stress_map[y][x] < max_stress / 2) { // Green to yellow
+			drawrect(x, y, 1, 1,
+				clamp_flt(sim->stressField->stress_map[y][x], 0.0f, max_stress / 2), 255,
+				0, 200);
+		}
+		else { // Yellow to red
+			drawrect(x, y, 1, 1, 
+				255, 255 - clamp_flt(sim->stressField->stress_map[y][x] - max_stress / 2, 0.0f, max_stress / 2),
+				0, 200);
+		}
 	}
 }
 

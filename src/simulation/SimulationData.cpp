@@ -128,6 +128,7 @@ std::vector<wall_type> LoadWalls()
 		{PIXPACK(0xDCDCDC), PIXPACK(0x000000), 1, Renderer::WallIcon, String("AIRBLOCK WALL"),   "DEFAULT_WL_NOAIR",  String("Allows all particles, but blocks air.")},
 		{PIXPACK(0x808080), PIXPACK(0x000000), 0, Renderer::WallIcon, String("ERASEALL"),        "DEFAULT_WL_ERASEA", String("Erases walls, particles, and signs.")},
 		{PIXPACK(0x800080), PIXPACK(0x000000), 0, Renderer::WallIcon, String("STASIS WALL"),     "DEFAULT_WL_STASIS", String("Freezes particles inside the wall in place until powered.")},
+		{PIXPACK(0x800080), PIXPACK(0x000000), 0, Renderer::WallIcon, String("I-WALL"),          "DEFAULT_WL_INDESTRUCTIBLE", String("Freezes particles inside the wall in place until powered.")}
 	};
 }
 

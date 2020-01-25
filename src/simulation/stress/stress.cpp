@@ -64,7 +64,7 @@ void StressField::ComputeStress(int x, int y) {
     for (int rx = -1; rx <= 1; ++rx)
     for (int ry = -1; ry <= 1; ++ry)
         if (rx || ry) {
-            if (!sim->pmap[y + ry][x + rx])
+            if (!sim->pmap[y + ry][x + rx] && !sim->IsWallBlocking(x + rx, y + ry, PT_DUST))
                 continue;
             if ((rx == nox1 && ry == noy1) || (rx == nox2 && ry == noy2) || (rx == nox3 && ry == noy3)) {
                 compression_particles += 2;
@@ -84,7 +84,7 @@ void StressField::ComputeStress(int x, int y) {
     for (int rx = -1; rx <= 1; ++rx)
     for (int ry = -1; ry <= 1; ++ry)
         if (rx || ry) {
-            if (!sim->pmap[y + ry][x + rx])
+            if (!sim->pmap[y + ry][x + rx] && !sim->IsWallBlocking(x + rx, y + ry, PT_DUST))
                 continue;
             if ((rx == nox1 && ry == noy1) || (rx == nox2 && ry == noy2) || (rx == nox3 && ry == noy3)) {
                 stress_map_x[y + ry][x + rx] += 2 * (stress * cos(atan2(ry, rx)) + stress_map_x[y][x]) / total_particles;
@@ -99,11 +99,10 @@ void StressField::ComputeStress(int x, int y) {
     stress_map_y[y][x] += stress / total_particles * sin(force_angle);
 }
 
-void StressField::AggregateStress() {
+void StressField::AggregateStress(int start, int end, int parts_lastActiveIndex) {
     if (!enabled) return;
 
-    int i;
-    for (i = 100000; i >= 0; i--) {
+    for (int i = std::min(end, parts_lastActiveIndex); i >= start; i--) {
 		if (sim->parts[i].type) {
             ComputeStress(sim->parts[i].x + 0.5f, sim->parts[i].y + 0.5f);
         }
@@ -116,6 +115,11 @@ void StressField::AggregateStress() {
         if (!sim->pmap[y][x])
             continue;
         stress_map[y][x] = sqrtf(stress_map_x[y][x]*stress_map_x[y][x]+stress_map_y[y][x]*stress_map_y[y][x]);
+
+        // TRUS reduces stress
+        if (TYP(sim->pmap[y][x]) == PT_TRUS)
+            stress_map[y][x] *= 0.9f;
+
         // for (int rx = -1; rx <= 1; ++rx)
         // for (int ry = -1; ry <= 1; ++ry) {
         //     stress_map[y][x] -= (stress_map[y][x] - stress_map[y + ry][x + rx]) * 0.125f;

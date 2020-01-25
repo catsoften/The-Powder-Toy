@@ -93,3 +93,6 @@ Like anti coal, but a powder.
 
 ## ALGE (Algae)
 Converts SMKE / CO2 into O2, grows on the surface of water.
+
+# INDI (Indestructible Insulator)
+Indestructible heat insulator, doesn't actually block sparks like INSL.

@@ -484,6 +484,7 @@ GameSave * Simulation::Save(bool includePressure, int fullX, int fullY, int full
 	newSave->stkm.rocketBoots2 = player2.rocketBoots;
 	newSave->stkm.fan1 = player.fan;
 	newSave->stkm.fan2 = player2.fan;
+	newSave->stressEnable = stressField->enabled;
 	for (unsigned char i = 0; i < MAX_FIGHTERS; i++)
 	{
 		if (fighters[i].rocketBoots)
@@ -507,6 +508,7 @@ void Simulation::SaveSimOptions(GameSave * gameSave)
 	gameSave->legacyEnable = legacy_enable;
 	gameSave->waterEEnabled = water_equal_test;
 	gameSave->gravityEnable = grav->IsEnabled();
+	gameSave->stressEnable = stressField->enabled;
 	gameSave->aheatEnable = aheat_enable;
 }
 
@@ -2402,16 +2404,15 @@ void Simulation::init_can_move()
 		can_move[PT_EMBR][movingType] = 0;
 		//SOIL varies depending on tunnel state
 		can_move[movingType][PT_SOIL] = 3;
-		//TRBN invisible to all
+
+		// "Everything" goes through
 		can_move[movingType][PT_TRBN] = 2;
-		//FILL invisible to all
 		can_move[movingType][PT_FILL] = 2;
-		//RSPK invisible to all
+		can_move[movingType][PT_TRUS] = 2;
 		can_move[movingType][PT_RSPK] = 2;
 		can_move[movingType][PT_SHRD] = 2;
-
-		can_move[movingType][PT_WEB] = 2; // Everything can go through web
-		can_move[movingType][PT_CLUD] = 2; // Everything can go through cloud
+		can_move[movingType][PT_WEB] = 2;
+		can_move[movingType][PT_CLUD] = 2;
 
 		// Metallic mesh only blocks life
 		if (!(movingType == PT_BEE || movingType == PT_SPDR || movingType == PT_ANT || movingType == PT_BIRD || movingType == PT_FISH))
@@ -2448,7 +2449,7 @@ void Simulation::init_can_move()
 		 || destinationType == PT_RDND || destinationType == PT_FIBR || destinationType == PT_H2O2
 		 || destinationType == PT_AERO || destinationType == PT_ANH2)
 			can_move[PT_PHOT][destinationType] = 2;
-		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTI && destinationType != PT_PRTO)
+		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTI && destinationType != PT_PRTO && destinationType != PT_INDI)
 		{
 			can_move[PT_PROT][destinationType] = 2;
 			can_move[PT_APRT][destinationType] = 2;
@@ -2459,6 +2460,7 @@ void Simulation::init_can_move()
 
 	//other special cases that weren't covered above
 	can_move[PT_DEST][PT_DMND] = 0;
+	can_move[PT_DEST][PT_INDI] = 0;
 	can_move[PT_DEST][PT_CLNE] = 0;
 	can_move[PT_DEST][PT_PCLN] = 0;
 	can_move[PT_DEST][PT_BCLN] = 0;
@@ -4863,7 +4865,7 @@ movedone:
 	}
 
 	emfield->Update();
-	stressField->AggregateStress();
+	stressField->AggregateStress(start, end, parts_lastActiveIndex);
 
 	//'f' was pressed (single frame)
 	if (framerender)

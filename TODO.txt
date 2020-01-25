@@ -178,28 +178,29 @@ time dilation GOL
 ambident heat time dilation
 RCRT rock is powder
 EROD - also powders in desc + wiki
+bees update location stamp, cut or copy
 bug fix: literally whenever create_part is used check if created
-
-ANH2 / TRUS
+- elements
+- tools
 
 vaccine - makes STKM invicible?
 
+VNGR / BAKS / FOAM / THOR / FUSN / PINV / VACC
 
 
-indestructible mode - all elements indestructible?
-or a wall or a field?
+reset tool, reset properties to default?
 
-diamond powder can make something indestructible
-
-indestructible insulator
-indestructible conductor?
-
+I-WALL, elements inside are indestructible
 
 after that:
 - stress
-    - TRUSS element that allows cybertruck and shit to go through
-    - a base element that removes stress?
-    - walls should remove stress too
+    - dont recompute stress unless change?
+    - compression limits per element
+    - elements get weaker under heat
+    - stress snapshot?
+    - still dependent on particle ordering
+
+    test saving stress setting in save?
     - save stress settingsi n save?
 
 laser beam thing, shoots LASR, can be used to superheat hydrogen
@@ -208,10 +209,20 @@ laser beam thing, shoots LASR, can be used to superheat hydrogen
 lbp's command manipulator thing
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23295 - baking soda
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=22786 - FOAM
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=22413 - Some radioactive ele
+
+more deco plants like
+- bamboo
+- coral
+- mushrooms
+- flowers? idk
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23149 - FARADAY WALL
     See https://github.com/china-richway2/The-Powder-Toy/tree/chinamod which implements
 
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17687
+    THORium
 
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=1069 - UI Shit

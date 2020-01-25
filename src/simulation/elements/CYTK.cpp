@@ -142,7 +142,7 @@ bool Element_CYTK::attempt_move(int x, int y, Simulation *sim, Particle *parts, 
 						parts[i].life = 120;
 				}
 
-				if (TYP(r) != PT_CYTK && TYP(r) != PT_PRTI && TYP(r) != PT_PRTO &&
+				if (TYP(r) != PT_CYTK && TYP(r) != PT_PRTI && TYP(r) != PT_PRTO && TYP(r) != PT_TRUS &&
 					(sim->elements[TYP(r)].Properties & TYPE_PART ||
 					 sim->elements[TYP(r)].Properties & TYPE_SOLID)) {
 					parts[i].vx = parts[i].vy = 0;
@@ -163,7 +163,7 @@ bool Element_CYTK::attempt_move(int x, int y, Simulation *sim, Particle *parts, 
 			fabs(-dvx + dvx * count) <= fabs(parts[i].vx) && fabs(-dvy + dvy * count) <= fabs(parts[i].vy)) {
 		r = sim->pmap[(int)round(sy)][(int)round(sx)];
 		if (r) {
-			if (TYP(r) != PT_CYTK && TYP(r) != PT_PRTI && TYP(r) != PT_PRTO &&
+			if (TYP(r) != PT_CYTK && TYP(r) != PT_PRTI && TYP(r) != PT_PRTO && TYP(r) != PT_TRUS &&
 				(sim->elements[TYP(r)].Properties & TYPE_PART ||
 				sim->elements[TYP(r)].Properties & TYPE_SOLID)) {
 				parts[i].vx = parts[i].vy = 0;

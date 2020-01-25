@@ -14,7 +14,7 @@ public:
     float stress_map_y[YRES][XRES];
 
     StressField(Simulation * sim);
-    void AggregateStress();
+    void AggregateStress(int start, int end, int parts_lastActiveIndex);
     void ComputeStress(int x, int y);
     void Clear();
 private:

@@ -53,13 +53,15 @@ int Element_NPLM::update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].tmp > 0 && sim->timer % 10 == 0) {
 		int j = sim->create_part(-1, parts[i].x - 1, parts[i].y - 1, PT_FIRE);
-		parts[j].life = RNG::Ref().between(0, 200);
+		if (j > 0) parts[j].life = RNG::Ref().between(0, 200);
 		
 		for (unsigned int k = -1; k <= 1; ++k) {
 			j = sim->create_part(-1, parts[i].x + k, parts[i].y + k, PT_BCOL);
-			parts[j].life = RNG::Ref().between(0, 400);
-			parts[j].vx = RNG::Ref().between(-15, 15);
-			parts[j].vy = RNG::Ref().between(-15, 15);
+			if (j > 0) {
+				parts[j].life = RNG::Ref().between(0, 400);
+				parts[j].vx = RNG::Ref().between(-15, 15);
+				parts[j].vy = RNG::Ref().between(-15, 15);
+			}
 		}
 
 		// sim->create_part(-1, parts[i].x - 1, parts[i].y + 1, PT_NITR);

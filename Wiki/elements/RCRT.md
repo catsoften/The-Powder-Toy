@@ -13,6 +13,8 @@ Does not move if either:
 - Touching another particle that's touching another particle touching a support solid...
 - The max extension length is 5 pixels. Any particles further will simply fall down.
 
+If a particle is moving too fast it won't connect.
+
 
 ## Technical
 
