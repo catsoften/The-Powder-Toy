@@ -20,7 +20,7 @@ Element_FOAM::Element_FOAM()
 	HotAir = 0.000f	* CFDS;
 	Falldown = 1;
 
-	Flammable = 10;
+	Flammable = 0;
 	Explosive = 0;
 	Meltable = 0;
 	Hardness = 30;
@@ -29,8 +29,9 @@ Element_FOAM::Element_FOAM()
 
 	HeatConduct = 70;
 	Description = "Foam. Foamy.";
+	DefaultProperties.life = 200;
 
-	Properties = TYPE_PART | PROP_NEUTPASS;
+	Properties = TYPE_PART | PROP_NEUTPASS | PROP_LIFE_DEC | PROP_LIFE_KILL;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -43,12 +44,31 @@ Element_FOAM::Element_FOAM()
 
 	Update = &Element_FOAM::update;
 	Graphics = &Element_FOAM::graphics;
-	Create = &Element_CLST::create;
 }
 
 //#TPT-Directive ElementHeader Element_FOAM static int update(UPDATE_FUNC_ARGS)
 int Element_FOAM::update(UPDATE_FUNC_ARGS) {
-	// update code here
+	/**
+	 * Properties:
+	 * tmp: particles it can create
+	 */
+	if (parts[i].tmp > 0 && RNG::Ref().chance(1, 10)) {
+		int rx, ry, r;
+		for (rx = -1; rx <= 1; rx++)
+		for (ry = -1; ry <= 1; ry++)
+			if (BOUNDS_CHECK && (rx || ry)) {
+				if (parts[i].tmp <= 0) return 0;
+
+				r = pmap[y + ry][x + rx];
+				if (!r) {
+					int ni = sim->create_part(-1, x + rx, y + ry, PT_FOAM);
+					if (ni >= 0) {
+						parts[ni].tmp = parts[i].tmp - 1;
+						parts[i].tmp--;
+					}
+				}
+			}
+	}
 
 	return 0;
 }
@@ -57,14 +77,9 @@ int Element_FOAM::update(UPDATE_FUNC_ARGS) {
 int Element_FOAM::graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 
-	int z = (cpart->tmp - 5) * 16;
-	*colr -= z;
-	*colg -= z;
-	*colb -= z;
-
 	*pixel_mode |= FIRE_BLEND;
 	*firer = *fireg = *fireb = 100;
-	*firea = 50;
+	*firea = 20;
 
 	return 0;
 }

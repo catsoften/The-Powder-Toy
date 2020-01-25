@@ -100,3 +100,6 @@ Indestructible heat insulator, doesn't actually block sparks like INSL.
 ## BAKS (Baking soda)
 Puts out fires, turns into CO2 on contact with ACID or CAUS, kills BCTR, clears deco color slowly, reacts with vinegar. At above 80 C 
 it turns into CO2 and WATR. Reacts with VNGR to make FOAM.
+
+## PINV (Powered invisible)
+Allows particles when powered. Unlike regular INVIS, does not allow energy particles when off (not even PROT or NTRI), nor does it modify any energy particles like INVIS does (ie, PROT -> NEUT).

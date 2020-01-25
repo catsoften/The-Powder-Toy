@@ -5,7 +5,7 @@ Element_VNGR::Element_VNGR()
 {
 	Identifier = "DEFAULT_PT_VNGR";
 	Name = "VNGR";
-	Colour = PIXPACK(0xf0f6ff);
+	Colour = PIXPACK(0xbababa);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
 	Enabled = 1;
@@ -43,23 +43,36 @@ Element_VNGR::Element_VNGR()
 	HighTemperatureTransition = PT_WTRV;
 
 	Update = &Element_VNGR::update;
-	Graphics = &Element_VNGR::graphics;
+	// Graphics = &Element_VNGR::graphics;
 }
 
 //#TPT-Directive ElementHeader Element_VNGR static int update(UPDATE_FUNC_ARGS)
 int Element_VNGR::update(UPDATE_FUNC_ARGS) {
-	// update code here
+	int rx, ry, r, rt;
+	for (rx = -1; rx <= 1; rx++)
+	for (ry = -1; ry <= 1; ry++)
+		if (BOUNDS_CHECK && (rx || ry)) {
+			r = pmap[y + ry][x + rx];
+			if (!r) continue;
+			rt = TYP(r);
+
+			if (rt == PT_BAKS && RNG::Ref().chance(1, 50)) {
+				sim->pv[y / CELL][x / CELL] += 0.6f;
+				sim->part_change_type(i, x, y, PT_FOAM);
+				sim->part_change_type(ID(r), x + rx, y + ry, PT_FOAM);
+				parts[i].tmp = parts[ID(r)].tmp = 70;
+				parts[i].life = parts[ID(r)].life = 200;
+				return 1;
+			}
+		}
 
 	return 0;
 }
 
 //#TPT-Directive ElementHeader Element_VNGR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_VNGR::graphics(GRAPHICS_FUNC_ARGS)
-{
-	// graphics code here
-	// return 1 if nothing dymanic happens here
-
-	return 0;
+int Element_VNGR::graphics(GRAPHICS_FUNC_ARGS) {
+	// Unused
+	return 1;
 }
 
 Element_VNGR::~Element_VNGR() {}

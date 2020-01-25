@@ -2393,6 +2393,7 @@ void Simulation::init_can_move()
 		can_move[movingType][PT_GNSH] = 0;
 		//INVS behaviour varies with pressure
 		can_move[movingType][PT_INVIS] = 3;
+		can_move[movingType][PT_PINV] = 3;
 		//stop CNCT from being displaced by other particles
 		can_move[movingType][PT_CNCT] = 0;
 		can_move[movingType][PT_RCRT] = 0;
@@ -2475,6 +2476,9 @@ void Simulation::init_can_move()
 	can_move[PT_POSI][PT_GLOW] = 2;
 	can_move[PT_PHOT][PT_LCRY] = 3; //varies according to LCRY life
 	can_move[PT_PHOT][PT_GPMP] = 3;
+	can_move[PT_PROT][PT_PINV] = 3; //varies according to PINV life
+	can_move[PT_NTRI][PT_PINV] = 3;
+	can_move[PT_JCB1][PT_PINV] = 3;
 
 	can_move[PT_PHOT][PT_BIZR] = 2;
 	can_move[PT_ELEC][PT_BIZR] = 2;
@@ -2551,6 +2555,9 @@ int Simulation::eval_move(int pt, int nx, int ny, unsigned *rr)
 				result = 0;
 			break;
 		}
+		case PT_PINV:
+			result = parts[ID(r)].life > 0 ? 2 : 0;
+			break;
 		case PT_SOIL: {
 			// Allow particles if tmp2 == 2
 			if (parts[ID(r)].tmp2 == 2)
@@ -5033,7 +5040,7 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 				{
 					// Particles are sometimes allowed to go inside INVS and FILT
 					// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
-					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT && t!=PT_PFLT))
+					if (!pmap[y][x] || (t!=PT_PINV && t!=PT_INVIS && t!= PT_FILT && t!=PT_PFLT))
 						pmap[y][x] = PMAP(i, t);
 					// (there are a few exceptions, including energy particles - currently no limit on stacking those)
 					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t != PT_FILL &&

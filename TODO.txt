@@ -185,7 +185,10 @@ bug fix: literally whenever create_part is used check if created
 
 vaccine - makes STKM invicible?
 
-VNGR / FOAM / THOR / FUSN / PINV / VACC
+FOAM
+- dissolve under pressure
+
+VNGR / FOAM / THOR / FUSN /  VACC
 
 
 
