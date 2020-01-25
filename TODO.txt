@@ -185,7 +185,8 @@ bug fix: literally whenever create_part is used check if created
 
 vaccine - makes STKM invicible?
 
-VNGR / BAKS / FOAM / THOR / FUSN / PINV / VACC
+VNGR / FOAM / THOR / FUSN / PINV / VACC
+
 
 
 reset tool, reset properties to default?

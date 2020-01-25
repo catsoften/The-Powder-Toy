@@ -96,3 +96,7 @@ Converts SMKE / CO2 into O2, grows on the surface of water.
 
 # INDI (Indestructible Insulator)
 Indestructible heat insulator, doesn't actually block sparks like INSL.
+
+## BAKS (Baking soda)
+Puts out fires, turns into CO2 on contact with ACID or CAUS, kills BCTR, clears deco color slowly, reacts with vinegar. At above 80 C 
+it turns into CO2 and WATR. Reacts with VNGR to make FOAM.

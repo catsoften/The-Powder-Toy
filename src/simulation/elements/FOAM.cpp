@@ -43,6 +43,7 @@ Element_FOAM::Element_FOAM()
 
 	Update = &Element_FOAM::update;
 	Graphics = &Element_FOAM::graphics;
+	Create = &Element_CLST::create;
 }
 
 //#TPT-Directive ElementHeader Element_FOAM static int update(UPDATE_FUNC_ARGS)
@@ -53,10 +54,17 @@ int Element_FOAM::update(UPDATE_FUNC_ARGS) {
 }
 
 //#TPT-Directive ElementHeader Element_FOAM static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FOAM::graphics(GRAPHICS_FUNC_ARGS)
-{
-	// graphics code here
-	// return 1 if nothing dymanic happens here
+int Element_FOAM::graphics(GRAPHICS_FUNC_ARGS) {
+	*pixel_mode |= PMODE_BLUR;
+
+	int z = (cpart->tmp - 5) * 16;
+	*colr -= z;
+	*colg -= z;
+	*colb -= z;
+
+	*pixel_mode |= FIRE_BLEND;
+	*firer = *fireg = *fireb = 100;
+	*firea = 50;
 
 	return 0;
 }
