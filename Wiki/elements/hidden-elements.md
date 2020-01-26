@@ -16,3 +16,7 @@ start to glow and bubble a bit, and won't conduct electricity. Same reactions as
 ## BRKN (Broken)
 Represents a generic broken form. Flammability is a bit broken. Mimics ctype's update and graphics. Broken paper 
 cannot be colored. Broken stuff can only melt. Chance to fuse when sparked (this is a bug but it's called a feature)
+
+## FOAM
+Foamy substance that's made when vinegar and baking soda is mixed. "Grows", tmp is the generation of growth. Disappears when 
+< 0 C or > 100 C, or touching GEL or SPNG, or absolute pressure > 5. Light powder, behaves like SAWD.

@@ -62,6 +62,7 @@ int Element_VNGR::update(UPDATE_FUNC_ARGS) {
 				sim->part_change_type(ID(r), x + rx, y + ry, PT_FOAM);
 				parts[i].tmp = parts[ID(r)].tmp = 70;
 				parts[i].life = parts[ID(r)].life = 200;
+				parts[i].temp += 5.0f;
 				return 1;
 			}
 		}

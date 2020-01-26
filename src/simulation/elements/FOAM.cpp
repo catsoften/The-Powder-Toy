@@ -6,7 +6,7 @@ Element_FOAM::Element_FOAM()
 	Identifier = "DEFAULT_PT_FOAM";
 	Name = "FOAM";
 	Colour = PIXPACK(0xFFFFFF);
-	MenuVisible = 1;
+	MenuVisible = 0;
 	MenuSection = SC_SPECIAL;
 	Enabled = 1;
 
@@ -52,6 +52,11 @@ int Element_FOAM::update(UPDATE_FUNC_ARGS) {
 	 * Properties:
 	 * tmp: particles it can create
 	 */
+	if (fabs(sim->pv[y / CELL][x / CELL]) > 5.0f || parts[i].temp < 273.15f || parts[i].temp > 373.15f) {
+		sim->kill_part(i);
+		return 1;
+	}
+
 	if (parts[i].tmp > 0 && RNG::Ref().chance(1, 10)) {
 		int rx, ry, r;
 		for (rx = -1; rx <= 1; rx++)
@@ -66,6 +71,12 @@ int Element_FOAM::update(UPDATE_FUNC_ARGS) {
 						parts[ni].tmp = parts[i].tmp - 1;
 						parts[i].tmp--;
 					}
+					continue;
+				}
+
+				if (TYP(r) == PT_GEL || TYP(r) == PT_SPNG) {
+					sim->kill_part(i);
+					return 1;
 				}
 			}
 	}

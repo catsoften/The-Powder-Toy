@@ -178,6 +178,7 @@ time dilation GOL
 ambident heat time dilation
 RCRT rock is powder
 EROD - also powders in desc + wiki
+ASPK not flammable
 bees update location stamp, cut or copy
 bug fix: literally whenever create_part is used check if created
 - elements
@@ -185,10 +186,8 @@ bug fix: literally whenever create_part is used check if created
 
 vaccine - makes STKM invicible?
 
-FOAM
-- dissolve under pressure
 
-VNGR / FOAM / THOR / FUSN /  VACC
+VNGR / THOR / FUSN /  VACC
 
 
 
@@ -213,7 +212,6 @@ laser beam thing, shoots LASR, can be used to superheat hydrogen
 lbp's command manipulator thing
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23295 - baking soda
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=22786 - FOAM
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=22413 - Some radioactive ele
 
 more deco plants like
