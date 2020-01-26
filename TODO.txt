@@ -184,11 +184,10 @@ bug fix: literally whenever create_part is used check if created
 - elements
 - tools
 
-vaccine - makes STKM invicible?
+VNGR / THOR / FUSN
 
 
-VNGR / THOR / FUSN /  VACC
-
+vinegar - use in food, wiki?
 
 
 reset tool, reset properties to default?

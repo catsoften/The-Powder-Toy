@@ -120,7 +120,7 @@ int Element_STKM::run_stickman(playerst *playerp, UPDATE_FUNC_ARGS) {
 		parts[i].temp += 1;
 
 	//Death
-	if (parts[i].life<1 || (sim->pv[y/CELL][x/CELL]>=4.5f && !playerp->fan) ) //If his HP is less than 0 or there is very big wind...
+	if (parts[i].ctype != PT_VACC && (parts[i].life<1 || (sim->pv[y/CELL][x/CELL]>=4.5f && !playerp->fan)) ) //If his HP is less than 0 or there is very big wind...
 	{
 		for (r=-2; r<=1; r++)
 		{
@@ -620,6 +620,10 @@ int Element_STKM::run_stickman(playerst *playerp, UPDATE_FUNC_ARGS) {
 	Element_STKM::STKM_interact(sim, playerp, i, (int)(playerp->legs[12]+0.5), (int)playerp->legs[13]);
 	if (!parts[i].type)
 		return 1;
+
+	// VACC makes STKM always full HP
+	if (parts[i].ctype == PT_VACC)
+		parts[i].life = 100;
 
 	parts[i].ctype = playerp->elem;
 	return 0;

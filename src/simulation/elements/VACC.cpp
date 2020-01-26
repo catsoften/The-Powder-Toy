@@ -5,32 +5,44 @@ Element_VACC::Element_VACC()
 {
 	Identifier = "DEFAULT_PT_VACC";
 	Name = "VACC";
-	Colour = PIXPACK(0xFFFFFF);
+	Colour = PIXPACK(0xd645af);
 	MenuVisible = 1;
-	MenuSection = SC_SPECIAL;
+	MenuSection = SC_CRACKER2;
 	Enabled = 1;
 
-	// element properties here
+	Advection = 0.6f;
+	AirDrag = 0.01f * CFDS;
+	AirLoss = 0.98f;
+	Loss = 0.95f;
+	Collision = 0.0f;
+	Gravity = 0.1f;
+	Diffusion = 0.00f;
+	HotAir = 0.000f	* CFDS;
+	Falldown = 2;
 
-	Update = &Element_VACC::update;
-	Graphics = &Element_VACC::graphics;
-}
+	Flammable = 0;
+	Explosive = 0;
+	Meltable = 0;
+	Hardness = 20;
 
-//#TPT-Directive ElementHeader Element_VACC static int update(UPDATE_FUNC_ARGS)
-int Element_VACC::update(UPDATE_FUNC_ARGS)
-{
-	// update code here
+	Weight = 30;
 
-	return 0;
-}
+	DefaultProperties.temp = R_TEMP - 2.0f + 273.15f;
+	HeatConduct = 29;
+	Description = "Vaccine. Makes STKM resistant to most poisons.";
 
-//#TPT-Directive ElementHeader Element_VACC static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_VACC::graphics(GRAPHICS_FUNC_ARGS)
-{
-	// graphics code here
-	// return 1 if nothing dymanic happens here
+	Properties = TYPE_LIQUID | PROP_NEUTPASS;
 
-	return 0;
+	LowPressure = IPL;
+	LowPressureTransition = NT;
+	HighPressure = IPH;
+	HighPressureTransition = NT;
+	LowTemperature = 273.15f;
+	LowTemperatureTransition = PT_ICEI;
+	HighTemperature = 373.0f;
+	HighTemperatureTransition = PT_WTRV;
+
+	Update = NULL;
 }
 
 Element_VACC::~Element_VACC() {}

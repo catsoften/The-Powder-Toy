@@ -18,3 +18,7 @@ JCB1, FIGH, STKM, STKM2, MONY, OIL, DEST, BOMB, SING, TANK, ACID, BCTR, VIRS, SP
 All forms of SCP-009
 
 Cools any hot particles down to room temperature. May produce SMKE when cleansing.
+
+## VACC (Vaccine)
+Prevents STKM from dying due to elements with PROP_DEADLY, cold. Keeps STKM health at 100 HP constantly, does not prevent 
+things that insta-kill STKM (such as VIRS, extreme heat, VOID, etc...)

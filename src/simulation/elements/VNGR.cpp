@@ -5,7 +5,7 @@ Element_VNGR::Element_VNGR()
 {
 	Identifier = "DEFAULT_PT_VNGR";
 	Name = "VNGR";
-	Colour = PIXPACK(0xbababa);
+	Colour = PIXPACK(0xd1beba);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
 	Enabled = 1;
@@ -43,7 +43,6 @@ Element_VNGR::Element_VNGR()
 	HighTemperatureTransition = PT_WTRV;
 
 	Update = &Element_VNGR::update;
-	// Graphics = &Element_VNGR::graphics;
 }
 
 //#TPT-Directive ElementHeader Element_VNGR static int update(UPDATE_FUNC_ARGS)
@@ -68,12 +67,6 @@ int Element_VNGR::update(UPDATE_FUNC_ARGS) {
 		}
 
 	return 0;
-}
-
-//#TPT-Directive ElementHeader Element_VNGR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_VNGR::graphics(GRAPHICS_FUNC_ARGS) {
-	// Unused
-	return 1;
 }
 
 Element_VNGR::~Element_VNGR() {}

@@ -41,7 +41,6 @@ Element_BAKS::Element_BAKS()
 	HighTemperatureTransition = NT;
 
 	Update = &Element_BAKS::update;
-	// Graphics = &Element_BAKS::graphics;
 }
 
 //#TPT-Directive ElementHeader Element_BAKS static int update(UPDATE_FUNC_ARGS)
@@ -83,12 +82,6 @@ int Element_BAKS::update(UPDATE_FUNC_ARGS) {
 		}
 
 	return 0;
-}
-
-//#TPT-Directive ElementHeader Element_BAKS static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BAKS::graphics(GRAPHICS_FUNC_ARGS) {
-	// Unused
-	return 1;
 }
 
 Element_BAKS::~Element_BAKS() {}
