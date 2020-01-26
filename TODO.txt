@@ -180,11 +180,12 @@ RCRT rock is powder
 EROD - also powders in desc + wiki
 ASPK not flammable
 bees update location stamp, cut or copy
+BOMB, MSSL, LASR ignore FFLD
 bug fix: literally whenever create_part is used check if created
 - elements
 - tools
 
-VNGR / THOR / FUSN
+VNGR / FUSN
 
 
 vinegar - use in food, wiki?

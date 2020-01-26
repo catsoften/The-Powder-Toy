@@ -110,7 +110,7 @@ int Element_ELEC::update(UPDATE_FUNC_ARGS)
 						return 1;
 					}
 
-					if ((sim->elements[rt].Properties & PROP_CONDUCTS) && rt != PT_MMSH && (rt!=PT_NBLE||parts[i].temp<2273.15))
+					if ((sim->elements[rt].Properties & PROP_CONDUCTS) && rt != PT_MMSH && rt != PT_THOR && (rt!=PT_NBLE||parts[i].temp<2273.15))
 					{
 						sim->create_part(-1, x+rx, y+ry, PT_SPRK);
 						sim->kill_part(i);

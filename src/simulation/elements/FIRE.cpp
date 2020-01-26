@@ -162,9 +162,13 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 							parts[ID(r)].ctype = PT_HEAC;
 						}
 					}
+					// Molten THOR still is radioactive
+					else if (parts[i].ctype == PT_THOR) {
+						Element_THOR::update(sim, i, x, y, surround_space, nt, parts, pmap);
+					}
 
 					// Molten LEAD destroys nearby electronics
-					if (parts[i].ctype == PT_LEAD &&
+					else if (parts[i].ctype == PT_LEAD &&
 						(rt == PT_WIFI || rt == PT_SWCH || rt == PT_INST || rt == PT_ARAY || rt == PT_CRAY ||
 						 rt == PT_DRAY || rt == PT_TESC || rt == PT_EMP  || rt == PT_ETRD ||
 						 rt == PT_DTEC || rt == PT_TSNS || rt == PT_LDTC || rt == PT_PSNS ||
