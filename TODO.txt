@@ -152,7 +152,6 @@ TPT Ultimia website
 bleach, tear gas, nitrogen
 
 bedrock, absorbs liquid
-anti hydrogen
 
 extra wifi channels
 
@@ -174,11 +173,6 @@ custom elements
 holy water can be used to make a holy thermonuclear bomb
 
 
-How about the cool tool getting automatically selected for right button when you select the heat tool for left button
-and vice-versa. also similar for air/vac, pgrv/ngrv
-that way its easier to go back after overshooting your target
-
-
 
 shred moving solids
 move shred to another func
@@ -192,8 +186,11 @@ bug fix: literally whenever create_part is used check if created
 - elements
 - tools
 
-EROD - also powders in desc + wiki
-erod NO WIKI ALSO CHECK OTHER TOOLS LIKE NROM WITH NO WIKI
+How about the cool tool getting automatically selected for right button when you select the heat tool for left button
+and vice-versa. also similar for air/vac, pgrv/ngrv
+that way its easier to go back after overshooting your target
+
+
 
 bees update location stamp, cut or copy
 BOMB, MSSL, LASR ignore FFLD
