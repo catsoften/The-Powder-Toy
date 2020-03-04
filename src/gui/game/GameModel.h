@@ -64,6 +64,7 @@ private:
 	Tool ** activeTools;
 	Tool * decoToolset[4];
 	Tool * regularToolset[4];
+	Tool * previousToolNonOpposite = nullptr;
 	User currentUser;
 	float toolStrength;
 	std::deque<Snapshot*> history;
@@ -159,6 +160,8 @@ public:
 	void SetLastTool(Tool * newTool);
 	Tool *GetToolFromIdentifier(ByteString const &identifier);
 	Tool * GetElementTool(int elementID);
+	void SetPreviousNonOppositeTool(Tool * t) { previousToolNonOpposite = t; }
+	Tool * GetPreviousNonOppositeTool() { return previousToolNonOpposite; }
 	std::vector<Tool*> GetToolList();
 	std::vector<Tool*> GetUnlistedTools();
 

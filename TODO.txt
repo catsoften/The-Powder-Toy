@@ -186,19 +186,16 @@ bug fix: literally whenever create_part is used check if created
 - elements
 - tools
 
-How about the cool tool getting automatically selected for right button when you select the heat tool for left button
-and vice-versa. also similar for air/vac, pgrv/ngrv
-that way its easier to go back after overshooting your target
+Make this a toggle option:
+    How about the cool tool getting automatically selected for right button when you select the heat tool for left button
+    and vice-versa. also similar for air/vac, pgrv/ngrv
+    that way its easier to go back after overshooting your target
 
 
 
 bees update location stamp, cut or copy
 BOMB, MSSL, LASR ignore FFLD
 TIME tool
-
-    RCRT rock is powder - DONE
-    FIXED - ASPK not flammable
-    FIXED - 2503762 - place down antihydrogen crash pfree create_part line 94 ANh2
 
 
 VNGR / FUSN

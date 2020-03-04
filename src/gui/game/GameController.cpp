@@ -1104,10 +1104,44 @@ Tool * GameController::GetActiveTool(int selection)
 	return gameModel->GetActiveTool(selection);
 }
 
-void GameController::SetActiveTool(int toolSelection, Tool * tool)
-{
+void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 	if (gameModel->GetActiveMenu() == SC_DECO && toolSelection == 2)
 		toolSelection = 0;
+
+	// Make right click do the opposite
+	if (toolSelection == 0) {
+		Tool * temp = gameModel->GetActiveTool(1);
+		bool temp2 = false;
+
+		if (tool->GetName() == "HEAT")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_COOL"));
+		else if (tool->GetName() == "COOL")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_HEAT"));
+
+		else if (tool->GetName() == "AIR")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_VAC"));
+		else if (tool->GetName() == "VAC")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_AIR"));
+
+		else if (tool->GetName() == "PGRV")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_NGRV"));
+		else if (tool->GetName() == "NGRV")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_PGRV"));
+
+		// Reset to original tool
+		else {
+			temp2 = true;
+			if (gameModel->GetPreviousNonOppositeTool())
+				gameModel->SetActiveTool(1, gameModel->GetPreviousNonOppositeTool());
+		}
+
+		if (!temp2) {
+			if (!gameModel->GetPreviousNonOppositeTool()) {
+				gameModel->SetPreviousNonOppositeTool(temp);
+			}
+		}
+	}
+
 	gameModel->SetActiveTool(toolSelection, tool);
 	gameModel->GetRenderer()->gravityZonesEnabled = false;
 	if (toolSelection == 3)
