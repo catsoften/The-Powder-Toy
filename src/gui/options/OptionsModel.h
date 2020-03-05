@@ -51,6 +51,8 @@ public:
 	void SetIncludePressure(bool includePressure);
 	bool GetPerfectCircle();
 	void SetPerfectCircle(bool perfectCircle);
+	bool GetAutoSelectOppositeTool();
+	void SetAutoSelectOppositeTool(bool oppositeTool);
 	virtual ~OptionsModel();
 };
 

@@ -74,6 +74,7 @@ private:
 	bool mouseClickRequired;
 	bool includePressure;
 	bool perfectCircle = true;
+	bool autoSelectOppositeTool = true;
 
 	size_t activeColourPreset;
 	std::vector<ui::Colour> colourPresets;
@@ -162,6 +163,8 @@ public:
 	Tool * GetElementTool(int elementID);
 	void SetPreviousNonOppositeTool(Tool * t) { previousToolNonOpposite = t; }
 	Tool * GetPreviousNonOppositeTool() { return previousToolNonOpposite; }
+	bool GetAutoSelectOppositeTool() { return autoSelectOppositeTool; }
+	void SetAutoSelectOppositeTool(bool t) { autoSelectOppositeTool = t; }
 	std::vector<Tool*> GetToolList();
 	std::vector<Tool*> GetUnlistedTools();
 

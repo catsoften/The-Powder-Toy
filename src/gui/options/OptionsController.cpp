@@ -112,6 +112,12 @@ void OptionsController::SetPerfectCircle(bool perfectCircle)
 	model->SetPerfectCircle(perfectCircle);
 }
 
+void OptionsController::SetOppositeToolEnabled(bool oppositeTool)
+{
+	model->SetAutoSelectOppositeTool(oppositeTool);
+}
+
+
 void OptionsController::Exit()
 {
 	view->CloseActiveWindow();

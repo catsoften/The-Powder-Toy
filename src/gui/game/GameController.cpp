@@ -1109,9 +1109,9 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 		toolSelection = 0;
 
 	// Make right click do the opposite
-	if (toolSelection == 0) {
+	if (gameModel->GetAutoSelectOppositeTool() && toolSelection == 0) {
 		Tool * temp = gameModel->GetActiveTool(1);
-		bool temp2 = false;
+		bool should_set_previous_tool = true;
 
 		if (tool->GetName() == "HEAT")
 			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_COOL"));
@@ -1130,16 +1130,13 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 
 		// Reset to original tool
 		else {
-			temp2 = true;
+			should_set_previous_tool = false;
 			if (gameModel->GetPreviousNonOppositeTool())
 				gameModel->SetActiveTool(1, gameModel->GetPreviousNonOppositeTool());
 		}
 
-		if (!temp2) {
-			if (!gameModel->GetPreviousNonOppositeTool()) {
-				gameModel->SetPreviousNonOppositeTool(temp);
-			}
-		}
+		if (should_set_previous_tool && !gameModel->GetPreviousNonOppositeTool()) 
+			gameModel->SetPreviousNonOppositeTool(temp);
 	}
 
 	gameModel->SetActiveTool(toolSelection, tool);

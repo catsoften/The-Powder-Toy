@@ -226,6 +226,18 @@ void OptionsModel::SetPerfectCircle(bool perfectCircle)
 	notifySettingsChanged();
 }
 
+bool OptionsModel::GetAutoSelectOppositeTool()
+{
+	return Client::Ref().GetPrefBool("AutoOppositeTool", true);
+}
+
+void OptionsModel::SetAutoSelectOppositeTool(bool oppositeTool)
+{
+	Client::Ref().SetPref("AutoOppositeTool", oppositeTool);
+	gModel->SetAutoSelectOppositeTool(oppositeTool);
+	notifySettingsChanged();
+}
+
 void OptionsModel::notifySettingsChanged()
 {
 	for (size_t i = 0; i < observers.size(); i++)

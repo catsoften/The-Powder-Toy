@@ -34,6 +34,7 @@ class OptionsView: public ui::Window
 	ui::Checkbox * mouseClickRequired;
 	ui::Checkbox * includePressure;
 	ui::Checkbox * perfectCirclePressure;
+	ui::Checkbox * autoOppositeTool;
 	ui::ScrollPanel * scrollPanel;
 public:
 	OptionsView();

@@ -33,6 +33,7 @@ public:
 	void SetMouseClickrequired(bool mouseClickRequired);
 	void SetIncludePressure(bool includePressure);
 	void SetPerfectCircle(bool perfectCircle);
+	void SetOppositeToolEnabled(bool oppositeTool);
 	
 	void Exit();
 	OptionsView * GetView();

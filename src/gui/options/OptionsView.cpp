@@ -23,7 +23,7 @@
 #include "graphics/Graphics.h"
 
 OptionsView::OptionsView():
-	ui::Window(ui::Point(-1, -1), ui::Point(320, 340)){
+	ui::Window(ui::Point(-1, -1), ui::Point(380, 340)){ // Originally 320, 340
 
 	auto autowidth = [this](ui::Component *c) {
 		c->Size.X = Size.X - c->Position.X - 12;
@@ -272,7 +272,16 @@ OptionsView::OptionsView():
 	scrollPanel->AddChild(tempLabel);
 	scrollPanel->AddChild(perfectCirclePressure);
 
-	//perfectCirclePressure
+	currentY+=20;
+	autoOppositeTool = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Opposite Tool", "");
+	autowidth(autoOppositeTool);
+	autoOppositeTool->SetActionCallback({[this] { c->SetOppositeToolEnabled(autoOppositeTool->GetChecked()); }});
+	tempLabel = new ui::Label(ui::Point(autoOppositeTool->Position.X+Graphics::textwidth(autoOppositeTool->GetText())+20, currentY), ui::Point(1, 16), "\bg- Right click uses opposite tool (ie HEAT / COOL)");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(autoOppositeTool);
 
 	currentY+=20;
 	decoSpace = new ui::DropDown(ui::Point(8, currentY), ui::Point(60, 16));
@@ -342,6 +351,7 @@ void OptionsView::NotifySettingsChanged(OptionsModel * sender)
 	mouseClickRequired->SetChecked(sender->GetMouseClickRequired());
 	includePressure->SetChecked(sender->GetIncludePressure());
 	perfectCirclePressure->SetChecked(sender->GetPerfectCircle());
+	autoOppositeTool->SetChecked(sender->GetAutoSelectOppositeTool());
 }
 
 void OptionsView::AttachController(OptionsController * c_)
