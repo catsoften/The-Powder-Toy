@@ -1128,6 +1128,11 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 		else if (tool->GetName() == "NGRV")
 			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_PGRV"));
 
+		else if (tool->GetName() == "FAST")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_SLOW"));
+		else if (tool->GetName() == "SLOW")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_FAST"));
+
 		// Reset to original tool
 		else {
 			should_set_previous_tool = false;

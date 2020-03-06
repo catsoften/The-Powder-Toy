@@ -273,17 +273,6 @@ OptionsView::OptionsView():
 	scrollPanel->AddChild(perfectCirclePressure);
 
 	currentY+=20;
-	autoOppositeTool = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Opposite Tool", "");
-	autowidth(autoOppositeTool);
-	autoOppositeTool->SetActionCallback({[this] { c->SetOppositeToolEnabled(autoOppositeTool->GetChecked()); }});
-	tempLabel = new ui::Label(ui::Point(autoOppositeTool->Position.X+Graphics::textwidth(autoOppositeTool->GetText())+20, currentY), ui::Point(1, 16), "\bg- Right click uses opposite tool (ie HEAT / COOL)");
-	autowidth(tempLabel);
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	scrollPanel->AddChild(tempLabel);
-	scrollPanel->AddChild(autoOppositeTool);
-
-	currentY+=20;
 	decoSpace = new ui::DropDown(ui::Point(8, currentY), ui::Point(60, 16));
 	decoSpace->SetActionCallback({ [this] { c->SetDecoSpace(decoSpace->GetOption().second); } });
 	scrollPanel->AddChild(decoSpace);
@@ -321,6 +310,22 @@ OptionsView::OptionsView():
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	scrollPanel->AddChild(tempLabel);
+
+	// Mod settings
+	currentY += 20;
+	tmpSeparator = new Separator(ui::Point(0, currentY), ui::Point(Size.X, 1));
+	scrollPanel->AddChild(tmpSeparator);
+
+	currentY += 10;
+	autoOppositeTool = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Opposite Tool", "");
+	autowidth(autoOppositeTool);
+	autoOppositeTool->SetActionCallback({[this] { c->SetOppositeToolEnabled(autoOppositeTool->GetChecked()); }});
+	tempLabel = new ui::Label(ui::Point(autoOppositeTool->Position.X+Graphics::textwidth(autoOppositeTool->GetText())+20, currentY), ui::Point(1, 16), "\bg- Right click uses opposite tool (ie HEAT / COOL)");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(autoOppositeTool);
 
 	ui::Button * tempButton = new ui::Button(ui::Point(0, Size.Y-16), ui::Point(Size.X, 16), "OK");
 	tempButton->SetActionCallback({ [this] { c->Exit(); } });

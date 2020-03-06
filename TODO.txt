@@ -89,6 +89,7 @@ Here are some keys to modify the LVL:
   F7 -> increase LVL;
   F8 -> reset LVL to 0;
 
+deco menu is fucked
 
 auto hid hud when near top opton
 show stacked particles in hud option
