@@ -42,6 +42,10 @@ react with O2 to form cesium oxide and Au to form cesium auride. CsAu conducts a
 There are also some reactions with ACID / CAUS to form SALT and HYGN or WATR or GOLD depending on the type of CESM. Cesium oxide 
 is darker than regualr CESM and cesium auride is more golden.
 
+## LCSM (Liquid cesium)
+Same as CESM, but liquid. Explodes at 1600 C. When it goes above 671 C it will 
+start to glow and bubble a bit, and won't conduct electricity. Same reactions as CESM.
+
 ## AERO (Aerogel)
 Perfect heat insulator (But doesn't block SPRK). Destroyed under pressure > 9.0. Does not block most radiation.
 
@@ -69,7 +73,7 @@ Light powder, sticks to conductors within 2px and prevents them from conducting 
 ## NTRI (Neutrino)
 Glows when inside of another element, turns NEUT -> ELEC + PHOT and ELEC -> PHOT. Goes through everything (even DMND), doesn't conduct heat.
 
-# MILK
+## MILK
 Heals STKM, slowly spoils. Can slow down spoiling by keeping it cold (< 5 C) or pasturizing it (heating it to around 70 C for a while. Putting it near SOIL, MUD, BCOL, COAL or BCTR will increase the rate it spoils. Turns into BCTR when spoiled. Evaporates into calcium and water.
 
 ## SUFR (Sulfur)
@@ -94,7 +98,7 @@ Like anti coal, but a powder.
 ## ALGE (Algae)
 Converts SMKE / CO2 into O2, grows on the surface of water.
 
-# INDI (Indestructible Insulator)
+## INDI (Indestructible Insulator)
 Indestructible heat insulator, doesn't actually block sparks like INSL.
 
 ## BAKS (Baking soda)

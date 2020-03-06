@@ -1,3 +1,6 @@
+## BOWR (Bowserinator)
+A more destructive version of SING (or less), generates MAX heat, MAX pressure, MAX gravity, fusion, and lightning. And eats particles.
+
 ## SHPO
 Shampoo, evaporates into water vapor at 100 C. Cures VIRS. Will clean any deco color, and reset ALL properties (except temp) back 
 to the original defaults. If a particle has a Create function, it will be called too. SHPO will make bubbles and slowly dissolve powders. 

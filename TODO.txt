@@ -81,7 +81,13 @@ nuclear stuff
 noise deco tool
 
 
+Stack editing:
+Now you can see, create and modify the stacks, which are a pile of particles in x, y. I named the depth as LVL, which 0 is the normal of TPT, and starts from 1, the gray color is shown when it has a particle in the previous LVL, which is enabled to create a particle, except when the LVL is 1 and 0, which you can create only if you have not.
 
+Here are some keys to modify the LVL:
+  F6 -> decrease LVL;
+  F7 -> increase LVL;
+  F8 -> reset LVL to 0;
 
 
 auto hid hud when near top opton
@@ -149,6 +155,8 @@ TPT Ultimia website
 - drag / drop / grid / pattern / fill / dynamic / get / set / videos / autoplay settings
 
 
+proc-gen cities
+
 bleach, tear gas, nitrogen
 
 bedrock, absorbs liquid
@@ -186,11 +194,12 @@ bug fix: literally whenever create_part is used check if created
 - elements
 - tools
 
-
-
 bees update location stamp, cut or copy
 BOMB, MSSL, LASR ignore FFLD
 TIME tool
+
+indestructbile powder
+
 
 
 VNGR / FUSN
@@ -204,6 +213,9 @@ reset tool, reset properties to default?
 I-WALL, elements inside are indestructible
 
 after that:
+wwater and sand presure?
+- like force water up and down and sand out of small holes
+- part of stress?
 - stress
     - dont recompute stress unless change?
     - compression limits per element
@@ -231,8 +243,6 @@ more deco plants like
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23149 - FARADAY WALL
     See https://github.com/china-richway2/The-Powder-Toy/tree/chinamod which implements
 
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17687
-    THORium
 
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=1069 - UI Shit

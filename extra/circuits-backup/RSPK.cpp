@@ -411,10 +411,6 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_RSPK static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_RSPK::graphics(GRAPHICS_FUNC_ARGS) {
-	*colr = 255; *colg = *colb = 0;
-	*cola = 255;
-	return 0;
-
 	// Power = V^2 / R and is used for brightness
 	float power = RSPK::get_power(nx, ny, ren->sim);
 	*firea = clamp_flt(power / 10.0f, 0, 500);
