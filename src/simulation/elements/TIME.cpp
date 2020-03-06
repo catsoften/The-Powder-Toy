@@ -58,7 +58,7 @@ int Element_TIME::update(UPDATE_FUNC_ARGS) {
 
 	// Generate the field
 	if (parts[i].tmp2 > 0) {
-		Element_CBMB::time_dilation(sim, i, x, y, 15, (parts[i].temp - 273.15f) / 16);
+		Element_CBMB::time_dilation(sim, x, y, 15, (parts[i].temp - 273.15f) / 16);
 	}
 
 	int rx, ry, r, rt;

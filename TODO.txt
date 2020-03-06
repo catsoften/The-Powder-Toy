@@ -196,7 +196,6 @@ bug fix: literally whenever create_part is used check if created
 
 bees update location stamp, cut or copy
 BOMB, MSSL, LASR ignore FFLD
-TIME tool
 
 indestructbile powder
 
@@ -206,9 +205,6 @@ VNGR / FUSN
 
 
 vinegar - use in food, wiki?
-
-
-reset tool, reset properties to default?
 
 I-WALL, elements inside are indestructible
 

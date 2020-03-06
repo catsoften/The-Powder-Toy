@@ -47,8 +47,8 @@ Element_CBMB::Element_CBMB() {
 	Graphics = &Element_CBMB::graphics;
 }
 
-//#TPT-Directive ElementHeader Element_CBMB static void time_dilation(Simulation *sim, int i, int x, int y, int radius, int val)
-void Element_CBMB::time_dilation(Simulation *sim, int i, int x, int y, int radius, int val) {
+//#TPT-Directive ElementHeader Element_CBMB static void time_dilation(Simulation *sim, int x, int y, int radius, int val)
+void Element_CBMB::time_dilation(Simulation *sim, int x, int y, int radius, int val) {
 	x = x / CELL;
 	y = y / CELL;
 
@@ -98,11 +98,11 @@ int Element_CBMB::update(UPDATE_FUNC_ARGS) {
 
 	// Detonation
 	if (parts[i].tmp2 > 50) {
-		time_dilation(sim, i, x, y, 10, -8);
+		time_dilation(sim, x, y, 10, -8);
 		parts[i].vx = parts[i].vy = 0;
 	} 
 	else if (parts[i].tmp2 >= 1) {
-		time_dilation(sim, i, x, y, 10, 4);
+		time_dilation(sim, x, y, 10, 4);
 		parts[i].vx = parts[i].vy = 0;
 	}
 
