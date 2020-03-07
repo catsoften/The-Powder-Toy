@@ -78,7 +78,6 @@ polish, polishes metal?
 
 nuclear stuff
 
-noise deco tool
 
 
 Stack editing:
@@ -96,6 +95,9 @@ show stacked particles in hud option
 
 
 left column:
+- https://github.com/The-Powder-Toy/The-Powder-Toy/pull/693/commits/46f9abf43457411439b97819e6336bc4beae2ff2
+    (redraw speedup option)
+- use new prop tool (input, ie vx +5, dcolor 3) as strings and applies all
 - popup for fps adjustmenet
      - fast forward and slowdown options
      - set fps as number
@@ -116,8 +118,14 @@ left column:
 change update message
 
 
-
+ART TOOLS (MAYBE REMOVE ART MENU?)
 perln noise
+noise deco tool
+real multiply
+real add
+paint like brush?
+dodge / darken / saturate
+
 
 
 forumn restyle to tpt style extension!
@@ -201,6 +209,7 @@ BOMB, MSSL, LASR ignore FFLD
 indestructbile powder
 
 
+ezy terrain tool - set elements and layers and draw :D
 
 VNGR / FUSN
 
@@ -362,7 +371,6 @@ exotic chemistires - create heavy elements from fusion or something
  - (sums input voltage, outputs to output port)
 - transofmrer
 
-ezy terrain tool - set elements and layers and draw :D
 
 
 conductor channels
@@ -490,7 +498,6 @@ LITH ION batteries :D
 https://starcatcher.us/scripts?view=47
 
 
-3.4 menu for art tools
 3.5 options menu
 4. Platform::OpenURI(ByteString::Build(SCHEME "powdertoy.co.uk/Discussions/Thread/View.html?Thread=", str.Substr(3, si.first - 3).ToUtf8()));
 

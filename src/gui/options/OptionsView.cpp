@@ -23,13 +23,14 @@
 #include "graphics/Graphics.h"
 
 OptionsView::OptionsView():
-	ui::Window(ui::Point(-1, -1), ui::Point(380, 340)){ // Originally 320, 340
+	ui::Window(ui::Point(-1, -1), ui::Point(340, 340)){ // Originally 320, 340
+	const ui::Colour CHECKBOX_SUBTEXT_COLOR(150, 150, 150);	// Gray shade for subtext for checkboxes
 
 	auto autowidth = [this](ui::Component *c) {
 		c->Size.X = Size.X - c->Position.X - 12;
 	};
 	
-	ui::Label * tempLabel = new ui::Label(ui::Point(4, 1), ui::Point(Size.X-8, 22), "Simulation Options");
+	ui::Label * tempLabel = new ui::Label(ui::Point(4, 1), ui::Point(Size.X-8, 22), "Game Options");
 	tempLabel->SetTextColour(style::Colour::InformationTitle);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
@@ -177,7 +178,11 @@ OptionsView::OptionsView():
 	resizable = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Resizable", "");
 	autowidth(resizable);
 	resizable->SetActionCallback({ [this] { c->SetResizable(resizable->GetChecked()); } });
-	tempLabel = new ui::Label(ui::Point(resizable->Position.X+Graphics::textwidth(resizable->GetText())+20, currentY), ui::Point(1, 16), "\bg- Allow resizing and maximizing window");
+	
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(resizable->Position.X + 12, currentY), ui::Point(1, 16), "- Allow resizing and maximizing window");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
 	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
@@ -188,7 +193,11 @@ OptionsView::OptionsView():
 	fullscreen = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Fullscreen", "");
 	autowidth(fullscreen);
 	fullscreen->SetActionCallback({ [this] { c->SetFullscreen(fullscreen->GetChecked()); } });
-	tempLabel = new ui::Label(ui::Point(fullscreen->Position.X+Graphics::textwidth(fullscreen->GetText())+20, currentY), ui::Point(1, 16), "\bg- Fill the entire screen");
+
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(fullscreen->Position.X + 12, currentY), ui::Point(1, 16), "- Fill the entire screen");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
 	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
@@ -217,11 +226,18 @@ OptionsView::OptionsView():
 	scrollPanel->AddChild(tempLabel);
 	scrollPanel->AddChild(forceIntegerScaling);
 
-	currentY+=20;
+	currentY += 20;
+	tmpSeparator = new Separator(ui::Point(0, currentY), ui::Point(Size.X, 1));
+	scrollPanel->AddChild(tmpSeparator);
+
+	currentY += 5;
 	fastquit = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Fast Quit", "");
 	autowidth(fastquit);
 	fastquit->SetActionCallback({ [this] { c->SetFastQuit(fastquit->GetChecked()); } });
-	tempLabel = new ui::Label(ui::Point(fastquit->Position.X+Graphics::textwidth(fastquit->GetText())+20, currentY), ui::Point(1, 16), "\bg- Always exit completely when hitting close");
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(fastquit->Position.X + 12, currentY), ui::Point(1, 16), "- Always exit completely when hitting close");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
 	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
@@ -232,7 +248,10 @@ OptionsView::OptionsView():
 	showAvatars = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Show Avatars", "");
 	autowidth(showAvatars);
 	showAvatars->SetActionCallback({ [this] { c->SetShowAvatars(showAvatars->GetChecked()); } });
-	tempLabel = new ui::Label(ui::Point(showAvatars->Position.X+Graphics::textwidth(showAvatars->GetText())+20, currentY), ui::Point(1, 16), "\bg- Disable if you have a slow connection");
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(showAvatars->Position.X + 12, currentY), ui::Point(1, 16), "- Disable if you have a slow connection");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
 	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
@@ -243,7 +262,11 @@ OptionsView::OptionsView():
 	mouseClickRequired = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Sticky Categories", "");
 	autowidth(mouseClickRequired);
 	mouseClickRequired->SetActionCallback({ [this] { c->SetMouseClickrequired(mouseClickRequired->GetChecked()); } });
-	tempLabel = new ui::Label(ui::Point(mouseClickRequired->Position.X+Graphics::textwidth(mouseClickRequired->GetText())+20, currentY), ui::Point(1, 16), "\bg- Switch between categories by clicking");
+
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(mouseClickRequired->Position.X + 15, currentY), ui::Point(1, 16), "- Switch between categories by clicking");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
 	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
@@ -254,18 +277,24 @@ OptionsView::OptionsView():
 	includePressure = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Include Pressure", "");
 	autowidth(includePressure);
 	includePressure->SetActionCallback({ [this] { c->SetIncludePressure(includePressure->GetChecked()); } });
-	tempLabel = new ui::Label(ui::Point(includePressure->Position.X+Graphics::textwidth(includePressure->GetText())+20, currentY), ui::Point(1, 16), "\bg- When saving, copying, stamping, etc.");
+	currentY += 12;
+
+	tempLabel = new ui::Label(ui::Point(includePressure->Position.X + 15, currentY), ui::Point(1, 16), "- When saving, copying, stamping, etc.");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
 	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	scrollPanel->AddChild(tempLabel);
 	scrollPanel->AddChild(includePressure);
 
-	currentY+=20;
+	currentY += 20;
 	perfectCirclePressure = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Perfect Circle", "");
 	autowidth(perfectCirclePressure);
 	perfectCirclePressure->SetActionCallback({ [this] { c->SetPerfectCircle(perfectCirclePressure->GetChecked()); } });
-	tempLabel = new ui::Label(ui::Point(perfectCirclePressure->Position.X+Graphics::textwidth(perfectCirclePressure->GetText())+20, currentY), ui::Point(1, 16), "\bg- Better circle brush, without incorrect points on edges");
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(perfectCirclePressure->Position.X + 15, currentY), ui::Point(1, 16), "- Better circle brush, without incorrect points on edges");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
 	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
@@ -281,7 +310,7 @@ OptionsView::OptionsView():
 	decoSpace->AddOption(std::pair<String, int>("Gamma 2.2", 2));
 	decoSpace->AddOption(std::pair<String, int>("Gamma 1.8", 3));
 
-	tempLabel = new ui::Label(ui::Point(decoSpace->Position.X+decoSpace->Size.X+3, currentY), ui::Point(Size.X-40, 16), "\bg- Colour space used by decoration tools");
+	tempLabel = new ui::Label(ui::Point(decoSpace->Position.X+decoSpace->Size.X+3, currentY), ui::Point(Size.X-40, 16), "- Colour space used by decoration tools");
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	scrollPanel->AddChild(tempLabel);
@@ -316,11 +345,15 @@ OptionsView::OptionsView():
 	tmpSeparator = new Separator(ui::Point(0, currentY), ui::Point(Size.X, 1));
 	scrollPanel->AddChild(tmpSeparator);
 
-	currentY += 10;
+	currentY += 5;
 	autoOppositeTool = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Opposite Tool", "");
 	autowidth(autoOppositeTool);
 	autoOppositeTool->SetActionCallback({[this] { c->SetOppositeToolEnabled(autoOppositeTool->GetChecked()); }});
-	tempLabel = new ui::Label(ui::Point(autoOppositeTool->Position.X+Graphics::textwidth(autoOppositeTool->GetText())+20, currentY), ui::Point(1, 16), "\bg- Right click uses opposite tool (ie HEAT / COOL)");
+
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(autoOppositeTool->Position.X + 12, currentY), ui::Point(1, 16), "- Right click uses opposite tool (ie HEAT / COOL)");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
 	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
