@@ -357,6 +357,16 @@ void GameModel::BuildMenus()
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_SMUDGE, "SMDG", "Smudge tool, blends surrounding deco together.", 0, 0, 0, "DEFAULT_DECOR_SMDG"));
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_CLEAR, "CLR", "Erase any set decoration.", 0, 0, 0, "DEFAULT_DECOR_CLR"));
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_DRAW, "SET", "Draw decoration (No blending).", 0, 0, 0, "DEFAULT_DECOR_SET"));
+
+	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_NOISE, "NOIS", "Apply noise to deco.", 0, 0, 0, "DEFAULT_DECOR_NOISE"));
+	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_DODGE, "DODG", "Lighten region.", 0, 0, 0, "DEFAULT_DECOR_DODGE"));
+	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_BURN, "BURN", "Darken region.", 0, 0, 0, "DEFAULT_DECOR_BURN"));
+	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_SPONGE, "SPNG", "Decrease color saturation.", 0, 0, 0, "DEFAULT_DECOR_SPONGE"));
+	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_SATURATE, "SATR", "Increase color saturation.", 0, 0, 0, "DEFAULT_DECOR_SATURATE"));
+	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_OVERLAY, "OVLY", "Color blending: Overlay", 0, 0, 0, "DEFAULT_DECOR_OVERLAY"));
+	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_MULTIPLY2, "MUL2", "Color blending: Multiply (Like most art programs)", 0, 0, 0, "DEFAULT_DECOR_MULTIPLY2"));
+	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_SCREEN, "SCRN", "Color blending: Screen", 0, 0, 0, "DEFAULT_DECOR_SCREEN"));
+
 	SetColourSelectorColour(colour); // update tool colors
 	decoToolset[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
 	decoToolset[1] = GetToolFromIdentifier("DEFAULT_DECOR_CLR");

@@ -24,11 +24,10 @@
 #define SC_TOOL 17
 #define SC_FAVORITES 18
 #define SC_SETTINGS 19
-#define SC_ART 20
-#define SC_DECO 21
+#define SC_DECO 20
 // Below is hidden
-#define SC_CRACKER 22
-#define SC_TOTAL 22
+#define SC_CRACKER 21
+#define SC_TOTAL 21
 
 #define O_WL_WALLELEC	122
 #define O_WL_EWALL		123
@@ -83,6 +82,15 @@
 #define DECO_MULTIPLY	4
 #define DECO_DIVIDE	5
 #define DECO_SMUDGE 6
+
+#define DECO_NOISE 7
+#define DECO_OVERLAY 8
+#define DECO_DODGE 9
+#define DECO_BURN 10
+#define DECO_SPONGE 11
+#define DECO_SATURATE 12
+#define DECO_MULTIPLY2 13
+#define DECO_SCREEN 14
 
 //Old IDs for GOL types
 #define GT_GOL 78

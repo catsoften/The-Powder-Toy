@@ -117,15 +117,19 @@ left column:
 
 change update message
 
+deco copy tool
 
-ART TOOLS (MAYBE REMOVE ART MENU?)
-perln noise
-noise deco tool
-real multiply
-real add
-paint like brush?
-dodge / darken / saturate
+Add deco tools
+- Remove other menus
+- list tools added
+- enabled secret Ctrl-A save info shortcut
 
+
+keep color picker visible
+
+ambient heat tool
+
+sort tool, sort in dir
 
 
 forumn restyle to tpt style extension!

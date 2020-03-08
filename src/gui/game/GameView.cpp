@@ -455,7 +455,7 @@ void GameView::NotifyMenuListChanged(GameModel * sender) {
 	std::vector<Menu*> menuList = sender->GetMenuList();
 	for (int i = (int)menuList.size()-1; i >= 0; i--) {
 		// Move to right column now
-		if (i == (int)menuList.size()-4) {
+		if (i == (int)menuList.size()-3) {
 			currentY = WINDOWH - 32; // 1 button above, to leave room for menu above
 			currentX += 16;
 		}
@@ -470,7 +470,7 @@ void GameView::NotifyMenuListChanged(GameModel * sender) {
 			auto * tempButton = new MenuButton(ui::Point(currentX, currentY), ui::Point(15, 15), tempString, description);
 			tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 			tempButton->menuID = i;
-			tempButton->needsClick = i == SC_DECO || i == SC_SETTINGS || i == SC_ART;
+			tempButton->needsClick = i == SC_DECO || i == SC_SETTINGS;
 			tempButton->SetTogglable(true);
 			auto mouseEnterCallback = [this, tempButton] {
 				// Don't immediately change the active menu, the actual set is done inside GameView::OnMouseMove
@@ -639,6 +639,11 @@ void GameView::NotifyToolListChanged(GameModel * sender)
 		//currentY -= 17;
 		if (i < 2 * MENUS_PER_ROW || i % 2 == 1)
 			currentX -= 31;
+
+		// Add gap between new deco tools and old ones
+		if (sender->GetActiveMenu() == SC_DECO && i == 6)
+			currentX -= 152;
+
 		tempButton->tool = tool;
 		tempButton->SetActionCallback({ [this, tempButton] {
 			auto *tool = tempButton->tool;
@@ -748,7 +753,7 @@ void GameView::NotifyColourPresetsChanged(GameModel * sender)
 	int i = 0;
 	for(std::vector<ui::Colour>::iterator iter = colours.begin(), end = colours.end(); iter != end; ++iter)
 	{
-		ToolButton * tempButton = new ToolButton(ui::Point(currentX, YRES+1), ui::Point(30, 18), "", "", "Decoration Presets.");
+		ToolButton * tempButton = new ToolButton(ui::Point(currentX, YRES), ui::Point(30, 18), "", "", "Decoration Presets.");
 		tempButton->Appearance.BackgroundInactive = *iter;
 		tempButton->SetActionCallback({ [this, i, tempButton] {
 			c->SetActiveColourPreset(i);
@@ -1373,9 +1378,7 @@ void GameView::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl,
 		c->ReloadSim();
 		break;
 	case SDL_SCANCODE_A:
-		if ((Client::Ref().GetAuthUser().UserElevation == User::ElevationModerator
-		     || Client::Ref().GetAuthUser().UserElevation == User::ElevationAdmin) && ctrl)
-		{
+		if (ctrl) {
 			ByteString authorString = Client::Ref().GetAuthorInfo().toStyledString();
 			new InformationMessage("Save authorship info", authorString.FromUtf8(), true);
 		}
