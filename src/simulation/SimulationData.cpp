@@ -157,7 +157,6 @@ std::vector<menu_section> LoadMenus()
 		{0xE067, String("Favorites"), 0, 1},
 
 		// Column 1 (left).
-		{0xE064, String("Settings"), 0, 1},
 		{0xE064, String("Decoration tools"), 0, 1},
 		{0xE080, String("Cracker!"), 0, 0}};
 }

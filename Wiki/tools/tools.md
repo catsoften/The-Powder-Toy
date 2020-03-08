@@ -30,3 +30,15 @@ Creates a uniform slow time dilation field. The field fades slowly when tool is 
 **Description:** *Speed up local time.*
 
 Creates a uniform fast time dilation field. The field fades slowly when tool is released.
+
+# AHET
+
+**Description:** *Heats the local air (Ambient heat required).*
+
+HEAT but for ambient heat.
+
+# ACOL
+
+**Description:** *Cools the local air (Ambient heat required).*
+
+COOL but for ambient heat.

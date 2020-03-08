@@ -1142,7 +1142,6 @@ void Simulation::ApplyDecoration(int x, int y, int colR_, int colG_, int colB_, 
 		tg -= diff;
 		tb -= diff;
 	}
-	// TODO gradient
 	else if (mode == DECO_DODGE || mode == DECO_SATURATE || mode == DECO_SPONGE ||
 			 mode == DECO_MULTIPLY2 || mode == DECO_SCREEN || mode == DECO_OVERLAY) {
 		float targetr, targetg, targetb;

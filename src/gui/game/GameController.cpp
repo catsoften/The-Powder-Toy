@@ -1133,6 +1133,11 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 		else if (tool->GetName() == "SLOW")
 			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_FAST"));
 
+		else if (tool->GetName() == "AHET")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_ACOL"));
+		else if (tool->GetName() == "ACOL")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_AHET"));
+
 		// Reset to original tool
 		else {
 			should_set_previous_tool = false;

@@ -119,22 +119,14 @@ change update message
 
 deco copy tool
 
-Add deco tools
-- Remove other menus
-- list tools added
-- enabled secret Ctrl-A save info shortcut
-
-
-keep color picker visible
-
-ambient heat tool
-
-sort tool, sort in dir
-
 
 forumn restyle to tpt style extension!
 
+deco backgrounds
+
 scale tool
+
+magnetism tools and electric field tools
 
 tags button width was also removed??
 
@@ -143,6 +135,9 @@ TODO: (maybe move to settings menu)
 3. bug report button
 
 votes on saves, timestamps on comments
+
+rectangles show for HUD but not in debug
+draw stress, etc... back rectangle slightly off
 
 
 high pressure pipe 
@@ -154,6 +149,8 @@ config tool
 replace with String::Build
 make text red in input when error
 
+
+cmd https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23347
 
 alcohol
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11522&PageNum=0#Message=176466

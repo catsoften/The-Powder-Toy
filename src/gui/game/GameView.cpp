@@ -328,7 +328,8 @@ GameView::GameView():
 	pauseButton->SetActionCallback({ [this] { c->SetPaused(pauseButton->GetToggleState()); } });
 	AddComponent(pauseButton);
 
-	ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-32, WINDOWH-96), ui::Point(15, 15), 0xE065, "Search for elements");
+	// Change to WINDOW-32, WINDOWH-96 if more menus need to be added in the future
+	ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-16, WINDOWH-32), ui::Point(15, 15), 0xE065, "Search for elements");
 	tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 	tempButton->SetActionCallback({ [this] { c->OpenElementSearch(); } });
 	AddComponent(tempButton);
@@ -455,8 +456,8 @@ void GameView::NotifyMenuListChanged(GameModel * sender) {
 	std::vector<Menu*> menuList = sender->GetMenuList();
 	for (int i = (int)menuList.size()-1; i >= 0; i--) {
 		// Move to right column now
-		if (i == (int)menuList.size()-3) {
-			currentY = WINDOWH - 32; // 1 button above, to leave room for menu above
+		if (i == (int)menuList.size()-1) {
+			currentY = WINDOWH - 16 * 3; // 2 buttons above, to leave room for menu above
 			currentX += 16;
 		}
 
@@ -470,7 +471,7 @@ void GameView::NotifyMenuListChanged(GameModel * sender) {
 			auto * tempButton = new MenuButton(ui::Point(currentX, currentY), ui::Point(15, 15), tempString, description);
 			tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 			tempButton->menuID = i;
-			tempButton->needsClick = i == SC_DECO || i == SC_SETTINGS;
+			tempButton->needsClick = i == SC_DECO;
 			tempButton->SetTogglable(true);
 			auto mouseEnterCallback = [this, tempButton] {
 				// Don't immediately change the active menu, the actual set is done inside GameView::OnMouseMove
