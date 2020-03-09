@@ -88,10 +88,12 @@ Here are some keys to modify the LVL:
   F7 -> increase LVL;
   F8 -> reset LVL to 0;
 
-deco menu is fucked
-
 auto hid hud when near top opton
 show stacked particles in hud option
+
+
+moving solid cant move, gets truncated on solid edge mode
+
 
 
 left column:
@@ -119,12 +121,17 @@ change update message
 
 deco copy tool
 
+make dev shortcut optional
 
 forumn restyle to tpt style extension!
 
 deco backgrounds
 
-scale tool
+make bowr more op destroy bunkium
+
+
+combine scale + rotate :P 
+- wiki
 
 magnetism tools and electric field tools
 
