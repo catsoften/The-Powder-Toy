@@ -15,7 +15,7 @@ Element_BOWR::Element_BOWR()
 	AirLoss = 0.99f;
 	Loss = 0.30f;
 	Collision = -0.1f;
-	Gravity = 0.0f;
+	Gravity = 2.0f;
 	Diffusion = 0.75f;
 	HotAir = 0.001f * CFDS;
 	Falldown = 0;
@@ -31,7 +31,7 @@ Element_BOWR::Element_BOWR()
 	HeatConduct = 100;
 	Description = "Bowserinator, highly destructive singularity";
 
-	Properties = TYPE_GAS | PROP_NEUTPASS;
+	Properties = TYPE_GAS | PROP_NEUTPASS | PROP_INDESTRUCTIBLE;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -47,8 +47,7 @@ Element_BOWR::Element_BOWR()
 }
 
 //#TPT-Directive ElementHeader Element_BOWR static int update(UPDATE_FUNC_ARGS)
-int Element_BOWR::update(UPDATE_FUNC_ARGS)
-{
+int Element_BOWR::update(UPDATE_FUNC_ARGS) {
 	sim->gravmap[(y / CELL)*(XRES / CELL) + (x / CELL)] = 0.2f*(500);
 	sim->create_part(-1, parts[i].x - 1, parts[i].y - 1, PT_THDR);
 	sim->create_part(-1, parts[i].x - 1, parts[i].y + 1, PT_PLSM);
@@ -59,14 +58,20 @@ int Element_BOWR::update(UPDATE_FUNC_ARGS)
 	}
 	parts[i].temp = 999999.0f;
 
-	int r, rx, ry;
+	int r, rx, ry, c = 0;
 	for (rx = -1; rx < 2; rx++)
 		for (ry = -1; ry < 2; ry++)
 			if (BOUNDS_CHECK && (rx || ry)) {
 				r = pmap[y + ry][x + rx];
-				if (!r || TYP(r) == PT_BOWR) continue;
-				if (RNG::Ref().chance(1, 20))
+
+				// Kill even layered particles
+				while (r && TYP(r) != PT_BOWR && c < 10) {
 					sim->kill_part(ID(r));
+					r = pmap[y + ry][x + rx];
+					c++;
+				}
+				
+				// if (RNG::Ref().chance(1, 20))
 			}
 	return 0;
 }
