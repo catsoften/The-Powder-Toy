@@ -34,6 +34,7 @@ public:
 	void SetIncludePressure(bool includePressure);
 	void SetPerfectCircle(bool perfectCircle);
 	void SetOppositeToolEnabled(bool oppositeTool);
+	void SetSecretModShortcut(bool enabled);
 	
 	void Exit();
 	OptionsView * GetView();

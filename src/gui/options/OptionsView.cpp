@@ -345,6 +345,7 @@ OptionsView::OptionsView():
 	tmpSeparator = new Separator(ui::Point(0, currentY), ui::Point(Size.X, 1));
 	scrollPanel->AddChild(tmpSeparator);
 
+	// ------------------
 	currentY += 5;
 	autoOppositeTool = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Opposite Tool", "");
 	autowidth(autoOppositeTool);
@@ -359,6 +360,24 @@ OptionsView::OptionsView():
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	scrollPanel->AddChild(tempLabel);
 	scrollPanel->AddChild(autoOppositeTool);
+
+	// ------------------
+	currentY += 20;
+	secretModShortcut = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Secret Mod Shortcut", "");
+	autowidth(secretModShortcut);
+	secretModShortcut->SetActionCallback({[this] { c->SetSecretModShortcut(secretModShortcut->GetChecked()); }});
+
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(autoOppositeTool->Position.X + 12, currentY), ui::Point(1, 16), "- Ctrl-A views save info. Pretend to be jacob1.");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(secretModShortcut);
+
+	// ------------------
 
 	ui::Button * tempButton = new ui::Button(ui::Point(0, Size.Y-16), ui::Point(Size.X, 16), "OK");
 	tempButton->SetActionCallback({ [this] { c->Exit(); } });
@@ -390,6 +409,7 @@ void OptionsView::NotifySettingsChanged(OptionsModel * sender)
 	includePressure->SetChecked(sender->GetIncludePressure());
 	perfectCirclePressure->SetChecked(sender->GetPerfectCircle());
 	autoOppositeTool->SetChecked(sender->GetAutoSelectOppositeTool());
+	secretModShortcut->SetChecked(sender->GetSecretModShortcut());
 }
 
 void OptionsView::AttachController(OptionsController * c_)

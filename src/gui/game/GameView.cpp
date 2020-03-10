@@ -1379,7 +1379,7 @@ void GameView::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl,
 		c->ReloadSim();
 		break;
 	case SDL_SCANCODE_A:
-		if (ctrl) {
+		if (ctrl && Client::Ref().GetPrefBool("SecretModShortcut", true)) {
 			ByteString authorString = Client::Ref().GetAuthorInfo().toStyledString();
 			new InformationMessage("Save authorship info", authorString.FromUtf8(), true);
 		}

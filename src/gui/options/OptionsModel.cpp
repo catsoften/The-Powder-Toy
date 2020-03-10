@@ -226,15 +226,23 @@ void OptionsModel::SetPerfectCircle(bool perfectCircle)
 	notifySettingsChanged();
 }
 
-bool OptionsModel::GetAutoSelectOppositeTool()
-{
+bool OptionsModel::GetAutoSelectOppositeTool() {
 	return Client::Ref().GetPrefBool("AutoOppositeTool", true);
 }
 
-void OptionsModel::SetAutoSelectOppositeTool(bool oppositeTool)
-{
+void OptionsModel::SetAutoSelectOppositeTool(bool oppositeTool) {
 	Client::Ref().SetPref("AutoOppositeTool", oppositeTool);
 	gModel->SetAutoSelectOppositeTool(oppositeTool);
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetSecretModShortcut() {
+	return Client::Ref().GetPrefBool("SecretModShortcut", true);
+}
+
+void OptionsModel::SetSecretModShortcut(bool enabled) {
+	Client::Ref().SetPref("SecretModShortcut", enabled);
+	gModel->SetSecretModShortcut(enabled);
 	notifySettingsChanged();
 }
 

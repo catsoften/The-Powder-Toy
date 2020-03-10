@@ -35,6 +35,7 @@ class OptionsView: public ui::Window
 	ui::Checkbox * includePressure;
 	ui::Checkbox * perfectCirclePressure;
 	ui::Checkbox * autoOppositeTool;
+	ui::Checkbox * secretModShortcut;
 	ui::ScrollPanel * scrollPanel;
 public:
 	OptionsView();

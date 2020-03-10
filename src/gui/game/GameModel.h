@@ -75,6 +75,7 @@ private:
 	bool includePressure;
 	bool perfectCircle = true;
 	bool autoSelectOppositeTool = true;
+	bool secretModShortcut = false;
 
 	size_t activeColourPreset;
 	std::vector<ui::Colour> colourPresets;
@@ -165,6 +166,9 @@ public:
 	Tool * GetPreviousNonOppositeTool() { return previousToolNonOpposite; }
 	bool GetAutoSelectOppositeTool() { return autoSelectOppositeTool; }
 	void SetAutoSelectOppositeTool(bool t) { autoSelectOppositeTool = t; }
+	bool GetSecretModShortcut() { return secretModShortcut; }
+	void SetSecretModShortcut(bool t) { secretModShortcut = t; }
+	
 	std::vector<Tool*> GetToolList();
 	std::vector<Tool*> GetUnlistedTools();
 

@@ -53,6 +53,8 @@ public:
 	void SetPerfectCircle(bool perfectCircle);
 	bool GetAutoSelectOppositeTool();
 	void SetAutoSelectOppositeTool(bool oppositeTool);
+	bool GetSecretModShortcut();
+	void SetSecretModShortcut(bool enabled);
 	virtual ~OptionsModel();
 };
 

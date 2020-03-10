@@ -58,8 +58,7 @@ in game private conversations
 a realistic plant that makes SUGR from light
 - organ differentation from SEED
 
-moving solid tool, solid -> moving solid 
-(pauses sim)
+
 
 
 
@@ -119,16 +118,28 @@ left column:
 
 change update message
 
+Tools
+prop2
 deco copy tool
+ezy terrain tool - set elements and layers and draw :D
+    - add types of elements (load presets too)
+    - texture of terrain - layered, noisy, partial layers
+    - deco?
 
-make dev shortcut optional
+magnetism tools and electric field tools
+sniper tool, displays crosair, shoot anything on screen
+ taste tool for food - how good it tastes
+ moving solid tool, solid -> moving solid  (pauses sim)
+ laser tool, set point, move mouse to slice
+- laser should bounce off of polished metal
+
+
 
 forumn restyle to tpt style extension!
 
 deco backgrounds
 
 
-magnetism tools and electric field tools
 
 tags button width was also removed??
 
@@ -212,7 +223,7 @@ BOMB, MSSL, LASR ignore FFLD
 indestructbile powder
 
 
-ezy terrain tool - set elements and layers and draw :D
+
 
 VNGR / FUSN
 
@@ -260,7 +271,7 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21953&PageNum=1 - silver 
 
 
-sniper tool, displays crosair, shoot anything on screen
+
 
 
 - https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
@@ -363,7 +374,6 @@ Neutron capture -> gain atomic number
 same for protons
 
 
- taste tool for food - how good it tastes
 
 
 exotic chemistires - create heavy elements from fusion or something
@@ -471,8 +481,7 @@ NEW TODO:
     MGNT, COPR, ZINC
 
 
-laser tool, set point, move mouse to slice
-- laser should bounce off of polished metal
+
 
  - LDTC seperate, has flags
 PSTN - add movement distance
