@@ -359,13 +359,22 @@ void Textbox::OnVKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl,
 			break;
 		case SDLK_UP:
 			if (cursorPositionY > 0) {
-				// cursorPositionY -= FONT_H;
-				// textWrapper.Index2Point(textWrapper.Point2Index(cursorPositionY, cursorPositionY + FONT_H),
-				// 	cursorPositionX, cursorPositionY);
+				auto index = textWrapper.Point2Index(cursorPositionX, cursorPositionY - FONT_H);
+				cursor = index.raw_index;
+				if (cursor)
+					textWrapper.Index2Point(index, cursorPositionX, cursorPositionY);
+				else
+					cursorPositionY = cursorPositionX = 0;
 			}
-				// textWrapper.Index2Point(textWrapper.Clear2Index(cursor), cursorPositionX, cursorPositionY);
 			break;
-		case SDLK_DOWN:
+		case SDLK_DOWN: {
+				auto index = textWrapper.Point2Index(cursorPositionX, cursorPositionY + FONT_H);
+				cursor = index.raw_index;
+				if (cursor)
+					textWrapper.Index2Point(index, cursorPositionX, cursorPositionY);
+				else
+					cursorPositionY = cursorPositionX = 0;
+			}
 			break;
 		case SDLK_DELETE:
 			if(ReadOnly)

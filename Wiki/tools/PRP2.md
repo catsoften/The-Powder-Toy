@@ -21,7 +21,7 @@ Sets three properties at once. You can also specify relative offsets, ie
 *tmp:5  // Multiply tmp by 5
 /tmp:5  // Divide tmp by 5 (Division by 0 does nothing)
 ```
-Adds 5 to the tmp. Note that holding the brush will apply the increment multiple times, so this is recommended for rectangle tool or floodfill.
+Note that holding the brush will apply the increment multiple times, so this is recommended for rectangle tool or floodfill.
 
 Multiple edits to the same property can be applied in succession in top-down order, ie
 

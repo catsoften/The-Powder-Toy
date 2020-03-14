@@ -120,14 +120,12 @@ Keyboard Sensor (KSNS): Senses when a specific key is pressed (also able to seri
 Mouse Sensor (MSNS): Senses when the mouse is within range of it & clicks (probably could also serialize position & clicked state)
 Frame Sensor (FSNS): Senses whether its been passed a certain amount of frames since its creation (with invert mode to sense when its been less) (serializes the number of frames) (could have modes for fps instead of frames, as well as seconds)
 Breakpoint (BRPT): Pauses the game when sparked (already exists as a script on the script server)
-Note Block (NOTE): Plays a note when sparked (configure to set frequency to determine which note) (or some alternative method)
 Command Block (COMB?): Runs a command (old ! style / lua) (always/once/when sparked)
 Something that allows access to the file system?
 Something that allows access to the internet?
 
 remove secret mod shortcut?
 
-- add up down arrows to textbox multiline
 
 sim prop
 - pressure and aheat and shit?
