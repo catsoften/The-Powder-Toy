@@ -72,6 +72,10 @@ void Textbox::SetText(String newText)
 	if(cursor)
 	{
 		textWrapper.Index2Point(textWrapper.Clear2Index(cursor), cursorPositionX, cursorPositionY);
+		if (newText.EndsWith('\n')) { // Newline doesn't reset cursor to beginning until next char, this fixes that
+			cursorPositionX = 0;
+			cursorPositionY += FONT_H;
+		}
 	}
 	else
 	{
@@ -353,6 +357,16 @@ void Textbox::OnVKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl,
 				cursor++;
 			ClearSelection();
 			break;
+		case SDLK_UP:
+			if (cursorPositionY > 0) {
+				// cursorPositionY -= FONT_H;
+				// textWrapper.Index2Point(textWrapper.Point2Index(cursorPositionY, cursorPositionY + FONT_H),
+				// 	cursorPositionX, cursorPositionY);
+			}
+				// textWrapper.Index2Point(textWrapper.Clear2Index(cursor), cursorPositionX, cursorPositionY);
+			break;
+		case SDLK_DOWN:
+			break;
 		case SDLK_DELETE:
 			if(ReadOnly)
 				break;
@@ -458,6 +472,10 @@ void Textbox::AfterTextChange(bool changed)
 	if(cursor)
 	{
 		textWrapper.Index2Point(textWrapper.Clear2Index(cursor), cursorPositionX, cursorPositionY);
+		if (backingText.EndsWith('\n')) { // Newline doesn't reset cursor to beginning until next char, this fixes that
+			cursorPositionX = 0;
+			cursorPositionY += FONT_H;
+		}
 	}
 	else
 	{
@@ -496,6 +514,7 @@ void Textbox::OnTextInput(String text)
 			}
 			cursor++;
 		}
+
 		ClearSelection();
 		AfterTextChange(true);
 	}

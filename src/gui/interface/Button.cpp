@@ -18,7 +18,6 @@ Button::Button(Point position, Point size, String buttonText, String toolTip):
 	toggle(false)
 {
 	TextPosition(ButtonText);
-	Appearance.BorderInactive = ui::Colour(70, 70, 70);
 }
 
 void Button::TextPosition(String ButtonText)

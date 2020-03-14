@@ -11,7 +11,6 @@ class DropDownWindow : public ui::Window
 {
 	DropDown * dropDown;
 	Appearance appearance;
-	std::vector<Button> buttons;
 	bool isMouseInside;
 
 public:
@@ -25,8 +24,13 @@ public:
 		{
 			Button * tempButton = new Button(Point(1, currentY), Point(Size.X-2, 16), dropDown->options[i].first);
 			tempButton->Appearance = appearance;
+
 			if (i)
 				tempButton->Appearance.Border = ui::Border(0, 1, 1, 1);
+		
+			// Don't render top & bottom border, looks nicer and avoids overlap
+			tempButton->Appearance.Border.Bottom = tempButton->Appearance.Border.Top = 0;
+
 			auto option = dropDown->options[i].first;
 			tempButton->SetActionCallback({ [this, option] {
 				CloseActiveWindow();

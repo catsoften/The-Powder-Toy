@@ -158,6 +158,26 @@ public:
 	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override;
 };
 
+class PropertyTool2: public Tool {
+public:
+	PropertyTool2():
+	Tool(0, "PRP2", "Multi-Property Drawing Tool. Use to alter the properties of elements in the field.", 254, 119, 0, "DEFAULT_UI_PROPERTY2", NULL) {}
+	
+	std::vector<std::tuple<StructProperty::PropertyType, PropertyValue, int, size_t> > props;
+	std::tuple<StructProperty::PropertyType, PropertyValue, int, size_t> change_type;
+	bool changed_type;
+	int counter = 0;
+
+	void OpenWindow(Simulation *sim);
+	virtual ~PropertyTool2() {}
+	virtual void SetProperty(Simulation *sim, ui::Point position);
+	void Click(Simulation * sim, Brush * brush, ui::Point position) override { }
+	void Draw(Simulation *sim, Brush *brush, ui::Point position) override;
+	void DrawLine(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2, bool dragging = false) override;
+	void DrawRect(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2) override;
+	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override;
+};
+
 class ElementTool: public Tool
 {
 public:

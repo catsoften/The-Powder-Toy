@@ -116,14 +116,22 @@ left column:
 - realistic mode
 - no drag
 
-
-
-change update message
+Keyboard Sensor (KSNS): Senses when a specific key is pressed (also able to serialize)
+Mouse Sensor (MSNS): Senses when the mouse is within range of it & clicks (probably could also serialize position & clicked state)
+Frame Sensor (FSNS): Senses whether its been passed a certain amount of frames since its creation (with invert mode to sense when its been less) (serializes the number of frames) (could have modes for fps instead of frames, as well as seconds)
+Breakpoint (BRPT): Pauses the game when sparked (already exists as a script on the script server)
+Note Block (NOTE): Plays a note when sparked (configure to set frequency to determine which note) (or some alternative method)
+Command Block (COMB?): Runs a command (old ! style / lua) (always/once/when sparked)
+Something that allows access to the file system?
+Something that allows access to the internet?
 
 remove secret mod shortcut?
 
-Tools
-prop2
+- add up down arrows to textbox multiline
+
+sim prop
+- pressure and aheat and shit?
+
 deco copy tool
 ezy terrain tool - set elements and layers and draw :D
     - add types of elements (load presets too)
@@ -138,6 +146,9 @@ sniper tool, displays crosair, shoot anything on screen
  moving solid tool, solid -> moving solid  (pauses sim)
  laser tool, set point, move mouse to slice
 - laser should bounce off of polished metal
+
+TODO 1: prop2
+TODO 2: merge mnnip's russian commit
 
 deco or element grid generator
 
@@ -184,7 +195,7 @@ test all tools repeatedly! -ask bwbellairs to do it
 TPT Ultimia website
 - JS Gallery thing
 - drag / drop / grid / pattern / fill / dynamic / get / set / videos / autoplay settings
-
+https://npm.robinloeffel.ch/cosha/
 
 proc-gen cities
 

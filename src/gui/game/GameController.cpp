@@ -1159,8 +1159,10 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 		if(gameModel->GetActiveTool(i) == gameModel->GetMenuList().at(SC_WALL)->GetToolList().at(WL_GRAV))
 			gameModel->GetRenderer()->gravityZonesEnabled = true;
 	}
-	if(tool->GetIdentifier() == "DEFAULT_UI_PROPERTY")
+	if (tool->GetIdentifier() == "DEFAULT_UI_PROPERTY")
 		((PropertyTool *)tool)->OpenWindow(gameModel->GetSimulation());
+	else if (tool->GetIdentifier() == "DEFAULT_UI_PROPERTY2")
+		((PropertyTool2 *)tool)->OpenWindow(gameModel->GetSimulation());
 }
 
 void GameController::SetActiveTool(int toolSelection, ByteString identifier)

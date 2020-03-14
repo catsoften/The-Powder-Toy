@@ -55,6 +55,10 @@ public:
 	void OnTextInput(String text) override;
 	void Draw(const Point& screenPos) override;
 
+	int GetCursorX() { return cursorPositionX; }
+	int GetCursorY() { return cursorPositionY; }
+	int GetCursor()  { return cursor; }
+
 protected:
 	ValidInput inputType;
 	size_t limit;

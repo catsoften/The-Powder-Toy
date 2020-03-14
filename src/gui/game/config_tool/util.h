@@ -2,11 +2,12 @@
 #define CONFIG_TOOL_UTIL_H
 
 #include "gui/Style.h"
-#include "gui/interface/Window.h"
+#include "gui/game/GameModel.h"
 #include "gui/interface/Button.h"
 #include "gui/interface/Label.h"
 #include "gui/interface/Textbox.h"
-#include "gui/game/GameModel.h"
+#include "gui/interface/Window.h"
+#include "simulation/ElementCommon.h"
 
 // Collection of util for config tool
 /* Pre aligned elements:
