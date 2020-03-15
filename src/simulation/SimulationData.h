@@ -67,9 +67,11 @@
 #define WL_ERASEALL		17
 #define WL_STASIS		18
 #define WL_INDESTRUCTIBLE 19
+#define WL_FARADAY      20
+#define WL_ONEWAY       21
 #define WL_FLOODHELPER	255
 
-#define UI_WALLCOUNT 20
+#define UI_WALLCOUNT 22
 
 #define OLD_SPC_AIR 236
 #define SPC_AIR 256

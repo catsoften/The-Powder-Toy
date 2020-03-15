@@ -67,8 +67,6 @@ guide on adding new render modes
 
 
 
-breakpoint element
-
 
 sparkling water, actually made of diamond
 
@@ -98,7 +96,6 @@ moving solid cant move, gets truncated on solid edge mode
 left column:
 - https://github.com/The-Powder-Toy/The-Powder-Toy/pull/693/commits/46f9abf43457411439b97819e6336bc4beae2ff2
     (redraw speedup option)
-- use new prop tool (input, ie vx +5, dcolor 3) as strings and applies all
 - popup for fps adjustmenet
      - fast forward and slowdown options
      - set fps as number
@@ -157,6 +154,8 @@ forumn restyle to tpt style extension!
 deco backgrounds
 
 
+coffee - enemy to jacob1 fights
+
 
 tags button width was also removed??
 
@@ -208,10 +207,14 @@ add / subtract /multiply/ div element math https://powdertoy.co.uk/Discussions/T
 scale https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23708
 
 
+adding fields (including fan:) (TODO UPDATE ALL FIELDS FOR THIS)
+- simulation/Snapshot.h
+- client/GameSave.h and .cpp
+
+
 
 heat seeking missiles
 
-color sensor
 
 atmosphere setting
 
@@ -241,7 +244,16 @@ BOMB, MSSL, LASR ignore FFLD
 indestructbile powder
 
 
+TODO:
+DECO tool set using graphics func?
+vsns - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23475
+SRAY - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=20234
 
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=20310 - suggestions
+
+offset element ids for newer versions somehow
+
+gravity, magnetism, aheat sensors
 
 VNGR / FUSN
 
