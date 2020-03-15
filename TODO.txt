@@ -124,6 +124,8 @@ Command Block (COMB?): Runs a command (old ! style / lua) (always/once/when spar
 Something that allows access to the file system?
 Something that allows access to the internet?
 
+signs that zoom out on hover
+
 remove secret mod shortcut?
 
 sim prop
@@ -144,10 +146,10 @@ sniper tool, displays crosair, shoot anything on screen
  laser tool, set point, move mouse to slice
 - laser should bounce off of polished metal
 
-TODO 2: merge mnnip's russian commit
-
 deco or element grid generator
 
+
+quark gluon plasma - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23999
 
 
 forumn restyle to tpt style extension!
@@ -245,8 +247,6 @@ VNGR / FUSN
 
 
 vinegar - use in food, wiki?
-
-I-WALL, elements inside are indestructible
 
 after that:
 wwater and sand presure?

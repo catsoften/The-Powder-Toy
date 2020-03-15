@@ -3199,10 +3199,13 @@ int Simulation::get_normal_interp(int pt, float x0, float y0, float dx, float dy
 	return get_normal(pt, x, y, dx, dy, nx, ny);
 }
 
-void Simulation::kill_part(int i)//kills particle number i
+void Simulation::kill_part(int i, bool ignore_iwall)//kills particle number i
 {
 	int x = (int)(parts[i].x + 0.5f);
 	int y = (int)(parts[i].y + 0.5f);
+
+	if (bmap[y / CELL][x / CELL] == WL_INDESTRUCTIBLE && !ignore_iwall)
+		return;
 
 	int t = parts[i].type;
 	if (t && elements[t].ChangeType)
@@ -3262,6 +3265,8 @@ void Simulation::kill_part(int i)//kills particle number i
 bool Simulation::part_change_type(int i, int x, int y, int t)
 {
 	if (x<0 || y<0 || x>=XRES || y>=YRES || i>=NPART || t<0 || t>=PT_NUM || !parts[i].type)
+		return false;
+	if (bmap[y/CELL][x/CELL] == WL_INDESTRUCTIBLE && t != PT_SPRK && parts[i].type != PT_SPRK)
 		return false;
 	if (!elements[t].Enabled || t == PT_NONE)
 	{
@@ -3603,7 +3608,7 @@ void Simulation::delete_part(int x, int y)//calls kill_part with the particle lo
 
 	if (!i)
 		return;
-	kill_part(ID(i));
+	kill_part(ID(i), true);
 }
 
 void Simulation::UpdateParticles(int start, int end)
