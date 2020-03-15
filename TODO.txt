@@ -126,7 +126,6 @@ Something that allows access to the internet?
 
 remove secret mod shortcut?
 
-
 sim prop
 - pressure and aheat and shit?
 
@@ -145,7 +144,6 @@ sniper tool, displays crosair, shoot anything on screen
  laser tool, set point, move mouse to slice
 - laser should bounce off of polished metal
 
-TODO 1: prop2
 TODO 2: merge mnnip's russian commit
 
 deco or element grid generator

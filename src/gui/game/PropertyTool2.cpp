@@ -26,19 +26,22 @@ String strip(const String &str) {
     return s;
 }
 
-enum PropMode { set, add, subtract, multiply, divide };
+enum PropMode { set, add, subtract, multiply, divide, XOR, AND, OR };
 
-template <class T> T apply_method(T base, T modifider, int method) {
+template <class T> T apply_method(T base, T modifier, int method) {
     switch (method) {
-        case set: return modifider;
-        case add: return base + modifider;
-        case subtract: return base - modifider;
-        case multiply: return base * modifider;
+        case set: return modifier;
+        case add: return base + modifier;
+        case subtract: return base - modifier;
+        case multiply: return base * modifier;
         case divide:
-            if (modifider == 0.0f) return base; // Avoid division by 0
-            return base / modifider;
+            if (modifier == 0.0f) return base; // Avoid division by 0
+            return base / modifier;
+        case AND: return (unsigned int)base & (unsigned int)modifier;
+        case OR:  return (unsigned int)base | (unsigned int)modifier;
+        case XOR: return (unsigned int)base ^ (unsigned int)modifier;
     }
-    return modifider;
+    return modifier;
 }
 
 // Window
@@ -71,7 +74,7 @@ public:
 };
 
 PropertyWindow2::PropertyWindow2(PropertyTool2 * tool_, Simulation *sim_):
-        ui::Window(ui::Point(-1, -1), ui::Point(200, 240)),
+        ui::Window(ui::Point(-1, -1), ui::Point(200, 245)),
         tool(tool_),
         sim(sim_) {
 	properties = Particle::GetProperties();
@@ -88,18 +91,23 @@ PropertyWindow2::PropertyWindow2(PropertyTool2 * tool_, Simulation *sim_):
 	AddComponent(helpLabel);
 
     helpLabel = make_left_label(ui::Point(4, 36), ui::Point(Size.X-8, 14),
-        "\n ctype:GOLD\n -life:100 \n +vx:10\n *pavg0:10\n /tmp:5");
+        "\n type:GOLD\n -life:100 \n +vx:10\n &ctype:0xFF");
     helpLabel->Appearance.VerticalAlign = ui::Appearance::AlignTop;
     helpLabel->SetTextColour(ui::Colour(255, 220, 170));
 	AddComponent(helpLabel);
 
     helpLabel = make_left_label(ui::Point(70, 36), ui::Point(Size.X-8, 14),
-        "\nSet ctype to gold\nSubtract 100 from life\nAdds 10 to vx\nMultiply pavg0 by 10\nDivide tmp by 5");
+        "\nSet type to gold\nSubtract 100 from life\nAdds 10 to vx\nBitwise AND the ctype");
     helpLabel->Appearance.VerticalAlign = ui::Appearance::AlignTop;
     helpLabel->SetTextColour(ui::Colour(170, 170, 170));
 	AddComponent(helpLabel);
 
-	ui::Button * okayButton = make_center_button(ui::Point(0, Size.Y-17), ui::Point(Size.X, 17), "OK");
+    helpLabel = make_left_label(ui::Point(4, 100), ui::Point(Size.X - 8, 14), "Operations: + - * / & ^ |");
+    helpLabel->Appearance.VerticalAlign = ui::Appearance::AlignTop;
+    helpLabel->SetTextColour(ui::Colour(170, 170, 170));
+    AddComponent(helpLabel);
+
+    ui::Button * okayButton = make_center_button(ui::Point(0, Size.Y-17), ui::Point(Size.X, 17), "OK");
 	okayButton->Appearance.BorderInactive = ui::Colour(200, 200, 200);
 	okayButton->SetActionCallback({ [this] {
         OnTryOkay(ui::Window::OkayButton);
@@ -108,7 +116,7 @@ PropertyWindow2::PropertyWindow2(PropertyTool2 * tool_, Simulation *sim_):
 	SetOkayButton(okayButton);
 
     // Main property input
-    ui::ScrollPanel *scrollPanel = new ui::ScrollPanel(ui::Point(8, 115), ui::Point(Size.X - 16, 17 * 6));
+    ui::ScrollPanel *scrollPanel = new ui::ScrollPanel(ui::Point(8, 118), ui::Point(Size.X - 16, 17 * 6));
     AddComponent(scrollPanel);
 
     autocompleteLabel = make_left_label(ui::Point(0, 0), ui::Point(scrollPanel->Size.X, scrollPanel->Size.Y), "");
@@ -194,21 +202,33 @@ void PropertyWindow2::SetProperty() {
             method = set;
 
             // Special modifiders, ie +10 adds 10 to current
-            if (prop.BeginsWith("+")) {
+            if (prop.BeginsWith('+')) {
                 prop = prop.Substr(1, prop.size());
                 method = add;
             }
-            else if (prop.BeginsWith("-")) {
+            else if (prop.BeginsWith('-')) {
                 prop = prop.Substr(1, prop.size());
                 method = subtract;
             }
-            else if (prop.BeginsWith("*")) {
+            else if (prop.BeginsWith('*')) {
                 prop = prop.Substr(1, prop.size());
                 method = multiply;
             }
-            else if (prop.BeginsWith("/")) {
+            else if (prop.BeginsWith('/')) {
                 prop = prop.Substr(1, prop.size());
                 method = divide;
+            }
+             else if (prop.BeginsWith('&')) {
+                prop = prop.Substr(1, prop.size());
+                method = AND;
+            }
+             else if (prop.BeginsWith('^')) {
+                prop = prop.Substr(1, prop.size());
+                method = XOR;
+            }
+             else if (prop.BeginsWith('|')) {
+                prop = prop.Substr(1, prop.size());
+                method = OR;
             }
 
             value = value.Substitute(" ", "");
@@ -303,7 +323,8 @@ void PropertyWindow2::SetProperty() {
             if ((size_t)textField->GetCursorY() / 12 == index) { // 12 is text height, check if cursor is on current line
                 line_contains_error = false;
                 if (!s.Contains(':') && s.size()) { // Autocomplete
-                    bool contains_modifier = s.BeginsWith('+') || s.BeginsWith('-') || s.BeginsWith('*') || s.BeginsWith('/');
+                    bool contains_modifier = s.BeginsWith('+') || s.BeginsWith('-') || s.BeginsWith('*') || s.BeginsWith('/')
+                        || s.BeginsWith('&') || s.BeginsWith('|') || s.BeginsWith('^');
                     size_t s_size = contains_modifier ? s.size() - 1 : s.size();
 
                     for (size_t i = 0; i < properties.size(); i++) {
