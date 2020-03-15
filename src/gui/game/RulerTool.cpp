@@ -146,7 +146,7 @@ VideoBuffer * RulerTool::GetIcon(int toolID, int width, int height) {
 			newTexture->SetPixel(x, y, PIXR(pc), PIXG(pc), PIXB(pc), 255);
 		}
 	}
-	newTexture->BlendCharacter((width/2)-7, (height/2)-6, 0xE06B, 255, 255, 255, 255);
+	newTexture->BlendCharacter((width/2)-7, (height/2)-6, 0xE078, 255, 255, 255, 255);
 	return newTexture;
 }
 

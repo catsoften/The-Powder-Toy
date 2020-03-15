@@ -302,7 +302,7 @@ VideoBuffer * TextTool::GetIcon(int toolID, int width, int height) {
 			newTexture->SetPixel(x, y, PIXR(pc), PIXG(pc), PIXB(pc), 255);
 		}
 	}
-	newTexture->BlendCharacter((width/2)-6, (height/2)-6, 0xE06A, 255, 255, 255, 255);
+	newTexture->BlendCharacter((width/2)-6, (height/2)-6, 0xE079, 255, 255, 255, 255);
 	return newTexture;
 }
 
