@@ -209,6 +209,10 @@ scale https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23708
 adding fields (including fan:) (TODO UPDATE ALL FIELDS FOR THIS)
 - simulation/Snapshot.h
 - client/GameSave.h and .cpp
+- sample simulation - sample.h
+
+one way wall don't block cray and jacob's lasers and such?
+- update laser gen func
 
 
 heat seeking missiles
@@ -498,10 +502,8 @@ toggle magnetic field calculation in update
 
 
 
-- time stasis field in snapshot?
 - magnetic fields in undo snapshot 
 - simulation->GetSnapshot()
-- also simulation timer in snapshot
 
 NEW TODO:
     MGNT, COPR, ZINC

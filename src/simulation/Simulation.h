@@ -19,6 +19,7 @@
 #include "elements/Element.h"
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
+#define FARADAY_CHANNELS (XRES / CELL * YRES / CELL)
 
 class Snapshot;
 class SimTool;
@@ -89,6 +90,9 @@ public:
 	int portal_rx[8];
 	int portal_ry[8];
 	int wireless[CHANNELS][2];
+	short faraday_wireless[FARADAY_CHANNELS][CHANNELS][2];
+	bool faraday_map[YRES / CELL][XRES / CELL];
+
 	//Stress sim
 	StressField * stressField;
 	//Gol sim

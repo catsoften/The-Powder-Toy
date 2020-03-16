@@ -527,6 +527,11 @@ Snapshot * Simulation::CreateSnapshot()
 	snap->Particles.insert(snap->Particles.begin(), parts, parts+parts_lastActiveIndex+1);
 	snap->PortalParticles.insert(snap->PortalParticles.begin(), &portalp[0][0][0], &portalp[CHANNELS-1][8-1][80-1]);
 	snap->WirelessData.insert(snap->WirelessData.begin(), &wireless[0][0], &wireless[CHANNELS-1][2-1]);
+	snap->FaradayWirelessData.insert(snap->FaradayWirelessData.begin(),
+		&faraday_wireless[0][0][0],
+		&faraday_wireless[FARADAY_CHANNELS - 1][CHANNELS - 1][2 - 1]);
+	snap->FaradayMap.insert(snap->FaradayMap.begin(), &faraday_map[0][0], &faraday_map[YRES / CELL - 1][XRES / CELL - 1]);
+	snap->TimeDilation.insert(snap->TimeDilation.begin(), &time_dilation[0][0], &time_dilation[YRES / CELL - 1][XRES / CELL - 1]);
 	snap->GravVelocityX.insert(snap->GravVelocityX.begin(), gravx, gravx+((XRES/CELL)*(YRES/CELL)));
 	snap->GravVelocityY.insert(snap->GravVelocityY.begin(), gravy, gravy+((XRES/CELL)*(YRES/CELL)));
 	snap->GravValue.insert(snap->GravValue.begin(), gravp, gravp+((XRES/CELL)*(YRES/CELL)));
@@ -540,11 +545,13 @@ Snapshot * Simulation::CreateSnapshot()
 	snap->stickmen.push_back(player);
 	snap->stickmen.insert(snap->stickmen.begin(), &fighters[0], &fighters[MAX_FIGHTERS]);
 	snap->signs = signs;
+	snap->timer = timer;
 	return snap;
 }
 
 void Simulation::Restore(const Snapshot & snap)
 {
+	timer = snap.timer;
 	parts_lastActiveIndex = NPART-1;
 	elementRecount = true;
 	force_stacking_check = true;
@@ -560,6 +567,9 @@ void Simulation::Restore(const Snapshot & snap)
 	RecalcFreeParticles(false);
 	std::copy(snap.PortalParticles.begin(), snap.PortalParticles.end(), &portalp[0][0][0]);
 	std::copy(snap.WirelessData.begin(), snap.WirelessData.end(), &wireless[0][0]);
+	std::copy(snap.FaradayWirelessData.begin(), snap.FaradayWirelessData.end(), &faraday_wireless[0][0][0]);
+	std::copy(snap.FaradayMap.begin(), snap.FaradayMap.end(), &faraday_map[0][0]);
+	std::copy(snap.TimeDilation.begin(), snap.TimeDilation.end(), &time_dilation[0][0]);
 	if (grav->IsEnabled())
 	{
 		grav->Clear();
@@ -2326,6 +2336,8 @@ void Simulation::clear_sim(void)
 	memset(oneWayDir, 0, sizeof(oneWayDir));
 	memset(photons, 0, sizeof(photons));
 	memset(wireless, 0, sizeof(wireless));
+	memset(faraday_wireless, 0, sizeof(faraday_wireless));
+	memset(faraday_map, 0, sizeof(faraday_map));
 	memset(gol2, 0, sizeof(gol2));
 	memset(portalp, 0, sizeof(portalp));
 	memset(fighters, 0, sizeof(fighters));

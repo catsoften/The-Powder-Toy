@@ -22,7 +22,10 @@ public:
 
 	std::vector<unsigned char> BlockMap;
 	std::vector<unsigned char> ElecMap;
+	std::vector<bool> FaradayMap;
+	unsigned int timer;
 
+	std::vector<char> TimeDilation;
 	std::vector<float> FanVelocityX;
 	std::vector<float> FanVelocityY;
 	std::vector<short> oneWayDir;
@@ -30,6 +33,7 @@ public:
 
 	std::vector<Particle> PortalParticles;
 	std::vector<int> WirelessData;
+	std::vector<short> FaradayWirelessData;
 	std::vector<playerst> stickmen;
 	std::vector<sign> signs;
 
