@@ -295,6 +295,12 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23149 - FARADAY WALL
 
 
 
+PR for vanilla:
+optimization: wifi uses too much memory
+wifi.cpp - remove extra if statement
+up down functionality in multiline textareas
+
+
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=1069 - UI Shit
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM waves
     - slow down in certain solids, can be used as a scanner

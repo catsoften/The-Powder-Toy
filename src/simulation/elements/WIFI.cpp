@@ -51,6 +51,8 @@ int Element_WIFI::update(UPDATE_FUNC_ARGS)
 	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);
 	if (parts[i].tmp>=CHANNELS) parts[i].tmp = CHANNELS-1;
 	else if (parts[i].tmp<0) parts[i].tmp = 0;
+	int faraday = 0;
+
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -58,20 +60,17 @@ int Element_WIFI::update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				// wireless[][0] - whether channel is active on this frame
-				// wireless[][1] - whether channel should be active on next frame
-				if (sim->wireless[parts[i].tmp][0])
-				{
-					if ((TYP(r)==PT_NSCN||TYP(r)==PT_PSCN||TYP(r)==PT_INWR)&&parts[ID(r)].life==0 && sim->wireless[parts[i].tmp][0])
-					{
+				// wireless[faraday][chan] & 1 - whether channel is active on this frame
+				// wireless[faraday][chan] & 2 - whether channel should be active on next frame
+				if (sim->wireless[faraday][parts[i].tmp] & 2) {
+					if ((TYP(r)==PT_NSCN||TYP(r)==PT_PSCN||TYP(r)==PT_INWR)&&parts[ID(r)].life==0) {
 						parts[ID(r)].ctype = TYP(r);
 						sim->part_change_type(ID(r),x+rx,y+ry,PT_SPRK);
 						parts[ID(r)].life = 4;
 					}
 				}
-				if (TYP(r)==PT_SPRK && parts[ID(r)].ctype!=PT_NSCN && parts[ID(r)].life>=3)
-				{
-					sim->wireless[parts[i].tmp][1] = 1;
+				if (TYP(r)==PT_SPRK && parts[ID(r)].ctype!=PT_NSCN && parts[ID(r)].life>=3) {
+					sim->wireless[faraday][parts[i].tmp] |= 1;
 					sim->ISWIRE = 2;
 				}
 			}

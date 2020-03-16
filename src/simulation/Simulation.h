@@ -19,7 +19,7 @@
 #include "elements/Element.h"
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
-#define FARADAY_CHANNELS (XRES / CELL * YRES / CELL)
+#define FARADAY_CHANNELS (XRES / CELL * YRES / CELL / 2 + 1) // Max possible faraday walls in checkerboard pattern, so half the sim
 
 class Snapshot;
 class SimTool;
@@ -89,9 +89,8 @@ public:
 	Particle portalp[CHANNELS][8][80];
 	int portal_rx[8];
 	int portal_ry[8];
-	int wireless[CHANNELS][2];
-	short faraday_wireless[FARADAY_CHANNELS][CHANNELS][2];
-	bool faraday_map[YRES / CELL][XRES / CELL];
+	unsigned char wireless[FARADAY_CHANNELS][CHANNELS];
+	unsigned short faraday_map[YRES / CELL][XRES / CELL];
 
 	//Stress sim
 	StressField * stressField;

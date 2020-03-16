@@ -526,10 +526,7 @@ Snapshot * Simulation::CreateSnapshot()
 	snap->AmbientHeat.insert(snap->AmbientHeat.begin(), &hv[0][0], &hv[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->Particles.insert(snap->Particles.begin(), parts, parts+parts_lastActiveIndex+1);
 	snap->PortalParticles.insert(snap->PortalParticles.begin(), &portalp[0][0][0], &portalp[CHANNELS-1][8-1][80-1]);
-	snap->WirelessData.insert(snap->WirelessData.begin(), &wireless[0][0], &wireless[CHANNELS-1][2-1]);
-	snap->FaradayWirelessData.insert(snap->FaradayWirelessData.begin(),
-		&faraday_wireless[0][0][0],
-		&faraday_wireless[FARADAY_CHANNELS - 1][CHANNELS - 1][2 - 1]);
+	snap->WirelessData.insert(snap->WirelessData.begin(), &wireless[0][0], &wireless[FARADAY_CHANNELS - 1][CHANNELS-1]);
 	snap->FaradayMap.insert(snap->FaradayMap.begin(), &faraday_map[0][0], &faraday_map[YRES / CELL - 1][XRES / CELL - 1]);
 	snap->TimeDilation.insert(snap->TimeDilation.begin(), &time_dilation[0][0], &time_dilation[YRES / CELL - 1][XRES / CELL - 1]);
 	snap->GravVelocityX.insert(snap->GravVelocityX.begin(), gravx, gravx+((XRES/CELL)*(YRES/CELL)));
@@ -567,7 +564,6 @@ void Simulation::Restore(const Snapshot & snap)
 	RecalcFreeParticles(false);
 	std::copy(snap.PortalParticles.begin(), snap.PortalParticles.end(), &portalp[0][0][0]);
 	std::copy(snap.WirelessData.begin(), snap.WirelessData.end(), &wireless[0][0]);
-	std::copy(snap.FaradayWirelessData.begin(), snap.FaradayWirelessData.end(), &faraday_wireless[0][0][0]);
 	std::copy(snap.FaradayMap.begin(), snap.FaradayMap.end(), &faraday_map[0][0]);
 	std::copy(snap.TimeDilation.begin(), snap.TimeDilation.end(), &time_dilation[0][0]);
 	if (grav->IsEnabled())
@@ -2336,7 +2332,6 @@ void Simulation::clear_sim(void)
 	memset(oneWayDir, 0, sizeof(oneWayDir));
 	memset(photons, 0, sizeof(photons));
 	memset(wireless, 0, sizeof(wireless));
-	memset(faraday_wireless, 0, sizeof(faraday_wireless));
 	memset(faraday_map, 0, sizeof(faraday_map));
 	memset(gol2, 0, sizeof(gol2));
 	memset(portalp, 0, sizeof(portalp));
@@ -5504,13 +5499,12 @@ void Simulation::BeforeSim()
 		}
 
 		// wifi channel reseting
-		if (ISWIRE > 0)
-		{
-			for (int q = 0; q < (int)(MAX_TEMP-73.15f)/100+2; q++)
-			{
-				wireless[q][0] = wireless[q][1];
-				wireless[q][1] = 0;
-			}
+		if (ISWIRE > 0) {
+			for (int l = 0; l < FARADAY_CHANNELS; l++)
+				for (int q = 0; q < CHANNELS; q++) {
+					// Set last (1st) bit to 2nd, then set 2nd to 0
+					wireless[l][q] = (wireless[l][q] << 1) & 2;
+				}
 			ISWIRE--;
 		}
 
