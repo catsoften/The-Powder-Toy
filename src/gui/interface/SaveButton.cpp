@@ -46,7 +46,7 @@ SaveButton::SaveButton(Point position, Point size, SaveInfo * save_) : SaveButto
 
 		String votes, icon;
 
-		votes = String::Build(save->GetVotesUp()-save->GetVotesDown());
+		votes = String::Build(save->GetVotesUp() - save->GetVotesDown());
 		icon += 0xE03B;
 		for (size_t j = 1; j < votes.length(); j++)
 			icon += 0xE03C;
@@ -238,20 +238,18 @@ void SaveButton::Draw(const Point& screenPos)
 			int x = screenPos.X-7+(Size.X-thumbBoxSize.X)/2+thumbBoxSize.X-Graphics::textwidth(votesBackground);
 			int y = screenPos.Y-23+(Size.Y-thumbBoxSize.Y)/2+thumbBoxSize.Y;
 			g->drawtext(x, y, votesBackground, 16, 72, 16, 255);
-			g->drawtext(x, y, votesBackground2, 192, 192, 192, 255);
+			g->drawtext(x, y, votesBackground2, 0, 0, 0, 255);
 			g->drawtext(x+3, y, votesString, 255, 255, 255, 255);
 		}
-		if (isMouseInsideHistory && showVotes)
-		{
-			int x = screenPos.X;
-			int y = screenPos.Y-15+(Size.Y-thumbBoxSize.Y)/2+thumbBoxSize.Y;
-			g->fillrect(x+1, y+1, 7, 8, 255, 255, 255, 255);
-			if (isMouseInsideHistory) {
-				g->drawtext(x, y, 0xE026, 200, 100, 80, 255);
-			} else {
-				g->drawtext(x, y, 0xE026, 160, 70, 50, 255);
-			}
-		}
+
+		// Draw history button regardless
+		int x = screenPos.X;
+		int y = screenPos.Y-15+(Size.Y-thumbBoxSize.Y)/2+thumbBoxSize.Y;
+		float darken = isMouseInsideHistory ? 1.0f : 0.6f;
+
+		g->fillrect(x+1, y+1, 7, 8, darken*255, darken*255, darken*255, 255);
+		g->drawtext(x, y, 0xE026, darken*200, darken*100, darken*80, 255);
+
 		if (!save->GetPublished())
 		{
 			g->drawtext(screenPos.X, screenPos.Y-2, 0xE04D, 255, 255, 255, 255);

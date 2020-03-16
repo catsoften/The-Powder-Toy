@@ -163,7 +163,15 @@ TODO: (maybe move to settings menu)
 2. news button
 3. bug report button
 
-votes on saves, timestamps on comments
+
+comments: double click on username to show saves
+
+DONE:
+total votes on saves, 
+timestamps on comments, 
+ history button
+    votes on saves 
+
 
 rectangles show for HUD but not in debug
 draw stress, etc... back rectangle slightly off
@@ -243,6 +251,7 @@ BOMB, MSSL, LASR ignore FFLD
 
 indestructbile powder
 
+Add CSNS to CNFG
 
 TODO:
 DECO tool set using graphics func?
