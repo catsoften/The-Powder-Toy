@@ -83,6 +83,7 @@ public:
 	unsigned char ** blockMap;
 	float ** fanVelX;
 	float ** fanVelY;
+	float ** oneWay;
 	float ** pressure;
 	float ** velocityX;
 	float ** velocityY;

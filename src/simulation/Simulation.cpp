@@ -319,6 +319,7 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 				bmap[saveBlockY+blockY][saveBlockX+blockX] = save->blockMap[saveBlockY][saveBlockX];
 				fvx[saveBlockY+blockY][saveBlockX+blockX] = save->fanVelX[saveBlockY][saveBlockX];
 				fvy[saveBlockY+blockY][saveBlockX+blockX] = save->fanVelY[saveBlockY][saveBlockX];
+				oneWayDir[saveBlockY + blockY][saveBlockX + blockX] = save->oneWay[saveBlockY][saveBlockX];
 			}
 			if (includePressure)
 			{
@@ -467,6 +468,7 @@ GameSave * Simulation::Save(bool includePressure, int fullX, int fullY, int full
 				newSave->blockMap[saveBlockY][saveBlockX] = bmap[saveBlockY+blockY][saveBlockX+blockX];
 				newSave->fanVelX[saveBlockY][saveBlockX] = fvx[saveBlockY+blockY][saveBlockX+blockX];
 				newSave->fanVelY[saveBlockY][saveBlockX] = fvy[saveBlockY+blockY][saveBlockX+blockX];
+				newSave->oneWay[saveBlockY][saveBlockX] = oneWayDir[saveBlockY+blockY][saveBlockX+blockX];
 			}
 			if (includePressure)
 			{
@@ -533,6 +535,7 @@ Snapshot * Simulation::CreateSnapshot()
 	snap->ElecMap.insert(snap->ElecMap.begin(), &emap[0][0], &emap[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->FanVelocityX.insert(snap->FanVelocityX.begin(), &fvx[0][0], &fvx[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->FanVelocityY.insert(snap->FanVelocityY.begin(), &fvy[0][0], &fvy[0][0]+((XRES/CELL)*(YRES/CELL)));
+	snap->oneWayDir.insert(snap->oneWayDir.begin(), &oneWayDir[0][0], &oneWayDir[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->stickmen.push_back(player2);
 	snap->stickmen.push_back(player);
 	snap->stickmen.insert(snap->stickmen.begin(), &fighters[0], &fighters[MAX_FIGHTERS]);
@@ -570,6 +573,7 @@ void Simulation::Restore(const Snapshot & snap)
 	std::copy(snap.ElecMap.begin(), snap.ElecMap.end(), &emap[0][0]);
 	std::copy(snap.FanVelocityX.begin(), snap.FanVelocityX.end(), &fvx[0][0]);
 	std::copy(snap.FanVelocityY.begin(), snap.FanVelocityY.end(), &fvy[0][0]);
+	std::copy(snap.oneWayDir.begin(), snap.oneWayDir.end(), &oneWayDir[0][0]);
 	std::copy(snap.stickmen.begin(), snap.stickmen.end()-2, &fighters[0]);
 	player = snap.stickmen[snap.stickmen.size()-1];
 	player2 = snap.stickmen[snap.stickmen.size()-2];
@@ -1527,6 +1531,9 @@ int Simulation::CreateWalls(int x, int y, int rx, int ry, int wall, Brush * cBru
 					fvx[wallY][wallX] = 0.0f;
 					fvy[wallY][wallX] = 0.0f;
 				}
+				else if (wall == WL_ONEWAY) {
+					oneWayDir[wallY][wallX] = 0;
+				}
 				else if (wall == WL_STREAM)
 				{
 					wallX = x + rx;
@@ -2315,6 +2322,7 @@ void Simulation::clear_sim(void)
 	memset(pmap, 0, sizeof(pmap));
 	memset(fvx, 0, sizeof(fvx));
 	memset(fvy, 0, sizeof(fvy));
+	memset(oneWayDir, 0, sizeof(oneWayDir));
 	memset(photons, 0, sizeof(photons));
 	memset(wireless, 0, sizeof(wireless));
 	memset(gol2, 0, sizeof(gol2));
@@ -2370,6 +2378,9 @@ bool Simulation::IsWallBlocking(int x, int y, int type)
 			return true;
 		else if (wall == WL_EWALL && !emap[y/CELL][x/CELL])
 			return true;
+		else if (wall == WL_ONEWAY) {
+			return true;
+		}
 	}
 	return false;
 }
@@ -2659,7 +2670,7 @@ int Simulation::eval_move(int pt, int nx, int ny, unsigned *rr)
 	}
 	if (bmap[ny/CELL][nx/CELL])
 	{
-		if (IsWallBlocking(nx, ny, pt))
+		if (IsWallBlocking(nx, ny, pt)) 
 			return 0;
 		if (bmap[ny/CELL][nx/CELL]==WL_EHOLE && !emap[ny/CELL][nx/CELL] && !(elements[pt].Properties&TYPE_SOLID) && !(elements[TYP(r)].Properties&TYPE_SOLID))
 			return 2;
@@ -2677,6 +2688,24 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 		return 1;
 
 	e = eval_move(parts[i].type, nx, ny, &r);
+
+	// Special override for one way walls
+	if (bmap[ny / CELL][nx / CELL] == WL_ONEWAY) {
+		if (bmap[y / CELL][x / CELL] == WL_ONEWAY)
+			e = 2; // Allow particles inside to avoid being stuck
+		else {
+			int dir = oneWayDir[ny / CELL][nx / CELL];
+			if (fabs(parts[i].vy) > fabs(parts[i].vx) * 1.1) {
+				if (dir == 1) 		e = (parts[i].vy >= 0.0f) ? 0 : 2; // Up
+				else if (dir == 3)	e = (parts[i].vy <= 0.0f) ? 0 : 2; // Down
+			}
+			if (e == 0 && fabs(parts[i].vx) > fabs(parts[i].vy) * 1.1f) {
+				if (dir == 2) 		e = (parts[i].vx >= 0.0f) ? 0 : 2; // Left
+				else if (dir == 4)	e = (parts[i].vx <= 0.0f) ? 0 : 2; // Right
+				else e = 0;
+			}
+		}
+	}
 
 	/* half-silvered mirror */
 	if (!e && parts[i].type==PT_PHOT && ((TYP(r)==PT_BMTL && RNG::Ref().chance(1, 2)) || TYP(pmap[y][x])==PT_BMTL))

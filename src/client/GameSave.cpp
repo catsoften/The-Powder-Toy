@@ -47,6 +47,7 @@ GameSave::GameSave(GameSave & save):
 			std::copy(save.blockMap[j], save.blockMap[j]+blockWidth, blockMap[j]);
 			std::copy(save.fanVelX[j], save.fanVelX[j]+blockWidth, fanVelX[j]);
 			std::copy(save.fanVelY[j], save.fanVelY[j]+blockWidth, fanVelY[j]);
+			std::copy(save.oneWay[j], save.oneWay[j]+blockWidth, oneWay[j]);
 			std::copy(save.pressure[j], save.pressure[j]+blockWidth, pressure[j]);
 			std::copy(save.velocityX[j], save.velocityX[j]+blockWidth, velocityX[j]);
 			std::copy(save.velocityY[j], save.velocityY[j]+blockWidth, velocityY[j]);
@@ -149,6 +150,7 @@ void GameSave::InitData()
 	blockMap = NULL;
 	fanVelX = NULL;
 	fanVelY = NULL;
+	oneWay = NULL;
 	particles = NULL;
 	pressure = NULL;
 	velocityX = NULL;
@@ -252,6 +254,7 @@ void GameSave::setSize(int newWidth, int newHeight)
 	blockMap = Allocate2DArray<unsigned char>(blockWidth, blockHeight, 0);
 	fanVelX = Allocate2DArray<float>(blockWidth, blockHeight, 0.0f);
 	fanVelY = Allocate2DArray<float>(blockWidth, blockHeight, 0.0f);
+	oneWay = Allocate2DArray<float>(blockWidth, blockHeight, 0.0f);
 	pressure = Allocate2DArray<float>(blockWidth, blockHeight, 0.0f);
 	velocityX = Allocate2DArray<float>(blockWidth, blockHeight, 0.0f);
 	velocityY = Allocate2DArray<float>(blockWidth, blockHeight, 0.0f);
@@ -399,11 +402,13 @@ void GameSave::Transform(matrix2d transform, vector2d translate, vector2d transl
 	vector2d pos, vel;
 
 	unsigned char ** blockMapNew;
-	float **fanVelXNew, **fanVelYNew, **pressureNew, **velocityXNew, **velocityYNew, **ambientHeatNew;
+	float **fanVelXNew, **fanVelYNew, **oneWayNew, **pressureNew,
+		  **velocityXNew, **velocityYNew, **ambientHeatNew;
 
 	blockMapNew = Allocate2DArray<unsigned char>(newBlockWidth, newBlockHeight, 0);
 	fanVelXNew = Allocate2DArray<float>(newBlockWidth, newBlockHeight, 0.0f);
 	fanVelYNew = Allocate2DArray<float>(newBlockWidth, newBlockHeight, 0.0f);
+	oneWayNew = Allocate2DArray<float>(newBlockWidth, newBlockHeight, 0.0f);
 	pressureNew = Allocate2DArray<float>(newBlockWidth, newBlockHeight, 0.0f);
 	velocityXNew = Allocate2DArray<float>(newBlockWidth, newBlockHeight, 0.0f);
 	velocityYNew = Allocate2DArray<float>(newBlockWidth, newBlockHeight, 0.0f);
@@ -478,6 +483,15 @@ void GameSave::Transform(matrix2d transform, vector2d translate, vector2d transl
 					fanVelXNew[ny][nx] = vel.x;
 					fanVelYNew[ny][nx] = vel.y;
 				}
+				else if (blockMap[y][x] == WL_ONEWAY) {
+					if (oneWay[y][x] == 1)	    vel = v2d_new(0, -1); // Up
+					else if (oneWay[y][x] == 2) vel = v2d_new(-1, 0); // Left
+					else if (oneWay[y][x] == 3) vel = v2d_new(0, 1); // Down
+					else if (oneWay[y][x] == 4) vel = v2d_new(1, 0); // Right
+					vel = m2d_multiply_v2d(transform, vel);
+					oneWayNew[ny][nx] = (vel.x == 0) ?
+						(vel.y == -1 ? 1 : 3) : (vel.x == -1 ? 2 : 4);
+				}
 			}
 			pressureNew[ny][nx] = pressure[y][x];
 			velocityXNew[ny][nx] = velocityX[y][x];
@@ -491,6 +505,7 @@ void GameSave::Transform(matrix2d transform, vector2d translate, vector2d transl
 		delete[] blockMap[j];
 		delete[] fanVelX[j];
 		delete[] fanVelY[j];
+		delete[] oneWay[j];
 		delete[] pressure[j];
 		delete[] velocityX[j];
 		delete[] velocityY[j];
@@ -503,6 +518,7 @@ void GameSave::Transform(matrix2d transform, vector2d translate, vector2d transl
 	delete[] blockMap;
 	delete[] fanVelX;
 	delete[] fanVelY;
+	delete[] oneWay;
 	delete[] pressure;
 	delete[] velocityX;
 	delete[] velocityY;
@@ -511,6 +527,7 @@ void GameSave::Transform(matrix2d transform, vector2d translate, vector2d transl
 	blockMap = blockMapNew;
 	fanVelX = fanVelXNew;
 	fanVelY = fanVelYNew;
+	oneWay = oneWayNew;
 	pressure = pressureNew;
 	velocityX = velocityXNew;
 	velocityY = velocityYNew;
@@ -564,9 +581,11 @@ void GameSave::CheckBsonFieldInt(bson_iterator iter, const char *field, int *set
 
 void GameSave::readOPS(char * data, int dataLength)
 {
-	unsigned char *inputData = (unsigned char*)data, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *soapLinkData = NULL;
+	unsigned char *inputData = (unsigned char*)data, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL,
+		*oneWayData = NULL, *wallData = NULL, *soapLinkData = NULL;
 	unsigned char *pressData = NULL, *vxData = NULL, *vyData = NULL, *ambientData = NULL;
-	unsigned int inputDataLen = dataLength, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, soapLinkDataLen;
+	unsigned int inputDataLen = dataLength, bsonDataLen = 0, partsDataLen, partsPosDataLen,
+		fanDataLen, oneWayDataLen,wallDataLen, soapLinkDataLen;
 	unsigned int pressDataLen, vxDataLen, vyDataLen, ambientDataLen;
 	unsigned partsCount = 0;
 	unsigned int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
@@ -651,6 +670,7 @@ void GameSave::readOPS(char * data, int dataLength)
 		CheckBsonFieldUser(iter, "vyMap", &vyData, &vyDataLen);
 		CheckBsonFieldUser(iter, "ambientMap", &ambientData, &ambientDataLen);
 		CheckBsonFieldUser(iter, "fanMap", &fanData, &fanDataLen);
+		CheckBsonFieldUser(iter, "oneWayMap", &oneWayData, &oneWayDataLen);
 		CheckBsonFieldUser(iter, "soapLinks", &soapLinkData, &soapLinkDataLen);
 		CheckBsonFieldBool(iter, "legacyEnable", &legacyEnable);
 		CheckBsonFieldBool(iter, "gravityEnable", &gravityEnable);
@@ -862,7 +882,7 @@ void GameSave::readOPS(char * data, int dataLength)
 	//Read wall and fan data
 	if(wallData)
 	{
-		unsigned int j = 0;
+		unsigned int j = 0, k = 0;
 		if (blockW * blockH > wallDataLen)
 			throw ParseException(ParseException::Corrupt, "Not enough wall data");
 		for (unsigned int x = 0; x < blockW; x++)
@@ -913,6 +933,11 @@ void GameSave::readOPS(char * data, int dataLength)
 					}
 					fanVelX[blockY+y][blockX+x] = (fanData[j++]-127.0f)/64.0f;
 					fanVelY[blockY+y][blockX+x] = (fanData[j++]-127.0f)/64.0f;
+				}
+				if (blockMap[y][x] == WL_ONEWAY && oneWayData) {
+					if(k + 1 >= oneWayDataLen)
+						fprintf(stderr, "Not enough one way data\n");
+					oneWay[blockY+y][blockX+x] = oneWayData[k++];
 				}
 
 				if (blockMap[y][x] >= UI_WALLCOUNT)
@@ -2042,14 +2067,15 @@ char * GameSave::serialiseOPS(unsigned int & dataLength)
 	auto wallData = std::unique_ptr<unsigned char[]>(new unsigned char[blockWidth*blockHeight]);
 	bool hasWallData = false;
 	auto fanData = std::unique_ptr<unsigned char[]>(new unsigned char[blockWidth*blockHeight*2]);
+	auto oneWayData = std::unique_ptr<unsigned char[]>(new unsigned char[blockWidth * blockHeight * 2]);
 	auto pressData = std::unique_ptr<unsigned char[]>(new unsigned char[blockWidth*blockHeight*2]);
 	auto vxData = std::unique_ptr<unsigned char[]>(new unsigned char[blockWidth*blockHeight*2]);
 	auto vyData = std::unique_ptr<unsigned char[]>(new unsigned char[blockWidth*blockHeight*2]);
 	auto ambientData = std::unique_ptr<unsigned char[]>(new unsigned char[blockWidth*blockHeight*2]);
 	std::fill(&ambientData[0], &ambientData[blockWidth*blockHeight*2], 0);
-	if (!wallData || !fanData || !pressData || !vxData || !vyData || !ambientData)
+	if (!wallData || !fanData || !pressData || !vxData || !vyData || !ambientData || !oneWayData)
 		throw BuildException("Save error, out of memory (blockmaps)");
-	unsigned int wallDataLen = blockWidth*blockHeight, fanDataLen = 0, pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, ambientDataLen = 0;
+	unsigned int wallDataLen = blockWidth*blockHeight, fanDataLen = 0, oneWayDataLen = 0, pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, ambientDataLen = 0;
 
 	for (x = blockX; x < blockX+blockW; x++)
 	{
@@ -2092,6 +2118,9 @@ char * GameSave::serialiseOPS(unsigned int & dataLength)
 				if (i<0) i=0;
 				if (i>255) i=255;
 				fanData[fanDataLen++] = i;
+			}
+			else if (blockMap[y][x] == WL_ONEWAY) {
+				oneWayData[oneWayDataLen++] = oneWay[y][x];
 			}
 			else if (blockMap[y][x] == WL_STASIS)
 			{
@@ -2567,6 +2596,8 @@ char * GameSave::serialiseOPS(unsigned int & dataLength)
 		bson_append_binary(&b, "wallMap", BSON_BIN_USER, (const char *)wallData.get(), wallDataLen);
 	if (fanData && fanDataLen)
 		bson_append_binary(&b, "fanMap", BSON_BIN_USER, (const char *)fanData.get(), fanDataLen);
+	if (oneWayData && oneWayDataLen)
+		bson_append_binary(&b, "oneWayMap", BSON_BIN_USER, (const char *)oneWayData.get(), oneWayDataLen);
 	if (pressData && hasPressure && pressDataLen)
 		bson_append_binary(&b, "pressMap", (char)BSON_BIN_USER, (const char*)pressData.get(), pressDataLen);
 	if (vxData && hasPressure && vxDataLen)
@@ -2811,6 +2842,7 @@ void GameSave::dealloc()
 	Deallocate2DArray<unsigned char>(&blockMap, blockHeight);
 	Deallocate2DArray<float>(&fanVelX, blockHeight);
 	Deallocate2DArray<float>(&fanVelY, blockHeight);
+	Deallocate2DArray<float>(&oneWay, blockHeight);
 	Deallocate2DArray<float>(&pressure, blockHeight);
 	Deallocate2DArray<float>(&velocityX, blockHeight);
 	Deallocate2DArray<float>(&velocityY, blockHeight);

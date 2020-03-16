@@ -115,6 +115,7 @@ public:
 	unsigned char emap[YRES/CELL][XRES/CELL];
 	float fvx[YRES/CELL][XRES/CELL];
 	float fvy[YRES/CELL][XRES/CELL];
+	short oneWayDir[YRES/CELL][XRES/CELL]; // 0 = nothing, 1 = up, 2 = left, 3 = down, 4 = right
 	//Particles
 	Particle parts[NPART];
 	int pmap[YRES][XRES];

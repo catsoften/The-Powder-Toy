@@ -1,4 +1,5 @@
 #include "Tool.h"
+#include <cmath>
 
 #include "gui/game/Brush.h"
 
@@ -78,6 +79,7 @@ WallTool::~WallTool() {}
 void WallTool::Draw(Simulation * sim, Brush * brush, ui::Point position) {
 	sim->CreateWalls(position.X, position.Y, 1, 1, toolID, brush);
 }
+
 void WallTool::DrawLine(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2, bool dragging) {
 	int wallX = position1.X/CELL;
 	int wallY = position1.Y/CELL;
@@ -95,6 +97,23 @@ void WallTool::DrawLine(Simulation * sim, Brush * brush, ui::Point position1, ui
 					sim->fvx[j][i] = newFanVelX;
 					sim->fvy[j][i] = newFanVelY;
 					sim->bmap[j][i] = WL_FAN;
+				}
+	}
+	else if (!dragging && toolID == WL_ONEWAY && sim->bmap[wallY][wallX] == WL_ONEWAY) {
+		float tX = (position2.X-position1.X);
+		float tY = (position2.Y-position1.Y);
+
+		// 0 = nothing, 1 = up, 2 = left, 3 = down, 4 = right
+		short dir = (fabs(tY) > fabs(tX)) ?
+			(tY > 0 ? 3 : 1) : // Down or Up
+			(tX < 0 ? 2 : 4); // Left or Right
+
+		sim->FloodWalls(position1.X, position1.Y, WL_FLOODHELPER, WL_ONEWAY);
+		for (int j = 0; j < YRES/CELL; j++)
+			for (int i = 0; i < XRES/CELL; i++)
+				if (sim->bmap[j][i] == WL_FLOODHELPER) {
+					sim->oneWayDir[j][i] = dir;
+					sim->bmap[j][i] = WL_ONEWAY;
 				}
 	}
 	else

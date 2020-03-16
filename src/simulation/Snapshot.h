@@ -25,6 +25,7 @@ public:
 
 	std::vector<float> FanVelocityX;
 	std::vector<float> FanVelocityY;
+	std::vector<short> oneWayDir;
 
 
 	std::vector<Particle> PortalParticles;

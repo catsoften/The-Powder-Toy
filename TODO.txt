@@ -210,7 +210,6 @@ adding fields (including fan:) (TODO UPDATE ALL FIELDS FOR THIS)
 - client/GameSave.h and .cpp
 
 
-
 heat seeking missiles
 
 
@@ -661,27 +660,3 @@ which operates using flood fill to transfer data
    Draws a fancy cone
    -- Operating capacity depends on how much damage thruster has taken
    
-
-
-QUANTUM STUFF THIS IS DONE IN CASE U NEED IT 
-EXPLAINATION
-
-Particles should also store not only their id, but particle id in state array
-- state not only stores vector state, but alos ordering of particles
- - We simply apply identity gate to the one we don't want to change
- - for example, 3 entangled particles, apply H to 2nd, I (X) M (X) I
-
- swaping is easy, ie swap index 0 and 3 in a 5 qbit state, iterate al lstates, ie
- |00000>, |00001>, ...., find where index 0 and 3 are opposite and swap value with the other state
- ie 00010 swaps with 10000 and 01110 swaps with 11100 and so on
-
-https://www.quantum-inspire.com/
-quantum elements :D
-http://vlsicad.eecs.umich.edu/BK/Slots/cache/www.eecs.umich.edu/~jhayes/JPH_DACslides_Jun03.pdf
-http://www.cs.xu.edu/~kinne/quantum/deutche.html
-https://qumystery.tech/
-https://medium.com/@jonathan_hui/qc-quantum-computing-series-10ddd7977abd
-https://medium.com/@jonathan_hui/qc-programming-with-quantum-gates-2-qubit-operator-871528d136db
-https://medium.com/@jonathan_hui/qc-programming-with-quantum-gates-8996b667d256
-https://en.wikipedia.org/wiki/Qubit
-https://towardsdatascience.com/demystifying-quantum-gates-one-qubit-at-a-time-54404ed80640
