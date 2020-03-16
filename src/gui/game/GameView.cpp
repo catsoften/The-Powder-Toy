@@ -2305,9 +2305,12 @@ void GameView::OnDraw()
 			}
 		}
 
-		int textWidth3 = Graphics::textwidth(sampleInfo2.Build());
-		g->fillrect(XRES - 20 - textWidth3, 41, textWidth3 + 8, 15, 0, 0, 0, alpha*0.5f);
-		g->drawtext(XRES - 16 - textWidth3, 44, sampleInfo2.Build(), 255, 255, 255, alpha*0.75f);
+		String built = sampleInfo2.Build();
+		if (built.size()) {
+			int textWidth3 = Graphics::textwidth(built);
+			g->fillrect(XRES - 20 - textWidth3, 41, textWidth3 + 8, 15, 0, 0, 0, alpha*0.5f);
+			g->drawtext(XRES - 16 - textWidth3, 44, built, 255, 255, 255, alpha*0.75f);
+		}
 
 		// 4th line where it displays the pvag and stuff
 		StringBuilder sampleInfo3;
@@ -2321,9 +2324,12 @@ void GameView::OnDraw()
 			}
 		}
 
-		int textWidth4 = Graphics::textwidth(sampleInfo3.Build());
-		g->fillrect(XRES - 20 - textWidth4, 56, textWidth4 + 8, 15, 0, 0, 0, alpha*0.5f);
-		g->drawtext(XRES - 16 - textWidth4, 58, sampleInfo3.Build(), 255, 255, 255, alpha*0.75f);
+		built = sampleInfo3.Build();
+		if (built.size()) {
+			int textWidth4 = Graphics::textwidth(built);
+			g->fillrect(XRES - 20 - textWidth4, 56, textWidth4 + 8, 15, 0, 0, 0, alpha*0.5f);
+			g->drawtext(XRES - 16 - textWidth4, 58, built, 255, 255, 255, alpha*0.75f);
+		}
 
 #ifndef OGLI
 		if (wavelengthGfx)
@@ -2471,18 +2477,20 @@ void GameView::OnDraw()
 
 		int textWidth = Graphics::textwidth(fpsInfo.Build());
 		int alpha = 255-introText*5;
-		g->fillrect(12, 12, textWidth+8, 15, 0, 0, 0, alpha*0.5);
+		g->fillrect(12, 11, textWidth+8, 15, 0, 0, 0, alpha*0.5);
 		g->drawtext(16, 16, fpsInfo.Build(), 32, 216, 255, alpha*0.75);
 
 		// Second line
+		StringBuilder fpsInfo2;
+			
 		time_t rawtime;
 		struct tm * timeinfo;
 		char buffer[80];
 		time(&rawtime);
 		timeinfo = localtime(&rawtime);
-		strftime(buffer, 80, "%d-%m-%Y %I:%M:%S %p", timeinfo); // Get rid of year if nessesary 
-
-		StringBuilder fpsInfo2;
+		strftime(buffer, 80, showDebug ?
+			"%Y-%m-%d %I:%M:%S %p" :
+			"%I:%M:%S %p", timeinfo);
 		fpsInfo2 << buffer << " ";
 
 		if (c->GetReplaceModeFlags()&REPLACE_MODE)
@@ -2494,7 +2502,7 @@ void GameView::OnDraw()
 
 		int textWidth2 = Graphics::textwidth(fpsInfo2.Build());
 		int alpha2 = 255 - introText * 5;
-		g->fillrect(12, 27, textWidth2 + 8, 15, 0, 0, 0, alpha2 * 0.5);
+		g->fillrect(12, 26, textWidth2 + 8, 15, 0, 0, 0, alpha2 * 0.5);
 		g->drawtext(16, 28, fpsInfo2.Build(), 32, 216, 255, alpha2 * 0.75);
 	}
 

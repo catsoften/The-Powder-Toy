@@ -167,11 +167,6 @@ TODO: (maybe move to settings menu)
 comments: double click on username to show saves
 - confirm
 
-
-rectangles show for HUD but not in debug
-draw stress, etc... back rectangle slightly off
-
-
 high pressure pipe 
 
 
