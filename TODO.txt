@@ -165,12 +165,7 @@ TODO: (maybe move to settings menu)
 
 
 comments: double click on username to show saves
-
-DONE:
-total votes on saves, 
-timestamps on comments, 
- history button
-    votes on saves 
+- confirm
 
 
 rectangles show for HUD but not in debug
@@ -254,7 +249,6 @@ indestructbile powder
 Add CSNS to CNFG
 
 TODO:
-DECO tool set using graphics func?
 vsns - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23475
 SRAY - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=20234
 

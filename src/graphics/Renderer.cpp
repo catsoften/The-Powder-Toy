@@ -2713,6 +2713,7 @@ Renderer::Renderer(Graphics * g, Simulation * sim):
 {
 	this->g = g;
 	this->sim = sim;
+	this->sim->ren = this;
 #if !defined(OGLR)
 #if defined(OGLI)
 	vid = new pixel[VIDXRES*VIDYRES];

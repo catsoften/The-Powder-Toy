@@ -239,6 +239,7 @@ public:
 	static float remainder_p(float x, float y);
 
 	GameModel *model = nullptr;
+	Renderer *ren = nullptr;
 	GameModel *getModel();
 
 	String ElementResolve(int type, int ctype);

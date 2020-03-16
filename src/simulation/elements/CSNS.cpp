@@ -1,9 +1,6 @@
 #include "simulation/ElementCommon.h"
 
 #define PIXA(x) (((x)>>24)&0xFF)
-namespace CSNS {
-	Renderer * ren;
-}
 
 //#TPT-Directive ElementClass Element_CSNS PT_CSNS 286
 Element_CSNS::Element_CSNS() {
@@ -84,15 +81,15 @@ int Element_CSNS::update(UPDATE_FUNC_ARGS) {
 
 			// Get color of the particle
 			if (sim->elements[TYP(r)].Graphics) {
-				if (CSNS::ren->graphicscache[TYP(r)].isready) {
-					cr = CSNS::ren->graphicscache[TYP(r)].colr / 255.0f * CSNS::ren->graphicscache[TYP(r)].cola;
-					cg = CSNS::ren->graphicscache[TYP(r)].colg / 255.0f * CSNS::ren->graphicscache[TYP(r)].cola;
-					cb = CSNS::ren->graphicscache[TYP(r)].colb / 255.0f * CSNS::ren->graphicscache[TYP(r)].cola;
+				if (sim->ren->graphicscache[TYP(r)].isready) {
+					cr = sim->ren->graphicscache[TYP(r)].colr / 255.0f * sim->ren->graphicscache[TYP(r)].cola;
+					cg = sim->ren->graphicscache[TYP(r)].colg / 255.0f * sim->ren->graphicscache[TYP(r)].cola;
+					cb = sim->ren->graphicscache[TYP(r)].colb / 255.0f * sim->ren->graphicscache[TYP(r)].cola;
 				}
 				else {
 					ct = sim->elements[TYP(r)].Colour;
 					cr = PIXR(ct), cg = PIXG(ct), cb = PIXB(ct), ca = 255;
-					(*(sim->elements[TYP(r)].Graphics))(CSNS::ren,
+					(*(sim->elements[TYP(r)].Graphics))(sim->ren,
 						&(sim->parts[ID(r)]), x + rx, y + ry, &useless, &ca, &cr, &cg, &cb,
 							&useless, &useless, &useless, &useless);
 					cr = cr / 255.0f * ca;
@@ -144,7 +141,6 @@ int Element_CSNS::update(UPDATE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_CSNS static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_CSNS::graphics(GRAPHICS_FUNC_ARGS) {
-	CSNS::ren = ren; // Hack to get refernce to renderer
 	return 1;
 }
 
