@@ -2279,6 +2279,15 @@ void GameView::OnDraw()
 		else if (sample.WallType)
 		{
 			sampleInfo << c->WallName(sample.WallType);
+			if (sample.WallType == WL_ONEWAY) {
+				switch (sample.oneWayDir) {
+					case 0: sampleInfo << " (NONE)";  break;
+					case 1: sampleInfo << " (UP)";    break;
+					case 2: sampleInfo << " (LEFT)";  break;
+					case 3: sampleInfo << " (DOWN)";  break;
+					case 4: sampleInfo << " (RIGHT)"; break;
+				}
+			}
 			sampleInfo << ", Pressure: " << sample.AirPressure;
 		}
 		else if (sample.isMouseInSim) {

@@ -735,6 +735,7 @@ SimulationSample Simulation::GetSample(int x, int y)
 		sample.AirTemperature = hv[y/CELL][x/CELL];
 		sample.AirVelocityX = vx[y/CELL][x/CELL];
 		sample.AirVelocityY = vy[y/CELL][x/CELL];
+		sample.oneWayDir = oneWayDir[y/CELL][x/CELL];
 		sample.Stress = stressField->stress_map[y][x];
 
 		if(grav->IsEnabled())

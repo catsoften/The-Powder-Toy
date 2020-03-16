@@ -13,6 +13,7 @@ public:
 	float AirTemperature;
 	float AirVelocityX;
 	float AirVelocityY;
+	short oneWayDir;
 	float Stress;
 
 	int WallType;
