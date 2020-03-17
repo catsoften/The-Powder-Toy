@@ -336,6 +336,7 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 	}
 
 	gravWallChanged = true;
+	faraday_updated = false;
 	air->RecalculateBlockAirMaps();
 
 	return 0;
@@ -605,6 +606,8 @@ void Simulation::clear_area(int area_x, int area_y, int area_w, int area_h)
 		{
 			if (bmap[y][x] == WL_GRAV)
 				gravWallChanged = true;
+			else if (bmap[y][x] == WL_FARADAY)
+				faraday_updated = false;
 			bmap[y][x] = 0;
 			emap[y][x] = 0;
 		}
@@ -3082,7 +3085,7 @@ void Simulation::RecalculateFaraday() {
 	int group_id = 1;
 	for (int x = 0; x < XRES / CELL; x++)
 	for (int y = 0; y < YRES / CELL; y++) {
-		if (bmap[y][x] == WL_FARADAY && faraday_map[y][x] == 0) {
+		if (bmap[y][x] != WL_FARADAY && faraday_map[y][x] == 0) {
 			// Initiate floodfill
 			CoordStack coords;
 			int x2, y2;
@@ -3095,19 +3098,24 @@ void Simulation::RecalculateFaraday() {
 				// Floodfill
 				for (int rx = -1; rx <= 1; ++rx)
 				for (int ry = -1; ry <= 1; ++ry)
-				if ((rx || ry) && x2 + rx >= 0 && x2 + rx < XRES / CELL &&
-								  y2 + ry >= 0 && y2 + ry < YRES / CELL &&
-								  bmap[y2 + ry][x2 + rx] == WL_FARADAY &&
-								  faraday_map[y2 + ry][x2 + rx] == 0) {
+				if ((rx || ry) && (!rx || !ry) 
+					 && x2 + rx >= 0 && x2 + rx < XRES / CELL &&
+						y2 + ry >= 0 && y2 + ry < YRES / CELL &&
+						bmap[y2 + ry][x2 + rx] != WL_FARADAY &&
+						faraday_map[y2 + ry][x2 + rx] == 0) {
 					faraday_map[y2 + ry][x2 + rx] = group_id;
 					coords.push(x2 + rx, y2 + ry);
 				}
 			}
 			group_id++;
-			if (group_id >= MAX_FARADAY_DIVISIONS)
-				group_id = MAX_FARADAY_DIVISIONS - 1;
+			if (group_id > MAX_FARADAY_DIVISIONS)
+				group_id = MAX_FARADAY_DIVISIONS;
 		}
 	}
+	for (int x = 0; x < XRES / CELL; x++)
+	for (int y = 0; y < YRES / CELL; y++)
+		if (faraday_map[y][x])
+			faraday_map[y][x]--;
 	faraday_updated = true;
 }
 
