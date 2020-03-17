@@ -105,6 +105,7 @@ int Element_ETRD::nearestSparkablePart(Simulation *sim, int targetId)
 		return -1;
 
 	Particle *parts = sim->parts;
+	int faraday = sim->faraday_map[(int)(0.5f+parts[targetId].y) / CELL][(int)(0.5f+parts[targetId].x) / CELL];
 	int foundDistance = XRES + YRES;
 	int foundI = -1;
 	ui::Point targetPos = ui::Point(parts[targetId].x, parts[targetId].y);
@@ -131,7 +132,8 @@ int Element_ETRD::nearestSparkablePart(Simulation *sim, int targetId)
 				if (sim->InBounds(checkPos.X, checkPos.Y) && checkDistance <= foundDistance)
 				{
 					int r = sim->pmap[checkPos.Y][checkPos.X];
-					if (r && TYP(r) == PT_ETRD && !parts[ID(r)].life && ID(r) != targetId && checkDistance < foundDistance)
+					if (r && TYP(r) == PT_ETRD && !parts[ID(r)].life && ID(r) != targetId && checkDistance < foundDistance
+							&& sim->faraday_map[(int)(0.5f+parts[ID(r)].y) / CELL][(int)(0.5f+parts[ID(r)].x) / CELL] == faraday)
 					{
 						foundDistance = checkDistance;
 						foundI = ID(r);
@@ -144,7 +146,8 @@ int Element_ETRD::nearestSparkablePart(Simulation *sim, int targetId)
 		{
 			for (int i = 0; i <= sim->parts_lastActiveIndex; i++)
 			{
-				if (parts[i].type == PT_ETRD && !parts[i].life)
+				if (parts[i].type == PT_ETRD && !parts[i].life &&
+					sim->faraday_map[(int)(0.5f + parts[i].y) / CELL][(int)(0.5f + parts[i].x) / CELL] == faraday)
 				{
 					ui::Point checkPos = ui::Point(parts[i].x-targetPos.X, parts[i].y-targetPos.Y);
 					int checkDistance = std::abs(checkPos.X) + std::abs(checkPos.Y);
@@ -163,7 +166,8 @@ int Element_ETRD::nearestSparkablePart(Simulation *sim, int targetId)
 		int countLife0 = 0;
 		for (int i = 0; i <= sim->parts_lastActiveIndex; i++)
 		{
-			if (parts[i].type == PT_ETRD && !parts[i].life)
+			if (parts[i].type == PT_ETRD && !parts[i].life &&
+				sim->faraday_map[(int)(0.5f + parts[i].y) / CELL][(int)(0.5f + parts[i].x) / CELL] == faraday)
 			{
 				countLife0++;
 				ui::Point checkPos = ui::Point(parts[i].x-targetPos.X, parts[i].y-targetPos.Y);
