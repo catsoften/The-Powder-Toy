@@ -299,9 +299,9 @@ wifi - draw connections, consider faraday wall
 - Idk work
 
 
-select opposite for wall tool 
-
 DONE
+select opposite for wall tool 
+- fix bug where overwriting wall dosn;t affect
 - restrict faraday channels to like 100, and add 100 more channels for other wifi using tmp2 and same array
 faraday_channels = tmp_channels + faradaything
 - hollow

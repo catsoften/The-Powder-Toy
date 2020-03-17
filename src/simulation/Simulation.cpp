@@ -1561,7 +1561,7 @@ int Simulation::CreateWalls(int x, int y, int rx, int ry, int wall, Brush * cBru
 				}
 				if (wall == WL_GRAV || bmap[wallY][wallX] == WL_GRAV)
 					gravWallChanged = true;
-				else if (wall == WL_FARADAY)
+				else if (wall == WL_FARADAY || bmap[wallY][wallX] == WL_FARADAY)
 					faraday_updated = false;
 
 				if (wall == WL_ERASEALL)

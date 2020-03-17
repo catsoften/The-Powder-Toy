@@ -1138,6 +1138,9 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 		else if (tool->GetName() == "ACOL")
 			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_AHET"));
 
+		else if (tool->GetIdentifier().BeginsWith("DEFAULT_WL") && tool->GetIdentifier() != "DEFAULT_WL_ERASE")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_WL_ERASE"));
+
 		// Reset to original tool
 		else {
 			should_set_previous_tool = false;
