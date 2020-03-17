@@ -88,7 +88,7 @@ public:
 	std::vector<int> vehicles;
 	const unsigned char MAX_VEHICLES = 100;
 	//Portals and Wifi
-	Particle portalp[CHANNELS][8][80];
+	Particle portalp[FARADAY_CHANNELS * CHANNELS][8][80];
 	int portal_rx[8];
 	int portal_ry[8];
 	unsigned char wireless[FARADAY_CHANNELS][CHANNELS];

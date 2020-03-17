@@ -666,9 +666,12 @@ void Element_STKM::STKM_interact(Simulation *sim, playerst *playerp, int i, int 
 		if (TYP(r)==PT_PRTI && sim->parts[i].type)
 		{
 			int nnx, count=1;//gives rx=0, ry=1 in update_PRTO
-			sim->parts[ID(r)].tmp = (int)((sim->parts[ID(r)].temp-73.15f)/100+1);
-			if (sim->parts[ID(r)].tmp>=CHANNELS) sim->parts[ID(r)].tmp = CHANNELS-1;
-			else if (sim->parts[ID(r)].tmp<0) sim->parts[ID(r)].tmp = 0;
+			sim->parts[ID(r)].tmp = sim->faraday_map[y / CELL][x / CELL] * CHANNELS +
+				(int)((sim->parts[ID(r)].temp-73.15f)/100+1);
+			if (sim->parts[ID(r)].tmp >= FARADAY_CHANNELS * CHANNELS)
+				sim->parts[ID(r)].tmp = FARADAY_CHANNELS * CHANNELS-1;
+			else if (sim->parts[ID(r)].tmp < 0)
+				sim->parts[ID(r)].tmp = 0;
 			for (nnx=0; nnx<80; nnx++)
 				if (!sim->portalp[sim->parts[ID(r)].tmp][count][nnx].type)
 				{
