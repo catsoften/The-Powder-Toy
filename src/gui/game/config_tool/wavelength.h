@@ -170,7 +170,7 @@ void ConfigWavelengthWindow::DoDraw() {
         gr->fillrect(Position.X + 8 + i * 10, Position.Y + 21, 10, 15,
                      m * wavelength_colors[i].Red, m * wavelength_colors[i].Green, m * wavelength_colors[i].Blue,
                      255);
-        gr->drawtext(Position.X + 11 + i * 10, Position.Y + 25, wavelength_bits[i] ? "1" : "0", 0, 0, 0, 255);
+        gr->drawtext(Position.X + 11 + i * 10, Position.Y + 25, wavelength_bits[i] ? String("1") : String("0"), 0, 0, 0, 255);
     }
 
     // Get the actual wavelength color and draw below
