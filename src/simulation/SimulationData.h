@@ -144,6 +144,21 @@
 #define NGT_STAR 21
 #define NGT_FROG 22
 #define NGT_BRAN 23
+// Mod GOL
+#define NGT_LWDH 24
+#define NGT_SERV 25
+#define NGT_VT45 26
+#define NGT_FMZE 27
+#define NGT_LFOD 28
+#define NGT_ANTI 29
+#define NGT_INVL 30
+#define NGT_HTRE 31
+#define NGT_IBAL 32
+#define NGT_RULH 33
+#define NGT_CRCF 34
+#define NGT_GEMS 35
+#define NGT_PLIF 36
+#define NGT_DOTS 37
 
 //replace mode / specific delete flags
 #define REPLACE_MODE 0x1
