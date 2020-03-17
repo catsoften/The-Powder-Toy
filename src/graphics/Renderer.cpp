@@ -2036,7 +2036,9 @@ void Renderer::render_parts()
 					// draw lines connecting wifi/portal channels
 					if (mousePos.X == nx && mousePos.Y == ny && i == ID(sim->pmap[ny][nx]) && debugLines)
 					{
-						int type = parts[i].type, tmp = (int)((parts[i].temp-73.15f)/100+1), othertmp;
+						int type = parts[i].type,
+							tmp = sim->faraday_map[ny / CELL][nx / CELL]*CHANNELS + (int)((parts[i].temp-73.15f)/100+1),
+							othertmp;
 						if (type == PT_PRTI)
 							type = PT_PRTO;
 						else if (type == PT_PRTO)
@@ -2045,7 +2047,8 @@ void Renderer::render_parts()
 						{
 							if (parts[z].type == type)
 							{
-								othertmp = (int)((parts[z].temp-73.15f)/100+1);
+								othertmp = sim->faraday_map[(int)(parts[z].y+0.5f) / CELL][(int)(parts[z].x+0.5f) / CELL]*CHANNELS
+										+ (int)((parts[z].temp-73.15f)/100+1);
 								if (tmp == othertmp)
 									xor_line(nx,ny,(int)(parts[z].x+0.5f),(int)(parts[z].y+0.5f));
 							}
