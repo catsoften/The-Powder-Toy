@@ -293,10 +293,10 @@ more deco plants like
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23149 - FARADAY WALL
     See https://github.com/china-richway2/The-Powder-Toy/tree/chinamod which implements
 wifi - draw connections, consider faraday wall
-- Idk work
-- EMP
 
 DONE
+- EMP
+
 - ETRD work
 select opposite for wall tool 
 - fix bug where overwriting wall dosn;t affect

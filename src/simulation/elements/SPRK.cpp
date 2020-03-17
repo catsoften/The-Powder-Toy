@@ -288,6 +288,7 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 				case PT_EMP:
 					if (!parts[ID(r)].life && parts[i].life > 0 && parts[i].life < 4)
 					{
+						sim->emp_faraday_channels.insert(sim->faraday_map[(y + ry) / CELL][(x + rx) / CELL]);
 						sim->emp_trigger_count++;
 						sim->emp_decor += 3;
 						if (sim->emp_decor > 40)

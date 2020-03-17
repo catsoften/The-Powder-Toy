@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cstddef>
 #include <vector>
+#include <set>
 
 #include "Particle.h"
 #include "Stickman.h"
@@ -74,6 +75,7 @@ public:
 	bool force_stacking_check;
 	int emp_decor;
 	int emp_trigger_count;
+	std::set<int> emp_faraday_channels;
 	bool etrd_count_valid;
 	int etrd_life0_count;
 	int lightningRecreate;

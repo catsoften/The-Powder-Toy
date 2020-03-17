@@ -5573,6 +5573,7 @@ void Simulation::AfterSim()
 	{
 		Element_EMP::Trigger(this, emp_trigger_count);
 		emp_trigger_count = 0;
+		emp_faraday_channels.clear();
 	}
 	timer++; // Global timer
 }
