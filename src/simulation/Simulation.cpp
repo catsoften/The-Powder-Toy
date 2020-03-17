@@ -584,6 +584,9 @@ void Simulation::Restore(const Snapshot & snap)
 	player = snap.stickmen[snap.stickmen.size()-1];
 	player2 = snap.stickmen[snap.stickmen.size()-2];
 	signs = snap.signs;
+
+	faraday_updated = false;
+	RecalculateFaraday();
 }
 
 void Simulation::clear_area(int area_x, int area_y, int area_w, int area_h)
@@ -1555,6 +1558,8 @@ int Simulation::CreateWalls(int x, int y, int rx, int ry, int wall, Brush * cBru
 				}
 				if (wall == WL_GRAV || bmap[wallY][wallX] == WL_GRAV)
 					gravWallChanged = true;
+				else if (wall == WL_FARADAY)
+					faraday_updated = false;
 
 				if (wall == WL_ERASEALL)
 				{
@@ -3068,6 +3073,42 @@ int Simulation::do_move(int i, int x, int y, float nxf, float nyf)
 		}
 	}
 	return result;
+}
+
+void Simulation::RecalculateFaraday() {
+	if (faraday_updated) return;
+
+	std::fill(&faraday_map[0][0], &faraday_map[YRES / CELL][0], 0);
+	int group_id = 1;
+	for (int x = 0; x < XRES / CELL; x++)
+	for (int y = 0; y < YRES / CELL; y++) {
+		if (bmap[y][x] == WL_FARADAY && faraday_map[y][x] == 0) {
+			// Initiate floodfill
+			CoordStack coords;
+			int x2, y2;
+			coords.push(x, y);
+
+			while (coords.getSize()) {
+				coords.pop(x2, y2);
+				faraday_map[y2][x2] = group_id;
+
+				// Floodfill
+				for (int rx = -1; rx <= 1; ++rx)
+				for (int ry = -1; ry <= 1; ++ry)
+				if ((rx || ry) && x2 + rx >= 0 && x2 + rx < XRES / CELL &&
+								  y2 + ry >= 0 && y2 + ry < YRES / CELL &&
+								  bmap[y2 + ry][x2 + rx] == WL_FARADAY &&
+								  faraday_map[y2 + ry][x2 + rx] == 0) {
+					faraday_map[y2 + ry][x2 + rx] = group_id;
+					coords.push(x2 + rx, y2 + ry);
+				}
+			}
+			group_id++;
+			if (group_id >= MAX_FARADAY_DIVISIONS)
+				group_id = MAX_FARADAY_DIVISIONS - 1;
+		}
+	}
+	faraday_updated = true;
 }
 
 void Simulation::photoelectric_effect(int nx, int ny)//create sparks from PHOT when hitting PSCN and NSCN
@@ -5311,7 +5352,7 @@ void Simulation::BeforeSim()
 			}
 		}
 
-
+		RecalculateFaraday();
 		air->update_air();
 
 		if(aheat_enable)

@@ -19,7 +19,9 @@
 #include "elements/Element.h"
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
-#define FARADAY_CHANNELS (XRES / CELL * YRES / CELL / 2 + 1) // Max possible faraday walls in checkerboard pattern, so half the sim
+#define MAX_FARADAY_DIVISIONS 100
+#define MAX_TMP2_CHANNELS 100
+#define FARADAY_CHANNELS MAX_FARADAY_DIVISIONS + MAX_TMP2_CHANNELS
 
 class Snapshot;
 class SimTool;
@@ -91,6 +93,7 @@ public:
 	int portal_ry[8];
 	unsigned char wireless[FARADAY_CHANNELS][CHANNELS];
 	unsigned short faraday_map[YRES / CELL][XRES / CELL];
+	bool faraday_updated = false;
 
 	//Stress sim
 	StressField * stressField;
@@ -169,6 +172,7 @@ public:
 	int flood_prop(int x, int y, size_t propoffset, PropertyValue propvalue, StructProperty::PropertyType proptype);
 	bool flood_water(int x, int y, int i);
 	int FloodINST(int x, int y, int cm_=-1, int co_=-1);
+	void RecalculateFaraday();
 	void detach(int i);
 	bool part_change_type(int i, int x, int y, int t);
 	//int InCurrentBrush(int i, int j, int rx, int ry);

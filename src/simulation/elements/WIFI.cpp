@@ -51,12 +51,14 @@ int Element_WIFI::update(UPDATE_FUNC_ARGS)
 	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);
 	if (parts[i].tmp>=CHANNELS) parts[i].tmp = CHANNELS-1;
 	else if (parts[i].tmp<0) parts[i].tmp = 0;
-	int faraday = 0;
+
+	int faraday = sim->faraday_map[y / CELL][x / CELL];
+	if (parts[i].tmp2)
+		faraday += 100;
 
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
-			if (BOUNDS_CHECK && (rx || ry))
-			{
+			if (BOUNDS_CHECK && (rx || ry)) {
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;

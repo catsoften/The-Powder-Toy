@@ -129,7 +129,7 @@ std::vector<wall_type> LoadWalls()
 		{PIXPACK(0x808080), PIXPACK(0x000000), 0, Renderer::WallIcon, String("ERASEALL"),        "DEFAULT_WL_ERASEA", String("Erases walls, particles, and signs.")},
 		{PIXPACK(0x800080), PIXPACK(0x000000), 0, Renderer::WallIcon, String("STASIS WALL"),     "DEFAULT_WL_STASIS", String("Freezes particles inside the wall in place until powered.")},
 		{PIXPACK(0x40A832), PIXPACK(0x000000), 4, Renderer::WallIcon, String("I-WALL"),          "DEFAULT_WL_INDESTRUCTIBLE", String("Prevents particles inside from being destroyed.")},
-		{PIXPACK(0x006387), PIXPACK(0x000000), 2, Renderer::WallIcon, String("FARADAY WALL"),    "DEFAULT_WL_FARADAY", String("Blocks WIFI, ETRD, EMP, and portals inside of the wall.")},
+		{PIXPACK(0x006387), PIXPACK(0x000000), 2, Renderer::WallIcon, String("FARADAY WALL"),    "DEFAULT_WL_FARADAY", String("Blocks WIFI, ETRD, EMP, and portals inside a blob of this wall.")},
 		{PIXPACK(0x008717), PIXPACK(0x000000), 1, Renderer::WallIcon, String("ONE WAY WALL"),    "DEFAULT_WL_ONEWAY", String("One way wall, use line tool to set direction.")}
 	};
 }
