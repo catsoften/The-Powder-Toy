@@ -57,9 +57,9 @@ int Element_DEBG::update(UPDATE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_DEBG static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_DEBG::graphics(GRAPHICS_FUNC_ARGS) {
-	//if (cpart->tmp == 1) {
+	if (cpart->tmp == 1) {
 		ren->drawtext(nx, ny - 5, String::Build("ID: ", ren->sim->faraday_map[ny / CELL][nx / CELL]), 255, 255, 255, 255);
-	//}
+	}
 
 	return 0;
 }

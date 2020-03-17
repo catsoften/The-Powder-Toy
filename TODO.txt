@@ -199,7 +199,6 @@ bleach, tear gas, nitrogen
 
 bedrock, absorbs liquid
 
-extra wifi channels
 
 add / subtract /multiply/ div element math https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=12219
 
@@ -290,22 +289,6 @@ more deco plants like
 - mushrooms
 - flowers? idk
 
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23149 - FARADAY WALL
-    See https://github.com/china-richway2/The-Powder-Toy/tree/chinamod which implements
-wifi - draw connections, consider faraday wall
-
-DONE
-- EMP
-
-- ETRD work
-select opposite for wall tool 
-- fix bug where overwriting wall dosn;t affect
-- restrict faraday channels to like 100, and add 100 more channels for other wifi using tmp2 and same array
-faraday_channels = tmp_channels + faradaything
-- hollow
-bug: ctrl-x -ctrlv doesn't update
-- same for portals
-- portals work
 
 PR for vanilla:
 optimization: wifi uses too much memory
