@@ -108,13 +108,24 @@ void Brush::RenderLine(Renderer * ren, ui::Point position1, ui::Point position2)
 	ren->xor_line(position1.X, position1.Y, position2.X, position2.Y);
 }
 
-void Brush::RenderPoint(Renderer * ren, ui::Point position)
-{
+void Brush::RenderPoint(Renderer * ren, ui::Point position) {
 	if(!outline)
 		updateOutline();
 	if(!outline)
 		return;
 	ren->xor_bitmap(outline, position.X-radius.X, position.Y-radius.Y, size.X, size.Y);
+
+	// Render crosshair if large enough
+	if (drawCrosshair && radius.X > 15 && radius.Y > 15) {
+		ren->xor_line(position.X, position.Y - 5, position.X, position.Y + 5);
+		ren->xor_line(position.X - 5, position.Y, position.X + 5, position.Y);
+	}
+
+	// Hollow indicator
+	if (isHollow) {
+		ren->fillrect(12, 41, ren->g->textwidth("[HOLLOW BRUSH]") + 8, 15, 0, 0, 0, 255 * 0.5);
+		ren->drawtext(16, 43, "[HOLLOW BRUSH]", 32, 216, 255, 255 * 0.75);
+	}
 }
 
 void Brush::RenderFill(Renderer * ren, ui::Point position)

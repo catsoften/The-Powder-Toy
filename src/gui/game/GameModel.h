@@ -4,6 +4,8 @@
 #include <vector>
 #include <deque>
 
+#define HOLLOW_BRUSHES 3
+
 #include "gui/interface/Colour.h"
 #include "client/User.h"
 #include "gui/interface/Point.h"
@@ -57,6 +59,7 @@ private:
 	std::vector<QuickOption*> quickOptions;
 	int activeMenu;
 	int currentBrush;
+	bool currentlySelectingHollow = false;
 	std::vector<Brush *> brushList;
 	SaveInfo * currentSave;
 	SaveFile * currentFile;
@@ -76,6 +79,8 @@ private:
 	bool perfectCircle = true;
 	bool autoSelectOppositeTool = true;
 	bool secretModShortcut = false;
+	bool crosshairInBrush = true;
+	bool hollowBrushes = true;
 
 	size_t activeColourPreset;
 	std::vector<ui::Colour> colourPresets;
@@ -168,6 +173,10 @@ public:
 	void SetAutoSelectOppositeTool(bool t) { autoSelectOppositeTool = t; }
 	bool GetSecretModShortcut() { return secretModShortcut; }
 	void SetSecretModShortcut(bool t) { secretModShortcut = t; }
+	bool GetCrosshairInBrush() { return crosshairInBrush; }
+	void SetCrosshairInBrush(bool t);
+	bool GetHollowBrushes() { return hollowBrushes; }
+	void SetHollowBrushes(bool t);
 	
 	std::vector<Tool*> GetToolList();
 	std::vector<Tool*> GetUnlistedTools();
@@ -175,7 +184,7 @@ public:
 	Brush * GetBrush();
 	std::vector<Brush*> GetBrushList();
 	int GetBrushID();
-	void SetBrushID(int i);
+	void SetBrushID(int i, bool toggle_hollow = false);
 
 	void SetVote(int direction);
 	SaveInfo * GetSave();

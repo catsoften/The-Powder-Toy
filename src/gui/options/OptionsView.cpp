@@ -362,20 +362,53 @@ OptionsView::OptionsView():
 	scrollPanel->AddChild(autoOppositeTool);
 
 	// ------------------
-	currentY += 20;
+	// currentY += 20;
 	secretModShortcut = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Secret Mod Shortcut", "");
 	autowidth(secretModShortcut);
 	secretModShortcut->SetActionCallback({[this] { c->SetSecretModShortcut(secretModShortcut->GetChecked()); }});
 
-	currentY += 12;
+	// currentY += 12;
 	tempLabel = new ui::Label(ui::Point(autoOppositeTool->Position.X + 12, currentY), ui::Point(1, 16), "- Ctrl-A views save info. Pretend to be jacob1.");
 	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
 
 	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	// Remove per request of jacob1
+	// scrollPanel->AddChild(tempLabel);
+	// scrollPanel->AddChild(secretModShortcut);
+
+	// ------------------
+	currentY += 20;
+	crosshairInBrush = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Display Crosshair in Brush", "");
+	autowidth(crosshairInBrush);
+	crosshairInBrush->SetActionCallback({[this] { c->SetCrosshairInBrush(crosshairInBrush->GetChecked()); }});
+
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(crosshairInBrush->Position.X + 12, currentY), ui::Point(1, 16), "- Displays a crosshair at the center of large brushes");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	scrollPanel->AddChild(tempLabel);
-	scrollPanel->AddChild(secretModShortcut);
+	scrollPanel->AddChild(crosshairInBrush);
+
+	// ------------------
+	currentY += 20;
+	hollowBrushes = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Hollow Brushes", "");
+	autowidth(hollowBrushes);
+	hollowBrushes->SetActionCallback({[this] { c->SetHollowBrushes(hollowBrushes->GetChecked()); }});
+
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(hollowBrushes->Position.X + 12, currentY), ui::Point(1, 16), "- Adds hollow brush variants, toggle with SHIFT-TAB");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(hollowBrushes);
 
 	// ------------------
 
@@ -410,6 +443,8 @@ void OptionsView::NotifySettingsChanged(OptionsModel * sender)
 	perfectCirclePressure->SetChecked(sender->GetPerfectCircle());
 	autoOppositeTool->SetChecked(sender->GetAutoSelectOppositeTool());
 	secretModShortcut->SetChecked(sender->GetSecretModShortcut());
+	crosshairInBrush->SetChecked(sender->GetCrosshairInBrush());
+	hollowBrushes->SetChecked(sender->GetHollowBrushes());
 }
 
 void OptionsView::AttachController(OptionsController * c_)

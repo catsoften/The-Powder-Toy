@@ -115,9 +115,14 @@ void OptionsController::SetPerfectCircle(bool perfectCircle)
 void OptionsController::SetOppositeToolEnabled(bool oppositeTool) {
 	model->SetAutoSelectOppositeTool(oppositeTool);
 }
-
 void OptionsController::SetSecretModShortcut(bool enabled) {
 	model->SetSecretModShortcut(enabled);
+}
+void OptionsController::SetCrosshairInBrush(bool enabled) {
+	model->SetCrosshairInBrush(enabled);
+}
+void OptionsController::SetHollowBrushes(bool enabled) {
+	model->SetHollowBrushes(enabled);
 }
 
 void OptionsController::Exit()

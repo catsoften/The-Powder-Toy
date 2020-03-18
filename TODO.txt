@@ -239,6 +239,8 @@ time dilation GOL
 -TRBN seralize to FILT?
 - also range like other sensors?
 
+offset element ids for newer versions somehow
+
 literally any solid checking - rock isn't a solid :|
 
 bees update location stamp, cut or copy
@@ -253,7 +255,6 @@ SRAY - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=20234
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=20310 - suggestions
 
-offset element ids for newer versions somehow
 
 gravity, magnetism, aheat sensors
 
@@ -297,9 +298,6 @@ wifi.cpp - remove extra if statement
 up down functionality in multiline textareas
 
 
-
-10. A small cross at the center of a circle larger than 5 px in diameter to allow for pinpointing without reducing cursor size.
-11. hollow brushes
 
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM waves

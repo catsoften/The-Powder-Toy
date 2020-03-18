@@ -1535,10 +1535,10 @@ void GameController::Vote(int direction)
 	}
 }
 
-void GameController::ChangeBrush()
+void GameController::ChangeBrush(bool shift)
 {
 	auto prev_size = gameModel->GetBrush()->GetRadius();
-	gameModel->SetBrushID(gameModel->GetBrushID()+1);
+	gameModel->SetBrushID(gameModel->GetBrushID()+1, shift);
 	gameModel->GetBrush()->SetRadius(prev_size);
 }
 

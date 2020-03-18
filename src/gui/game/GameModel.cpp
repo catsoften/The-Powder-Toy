@@ -117,6 +117,8 @@ GameModel::GameModel():
 	BuildMenus();
 
 	perfectCircle = Client::Ref().GetPrefBool("PerfectCircleBrush", true);
+	crosshairInBrush = Client::Ref().GetPrefBool("CrosshairInBrush", true);
+	hollowBrushes = Client::Ref().GetPrefBool("HollowBrushes", true); 
 	BuildBrushList();
 
 	//Set default decoration colour
@@ -466,8 +468,20 @@ void GameModel::BuildBrushList()
 		brushList.push_back(new BitmapBrush(brushData, ui::Point(dimension, dimension)));
 	}
 
+	if (hollowBrushes) {
+		brushList.push_back(new HollowEllipseBrush(ui::Point(4, 4), perfectCircle));
+		brushList.push_back(new HollowBrush(ui::Point(4, 4)));
+		brushList.push_back(new HollowTriangleBrush(ui::Point(4, 4)));
+		for (unsigned int i = 1; i <= HOLLOW_BRUSHES; i++)
+			brushList[brushList.size() - i]->SetHollow(true);
+	}
+
 	if (hasStoredRadius && (size_t)currentBrush < brushList.size())
 		brushList[currentBrush]->SetRadius(radius);
+
+	bool draw_crosshair = Client::Ref().GetPrefBool("CrosshairInBrush", true);
+	for (unsigned int i = 0; i < brushList.size(); i++)
+		brushList[i]->SetDrawCrosshair(draw_crosshair);
 	notifyBrushChanged();
 }
 
@@ -587,9 +601,13 @@ int GameModel::GetBrushID()
 	return currentBrush;
 }
 
-void GameModel::SetBrushID(int i)
+void GameModel::SetBrushID(int i, bool toggle_hollow)
 {
-	currentBrush = i%brushList.size();
+	if (toggle_hollow) currentlySelectingHollow = !currentlySelectingHollow;
+	if (currentlySelectingHollow && hollowBrushes)
+		currentBrush = (brushList.size() - HOLLOW_BRUSHES) + (i - brushList.size() + HOLLOW_BRUSHES + 1) % HOLLOW_BRUSHES;
+	else
+		currentBrush = i % (hollowBrushes ? brushList.size() - HOLLOW_BRUSHES : brushList.size());
 	notifyBrushChanged();
 }
 
@@ -1445,6 +1463,20 @@ void GameModel::SetPerfectCircle(bool perfectCircle)
 	if (perfectCircle != this->perfectCircle)
 	{
 		this->perfectCircle = perfectCircle;
+		BuildBrushList();
+	}
+}
+
+void GameModel::SetCrosshairInBrush(bool t) {
+	if (t != crosshairInBrush) {
+		crosshairInBrush = t;
+		BuildBrushList();
+	}
+}
+
+void GameModel::SetHollowBrushes(bool t) {
+	if (t != hollowBrushes) {
+		hollowBrushes = t;
 		BuildBrushList();
 	}
 }

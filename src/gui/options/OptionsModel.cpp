@@ -246,6 +246,26 @@ void OptionsModel::SetSecretModShortcut(bool enabled) {
 	notifySettingsChanged();
 }
 
+bool OptionsModel::GetCrosshairInBrush() {
+	return Client::Ref().GetPrefBool("CrosshairInBrush", true);
+}
+
+void OptionsModel::SetCrosshairInBrush(bool enabled) {
+	Client::Ref().SetPref("CrosshairInBrush", enabled);
+	gModel->SetCrosshairInBrush(enabled);
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetHollowBrushes() {
+	return Client::Ref().GetPrefBool("HollowBrushes", true);
+}
+
+void OptionsModel::SetHollowBrushes(bool enabled) {
+	Client::Ref().SetPref("HollowBrushes", enabled);
+	gModel->SetHollowBrushes(enabled);
+	notifySettingsChanged();
+}
+
 void OptionsModel::notifySettingsChanged()
 {
 	for (size_t i = 0; i < observers.size(); i++)

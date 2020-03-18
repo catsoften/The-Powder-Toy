@@ -55,6 +55,10 @@ public:
 	void SetAutoSelectOppositeTool(bool oppositeTool);
 	bool GetSecretModShortcut();
 	void SetSecretModShortcut(bool enabled);
+	bool GetCrosshairInBrush();
+	void SetCrosshairInBrush(bool enabled);
+	bool GetHollowBrushes();
+	void SetHollowBrushes(bool enabled);
 	virtual ~OptionsModel();
 };
 

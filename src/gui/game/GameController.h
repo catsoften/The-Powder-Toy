@@ -140,7 +140,7 @@ public:
 	void ClearSim();
 	void ReloadSim();
 	void Vote(int direction);
-	void ChangeBrush();
+	void ChangeBrush(bool shift=false);
 	void ShowConsole();
 	void HideConsole();
 	void FrameStep();
