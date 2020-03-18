@@ -159,6 +159,7 @@ PropertyWindow2::PropertyWindow2(PropertyTool2 * tool_, Simulation *sim_):
 	FocusComponent(textField);
 
 	MakeActiveWindow();
+    SetProperty(); // Initial error highlighting
 }
 
 void PropertyWindow2::DoMouseDown(int x, int y, unsigned button) {
