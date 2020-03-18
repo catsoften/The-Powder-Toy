@@ -3,18 +3,20 @@
 #include "simulation/Simulation.h"
 
 #include "gui/Style.h"
-#include "gui/interface/Window.h"
-#include "gui/interface/Button.h"
-#include "gui/interface/Label.h"
-#include "gui/interface/Textbox.h"
-#include "gui/interface/DropDown.h"
-#include "gui/interface/ScrollPanel.h"
 #include "gui/game/GameModel.h"
+#include "gui/interface/Button.h"
+#include "gui/interface/DropDown.h"
+#include "gui/interface/Keys.h"
+#include "gui/interface/Label.h"
+#include "gui/interface/ScrollPanel.h"
+#include "gui/interface/Textbox.h"
+#include "gui/interface/Window.h"
 
 #include "graphics/Graphics.h"
 #include "gui/interface/Engine.h"
 #include "client/Client.h"
 #include "gui/game/config_tool/util.h"
+#include "gui/interface/TextWrapper.h"
 
 #include "gui/game/texterfonts/font.h"
 #include "gui/game/texterfonts/all-fonts.h"
@@ -47,6 +49,7 @@ public:
     Simulation * sim;
 	ui::Point textPosition;
     std::vector<String> lines;
+    ui::TextWrapper textWrapper;
 
     int elecolor;
     String element;
@@ -65,6 +68,11 @@ public:
         ui::Window::DoMouseWheel(x, y, d);
 	}
 	void DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override {
+        // Ctrl-enter for exit override
+        if (ctrl && (key == SDLK_KP_ENTER || key == SDLK_RETURN)) {
+            OnTryOkay(ui::Window::OkayButton);
+            return;
+        }
         ui::Window::DoKeyPress(key, scan, repeat, shift, ctrl, alt);
 	}
 	void DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override {
@@ -83,6 +91,14 @@ public:
     }
 
     void onClose() {
+        // Render text to sim
+        texter_fonts[font->GetOption().second]->draw_sim(lines,
+            justification->GetOption().second,
+            text_spacing_options[spacing->GetOption().second].second,
+            sim->GetParticleType(element.ToUtf8()),
+            textPosition.X, textPosition.Y, sim);
+        sim->model->SetPaused(true);
+
         Client::Ref().SetPref("Text.Align", justification->GetOption().second);
         Client::Ref().SetPref("Text.Spacing", spacing->GetOption().second);
         Client::Ref().SetPref("Text.Font", font->GetOption().second);
@@ -106,13 +122,6 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 
 	ui::Button * okayButton = make_center_button(ui::Point(Size.X / 2, Size.Y-16), ui::Point(Size.X / 2, 16), "OK");
 	okayButton->SetActionCallback({ [this] {
-        // Render text to sim
-        texter_fonts[font->GetOption().second]->draw_sim(lines,
-            justification->GetOption().second,
-            text_spacing_options[spacing->GetOption().second].second,
-            sim->GetParticleType(element.ToUtf8()),
-            textPosition.X, textPosition.Y, sim);
-        sim->model->SetPaused(true); // Pause sim
         onClose();
         CloseActiveWindow();
         SelfDestruct();
@@ -210,7 +219,7 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
             int oldSize = textField->Size.Y;
             int oldScrollSize = scrollPanel->InnerSize.Y;
 
-            textField->Size.Y = 13 * lines.size();
+            textField->Size.Y = (FONT_H + 1) * textWrapper.Update(textField->GetText(), true, textField->Size.X);
             if (textField->Size.Y < scrollPanel->Size.Y)
                 textField->Size.Y = scrollPanel->Size.Y;
 

@@ -12,6 +12,7 @@
 #include "gui/interface/Textbox.h"
 #include "gui/interface/Window.h"
 #include "gui/game/config_tool/util.h"
+#include "gui/interface/TextWrapper.h"
 
 #include "simulation/Simulation.h"
 #include "graphics/Graphics.h"
@@ -50,6 +51,7 @@ public:
 	ui::Textbox * textField;
 	PropertyTool2 * tool;
 	Simulation *sim;
+    ui::TextWrapper textWrapper;
 
 	std::vector<StructProperty> properties;
     std::vector<String> lines, error_lines;
@@ -132,7 +134,7 @@ PropertyWindow2::PropertyWindow2(PropertyTool2 * tool_, Simulation *sim_):
         int oldSize = textField->Size.Y;
         int oldScrollSize = scrollPanel->InnerSize.Y;
 
-        textField->Size.Y = 13 * lines.size();
+        textField->Size.Y = (FONT_H + 1) * textWrapper.Update(textField->GetText(), true, textField->Size.X);
         if (textField->Size.Y < scrollPanel->Size.Y)
             textField->Size.Y = scrollPanel->Size.Y;
 

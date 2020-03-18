@@ -223,12 +223,9 @@ holy water can be used to make a holy thermonuclear bomb
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23830
 
 
-missing scroll panel in textbox in text tool
-crl-ejnter in text tool
+
 cnfg tool and others - move bottom cover 1 px up to avoid the selection rect
 
-DONE:
-    prp2 if text is invalid close then reopen no longer red
 
 CFNG RELATED:
     portal config add ctype
