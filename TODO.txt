@@ -238,7 +238,6 @@ move shred to another func
 time dilation GOL
 -TRBN seralize to FILT?
 - also range like other sensors?
-PHSP fire is 25 C >_>
 
 literally any solid checking - rock isn't a solid :|
 bug fix: literally whenever create_part is used check if created

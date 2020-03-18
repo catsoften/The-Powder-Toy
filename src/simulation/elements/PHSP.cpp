@@ -74,11 +74,13 @@ int Element_PHSP::update(UPDATE_FUNC_ARGS) {
 			// Burn
 			else if (parts[i].life > 0 && !r) {
 				int ni = sim->create_part(-1, x + rx, y + ry, RNG::Ref().chance(1, 3) ? PT_EMBR : PT_FIRE);
-				parts[ni].life = RNG::Ref().between(50, 200);
-				parts[ni].vx = rx;
-				parts[ni].vy = ry;
-				parts[ni].temp = parts[i].temp;
-				parts[ni].dcolour = 0xffffb37d;
+				if (ni > -1) {
+					parts[ni].life = RNG::Ref().between(50, 200);
+					parts[ni].vx = rx;
+					parts[ni].vy = ry;
+					parts[ni].temp = parts[i].temp + 300.0f;
+					parts[ni].dcolour = 0xffffb37d;
+				}
 			}
 			// Fertilize plnt
 			else if (TYP(r) == PT_PLNT) {
