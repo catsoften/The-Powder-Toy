@@ -164,6 +164,7 @@ comments: double click on username to show saves
 
 high pressure pipe 
 
+BOX - like STOR but powder?
 
 config tool 
      https://github.com/The-Powder-Toy/The-Powder-Toy/pull/589/commits
@@ -230,13 +231,13 @@ CFNG RELATED:
     cnfg wifi add tmp2 flag
     right click to cancel setting, ie when setting length of cray
     CNFG - LSNS top left corner spawns window out of bounds, check window bounds when placing in util
+    Add CSNS to CNFG
 
 shred moving solids
 move shred to another func
 time dilation GOL
 -TRBN seralize to FILT?
 - also range like other sensors?
-ambident heat time dilation
 PHSP fire is 25 C >_>
 
 literally any solid checking - rock isn't a solid :|
@@ -249,7 +250,6 @@ BOMB, MSSL, LASR ignore FFLD
 
 indestructbile powder
 
-Add CSNS to CNFG
 
 TODO:
 vsns - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23475
@@ -301,7 +301,11 @@ wifi.cpp - remove extra if statement
 up down functionality in multiline textareas
 
 
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=1069 - UI Shit
+
+10. A small cross at the center of a circle larger than 5 px in diameter to allow for pinpointing without reducing cursor size.
+11. hollow brushes
+
+
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=2368&PageNum=1 - EM waves
     - slow down in certain solids, can be used as a scanner
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21953&PageNum=1 - silver 

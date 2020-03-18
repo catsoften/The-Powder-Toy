@@ -75,6 +75,12 @@ void Air::update_airh(void)
 	{
 		for (x=0; x<XRES/CELL; x++)
 		{
+			// Apply time dilation: (negative = loop every n frames)
+			if (sim.time_dilation[y][x] < 0 && sim.timer % abs(sim.time_dilation[y][x]) != 0)
+				continue;
+			int count = 0;
+			air_cell_update_begin:
+
 			dh = 0.0f;
 			dx = 0.0f;
 			dy = 0.0f;
@@ -122,6 +128,11 @@ void Air::update_airh(void)
 					vy[y][x] -= airdiff/5000.0f;
 			}
 			ohv[y][x] = dh;
+
+			// Time dilation, positive = run n more times. Ie 1 = run air sim 2 times
+			++count;
+			if (sim.time_dilation[y][x] > 0 && count <= sim.time_dilation[y][x])
+				goto air_cell_update_begin;
 		}
 	}
 	memcpy(hv, ohv, sizeof(hv));
@@ -217,7 +228,6 @@ void Air::update_air(void)
 				if (sim.time_dilation[y][x] < 0 && sim.timer % abs(sim.time_dilation[y][x]) != 0)
 					continue;
 				int count = 0;
-
 				air_cell_update_begin:
 
 				dx = 0.0f;
