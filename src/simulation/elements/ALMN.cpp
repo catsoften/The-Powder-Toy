@@ -68,9 +68,11 @@ int Element_ALMN::update(UPDATE_FUNC_ARGS) {
 			if (!r) {
 				if (parts[i].tmp2) {
 					int ni = sim->create_part(-1, x + rx, y + ry, PT_FIRE);
-					parts[ni].dcolour = 0xFFFFFFFF;
-					parts[ni].life = RNG::Ref().between(5, 20);
-					parts[ni].temp = parts[i].temp + 200.0f;
+					if (ni > -1) {
+						parts[ni].dcolour = 0xFFFFFFFF;
+						parts[ni].life = RNG::Ref().between(5, 20);
+						parts[ni].temp = parts[i].temp + 200.0f;
+					}
 				}
 				continue;
 			}

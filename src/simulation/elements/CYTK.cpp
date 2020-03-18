@@ -459,23 +459,30 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 
 				int j1 = create_part(sim, CYBERTRUCK.WIDTH * 0.4f, CYBERTRUCK.HEIGHT / 2, PT_PLSM, parts[i].pavg[0], parts, i);
 				int j2 = create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, CYBERTRUCK.HEIGHT / 2, PT_PLSM, parts[i].pavg[0], parts, i);
-				parts[j1].temp = parts[j2].temp = 400.0f;
-				parts[j1].life = RNG::Ref().between(0, 100) + 50;
-				parts[j2].life = RNG::Ref().between(0, 100) + 50;
+				if (j1 > -1) {
+					parts[j1].temp = parts[j2].temp = 400.0f;
+					parts[j1].life = RNG::Ref().between(0, 100) + 50;
+				}
+				if (j2 > -1)
+					parts[j2].life = RNG::Ref().between(0, 100) + 50;
 			}
 			else if (parts[i].tmp == 2) { // Flamethrower
 				int j = create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, -CYBERTRUCK.HEIGHT / 2, PT_BCOL, parts[i].pavg[0], parts, i);
-				parts[j].life = RNG::Ref().between(0, 100) + 50;
-				parts[j].vx = parts[i].pavg[1] ? 15 : -15;
-				parts[j].vy = -(RNG::Ref().between(0, 3) + 3);
-				rotate(parts[j].vx, parts[j].vy, parts[i].pavg[0]);
+				if (j > -1) {
+					parts[j].life = RNG::Ref().between(0, 100) + 50;
+					parts[j].vx = parts[i].pavg[1] ? 15 : -15;
+					parts[j].vy = -(RNG::Ref().between(0, 3) + 3);
+					rotate(parts[j].vx, parts[j].vy, parts[i].pavg[0]);
+				}
 			}
 			else if (parts[i].tmp == 3 && sim->timer % 50 == 0) { // BOMB
 				int j = create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, -CYBERTRUCK.HEIGHT / 2, PT_BOMB, parts[i].pavg[0], parts, i);
-				parts[j].life = RNG::Ref().between(0, 100) + 50;
-				parts[j].vx = parts[i].pavg[1] ? 10 : -10;
-				parts[j].vy = -(RNG::Ref().between(0, 3) + 3);
-				rotate(parts[j].vx, parts[j].vy, parts[i].pavg[0]);
+				if (j > -1) {
+					parts[j].life = RNG::Ref().between(0, 100) + 50;
+					parts[j].vx = parts[i].pavg[1] ? 10 : -10;
+					parts[j].vy = -(RNG::Ref().between(0, 3) + 3);
+					rotate(parts[j].vx, parts[j].vy, parts[i].pavg[0]);
+				}
 			}
 		}
 	}

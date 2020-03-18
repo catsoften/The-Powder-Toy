@@ -198,9 +198,11 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 			}
 			else if (parts[i].tmp != 1 && sim->timer % 50 == 0) { // Guided missile
 				int ni = sim->create_part(-1, x + 8 * cos(theta), y + 3 * sin(theta), PT_MSSL);
-				parts[ni].pavg[0] = target.first;
-				parts[ni].pavg[1] = target.second;
-				parts[ni].life = 0;
+				if (ni > -1) {
+					parts[ni].pavg[0] = target.first;
+					parts[ni].pavg[1] = target.second;
+					parts[ni].life = 0;
+				}
 			}
 		}
 		else if (cmd2 == 4) { // Fly (down)

@@ -9,10 +9,12 @@ void create_crystal_at_point(Simulation *sim, int x, int y, int tmp2, float colo
 		return;
 	int id = (TYP(r) == PT_BSMH && sim->parts[ID(r)].tmp <= 1) ?
 		ID(r) : sim->create_part(-1, x, y, PT_BSMH);
-	sim->parts[id].pavg[0] = tmp2 % 2;
-	sim->parts[id].tmp = 1;
-	sim->parts[id].ctype = 0;
-	sim->parts[id].pavg[1] = color;
+	if (id > -1) {
+		sim->parts[id].pavg[0] = tmp2 % 2;
+		sim->parts[id].tmp = 1;
+		sim->parts[id].ctype = 0;
+		sim->parts[id].pavg[1] = color;
+	}
 }
 
 const std::vector<int> BSMH_COLORS({

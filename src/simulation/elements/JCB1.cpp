@@ -100,9 +100,11 @@ int Element_JCB1::update(UPDATE_FUNC_ARGS) {
 		}
 		if (RNG::Ref().chance(1, 50)) { // Guided missile
 			int ni = sim->create_part(-1, x, y + (RNG::Ref().chance(1, 2) ? -2 : 2), PT_MSSL);
-			parts[ni].pavg[0] = parts[sim->fighters[j].stkmID].x;
-			parts[ni].pavg[1] = parts[sim->fighters[j].stkmID].y;
-			parts[ni].life = 0;
+			if (ni > -1) {
+				parts[ni].pavg[0] = parts[sim->fighters[j].stkmID].x;
+				parts[ni].pavg[1] = parts[sim->fighters[j].stkmID].y;
+				parts[ni].life = 0;
+			}
 		}
 
 		++count;

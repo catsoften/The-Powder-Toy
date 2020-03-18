@@ -193,22 +193,26 @@ int Element_TANK::update(UPDATE_FUNC_ARGS)
 		if (cmd2 == 4) { // Fly or shoot (down)
 			if (parts[i].tmp == 1 || parts[i].tmp == 2) { // Flamethrower
 				int j = Element_CYTK::create_part(sim, -KV2.WIDTH * 0.4f, -KV2.HEIGHT / 2, PT_BCOL, parts[i].pavg[0], parts, i);
-				parts[j].life = RNG::Ref().between(0, 100) + 50;
-				parts[j].vx = parts[i].pavg[1] ? 15 : -15;
-				parts[j].vy = -(RNG::Ref().between(0, 3) + 3);
-				if (parts[i].tmp == 1) // Plasma
-					parts[j].temp = 9000.0f;
-				rotate(parts[j].vx, parts[j].vy, parts[i].pavg[0]);
+				if (j > -1) {
+					parts[j].life = RNG::Ref().between(0, 100) + 50;
+					parts[j].vx = parts[i].pavg[1] ? 15 : -15;
+					parts[j].vy = -(RNG::Ref().between(0, 3) + 3);
+					if (parts[i].tmp == 1) // Plasma
+						parts[j].temp = 9000.0f;
+					rotate(parts[j].vx, parts[j].vy, parts[i].pavg[0]);
+				}
 			}
 			else if ((parts[i].tmp == 3 || parts[i].tmp == 0)) { // BOMB
 				if (sim->timer % 50 == 0) {
 					int j1 = Element_CYTK::create_part(sim, -KV2.WIDTH * 0.4f, -KV2.HEIGHT / 2,
 						parts[i].tmp == 3 ? PT_BOMB : PT_FSEP, parts[i].pavg[0], parts, i);
-					parts[j1].life = 20;
-					parts[j1].vx = parts[i].pavg[1] ? 550 : -550;
-					parts[j1].vy = 0;
-					parts[j1].temp = 9999.0f;
-					rotate(parts[j1].vx, parts[j1].vy, parts[i].pavg[0]);
+					if (j1 > -1) {
+						parts[j1].life = 20;
+						parts[j1].vx = parts[i].pavg[1] ? 550 : -550;
+						parts[j1].vy = 0;
+						parts[j1].temp = 9999.0f;
+						rotate(parts[j1].vx, parts[j1].vy, parts[i].pavg[0]);
+					}
 				}
 
 				// Turret flame when firing (Not with BOMB)

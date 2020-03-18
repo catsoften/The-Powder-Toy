@@ -97,8 +97,10 @@ int Element_RDND::update(UPDATE_FUNC_ARGS)
 				if (!r) {
 					if (on_fire && RNG::Ref().chance(1, 10)) {
 						int ni = sim->create_part(-1, x + rx, y + ry, PT_FIRE);
-						parts[ni].life = RNG::Ref().between(0, 50);
-						parts[ni].temp = parts[i].temp + 100.0f;
+						if (ni > -1) {
+							parts[ni].life = RNG::Ref().between(0, 50);
+							parts[ni].temp = parts[i].temp + 100.0f;
+						}
 					}
 					continue;
 				}

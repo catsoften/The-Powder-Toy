@@ -240,9 +240,6 @@ time dilation GOL
 - also range like other sensors?
 
 literally any solid checking - rock isn't a solid :|
-bug fix: literally whenever create_part is used check if created
-- elements
-- tools
 
 bees update location stamp, cut or copy
 BOMB, MSSL, LASR ignore FFLD

@@ -108,10 +108,11 @@ int Element_POSI::update(UPDATE_FUNC_ARGS) {
 					sim->part_change_type(ID(r), x + rx, y + ry, PT_PHOT);
 					
 					ni = sim->create_part(-3, x + rx / 2, y + ry / 2, PT_EMBR);
-					parts[ni].life = 70;
-					parts[ni].tmp = 3;
-					parts[ni].temp = MAX_TEMP;
-
+					if (ni > -1) {
+						parts[ni].life = 70;
+						parts[ni].tmp = 3;
+						parts[ni].temp = MAX_TEMP;
+					}
 					return 1;
 					break;
 				case PT_BTRY:

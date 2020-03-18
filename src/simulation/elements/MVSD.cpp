@@ -125,16 +125,18 @@ int Element_MVSD::update(UPDATE_FUNC_ARGS) {
 
 			int temp = sim->create_part(-3, x, y, change_type);
 
-			// Ice for some reason doesn't default ctype to water
-			if (parts[i].ctype == PT_ICEI)
-				parts[temp].ctype = PT_WATR;
-			else if (change_ctype)
-				parts[temp].ctype = parts[i].ctype;
+			if (temp > -1) {
+				// Ice for some reason doesn't default ctype to water
+				if (parts[i].ctype == PT_ICEI)
+					parts[temp].ctype = PT_WATR;
+				else if (change_ctype)
+					parts[temp].ctype = parts[i].ctype;
 
-			parts[temp].temp = parts[i].temp;
-			if (!(sim->elements[change_type].Properties & TYPE_SOLID)) {
-				parts[temp].vx = MOVINGSOLID::solids[parts[i].tmp2].getVX();
-				parts[temp].vy = MOVINGSOLID::solids[parts[i].tmp2].getVY();
+				parts[temp].temp = parts[i].temp;
+				if (!(sim->elements[change_type].Properties & TYPE_SOLID)) {
+					parts[temp].vx = MOVINGSOLID::solids[parts[i].tmp2].getVX();
+					parts[temp].vy = MOVINGSOLID::solids[parts[i].tmp2].getVY();
+				}
 			}
 			sim->kill_part(i);
 			return 0;

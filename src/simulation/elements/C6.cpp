@@ -75,11 +75,13 @@ int Element_C6::update(UPDATE_FUNC_ARGS) {
 				if (!r) {
 					int ni = sim->create_part(-1, x + rx, y + ry,
 						RNG::Ref().chance(1, 2) ? PT_EMBR : PT_BCOL);
-					parts[ni].dcolour = 0xFFFF0000;
-					parts[ni].life = RNG::Ref().between(10, 100);
-					parts[ni].vx = 2 * rx;
-					parts[ni].vy = 2 * ry;
-					parts[ni].temp = parts[i].temp + 2000.0f;
+					if (ni > -1) {
+						parts[ni].dcolour = 0xFFFF0000;
+						parts[ni].life = RNG::Ref().between(10, 100);
+						parts[ni].vx = 2 * rx;
+						parts[ni].vy = 2 * ry;
+						parts[ni].temp = parts[i].temp + 2000.0f;
+					}
 				}
 			}
 

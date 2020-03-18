@@ -111,9 +111,11 @@ int Element_FFGN::update(UPDATE_FUNC_ARGS)
 					continue;
 
 				int ni = sim->create_part(-1, x1, y1, PT_FFLD);
-				parts[ni].ctype = parts[i].ctype;
-				parts[ni].tmp2 = parts[i].tmp2;
-				parts[ni].dcolour = parts[i].dcolour;
+				if (ni > -1) {
+					parts[ni].ctype = parts[i].ctype;
+					parts[ni].tmp2 = parts[i].tmp2;
+					parts[ni].dcolour = parts[i].dcolour;
+				}
 				prevx = x1, prevy = y1;
 			}
 		}
