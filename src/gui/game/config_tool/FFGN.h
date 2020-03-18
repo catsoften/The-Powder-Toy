@@ -163,7 +163,7 @@ void ConfigFFGNWindow::DoDraw() {
     else if (shape->GetOption().second == 1) // Rectangle
         g->drawrect(pos.X - distance, pos.Y - distance, 2 * distance, 2 * distance, 25, 200, 255, 185);
     g->clearrect(XRES, 0, WINDOWW - XRES, WINDOWH);
-    g->clearrect(0, YRES, WINDOWW, WINDOWH - YRES);
+    g->clearrect(0, YRES - 1, WINDOWW, WINDOWH - YRES + 1);
     
     ui::Window::DoDraw();
 }

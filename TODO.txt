@@ -224,9 +224,6 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23830
 
 
 
-cnfg tool and others - move bottom cover 1 px up to avoid the selection rect
-
-
 CFNG RELATED:
     portal config add ctype
     CFNG tab cycle

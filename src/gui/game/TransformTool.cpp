@@ -441,7 +441,7 @@ void TransformWindow::DoDraw() {
     }
 
     g->clearrect(XRES, 0, WINDOWW - XRES, WINDOWH);
-	g->clearrect(0, YRES, WINDOWW, WINDOWH - YRES);
+    g->clearrect(0, YRES - 1, WINDOWW, WINDOWH - YRES + 1);
 
     ui::Window::DoDraw();
 }
