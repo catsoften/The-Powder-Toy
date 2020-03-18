@@ -142,7 +142,6 @@ deco or element grid generator
 
 bullet stkm blod
 
-quark gluon plasma - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23999
 
 
 forumn restyle to tpt style extension!
@@ -211,6 +210,9 @@ one way wall don't block cray and jacob's lasers and such?
 
 heat seeking missiles
 
+put DECO tool in decorations menu
+
+
 
 atmosphere setting
 
@@ -218,8 +220,24 @@ custom elements
 
 
 holy water can be used to make a holy thermonuclear bomb
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23830
 
 
+missing scroll panel in textbox in text tool
+crl-ejnter in text tool
+cnfg tool and others - move bottom cover 1 px up to avoid the selection rect
+prp2 if text is invalid close then reopen no longer red
+(maybe) dont have ctrl or other modifider key focus textbx
+
+
+faraday wall doesnt work with photons and portals
+
+CFNG RELATED:
+    portal config add ctype
+    CFNG tab cycle
+    cnfg wifi add tmp2 flag
+    right click to cancel setting, ie when setting length of cray
+    CNFG - LSNS top left corner spawns window out of bounds, check window bounds when placing in util
 
 shred moving solids
 move shred to another func
@@ -360,6 +378,10 @@ dimagnetism: repeled by magnetics instead
     https://en.wikipedia.org/wiki/Diamagnetism
 
 - idea: printer using pdtc and shit and paper and cray
+
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=19563 - quarks
+quark gluon plasma - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23999
 
 
 fusion chain:

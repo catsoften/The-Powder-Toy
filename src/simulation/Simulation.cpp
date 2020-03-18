@@ -2760,9 +2760,11 @@ int Simulation::try_move(int i, int x, int y, int nx, int ny)
 					break;
 			}
 			count = count%8;
-			parts[ID(r)].tmp = (int)((parts[ID(r)].temp-73.15f)/100+1);
-			if (parts[ID(r)].tmp>=CHANNELS) parts[ID(r)].tmp = CHANNELS-1;
-			else if (parts[ID(r)].tmp<0) parts[ID(r)].tmp = 0;
+			parts[ID(r)].tmp = faraday_map[ny / CELL][nx / CELL] * CHANNELS + (int)((parts[ID(r)].temp-73.15f)/100+1);
+			if (parts[ID(r)].tmp >= FARADAY_CHANNELS * CHANNELS)
+				parts[ID(r)].tmp = FARADAY_CHANNELS * CHANNELS - 1;
+			else if (parts[ID(r)].tmp<0)
+				parts[ID(r)].tmp = 0;
 			for ( nnx=0; nnx<80; nnx++)
 				if (!portalp[parts[ID(r)].tmp][count][nnx].type)
 				{
