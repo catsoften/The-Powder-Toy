@@ -51,7 +51,7 @@ public:
 	ui::Textbox * textField;
 	PropertyTool2 * tool;
 	Simulation *sim;
-    ui::TextWrapper textWrapper;
+    ui::TextWrapper * textWrapper;
 
 	std::vector<StructProperty> properties;
     std::vector<String> lines, error_lines;
@@ -79,6 +79,7 @@ PropertyWindow2::PropertyWindow2(PropertyTool2 * tool_, Simulation *sim_):
         ui::Window(ui::Point(-1, -1), ui::Point(200, 245)),
         tool(tool_),
         sim(sim_) {
+    textWrapper = new ui::TextWrapper();
 	properties = Particle::GetProperties();
 
 	ui::Label * messageLabel = make_left_label(ui::Point(4, 5), ui::Point(Size.X-8, 14), "Edit properties");
@@ -134,7 +135,7 @@ PropertyWindow2::PropertyWindow2(PropertyTool2 * tool_, Simulation *sim_):
         int oldSize = textField->Size.Y;
         int oldScrollSize = scrollPanel->InnerSize.Y;
 
-        textField->Size.Y = (FONT_H + 1) * textWrapper.Update(textField->GetText(), true, textField->Size.X);
+        textField->Size.Y = (FONT_H + 1) * textWrapper->Update(textField->GetText(), true, textField->Size.X);
         if (textField->Size.Y < scrollPanel->Size.Y)
             textField->Size.Y = scrollPanel->Size.Y;
 
@@ -388,6 +389,7 @@ void PropertyWindow2::OnTryOkay(ui::Window::OkayMethod method) {
     if (textField->GetText().length())
         SetProperty();
 
+    delete textWrapper;
 	CloseActiveWindow();
 	SelfDestruct();
 }

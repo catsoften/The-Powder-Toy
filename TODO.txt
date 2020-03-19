@@ -232,7 +232,7 @@ CFNG RELATED:
     right click to cancel setting, ie when setting length of cray
     CNFG - LSNS top left corner spawns window out of bounds, check window bounds when placing in util
     Add CSNS to CNFG
-
+fire is decoable - stuff with deco burns
 shred moving solids
 move shred to another func
 time dilation GOL
