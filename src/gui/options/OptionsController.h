@@ -37,6 +37,7 @@ public:
 	void SetSecretModShortcut(bool enabled);
 	void SetCrosshairInBrush(bool enabled);
 	void SetHollowBrushes(bool enabled);
+	void SetAutoHideHUD(bool enabled);
 	
 	void Exit();
 	OptionsView * GetView();

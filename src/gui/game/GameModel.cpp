@@ -116,9 +116,9 @@ GameModel::GameModel():
 
 	BuildMenus();
 
-	perfectCircle = Client::Ref().GetPrefBool("PerfectCircleBrush", true);
-	crosshairInBrush = Client::Ref().GetPrefBool("CrosshairInBrush", true);
-	hollowBrushes = Client::Ref().GetPrefBool("HollowBrushes", true); 
+	perfectCircle = Client::Ref().GetPrefBool("Brush.PerfectCircleBrush", true);
+	crosshairInBrush = Client::Ref().GetPrefBool("Brush.CrosshairInBrush", true);
+	hollowBrushes = Client::Ref().GetPrefBool("Brush.HollowBrushes", true);
 	BuildBrushList();
 
 	//Set default decoration colour
@@ -479,7 +479,7 @@ void GameModel::BuildBrushList()
 	if (hasStoredRadius && (size_t)currentBrush < brushList.size())
 		brushList[currentBrush]->SetRadius(radius);
 
-	bool draw_crosshair = Client::Ref().GetPrefBool("CrosshairInBrush", true);
+	bool draw_crosshair = Client::Ref().GetPrefBool("Brush.CrosshairInBrush", true);
 	for (unsigned int i = 0; i < brushList.size(); i++)
 		brushList[i]->SetDrawCrosshair(draw_crosshair);
 	notifyBrushChanged();

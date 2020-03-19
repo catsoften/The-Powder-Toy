@@ -59,6 +59,8 @@ public:
 	void SetCrosshairInBrush(bool enabled);
 	bool GetHollowBrushes();
 	void SetHollowBrushes(bool enabled);
+	bool GetAutoHideHUD();
+	void SetAutoHideHUD(bool enabled);
 	virtual ~OptionsModel();
 };
 

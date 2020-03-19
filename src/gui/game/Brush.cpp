@@ -1,4 +1,5 @@
 #include "Brush.h"
+#include "client/Client.h"
 #include "graphics/Renderer.h"
 
 Brush::Brush(ui::Point size_):
@@ -123,8 +124,11 @@ void Brush::RenderPoint(Renderer * ren, ui::Point position) {
 
 	// Hollow indicator
 	if (isHollow) {
-		ren->fillrect(12, 41, ren->g->textwidth("[HOLLOW BRUSH]") + 8, 15, 0, 0, 0, 255 * 0.5);
-		ren->drawtext(16, 43, "[HOLLOW BRUSH]", 32, 216, 255, 255 * 0.75);
+		bool shouldHideHUD = Client::Ref().GetPrefBool("autoHideHUD", false) && position.Y < 100;
+		int alpha = shouldHideHUD ? position.Y * 2 : 255;
+
+		ren->fillrect(12, 41, ren->g->textwidth("[HOLLOW BRUSH]") + 8, 15, 0, 0, 0, alpha * 0.5);
+		ren->drawtext(16, 43, "[HOLLOW BRUSH]", 32, 216, 255, alpha * 0.75);
 	}
 }
 

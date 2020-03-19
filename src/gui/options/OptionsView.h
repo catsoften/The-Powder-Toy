@@ -38,6 +38,7 @@ class OptionsView: public ui::Window
 	ui::Checkbox * secretModShortcut;
 	ui::Checkbox * crosshairInBrush;
 	ui::Checkbox * hollowBrushes;
+	ui::Checkbox * autoHideHUD;
 
 	ui::ScrollPanel * scrollPanel;
 public:

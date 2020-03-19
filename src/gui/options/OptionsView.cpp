@@ -411,6 +411,22 @@ OptionsView::OptionsView():
 	scrollPanel->AddChild(hollowBrushes);
 
 	// ------------------
+	currentY += 20;
+	autoHideHUD = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Auto-hide HUD", "");
+	autowidth(autoHideHUD);
+	autoHideHUD->SetActionCallback({[this] { c->SetAutoHideHUD(autoHideHUD->GetChecked()); }});
+
+	currentY += 12;
+	tempLabel = new ui::Label(ui::Point(autoHideHUD->Position.X + 12, currentY), ui::Point(1, 16), "- Fades the HUD when mouse is near the top of the screen.");
+	tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(autoHideHUD);
+
+	// ------------------
 
 	ui::Button * tempButton = new ui::Button(ui::Point(0, Size.Y-16), ui::Point(Size.X, 16), "OK");
 	tempButton->SetActionCallback({ [this] { c->Exit(); } });
@@ -445,6 +461,7 @@ void OptionsView::NotifySettingsChanged(OptionsModel * sender)
 	secretModShortcut->SetChecked(sender->GetSecretModShortcut());
 	crosshairInBrush->SetChecked(sender->GetCrosshairInBrush());
 	hollowBrushes->SetChecked(sender->GetHollowBrushes());
+	autoHideHUD->SetChecked(sender->GetAutoHideHUD());
 }
 
 void OptionsView::AttachController(OptionsController * c_)

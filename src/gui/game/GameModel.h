@@ -81,6 +81,7 @@ private:
 	bool secretModShortcut = false;
 	bool crosshairInBrush = true;
 	bool hollowBrushes = true;
+	bool autoHideHUD = false;
 
 	size_t activeColourPreset;
 	std::vector<ui::Colour> colourPresets;
@@ -177,6 +178,8 @@ public:
 	void SetCrosshairInBrush(bool t);
 	bool GetHollowBrushes() { return hollowBrushes; }
 	void SetHollowBrushes(bool t);
+	bool GetAutoHideHUD() { return autoHideHUD; }
+	void SetAutoHideHUD(bool t) { autoHideHUD = t; }
 	
 	std::vector<Tool*> GetToolList();
 	std::vector<Tool*> GetUnlistedTools();

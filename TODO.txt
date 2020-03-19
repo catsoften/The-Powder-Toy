@@ -80,7 +80,6 @@ Here are some keys to modify the LVL:
   F7 -> increase LVL;
   F8 -> reset LVL to 0;
 
-auto hid hud when near top opton
 show stacked particles in hud option
 
 
@@ -96,7 +95,7 @@ left column:
      - set fps as number
      - maybe just a label and a + and - button
      - move to settings menu
-- autohide hud
+
     - hud: show all particle properties!
 - stats:
     - time played

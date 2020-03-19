@@ -124,6 +124,9 @@ void OptionsController::SetCrosshairInBrush(bool enabled) {
 void OptionsController::SetHollowBrushes(bool enabled) {
 	model->SetHollowBrushes(enabled);
 }
+void OptionsController::SetAutoHideHUD(bool enabled) {
+	model->SetAutoHideHUD(enabled);
+}
 
 void OptionsController::Exit()
 {

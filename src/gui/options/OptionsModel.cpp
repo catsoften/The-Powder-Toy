@@ -216,12 +216,12 @@ void OptionsModel::SetIncludePressure(bool includePressure)
 
 bool OptionsModel::GetPerfectCircle()
 {
-	return Client::Ref().GetPrefBool("PerfectCircleBrush", true);
+	return Client::Ref().GetPrefBool("Brush.PerfectCircleBrush", true);
 }
 
 void OptionsModel::SetPerfectCircle(bool perfectCircle)
 {
-	Client::Ref().SetPref("PerfectCircleBrush", perfectCircle);
+	Client::Ref().SetPref("Brush.PerfectCircleBrush", perfectCircle);
 	gModel->SetPerfectCircle(perfectCircle);
 	notifySettingsChanged();
 }
@@ -247,22 +247,32 @@ void OptionsModel::SetSecretModShortcut(bool enabled) {
 }
 
 bool OptionsModel::GetCrosshairInBrush() {
-	return Client::Ref().GetPrefBool("CrosshairInBrush", true);
+	return Client::Ref().GetPrefBool("Brush.CrosshairInBrush", true);
 }
 
 void OptionsModel::SetCrosshairInBrush(bool enabled) {
-	Client::Ref().SetPref("CrosshairInBrush", enabled);
+	Client::Ref().SetPref("Brush.CrosshairInBrush", enabled);
 	gModel->SetCrosshairInBrush(enabled);
 	notifySettingsChanged();
 }
 
 bool OptionsModel::GetHollowBrushes() {
-	return Client::Ref().GetPrefBool("HollowBrushes", true);
+	return Client::Ref().GetPrefBool("Brush.HollowBrushes", true);
 }
 
 void OptionsModel::SetHollowBrushes(bool enabled) {
-	Client::Ref().SetPref("HollowBrushes", enabled);
+	Client::Ref().SetPref("Brush.HollowBrushes", enabled);
 	gModel->SetHollowBrushes(enabled);
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetAutoHideHUD() {
+	return Client::Ref().GetPrefBool("autoHideHUD", true);
+}
+
+void OptionsModel::SetAutoHideHUD(bool enabled) {
+	Client::Ref().SetPref("autoHideHUD", enabled);
+	gModel->SetAutoHideHUD(enabled);
 	notifySettingsChanged();
 }
 

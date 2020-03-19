@@ -1995,6 +1995,12 @@ void GameView::SetSaveButtonTooltips()
 
 void GameView::OnDraw()
 {
+	// Fades the brush if mouse is near the top and setting is enabled
+	// Modify the following alpha values if you're changing this:
+	// - There are 2 alpha values below, one for left side with FPS and time, one for sim data
+	// - The [HOLLOW BRUSH] indicator in gui/game/Brush.cpp
+	bool shouldHideHUD = Client::Ref().GetPrefBool("autoHideHUD", false) && c->PointTranslate(currentMouse).Y < 100;
+	
 	Graphics * g = GetGraphics();
 	if (ren)
 	{
@@ -2179,6 +2185,8 @@ void GameView::OnDraw()
 			alpha = 255-toolTipPresence*3;
 		if (alpha < 50)
 			alpha = 50;
+		if (shouldHideHUD)
+			alpha = std::min(alpha, c->PointTranslate(currentMouse).Y * 2);
 		StringBuilder sampleInfo;
 		sampleInfo << Format::Precision(2);
 
@@ -2486,6 +2494,8 @@ void GameView::OnDraw()
 
 		int textWidth = Graphics::textwidth(fpsInfo.Build());
 		int alpha = 255-introText*5;
+		if (shouldHideHUD)
+			alpha = std::min(alpha, c->PointTranslate(currentMouse).Y * 2);
 		g->fillrect(12, 11, textWidth+8, 15, 0, 0, 0, alpha*0.5);
 		g->drawtext(16, 16, fpsInfo.Build(), 32, 216, 255, alpha*0.75);
 
@@ -2510,9 +2520,10 @@ void GameView::OnDraw()
 			fpsInfo2 << " [GRID: " << ren->GetGridSize() << "]";
 
 		int textWidth2 = Graphics::textwidth(fpsInfo2.Build());
-		int alpha2 = 255 - introText * 5;
-		g->fillrect(12, 26, textWidth2 + 8, 15, 0, 0, 0, alpha2 * 0.5);
-		g->drawtext(16, 28, fpsInfo2.Build(), 32, 216, 255, alpha2 * 0.75);
+		g->fillrect(12, 26, textWidth2 + 8, 15, 0, 0, 0, alpha * 0.5);
+		g->drawtext(16, 28, fpsInfo2.Build(), 32, 216, 255, alpha * 0.75);
+
+		// The [HOLLOW BRUSH] indicator is in gui/game/Brush.cpp
 	}
 
 	// FPS options
