@@ -49,7 +49,7 @@ public:
     Simulation * sim;
 	ui::Point textPosition;
     std::vector<String> lines;
-    ui::TextWrapper textWrapper;
+    ui::TextWrapper * textWrapper;
 
     int elecolor;
     String element;
@@ -102,6 +102,7 @@ public:
         Client::Ref().SetPref("Text.Align", justification->GetOption().second);
         Client::Ref().SetPref("Text.Spacing", spacing->GetOption().second);
         Client::Ref().SetPref("Text.Font", font->GetOption().second);
+        delete textWrapper;
     }
 };
 
@@ -111,6 +112,8 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 	sim(sim_),
 	textPosition(position_)
 {
+    textWrapper = new ui::TextWrapper();
+
     // Components
 	ui::Label * messageLabel = make_left_label(ui::Point(4, 5), ui::Point(Size.X-8, 15), "Write text");
 	messageLabel->SetTextColour(style::Colour::InformationTitle);
@@ -129,7 +132,6 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 	AddComponent(okayButton);
 	SetOkayButton(okayButton);
 
-
     // Justification dropdown
 	ui::Label * tempLabel = make_left_label(ui::Point(6, Size.Y - 42), ui::Point(40, 15), "Text Align:");
 	AddComponent(tempLabel);
@@ -145,22 +147,20 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
 	justification->SetOption(just);
 	justification->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 
-
     // Font dropdown
     tempLabel = make_left_label(ui::Point(130, Size.Y - 42), ui::Point(40, 15), "Font:");
     AddComponent(tempLabel);
 
     font = new ui::DropDown(ui::Point(160, Size.Y - 42), ui::Point(80, 16));
     AddComponent(font);
+   
     for (unsigned int i = 0; i < texter_fonts.size(); ++i)
         font->AddOption(std::pair<String, int>(String(texter_fonts[i]->name), i));
-
     int font_option = Client::Ref().GetPrefInteger("Text.Font", 0);
     if (font_option < 0 || font_option >= (int)texter_fonts.size())
         font_option = 0;
 	font->SetOption(font_option);
     font->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-
 
     // Spacing dropdown
     tempLabel = make_left_label(ui::Point(130, Size.Y - 64), ui::Point(40, 15), "Spacing:");
@@ -170,16 +170,14 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
     AddComponent(spacing);
     for (unsigned int i = 0; i < text_spacing_options.size(); ++i)
         spacing->AddOption(std::make_pair(text_spacing_options[i].first, i));
-
     int space = Client::Ref().GetPrefInteger("Text.Spacing", 1);
     if (space < 0 || space >= (int)text_spacing_options.size())
         space = 1;
     spacing->SetOption(space);
     spacing->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-
+    
     tempLabel = make_left_label(ui::Point(6, Size.Y - 64), ui::Point(40, 15), "Element:");
     AddComponent(tempLabel);
-
 
     // Element name input
     elementField = make_left_textbox(ui::Point(70, Size.Y - 64), ui::Point(55, 17), element, "DMND");
@@ -219,7 +217,7 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
             int oldSize = textField->Size.Y;
             int oldScrollSize = scrollPanel->InnerSize.Y;
 
-            textField->Size.Y = (FONT_H + 1) * textWrapper.Update(textField->GetText(), true, textField->Size.X);
+            textField->Size.Y = (FONT_H + 1) * textWrapper->Update(textField->GetText(), true, textField->Size.X);
             if (textField->Size.Y < scrollPanel->Size.Y)
                 textField->Size.Y = scrollPanel->Size.Y;
 
@@ -234,7 +232,7 @@ TextWindow::TextWindow(TextTool * tool_, Simulation * sim_, ui::Point position_)
     textField->SetInputType(ui::Textbox::Multiline);
     textField->SetMultiline(true);
 	scrollPanel->AddChild(textField);
-
+    
 	FocusComponent(textField);
 	MakeActiveWindow();
 

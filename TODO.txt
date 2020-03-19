@@ -118,7 +118,7 @@ Something that allows access to the internet?
 
 signs that zoom out on hover
 
-remove secret mod shortcut?
+deco edit hex value in deco
 
 sim prop
 - pressure and aheat and shit?
