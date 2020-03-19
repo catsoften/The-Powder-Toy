@@ -236,15 +236,14 @@ fire is decoable - stuff with deco burns
 shred moving solids
 move shred to another func
 time dilation GOL
--TRBN seralize to FILT?
-- also range like other sensors?
+
+VSNS - seralize and range settings 
 
 offset element ids for newer versions somehow
 
 literally any solid checking - rock isn't a solid :|
 
 bees update location stamp, cut or copy
-BOMB, MSSL, LASR ignore FFLD
 
 indestructbile powder
 

@@ -102,11 +102,13 @@ int Element_MSSL::update(UPDATE_FUNC_ARGS) {
 		for (ry = -1; ry <= 1; ++ry)
 			if (BOUNDS_CHECK && (rx || ry)) {
 				r = pmap[y + ry][x + rx];
+				if (!r) r = sim->photons[y + ry][x + rx];
 				if (!r) continue;
 				rt = TYP(r);
 				
 				// Explode on contact
-				if (rt != PT_MSSL && (sim->elements[rt].Properties & TYPE_SOLID || sim->elements[rt].Properties & TYPE_PART)) {
+				if (rt != PT_MSSL && (sim->elements[rt].Properties & TYPE_SOLID ||
+					sim->elements[rt].Properties & TYPE_PART || rt == PT_FFLD)) {
 					sim->part_change_type(i, x, y, PT_BOMB);
 					DETONATE
 					return 0;

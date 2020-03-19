@@ -80,8 +80,6 @@ int Element_JCB1::update(UPDATE_FUNC_ARGS) {
 	for (unsigned int j = 0; j < MAX_FIGHTERS; ++j) {
 		if (!sim->fighters[j].spwn)
 			continue;
-		//xdiff = sim->fighters[j].legs[14] - parts[i].x;
-		//ydiff = sim->fighters[j].legs[15] - parts[i].y;
 		xdiff = parts[sim->fighters[j].stkmID].x - parts[i].x;
 		ydiff = parts[sim->fighters[j].stkmID].y - parts[i].y;
 		aggressive = true;
