@@ -235,7 +235,6 @@ CFNG RELATED:
 fire is decoable - stuff with deco burns
 shred moving solids
 move shred to another func
-time dilation GOL
 
 VSNS - seralize and range settings 
 

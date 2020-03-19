@@ -5,7 +5,7 @@
 
 **Description:**  *Time Dilation Field Generator. HEAT = Faster, COOL = Slower*
 
-Like PUMP, but it generates a time dilation field in a radius of 15 cells around it when powered. Note that max and min slowdowns are NOT symmetrical, at most you can slow down the sim to -8x speed, but speed it up to 4x speed. When on TIME will make portal like graphics depending on whether its slowing down or speeding up time.
+Like PUMP, but it generates a time dilation field in a radius of 15 cells around it when powered. Note that max and min slowdowns are NOT symmetrical, at most you can slow down the sim to -8x speed, but speed it up to 4x speed. When on TIME will make portal like graphics depending on whether its slowing down or speeding up time. Time dilation fields do not affect GOL.
 
 TIME is not affected by time dilation fields.
 
