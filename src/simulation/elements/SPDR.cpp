@@ -123,10 +123,7 @@ void Element_SPDR::intersect_line(Simulation *sim, int sx, int sy, float vx, flo
 
 		// Found particle
 		r = sim->pmap[(int)ty][(int)tx];
-		if (!r) r = sim->photons[(int)ty][(int)tx];
-		if (!r || TYP(r) != PT_FFLD) r = 0;
 		if (r && (
-			TYP(r) == PT_FFLD ||
 			(type == 1 && TYP(r) != type2) ||
 			(type == 2 && !(sim->elements[TYP(r)].Properties & TYPE_LIQUID)) ||
 			(type == 3 && !(sim->elements[TYP(r)].Properties & TYPE_GAS)) ||

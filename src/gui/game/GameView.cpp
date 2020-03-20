@@ -2521,7 +2521,7 @@ void GameView::OnDraw()
 
 		int textWidth2 = Graphics::textwidth(fpsInfo2.Build());
 		g->fillrect(12, 26, textWidth2 + 8, 15, 0, 0, 0, alpha * 0.5);
-		g->drawtext(16, 28, fpsInfo2.Build(), 32, 216, 255, alpha * 0.75);
+		g->drawtext(16, 29, fpsInfo2.Build(), 32, 216, 255, alpha * 0.75);
 
 		// The [HOLLOW BRUSH] indicator is in gui/game/Brush.cpp
 	}

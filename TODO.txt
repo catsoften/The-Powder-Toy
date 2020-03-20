@@ -70,7 +70,7 @@ polish, polishes metal?
 
 nuclear stuff
 
-
+wiki for ffgn - does not block laser
 
 Stack editing:
 Now you can see, create and modify the stacks, which are a pile of particles in x, y. I named the depth as LVL, which 0 is the normal of TPT, and starts from 1, the gray color is shown when it has a particle in the previous LVL, which is enabled to create a particle, except when the LVL is 1 and 0, which you can create only if you have not.
