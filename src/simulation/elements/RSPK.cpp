@@ -349,7 +349,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	// Heat up the conductor its on
 	int r = pmap[y][x];
 	float power = RSPK::get_power(x, y, sim);
-	parts[ID(r)].temp += power / 200.0f;
+	// parts[ID(r)].temp += power / 200.0f;
 
 	// Make sure self conductor can't be SPRKed
 	parts[ID(r)].life = 4;
@@ -416,23 +416,12 @@ int Element_RSPK::graphics(GRAPHICS_FUNC_ARGS) {
 	*colr = 255; *colg = *colb = 0;
 	*cola = 255;
 
-	int count = 0;
-	for (int rx = -1; rx <= 1; rx++)
-	for (int ry = -1; ry <= 1; ry++)
-		if ((rx || ry) && TYP(ren->sim->photons[ny + ry][nx + rx]) == PT_RSPK) {
-			if (!rx && ry && (
-				TYP(ren->sim->photons[ny + ry][nx - 1]) == PT_RSPK ||
-				TYP(ren->sim->photons[ny + ry][nx + 1]) == PT_RSPK
-			)) continue;
-			if (rx && !ry && (
-				TYP(ren->sim->photons[ny + 1][nx + rx]) == PT_RSPK ||
-				TYP(ren->sim->photons[ny -1 ][nx + rx]) == PT_RSPK
-			)) continue;
-			
-			count++;
-		}
-	if (count > 2) {
-		ren->drawcircle(nx, ny, 10, 10, 255, 255 ,255, 255);
+	if (cpart->pavg[1]) {
+		*colr = 0;
+		*colg = 0;
+		*colb = 255;
+		//ren->fillcircle(cpart->x - 6, cpart->y - 6, 5, 5, 255, 255, 0, 55);
+		//ren->drawtext(cpart->x, cpart->y - 10, String::Build(cpart->pavg[1]), 0,0,0, 255);
 	}
 
 	return 0;

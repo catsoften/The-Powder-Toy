@@ -495,10 +495,10 @@ debug element, stuff like a compass or clock dsplay
 
 circuits:
 - constructor does skeletonization and shit itself
-- depth first floodfill to get node data
-    - technically doesn't even need floodfill since 1 px just follow trail?
-        - prefer directly adjacent first
-
+- only conduct to valid conductors
+- rewrite solving method.md
+- find closest node: don't take center, which may be outside, take closest node in group
+- treat ground / voltage as a node somehow
 
 diamond anvil cells
 

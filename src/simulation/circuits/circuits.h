@@ -10,13 +10,16 @@ class Circuit {
 private:
     Simulation * sim;
     short skeleton_map[YRES][XRES];
-public:
-    Circuit(const coord_vec &skeleton, Simulation *sim);
 
     void generate(const coord_vec &skeleton);
-    void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node);
+    void trim_adjacent_nodes(const coord_vec &nodes);
+    void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
+public:
+    Circuit(const coord_vec &skeleton, Simulation *sim);
 };
 
+// A line between 2 nodes. I have no idea what they're actually called
+// so I'll call them branches (or maybe edges)
 class Branch {
 public:
     // Notes on polarity:
