@@ -17,7 +17,7 @@ public:
 bool valid_conductor(int typ, Simulation *sim, int i) {
 	if (typ == PT_SWCH)
 		return sim->parts[i].life;
-	return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST;
+	return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT;
 }
 
 float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
@@ -296,6 +296,8 @@ Element_RSPK::Element_RSPK()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
+	DefaultProperties.life = 10;
+
 	Update = &Element_RSPK::update;
 	Graphics = &Element_RSPK::graphics;
 }
@@ -413,6 +415,26 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 int Element_RSPK::graphics(GRAPHICS_FUNC_ARGS) {
 	*colr = 255; *colg = *colb = 0;
 	*cola = 255;
+
+	int count = 0;
+	for (int rx = -1; rx <= 1; rx++)
+	for (int ry = -1; ry <= 1; ry++)
+		if ((rx || ry) && TYP(ren->sim->photons[ny + ry][nx + rx]) == PT_RSPK) {
+			if (!rx && ry && (
+				TYP(ren->sim->photons[ny + ry][nx - 1]) == PT_RSPK ||
+				TYP(ren->sim->photons[ny + ry][nx + 1]) == PT_RSPK
+			)) continue;
+			if (rx && !ry && (
+				TYP(ren->sim->photons[ny + 1][nx + rx]) == PT_RSPK ||
+				TYP(ren->sim->photons[ny -1 ][nx + rx]) == PT_RSPK
+			)) continue;
+			
+			count++;
+		}
+	if (count > 2) {
+		ren->drawcircle(nx, ny, 10, 10, 255, 255 ,255, 255);
+	}
+
 	return 0;
 
 	// Power = V^2 / R and is used for brightness

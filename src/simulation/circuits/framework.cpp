@@ -1,15 +1,6 @@
 #include "simulation/circuits/framework.h"
 #include "simulation/CoordStack.h"
-
 #include <vector>
-#include <unordered_set>
-
-struct pair_hash {
-    template <class T1, class T2>
-    std::size_t operator()(const std::pair<T1, T2> &pair) const {
-        return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
-    }
-};
 
 /*
  * Floodfill touching conductors with RSPRK
@@ -19,9 +10,11 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
     coord_vec output;
     int id;
     pos temp;
+
+    char visited[YRES][XRES];
+    std::fill(&visited[0][0], &visited[YRES][0], 0);
  
     coords.push(x, y);
-
 	while (coords.getSize()) {
 		coords.pop(x, y);
 
@@ -29,8 +22,8 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 			sim->create_part(-3, x, y, PT_RSPK);
 
 		id = ID(sim->photons[y][x]);
-        parts[id].tmp2 = 1; // Mark as "visited" // TODO use binary bits?
-        parts[id].life = 1000;
+        parts[id].tmp2 |= 1; // Mark as "visited"
+        visited[y][x] = 1;
 
         temp.x = x;
         temp.y = y;
@@ -50,9 +43,10 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 			// Also we can't conduct from NSCN to PSCN (diodes)
 			int fromtype = TYP(sim->pmap[y][x]);
 			int totype = TYP(sim->pmap[y + ry][x + rx]);
-			if (totype && parts[ID(sim->photons[y + ry][x + rx])].tmp2 == 0) {
+			if (totype && !visited[y + ry][x + rx]) {
 				coords.push(x + rx, y + ry);
-			}
+                visited[y + ry][x + rx] = 1;
+            }
 		}
 	}
 
@@ -65,9 +59,10 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
  * (Zhang-Suen algorithm for image thinning)
  */
 void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
-        std::unordered_set<std::pair<int, int>, pair_hash> &output_unordered_set, short iter) {
+        int (&output_map)[YRES][XRES], short iter) {
     std::vector<int> delete_these_indices;
     short x, y, p2, p3, p4, p5, p6, p7, p8, p9;
+    delete_these_indices.reserve(output.size() / 2);
 
     for (unsigned int i = 0; i < output.size(); i++) {
         x = output[i].x;
@@ -79,14 +74,14 @@ void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
 
         // Thinning algorithim
         // Get surrounding points, clockwise starting from point above
-        p2 = output_unordered_set.find(std::make_pair(y - 1, x))     != output_unordered_set.end() ? 1 : 0;
-        p3 = output_unordered_set.find(std::make_pair(y - 1, x + 1)) != output_unordered_set.end() ? 1 : 0;
-        p4 = output_unordered_set.find(std::make_pair(y, x + 1))     != output_unordered_set.end() ? 1 : 0;
-        p5 = output_unordered_set.find(std::make_pair(y + 1, x + 1)) != output_unordered_set.end() ? 1 : 0;
-        p6 = output_unordered_set.find(std::make_pair(y + 1, x))     != output_unordered_set.end() ? 1 : 0;
-        p7 = output_unordered_set.find(std::make_pair(y + 1, x - 1)) != output_unordered_set.end() ? 1 : 0;
-        p8 = output_unordered_set.find(std::make_pair(y, x - 1))     != output_unordered_set.end() ? 1 : 0;
-        p9 = output_unordered_set.find(std::make_pair(y - 1, x - 1)) != output_unordered_set.end() ? 1 : 0;
+        p2 = output_map[y-1][x];
+        p3 = output_map[y-1][x+1];
+        p4 = output_map[y][x+1];
+        p5 = output_map[y+1][x+1];
+        p6 = output_map[y+1][x];
+        p7 = output_map[y+1][x-1];
+        p8 = output_map[y][x-1];
+        p9 = output_map[y-1][x-1];
 
         // A(P1) is the number of 0 to 1 transitions in a clockwise direction from P9 back to itself
         // and B(P1) is the number of non-zero neighbors of P1.
@@ -104,7 +99,7 @@ void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
 
     // Delete all indices marked for deletion
     for (int i = delete_these_indices.size() - 1; i >= 0; i--) {
-        output_unordered_set.erase(std::make_pair(output[delete_these_indices[i]].y, output[delete_these_indices[i]].x));
+        output_map[output[delete_these_indices[i]].y][output[delete_these_indices[i]].x] = 0;
         output.erase(output.begin() + delete_these_indices[i]);
     }
 }
@@ -116,17 +111,17 @@ void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
 coord_vec coord_stack_to_skeleton(Simulation *sim, const coord_vec &floodfill) {
     coord_vec output(floodfill);
     size_t prev_size;
-    std::unordered_set<std::pair<int, int>, pair_hash> output_unordered_set;
+    int output_map[YRES][XRES];
     int diff;
 
-    // Pre-fill the hashunordered_set
+    std::fill(&output_map[0][0], &output_map[YRES][0], 0.0f);
     for (pos p : floodfill)
-        output_unordered_set.insert(std::make_pair(p.y, p.x));
+        output_map[p.y][p.x] = 1;
 
     // Repeatedly thin the image to 1 px until it can no longer be further thined
     do {
-        coord_stack_to_skeleton_iteration(sim, output, output_unordered_set, 0);
-        coord_stack_to_skeleton_iteration(sim, output, output_unordered_set, 1);
+        coord_stack_to_skeleton_iteration(sim, output, output_map, 0);
+        coord_stack_to_skeleton_iteration(sim, output, output_map, 1);
 
         diff = prev_size - output.size();
         prev_size = output.size();

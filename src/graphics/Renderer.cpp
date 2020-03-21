@@ -2488,7 +2488,7 @@ void Renderer::draw_stress_field() {
 		if (!sim->stressField->stress_map[y][x])
 			continue;
 		
-		const int max_stress = 64.0f;
+		const float max_stress = sim->stressField->max_stress;
 		if (sim->stressField->stress_map[y][x] < max_stress / 2) { // Green to yellow
 			drawrect(x, y, 1, 1,
 				clamp_flt(sim->stressField->stress_map[y][x], 0.0f, max_stress / 2), 255,

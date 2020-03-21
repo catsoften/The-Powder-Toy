@@ -15,6 +15,7 @@ void StressField::Clear() {
     std::fill(&stress_map[0][0], &stress_map[YRES][0], 0.0f);
     std::fill(&stress_map_x[0][0], &stress_map_x[YRES][0], 0.0f);
     std::fill(&stress_map_y[0][0], &stress_map_y[YRES][0], 0.0f);
+    std::fill(&gravitational_stress_map[0][0], &gravitational_stress_map[YRES / CELL][0], 0.0f);
 }
 
 
@@ -102,9 +103,12 @@ void StressField::ComputeStress(int x, int y) {
 void StressField::AggregateStress(int start, int end, int parts_lastActiveIndex) {
     if (!enabled) return;
 
+    int x, y;
     for (int i = std::min(end, parts_lastActiveIndex); i >= start; i--) {
 		if (sim->parts[i].type) {
-            ComputeStress(sim->parts[i].x + 0.5f, sim->parts[i].y + 0.5f);
+            x = (int)(sim->parts[i].x + 0.5f);
+            y = (int)(sim->parts[i].y + 0.5f);
+            ComputeStress(x, y);
         }
     }
 
@@ -120,10 +124,10 @@ void StressField::AggregateStress(int start, int end, int parts_lastActiveIndex)
         if (TYP(sim->pmap[y][x]) == PT_TRUS)
             stress_map[y][x] *= 0.9f;
 
-        // for (int rx = -1; rx <= 1; ++rx)
-        // for (int ry = -1; ry <= 1; ++ry) {
-        //     stress_map[y][x] -= (stress_map[y][x] - stress_map[y + ry][x + rx]) * 0.125f;
-        // }
+        for (int rx = -1; rx <= 1; ++rx)
+        for (int ry = -1; ry <= 1; ++ry) {
+            stress_map[y][x] -= (stress_map[y][x] - stress_map[y + ry][x + rx]) * 0.5f;
+        }
 
         //if (stress_map[y][x] > 55.0f && TYP(sim->pmap[y][x]) != PT_DMND)
         //    sim->part_change_type(ID(sim->pmap[y][x]), x, y, PT_BRMT);

@@ -260,6 +260,10 @@ VNGR / FUSN
 
 vinegar - use in food, wiki?
 
+redo stress:
+- find mass of each cell
+- treat  non empty cells as nodes of a truss
+
 after that:
 wwater and sand presure?
 - like force water up and down and sand out of small holes
@@ -278,6 +282,11 @@ laser beam thing, shoots LASR, can be used to superheat hydrogen
 
 
 lbp's command manipulator thing
+
+Known unfixable bugs:
+- FFLD cant block LASR due to particle updates
+- Time dilation doesn't work on GOL
+
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23295 - baking soda
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=22413 - Some radioactive ele
@@ -482,6 +491,13 @@ local gravity mode
 
 debug element, stuff like a compass or clock dsplay
 
+
+
+circuits:
+- constructor does skeletonization and shit itself
+- depth first floodfill to get node data
+    - technically doesn't even need floodfill since 1 px just follow trail?
+        - prefer directly adjacent first
 
 
 diamond anvil cells
