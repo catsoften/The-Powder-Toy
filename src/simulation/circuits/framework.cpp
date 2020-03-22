@@ -1,4 +1,5 @@
 #include "simulation/circuits/framework.h"
+#include "simulation/circuits/resistance.h"
 #include "simulation/CoordStack.h"
 #include <vector>
 
@@ -43,7 +44,7 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 			// Also we can't conduct from NSCN to PSCN (diodes)
 			int fromtype = TYP(sim->pmap[y][x]);
 			int totype = TYP(sim->pmap[y + ry][x + rx]);
-			if (totype && !visited[y + ry][x + rx]) {
+			if (totype && !visited[y + ry][x + rx] && valid_conductor(totype, sim, ID(sim->pmap[y + ry][x + rx]))) {
 				coords.push(x + rx, y + ry);
                 visited[y + ry][x + rx] = 1;
             }

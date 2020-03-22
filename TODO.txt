@@ -495,10 +495,11 @@ debug element, stuff like a compass or clock dsplay
 
 circuits:
 - constructor does skeletonization and shit itself
-- only conduct to valid conductors
 - rewrite solving method.md
-- find closest node: don't take center, which may be outside, take closest node in group
-- treat ground / voltage as a node somehow
+- construct matrix
+- solve() crashes
+    - because adjacent nodes set skeleton_map[ to 1deleting nodes
+
 
 diamond anvil cells
 
