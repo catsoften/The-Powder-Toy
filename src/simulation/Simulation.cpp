@@ -3751,7 +3751,7 @@ void Simulation::UpdateParticles(int start, int end)
 			// Time dilation: skip update
 			if (!(elements[t].Properties & PROP_NO_TIME) &&
 					!(t == PT_GBMB && parts[i].life > 0) &&  // GBMB needs to update to make gravity
-					time_dilation[y / CELL][x / CELL] < 0 && timer % abs(time_dilation[y / CELL][x / CELL]) != 0)
+					time_dilation[y / CELL][x / CELL] < 0 && timer % (int)abs(time_dilation[y / CELL][x / CELL]) != 0)
 				continue;
 
 			//this kills any particle out of the screen, or in a wall where it isn't supposed to go
@@ -5205,7 +5205,7 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 			NUM_PARTS ++;
 
 			// Time dilation: slow down
-			if (!(elements[t].Properties & PROP_NO_TIME) && time_dilation[y / CELL][x / CELL] < 0 && timer % abs(time_dilation[y / CELL][x / CELL]) != 0)
+			if (!(elements[t].Properties & PROP_NO_TIME) && time_dilation[y / CELL][x / CELL] < 0 && timer % (int)abs(time_dilation[y / CELL][x / CELL]) != 0)
 				continue;
 
 			//decrease particle life

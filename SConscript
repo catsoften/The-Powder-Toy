@@ -502,7 +502,6 @@ if GetOption('static'):
 		else:
 			env.Append(LINKFLAGS=['-Wl,-Bstatic'])
 
-
 #Add other flags and defines
 if not GetOption('nofft') and not GetOption('renderer'):
 	env.Append(CPPDEFINES=['GRAVFFT'])
@@ -553,7 +552,6 @@ if GetOption('beta'):
 	env.Append(CPPDEFINES=['BETA'])
 if GetOption('no-install-prompt'):
 	env.Append(CPPDEFINES=['NO_INSTALL_CHECK'])
-
 
 #Generate list of sources to compile
 sources = Glob("src/*.cpp") + Glob("src/*/*.cpp") + Glob("src/*/*/*.cpp") + Glob("generated/*.cpp") + Glob("data/*.cpp")

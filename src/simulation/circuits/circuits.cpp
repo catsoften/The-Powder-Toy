@@ -1,7 +1,12 @@
 #include "simulation/circuits/circuits.h"
 #include "simulation/circuits/resistance.h"
 
+#include "eigen/Core"
+#include "eigen/Dense"
+#include "eigen/SparseCholesky"
 #include "simulation/ElementCommon.h"
+
+#include <iomanip>
 #include <iostream>
 
 Circuit::Circuit(const coord_vec &skeleton, Simulation * sim) {
@@ -13,7 +18,7 @@ Circuit::Circuit(const coord_vec &skeleton, Simulation * sim) {
         skeleton_map[pos.y][pos.x] = 1;
     
     generate(skeleton);
-    // solve();
+    solve();
 
     #ifdef DEBUG
         debug();
@@ -48,7 +53,7 @@ void Circuit::generate(const coord_vec &skeleton) {
             for (int ry = -1; ry <= 1; ry++)
                 if (rx || ry) {
                     int t = TYP(sim->pmap[y + ry][x + rx]);
-                    if (t == PT_CAPR || t == PT_VOLT || t == PT_INDC) {
+                    if (t == PT_CAPR || t == PT_VOLT) {
                         skeleton_map[y][x] = node_id;
                         immutable_nodes[y][x] = (rx && ry) + 1;
                         nodes.push_back(pos);
@@ -96,13 +101,30 @@ void Circuit::generate(const coord_vec &skeleton) {
         x = pos.x, y = pos.y;
         if (skeleton_map[y][x] > 1) {
             sim->parts[ID(sim->photons[y][x])].pavg[1] = skeleton_map[y][x]; // TODO
+
+            // Sometimes 2 paths might share a pixel, so we iterate twice to check for all paths
+            // the efficency cost should be very small
+            // (I'm not sure if there can be 3 paths, seems unlikely given the skeletonization algorithim)
+            // We stop if there's a directly adjacent node to avoid excess paths
+            bool adjacent_node = false;
             for (int rx = -1; rx <= 1; rx++)
             for (int ry = -1; ry <= 1; ry++) {
-                // Sometimes 2 paths might share a pixel, so we iterate twice to check for all paths
-                // the efficency cost should be very small
-                // (I'm not sure if there can be 3 paths, seems unlikely given the skeletonization algorithim)
-                //add_branch_from_skeleton(skeleton, x + rx, y + ry, skeleton_map[y][x], x, y);
-                //add_branch_from_skeleton(skeleton, x + rx, y + ry, skeleton_map[y][x], x, y);
+                if ((rx == 0 || ry == 0) && (rx || ry)) {
+                    if (skeleton_map[y + ry][x + rx] > 1)
+                        adjacent_node = true;
+                    add_branch_from_skeleton(skeleton, x + rx, y + ry, skeleton_map[y][x], x, y);
+                    add_branch_from_skeleton(skeleton, x + rx, y + ry, skeleton_map[y][x], x, y);
+                }
+            }
+            for (int rx = -1; rx <= 1; rx++)
+            for (int ry = -1; ry <= 1; ry++) {
+                if (rx && ry) {
+                    // Directly adjacent node existed earlier, check if the new location is touching a node
+                    if (!adjacent_node && (skeleton_map[y + ry][x] > 1 || skeleton_map[y][x + rx] > 1))
+                        continue;
+                    add_branch_from_skeleton(skeleton, x + rx, y + ry, skeleton_map[y][x], x, y);
+                    add_branch_from_skeleton(skeleton, x + rx, y + ry, skeleton_map[y][x], x, y);
+                }
             }
         }
     }
@@ -140,6 +162,7 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
                     }
             }
             skeleton_map[pos.y][pos.x] = new_node_id;
+            visited[pos.y][pos.x] = 1;
             new_node_id++;
             end:;
             continue;
@@ -226,16 +249,42 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
     std::vector<int> ids, switches;
     float total_resistance = 0.0f;
     float total_voltage = 0.0f;
+    float current_voltage = 0.0f;
+
     int end_node = -1, r, px, py, ox = x, oy = y;
     bool found_next;
+    char current_polarity = 0; // 0, 1 = positive, -1 = negative
+
+    // Initial polarity
+    if (TYP(sim->pmap[sy][sx]) == PT_PSCN) current_polarity = 1;
+    else if (TYP(sim->pmap[sy][sx]) == PT_NSCN) current_polarity = -1;
 
     // Keep flood filling until we find another node
 	while (true) {
         r = sim->pmap[y][x];
+
+        // Polarity handling for voltage drops
+        if (TYP(r) == PT_PSCN) {
+            if (current_polarity == -1)
+                total_voltage += current_voltage;
+            current_voltage = 0.0f;
+            current_polarity = 1;
+        }
+        else if (TYP(r) == PT_NSCN) {
+            if (current_polarity == 1)
+                total_voltage += current_voltage;
+            current_voltage = 0.0f;
+            current_polarity = -1;
+        }
+        else if (TYP(r) != PT_VOLT && TYP(r) != PT_CAPR)
+            current_polarity = 0, current_voltage = 0.0f;
+
+        // Node handling
 		if (skeleton_map[y][x] > 1 && skeleton_map[y][x] != start_node) { // Found end_node
             end_node = skeleton_map[y][x];
             total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
-            skeleton_map[py][px] = 1; // Make sure points around nodes are never deleted
+            if (skeleton_map[py][px] == 0)
+                skeleton_map[py][px] = 1; // Make sure points around nodes are never deleted
             break;
         }
         if (skeleton_map[y][x] == 1) { // Non-node
@@ -246,7 +295,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
             if (TYP(r) == PT_SWCH)
                 switches.push_back(ID(r));
             else if (TYP(r) == PT_VOLT)
-                total_voltage += sim->parts[ID(r)].pavg[0];
+                current_voltage += sim->parts[ID(r)].pavg[0] * current_polarity;
         }
         
         // Check directly adjacent nodes (Highest priority)
@@ -291,13 +340,32 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         std::swap(start_node, end_node);
         total_voltage *= -1;
     }
-    skeleton_map[oy][ox] = 1; // Make sure points around nodes are never deleted
+    if (skeleton_map[oy][ox] == 0)
+        skeleton_map[oy][ox] = 1; // Make sure points around nodes are never deleted
 
     if (start_node > -1) { // Valid connection actually exists
+        Branch * b = new Branch(start_node, end_node, ids, switches, total_resistance, total_voltage);
+
+        /**
+         * Special case where branch ends at a node directly adjacent to start node, because branches
+         * search diagonals this might result in duplicate branches. Same case applies for branches of length up to 2
+         * because end and start are overwritten
+         */
+        if (b->ids.size() <= 2) {
+            // Search backwards as chance of match is higher at ends due to searching near
+            // physical proximity
+            for (int j = branch_map[start_node].size() - 1; j >= 0; j--) {
+                if (branch_map[start_node][j]->node1 == std::min(start_node, end_node) &&
+                    branch_map[start_node][j]->node2 == std::max(start_node, end_node) &&
+                    (branch_map[start_node][j]->ids.size() <= 2 ||
+                     branch_map[start_node][j]->ids == b->ids))
+                return;
+            }
+        } 
+
         connection_map[start_node].push_back(end_node);
         connection_map[end_node].push_back(start_node);
-
-        Branch * b = new Branch(start_node, end_node, ids, switches, total_resistance, total_voltage);
+        
         branch_cache.push_back(b);
         branch_map[start_node].push_back(b);
         branch_map[end_node].push_back(b);
@@ -314,22 +382,48 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
  * Solve the circuit using nodal analysis
  */
 void Circuit::solve() {
+    size_t size = connection_map.size();
+    if (!size) return;
+
+    // Solve Ax = b
+    Eigen::MatrixXf A(size, size);
+    Eigen::VectorXf b(size), x(size);
+    int j = 0;
+
     for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
-        float * matrix_row = new float[connection_map.size()];
-        std::fill(&matrix_row[0], &matrix_row[connection_map.size()], 0);
+        float * matrix_row = new float[size + 1];
+        std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
 
         for (size_t i = 0; i < node_id->second.size(); i++) {
             Branch * b = branch_map[node_id->first][i];
-            if (b->resistance) {
+
+             /** N1 + V = N2, or N2 - N1 = V */
+            if (b->voltage_gain) {
+                std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
+                int m = node_id->first < node_id->second[i] ? 1 : -1;
+
+                matrix_row[node_id->first - 2] = -1 * m ;
+                matrix_row[node_id->second[i] - 2] = 1 * m;
+                matrix_row[size] = b->voltage_gain;
+                break;
+            }
+            /** Sum of all (N2 - N1) / R = 0 */
+            else if (b->resistance) {
                 matrix_row[node_id->first - 2] -= 1.0f / b->resistance;
                 matrix_row[node_id->second[i] - 2] += 1.0f / b->resistance;
             }
         }
-        for (size_t i = 0; i < connection_map.size(); i++)
-            std::cout << matrix_row[i] << " ";
-        std::cout << "\n";
+
+        for (size_t i = 0; i < size; i++)
+            A(j, i) = matrix_row[i];
+        b[j] = matrix_row[size];
         delete matrix_row;
+        j++;
     }
+
+    std::cout << A<< "\n";
+    x = A.colPivHouseholderQr().solve(b);
+    std::cout << x << "\n";
 }
 
 void Circuit::debug() {

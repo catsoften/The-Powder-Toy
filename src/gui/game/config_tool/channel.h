@@ -83,8 +83,10 @@ ConfigChannelWindow::ConfigChannelWindow(ConfigTool * tool_, Simulation * sim_, 
     channel_input->SetInputType(ui::Textbox::Number);
 	channel_input->SetActionCallback({ [this] {
 		int val = channel_input->GetText().ToNumber<int>(true);
-		if (val > CHANNELS || val < 0) channel_input->SetTextColour(RED_TEXT);
-		else                		   channel_input->SetTextColour(ui::Colour(255, 255, 255));
+		if (val > CHANNELS || val < 0)
+			channel_input->SetTextColour(RED_TEXT);
+		else
+			channel_input->SetTextColour(ui::Colour(255, 255, 255));
 	}});
     channel_input->SetLimit(3);
 	AddComponent(channel_input);

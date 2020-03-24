@@ -76,7 +76,7 @@ void Air::update_airh(void)
 		for (x=0; x<XRES/CELL; x++)
 		{
 			// Apply time dilation: (negative = loop every n frames)
-			if (sim.time_dilation[y][x] < 0 && sim.timer % abs(sim.time_dilation[y][x]) != 0)
+			if (sim.time_dilation[y][x] < 0 && sim.timer % (int)abs(sim.time_dilation[y][x]) != 0)
 				continue;
 			int count = 0;
 			air_cell_update_begin:
@@ -225,7 +225,7 @@ void Air::update_air(void)
 			for (x=0; x<XRES/CELL; x++)
 			{
 				// Apply time dilation: (negative = loop every n frames)
-				if (sim.time_dilation[y][x] < 0 && sim.timer % abs(sim.time_dilation[y][x]) != 0)
+				if (sim.time_dilation[y][x] < 0 && sim.timer % (int)abs(sim.time_dilation[y][x]) != 0)
 					continue;
 				int count = 0;
 				air_cell_update_begin:

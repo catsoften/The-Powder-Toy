@@ -378,7 +378,7 @@ dimagnetism: repeled by magnetics instead
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=19563 - quarks
 quark gluon plasma - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23999
-
+https://pastebin.com/uQNtu2Xw
 
 fusion chain:
 - H2 - realistic hydrogen?
@@ -491,14 +491,32 @@ local gravity mode
 
 debug element, stuff like a compass or clock dsplay
 
+mercury shatters ALMN
 
+curved line tool
+
+realistic gardening
+
+realistic mdoe:
+- fire requires temp to combust (add to realistic fire)
+
+https://github.com/The-Powder-Toy/The-Powder-Toy/pull/698
+
+floodfill spark
+
+Thread 1 "powder64" received signal SIGSEGV, Segmentation fault.
+0x000000000047ab36 in Renderer::render_parts (this=0x7fffc465c820) at src/graphics/Renderer.cpp:1674
+1674                                            vid[ny*(VIDXRES)+nx] = PIXRGB(colr,colg,colb);
+- this is abug in vanilla ^
 
 circuits:
 - constructor does skeletonization and shit itself
 - rewrite solving method.md
-- construct matrix
-- solve() crashes
-    - because adjacent nodes set skeleton_map[ to 1deleting nodes
+
+- ground shit
+- transisitors: https://en.wikipedia.org/wiki/Bipolar_junction_transistor#Ebers%E2%80%93Moll_model
+- galvonic cell: https://en.wikipedia.org/wiki/Electrochemical_cell#/media/File:Galvanic_cell_with_no_cation_flow.png
+- thermoelectric https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
 
 
 diamond anvil cells

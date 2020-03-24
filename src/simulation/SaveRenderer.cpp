@@ -174,6 +174,9 @@ VideoBuffer * SaveRenderer::Render(unsigned char * saveData, int dataSize, bool 
 
 SaveRenderer::~SaveRenderer()
 {
+	delete ren;
+	delete sim;
+	delete g;
 }
 
 void SaveRenderer::CopyModes(Renderer *source)
