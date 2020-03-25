@@ -525,6 +525,13 @@ some kind of circut skeleton viewer thing
 - no capacitor polarity?
     - only for parallel plates?
 
+- floodfill fixes for switches 
+- update circuits continually
+    - big map of all circuits, if rspk disappears then update circuit and force-recomputation of branches
+    - otherwise recompute branches if rpsk detects new conductor\
+
+
+
 - transisitors: https://en.wikipedia.org/wiki/Bipolar_junction_transistor#Ebers%E2%80%93Moll_model
 - galvonic cell: https://en.wikipedia.org/wiki/Electrochemical_cell#/media/File:Galvanic_cell_with_no_cation_flow.png
 - thermoelectric https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect

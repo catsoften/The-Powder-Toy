@@ -21,7 +21,7 @@ Circuit::Circuit(const coord_vec &skeleton, Simulation * sim) {
     solve();
 
     #ifdef DEBUG
-        debug();
+        // debug();
     #endif
 }
 
@@ -404,24 +404,36 @@ void Circuit::solve(bool allow_recursion) {
     std::vector<std::pair<int, int> > diode_branches; // Node1 index
 
     // Solve Ax = b
-    Eigen::MatrixXf A(size, size);
-    Eigen::VectorXf b(size), x(size);
+    Eigen::MatrixXd A(size, size);
+    Eigen::VectorXd b(size), x(size);
     int j = 0;
 
     for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
-        float * matrix_row = new float[size + 1];
+        double * matrix_row = new double[size + 1];
         std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
+        
         bool is_grnd = std::find(ground_nodes.begin(), ground_nodes.end(), node_id->first) != ground_nodes.end();
+        bool branch_has_valid_switches = true;
 
         for (size_t i = 0; i < node_id->second.size(); i++) {
             Branch * b = branch_map[node_id->first][i];
             
+            // Verify diodes and switches
             if (b->positive_diodes || b->negative_diodes)
                 diode_branches.push_back(std::make_pair(node_id->first, i));
+            
+            branch_has_valid_switches = true;
+            for (size_t j = 0; j < b->switches.size(); j++)
+                if (!sim->parts[b->switches[j]].life) {
+                    branch_has_valid_switches = false;
+                    break;
+                }
+            if (!branch_has_valid_switches) // Ignore switches that are "OFF"
+                continue;
 
             if (!is_grnd) {
                 /** N1 + V = N2, or N2 - N1 = V */
-                if (b->voltage_gain) {
+                if (b->voltage_gain && node_id->first < node_id->second[i]) {
                     std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
                     int m = node_id->first < node_id->second[i] ? 1 : -1;
 
@@ -442,33 +454,47 @@ void Circuit::solve(bool allow_recursion) {
         for (size_t i = 0; i < size; i++)
             A(j, i) = matrix_row[i];
         b[j] = matrix_row[size];
-        delete matrix_row;
+        delete[] matrix_row;
         j++;
     }
 
-    std::cout << A<< "\n";
     x = A.colPivHouseholderQr().solve(b);
+
     std::cout << x << "\n";
+    std::cout << A << "\n";
+    std::cout << b << "\n";
+    std::cout << "\n\n";
 
     // Diode branches may involve re-solving if diode blocks current or voltage drop is insufficent
     if (allow_recursion) {
         bool re_solve = false;
+
+        // Increase resistance of invalid diodes
         for (size_t i = 0; i < diode_branches.size(); i++) {
             int node1 = diode_branches[i].first;
             int index = diode_branches[i].second;
-            float deltaV = x[connection_map[node1][index] - 2] - x[node1 - 2];
+            double deltaV = x[connection_map[node1][index] - 2] - x[node1 - 2];
+
+            if (node1 > connection_map[node1][index])
+                deltaV *= -1; // Maintain polarity: node1 -> node2 is positive
             Branch * b = branch_map[node1][index];
 
-            if ((b->positive_diodes && deltaV < DIODE_V_THRESHOLD * b->positive_diodes &&
-                    fabs(deltaV) < DIODE_V_BREAKDOWN * b->positive_diodes) ||
-                (b->negative_diodes && -deltaV < DIODE_V_THRESHOLD * b->negative_diodes &&
-                    fabs(deltaV) < DIODE_V_BREAKDOWN * b->negative_diodes)) {
-                branch_map[node1].erase(branch_map[node1].begin() + index);
-                connection_map[node1].erase(connection_map[node1].begin() + index);
+            // Fail on the following conditions:
+            // 1. Current is flowing right way, but does not meet threshold voltage
+            // 2. Current is flowing wrong way and does not exceed breakdown voltage
+            // (If deltaV < 0, means current flows from node1 --> node2)
+            if ((deltaV < 0 && b->positive_diodes && fabs(deltaV) < DIODE_V_THRESHOLD * b->positive_diodes) || // Correct dir
+                (deltaV > 0 && b->positive_diodes && fabs(deltaV) < DIODE_V_BREAKDOWN * b->positive_diodes) || // Wrong dir
+                (deltaV > 0 && b->negative_diodes && fabs(deltaV) < DIODE_V_THRESHOLD * b->negative_diodes) || // Correct dir
+                (deltaV < 0 && b->negative_diodes && fabs(deltaV) < DIODE_V_BREAKDOWN * b->negative_diodes)    // Wrong dir
+            ) {
+                // This commented out code makes diodes ideal (INF resistance)
+                // branch_map[node1].erase(branch_map[node1].begin() + index);
+                // connection_map[node1].erase(connection_map[node1].begin() + index);
+                b->resistance += REALLY_BIG_RESISTANCE;
                 re_solve = true;
             }
         }
-
         if (re_solve) solve(false); // Re-solve without diode branches
     }
 }

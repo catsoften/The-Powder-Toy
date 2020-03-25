@@ -35,12 +35,6 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 		if ((rx || ry)) {
 			// Floodfill if valid spot. If currently on switch don't conduct to PSCN or NSCN
 			// or the switch can't be toggled
-			// We also make sure rspk can't flow from consecutive components like
-			// VOLT, CAPR, etc...
-			// to avoid flickering and weird bugs
-			// We can't conduct to water unless voltage is high enough to avoid super high
-			// voltage drops resulting from low voltages
-			// Also we can't conduct from NSCN to PSCN (diodes)
 			int fromtype = TYP(sim->pmap[y][x]);
 			int totype = TYP(sim->pmap[y + ry][x + rx]);
 			if (totype && !visited[y + ry][x + rx] && valid_conductor(totype, sim, ID(sim->pmap[y + ry][x + rx]))) {

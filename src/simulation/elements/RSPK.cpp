@@ -343,10 +343,6 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 		return 1;
 	}
 
-	if (parts[i].tmp == 1 && (sim->timer % RSPK::REFRESH_EVERY_FRAMES == 0 || parts[i].life == 1)) {
-		RSPK::floodfill_voltage(sim, parts, x, y, parts[i].pavg[0]);
-	}
-
 	// Heat up the conductor its on
 	int r = pmap[y][x];
 	float power = RSPK::get_power(x, y, sim);

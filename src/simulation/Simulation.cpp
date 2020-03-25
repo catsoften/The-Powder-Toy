@@ -4447,7 +4447,6 @@ killed:
 
 			if (!parts[i].vx&&!parts[i].vy)//if its not moving, skip to next particle, movement code it next
 				continue;
-
 			mv = fmaxf(fabsf(parts[i].vx), fabsf(parts[i].vy));
 			if (mv < ISTP)
 			{
@@ -5655,9 +5654,7 @@ Simulation::Simulation():
 	stressField = new StressField(this);
 
 	msections = LoadMenus();
-
 	wtypes = LoadWalls();
-
 	platent = LoadLatent();
 
 	std::vector<Element> elementList = GetElements();
@@ -5670,9 +5667,7 @@ Simulation::Simulation():
 	}
 
 	tools = GetTools();
-
 	grule = LoadGOLRules();
-
 	gmenu = LoadGOLMenu();
 
 	player.comm = 0;

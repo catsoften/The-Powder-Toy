@@ -52,7 +52,7 @@ public:
     const int node1, node2;
     const std::vector<int> ids;
     const std::vector<int> switches;
-    const float resistance, voltage_gain;
+    float resistance, voltage_gain;
     const int positive_diodes, negative_diodes;
 
     Branch(int node1, int node2, const std::vector<int> &ids, const std::vector<int> &switch_ids,
