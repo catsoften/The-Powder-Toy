@@ -6,6 +6,7 @@
 #include "simulation/circuits/framework.h"
 
 #include <vector>
+#include <set>
 #include <unordered_map>
 
 class Branch;
@@ -22,11 +23,12 @@ private:
     std::unordered_map<int, std::vector<int> > connection_map; // Node ID: Ids that connect
     std::unordered_map<int, std::vector<Branch *> > branch_map; // Node ID: branches with start_node = id
     std::vector<Branch *> branch_cache; // Stores pointers so we can delete them later
+    std::set<int> ground_nodes; // Reference for nodes = 0 V
 
     void generate(const coord_vec &skeleton);
     void trim_adjacent_nodes(const coord_vec &nodes);
     void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
-    void solve();
+    void solve(bool allow_recursion=true);
     void debug();
 public:
     Circuit(const coord_vec &skeleton, Simulation *sim);
@@ -37,18 +39,25 @@ public:
 // so I'll call them branches (or maybe edges)
 class Branch {
 public:
-    // Notes on polarity:
-    // Voltage: going from node1 to node2 increases by this voltage, ie
-    //   NODE1 ----- - | + ------ NODE2
-    // is positive voltage
+    /**
+     * Notes on polarity:
+     * Voltage: going from node1 to node2 increases by this voltage, ie
+     *   NODE1 ----- - | + ------ NODE2
+     * is positive voltage
+     * 
+     * Dioide: going from node1 to node2 is positive_diode
+     *   NODE1 ----- PSCN NSCN ------ NODE2
+     */
 
     const int node1, node2;
     const std::vector<int> ids;
     const std::vector<int> switches;
     const float resistance, voltage_gain;
+    const int positive_diodes, negative_diodes;
 
     Branch(int node1, int node2, const std::vector<int> &ids, const std::vector<int> &switch_ids,
-            float resistance, float voltage_gain) :
-        node1(node1), node2(node2), ids(ids), switches(switch_ids), resistance(resistance), voltage_gain(voltage_gain) {}
+            float resistance, float voltage_gain, int pdiode, int ndiode) :
+        node1(node1), node2(node2), ids(ids), switches(switch_ids), resistance(resistance),
+        voltage_gain(voltage_gain), positive_diodes(pdiode), negative_diodes(ndiode) {}
 };
 #endif

@@ -1,13 +1,16 @@
 #include "simulation/circuits/resistance.h"
 #include <exception>
 
-#define REALLY_BIG_RESISTANCE 100000000000.0f
-
 bool valid_conductor(int typ, Simulation *sim, int i) {
     if (typ == PT_SWCH)
         return sim->parts[i].life;
-    // INST does not have PROP_CONDUCTS but should be considered a conductor
-    return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT;
+    /**
+     * Exceptions:
+     * - INST does not have PROP_CONDUCTS but should be considered a conductor
+     * - VOLT needs conductive property to not break circuits
+     * - VOID needs conductive property to allow connections to ground
+     */
+    return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT || typ == GROUND_TYPE;
 }
 
 float get_resistance(int type, Particle *parts, int i, Simulation *sim) {

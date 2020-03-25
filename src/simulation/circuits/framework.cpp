@@ -23,7 +23,6 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 			sim->create_part(-3, x, y, PT_RSPK);
 
 		id = ID(sim->photons[y][x]);
-        parts[id].tmp2 |= 1; // Mark as "visited"
         visited[y][x] = 1;
 
         temp.x = x;

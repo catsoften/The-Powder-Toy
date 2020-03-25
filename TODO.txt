@@ -504,20 +504,30 @@ https://github.com/The-Powder-Toy/The-Powder-Toy/pull/698
 
 floodfill spark
 
-Thread 1 "powder64" received signal SIGSEGV, Segmentation fault.
-0x000000000047ab36 in Renderer::render_parts (this=0x7fffc465c820) at src/graphics/Renderer.cpp:1674
-1674                                            vid[ny*(VIDXRES)+nx] = PIXRGB(colr,colg,colb);
-- this is abug in vanilla ^
-
 circuits:
 - constructor does skeletonization and shit itself
 - rewrite solving method.md
 
-- ground shit
+- preprocessing shapes:
+  - "replace" particles with virtual particles, don't set if virtual, but act in simulation
+  - (would require seperating particles and actual capacitance / charge and shit)
+shapes:
+  - capacitor ---||---- (1px gap)
+
+diodes:
+    - smoke and melt
+capacitors:
+    - explode if wrong polarity
+
+some kind of circut skeleton viewer thing 
+- ie ground just 1px next to it isn't part of skeleton
+- ground element instead of PAPR
+- no capacitor polarity?
+    - only for parallel plates?
+
 - transisitors: https://en.wikipedia.org/wiki/Bipolar_junction_transistor#Ebers%E2%80%93Moll_model
 - galvonic cell: https://en.wikipedia.org/wiki/Electrochemical_cell#/media/File:Galvanic_cell_with_no_cation_flow.png
 - thermoelectric https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
-
 
 diamond anvil cells
 

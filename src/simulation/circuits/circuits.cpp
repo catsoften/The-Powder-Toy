@@ -47,8 +47,15 @@ void Circuit::generate(const coord_vec &skeleton) {
         /**
          * Special junction (node) cases: NSCN or PSCN connected to any of the following:
          *      capacitor, voltage source, inductor
+         * Or the node itself is VOID
          */
-        if (TYP(sim->pmap[y][x]) == PT_PSCN || TYP(sim->pmap[y][x]) == PT_NSCN) {
+        if (TYP(sim->pmap[y][x]) == GROUND_TYPE) {
+            skeleton_map[y][x] = node_id;
+            immutable_nodes[y][x] = 1;
+            nodes.push_back(pos);
+            node_id++;
+        }
+        else if (TYP(sim->pmap[y][x]) == PT_PSCN || TYP(sim->pmap[y][x]) == PT_NSCN) {
             for (int rx = -1; rx <= 1; rx++)
             for (int ry = -1; ry <= 1; ry++)
                 if (rx || ry) {
@@ -164,6 +171,9 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
             skeleton_map[pos.y][pos.x] = new_node_id;
             visited[pos.y][pos.x] = 1;
             new_node_id++;
+
+            if (TYP(sim->pmap[pos.y][pos.x]) == GROUND_TYPE)
+                ground_nodes.insert(new_node_id - 1);
             end:;
             continue;
         }
@@ -251,7 +261,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
     float total_voltage = 0.0f;
     float current_voltage = 0.0f;
 
-    int end_node = -1, r, px, py, ox = x, oy = y;
+    int end_node = -1, r, px = sx, py = sy, ox = x, oy = y;
+    int pdiode = 0, ndiode = 0;
     bool found_next;
     char current_polarity = 0; // 0, 1 = positive, -1 = negative
 
@@ -269,12 +280,16 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
                 total_voltage += current_voltage;
             current_voltage = 0.0f;
             current_polarity = 1;
+            if (TYP(sim->pmap[py][px]) == PT_NSCN)
+                ndiode++;
         }
         else if (TYP(r) == PT_NSCN) {
             if (current_polarity == 1)
                 total_voltage += current_voltage;
             current_voltage = 0.0f;
             current_polarity = -1;
+            if (TYP(sim->pmap[py][px]) == PT_PSCN)
+                pdiode++;
         }
         else if (TYP(r) != PT_VOLT && TYP(r) != PT_CAPR)
             current_polarity = 0, current_voltage = 0.0f;
@@ -344,7 +359,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         skeleton_map[oy][ox] = 1; // Make sure points around nodes are never deleted
 
     if (start_node > -1) { // Valid connection actually exists
-        Branch * b = new Branch(start_node, end_node, ids, switches, total_resistance, total_voltage);
+        Branch * b = new Branch(start_node, end_node, ids, switches, total_resistance, total_voltage, pdiode, ndiode);
 
         /**
          * Special case where branch ends at a node directly adjacent to start node, because branches
@@ -381,9 +396,12 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
 /**
  * Solve the circuit using nodal analysis
  */
-void Circuit::solve() {
+void Circuit::solve(bool allow_recursion) {
     size_t size = connection_map.size();
     if (!size) return;
+
+    // Additional special case solvers
+    std::vector<std::pair<int, int> > diode_branches; // Node1 index
 
     // Solve Ax = b
     Eigen::MatrixXf A(size, size);
@@ -393,25 +411,32 @@ void Circuit::solve() {
     for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
         float * matrix_row = new float[size + 1];
         std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
+        bool is_grnd = std::find(ground_nodes.begin(), ground_nodes.end(), node_id->first) != ground_nodes.end();
 
         for (size_t i = 0; i < node_id->second.size(); i++) {
             Branch * b = branch_map[node_id->first][i];
+            
+            if (b->positive_diodes || b->negative_diodes)
+                diode_branches.push_back(std::make_pair(node_id->first, i));
 
-             /** N1 + V = N2, or N2 - N1 = V */
-            if (b->voltage_gain) {
-                std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
-                int m = node_id->first < node_id->second[i] ? 1 : -1;
+            if (!is_grnd) {
+                /** N1 + V = N2, or N2 - N1 = V */
+                if (b->voltage_gain) {
+                    std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
+                    int m = node_id->first < node_id->second[i] ? 1 : -1;
 
-                matrix_row[node_id->first - 2] = -1 * m ;
-                matrix_row[node_id->second[i] - 2] = 1 * m;
-                matrix_row[size] = b->voltage_gain;
-                break;
+                    matrix_row[node_id->first - 2] = -1 * m ;
+                    matrix_row[node_id->second[i] - 2] = 1 * m;
+                    matrix_row[size] = b->voltage_gain;
+                    break;
+                }
+                /** Sum of all (N2 - N1) / R = 0 */
+                else if (b->resistance) {
+                    matrix_row[node_id->first - 2] -= 1.0f / b->resistance;
+                    matrix_row[node_id->second[i] - 2] += 1.0f / b->resistance;
+                }
             }
-            /** Sum of all (N2 - N1) / R = 0 */
-            else if (b->resistance) {
-                matrix_row[node_id->first - 2] -= 1.0f / b->resistance;
-                matrix_row[node_id->second[i] - 2] += 1.0f / b->resistance;
-            }
+            if (is_grnd) matrix_row[node_id->first - 2] = 1; // GRND = 0 V
         }
 
         for (size_t i = 0; i < size; i++)
@@ -424,6 +449,28 @@ void Circuit::solve() {
     std::cout << A<< "\n";
     x = A.colPivHouseholderQr().solve(b);
     std::cout << x << "\n";
+
+    // Diode branches may involve re-solving if diode blocks current or voltage drop is insufficent
+    if (allow_recursion) {
+        bool re_solve = false;
+        for (size_t i = 0; i < diode_branches.size(); i++) {
+            int node1 = diode_branches[i].first;
+            int index = diode_branches[i].second;
+            float deltaV = x[connection_map[node1][index] - 2] - x[node1 - 2];
+            Branch * b = branch_map[node1][index];
+
+            if ((b->positive_diodes && deltaV < DIODE_V_THRESHOLD * b->positive_diodes &&
+                    fabs(deltaV) < DIODE_V_BREAKDOWN * b->positive_diodes) ||
+                (b->negative_diodes && -deltaV < DIODE_V_THRESHOLD * b->negative_diodes &&
+                    fabs(deltaV) < DIODE_V_BREAKDOWN * b->negative_diodes)) {
+                branch_map[node1].erase(branch_map[node1].begin() + index);
+                connection_map[node1].erase(connection_map[node1].begin() + index);
+                re_solve = true;
+            }
+        }
+
+        if (re_solve) solve(false); // Re-solve without diode branches
+    }
 }
 
 void Circuit::debug() {

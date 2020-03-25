@@ -17,7 +17,8 @@ public:
 bool valid_conductor(int typ, Simulation *sim, int i) {
 	if (typ == PT_SWCH)
 		return sim->parts[i].life;
-	return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT;
+		// temp code todo:
+	return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT || typ == PT_PAPR || typ == PT_VOID || typ == PT_COAL;
 }
 
 float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
