@@ -29,6 +29,7 @@ private:
     void trim_adjacent_nodes(const coord_vec &nodes);
     void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
     void solve(bool allow_recursion=true);
+    void update_sim();
     void debug();
 public:
     Circuit(const coord_vec &skeleton, Simulation *sim);
@@ -52,11 +53,11 @@ public:
     const int node1, node2;
     const std::vector<int> ids;
     const std::vector<int> switches;
-    float resistance, voltage_gain;
+    double resistance, voltage_gain;
     const int positive_diodes, negative_diodes;
 
     Branch(int node1, int node2, const std::vector<int> &ids, const std::vector<int> &switch_ids,
-            float resistance, float voltage_gain, int pdiode, int ndiode) :
+            double resistance, double voltage_gain, int pdiode, int ndiode) :
         node1(node1), node2(node2), ids(ids), switches(switch_ids), resistance(resistance),
         voltage_gain(voltage_gain), positive_diodes(pdiode), negative_diodes(ndiode) {}
 };

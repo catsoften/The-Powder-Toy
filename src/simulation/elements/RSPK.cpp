@@ -15,6 +15,8 @@ public:
 };
 
 bool valid_conductor(int typ, Simulation *sim, int i) {
+	if (true)
+		return true;
 	if (typ == PT_SWCH)
 		return sim->parts[i].life;
 		// temp code todo:
@@ -131,7 +133,7 @@ int is_ground(Particle *parts, int i) {
 	if (!i) return 0;
 	if (parts[i].type == PT_VOID)
 		return 1;
-	else if (parts[i].type == PT_VCMB)
+	else if (parts[i].type == PT_GRND)
 		return 2;
 	return 0;
 }
@@ -216,7 +218,7 @@ void floodfill_voltage(Simulation *sim, Particle *parts, int x, int y, float vol
 					 && ((totype != PT_WATR && totype != PT_SLTW && totype != PT_CBNW &&
 					 	  totype != PT_IOSL) || p->voltage > 1000.0f)
 					 && (fromtype != PT_NSCN || totype != PT_PSCN)
-					 && (fromtype != PT_VCMB || totype != PT_PSCN)
+					 && (fromtype != PT_GRND || totype != PT_PSCN)
 					 && (fromtype != PT_VDIV || totype != PT_PSCN))
 			{
 				// 0.7 V drop across diodes

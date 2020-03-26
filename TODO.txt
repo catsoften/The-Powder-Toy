@@ -488,6 +488,9 @@ aircraft carrier
 
 local gravity mode
 
+superfluids:
+- super high heat conductivity
+
 
 debug element, stuff like a compass or clock dsplay
 
@@ -496,6 +499,8 @@ mercury shatters ALMN
 curved line tool
 
 realistic gardening
+
+steal ideas from https://powdertoy.co.uk/Wiki/W/Lua_Functions_in_Jacob1%27s_Mod.html
 
 realistic mdoe:
 - fire requires temp to combust (add to realistic fire)
@@ -520,8 +525,6 @@ capacitors:
     - explode if wrong polarity
 
 some kind of circut skeleton viewer thing 
-- ie ground just 1px next to it isn't part of skeleton
-- ground element instead of PAPR
 - no capacitor polarity?
     - only for parallel plates?
 
@@ -530,7 +533,10 @@ some kind of circut skeleton viewer thing
     - big map of all circuits, if rspk disappears then update circuit and force-recomputation of branches
     - otherwise recompute branches if rpsk detects new conductor\
 
+average current votlage through votlage sources
+diodes inaccurate, actually drop 0.7 additional
 
+make ISOL with ION?
 
 - transisitors: https://en.wikipedia.org/wiki/Bipolar_junction_transistor#Ebers%E2%80%93Moll_model
 - galvonic cell: https://en.wikipedia.org/wiki/Electrochemical_cell#/media/File:Galvanic_cell_with_no_cation_flow.png

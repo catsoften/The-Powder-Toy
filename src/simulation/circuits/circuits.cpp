@@ -21,7 +21,7 @@ Circuit::Circuit(const coord_vec &skeleton, Simulation * sim) {
     solve();
 
     #ifdef DEBUG
-        // debug();
+        debug();
     #endif
 }
 
@@ -257,9 +257,9 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
     if (!skeleton_map[y][x] || (x == sx && y == sy)) return;
 
     std::vector<int> ids, switches;
-    float total_resistance = 0.0f;
-    float total_voltage = 0.0f;
-    float current_voltage = 0.0f;
+    double total_resistance = 0.0;
+    double total_voltage = 0.0;
+    double current_voltage = 0.0;
 
     int end_node = -1, r, px = sx, py = sy, ox = x, oy = y;
     int pdiode = 0, ndiode = 0;
@@ -351,6 +351,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         if (!found_next) break; // No end node found, terminate
     }
 
+    total_voltage *= -1; // We incremented voltage drops so far, reverse for voltage gain
     if (start_node > end_node) { // Convention: smaller node goes first
         std::swap(start_node, end_node);
         total_voltage *= -1;
@@ -402,6 +403,8 @@ void Circuit::solve(bool allow_recursion) {
 
     // Additional special case solvers
     std::vector<std::pair<int, int> > diode_branches; // Node1 index
+    std::vector<std::tuple<int, int, double> > supernodes; // Node 1 Node 2 Voltage
+    int * row_lookup = new int[size]; // Index = node - 2, value = row
 
     // Solve Ax = b
     Eigen::MatrixXd A(size, size);
@@ -417,6 +420,7 @@ void Circuit::solve(bool allow_recursion) {
 
         for (size_t i = 0; i < node_id->second.size(); i++) {
             Branch * b = branch_map[node_id->first][i];
+            row_lookup[node_id->first - 2] = j;
             
             // Verify diodes and switches
             if (b->positive_diodes || b->negative_diodes)
@@ -432,17 +436,13 @@ void Circuit::solve(bool allow_recursion) {
                 continue;
 
             if (!is_grnd) {
-                /** N1 + V = N2, or N2 - N1 = V */
-                if (b->voltage_gain && node_id->first < node_id->second[i]) {
-                    std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
-                    int m = node_id->first < node_id->second[i] ? 1 : -1;
-
-                    matrix_row[node_id->first - 2] = -1 * m ;
-                    matrix_row[node_id->second[i] - 2] = 1 * m;
-                    matrix_row[size] = b->voltage_gain;
-                    break;
+                /* Deal with supernodes later */
+                if (b->voltage_gain) {
+                    if (node_id->first < node_id->second[i]) // Avoid duplicate supernodes
+                        supernodes.push_back(std::make_tuple(node_id->first, node_id->second[i], b->voltage_gain));
                 }
-                /** Sum of all (N2 - N1) / R = 0 */
+                /** Sum of all (N2 - N1) / R = 0 (Ignore resistances across voltage sources, dealt with
+                 *  when solving supernodes) */
                 else if (b->resistance) {
                     matrix_row[node_id->first - 2] -= 1.0f / b->resistance;
                     matrix_row[node_id->second[i] - 2] += 1.0f / b->resistance;
@@ -457,6 +457,22 @@ void Circuit::solve(bool allow_recursion) {
         delete[] matrix_row;
         j++;
     }
+
+    /** Handle supernodes */
+    for (size_t j = 0; j < supernodes.size(); j++) {
+        int n1 = std::get<0>(supernodes[j]), n2 = std::get<1>(supernodes[j]);
+        int row1 = row_lookup[n1 - 2],
+            row2 = row_lookup[n2 - 2];
+        
+        A.row(row1) += A.row(row2); // KCL over both end nodes
+        for (size_t k = 0; k < size; k++) { // KVL equation
+            if ((int)k == n1 - 2)      A(row2, k) = -1;
+            else if ((int)k == n2 - 2) A(row2, k) =  1;
+            else                       A(row2, k) =  0;
+        }
+        b[row2] = std::get<2>(supernodes[j]);
+    }
+    delete[] row_lookup;
 
     x = A.colPivHouseholderQr().solve(b);
 
@@ -479,6 +495,9 @@ void Circuit::solve(bool allow_recursion) {
                 deltaV *= -1; // Maintain polarity: node1 -> node2 is positive
             Branch * b = branch_map[node1][index];
 
+            std::cout << "Branch " << b->node1 << "->" << b->node2 << " pdiode: " << b->positive_diodes << "  ndiode: "<<
+                b->negative_diodes << "  deltaV: " << deltaV << "\n";
+
             // Fail on the following conditions:
             // 1. Current is flowing right way, but does not meet threshold voltage
             // 2. Current is flowing wrong way and does not exceed breakdown voltage
@@ -497,6 +516,10 @@ void Circuit::solve(bool allow_recursion) {
         }
         if (re_solve) solve(false); // Re-solve without diode branches
     }
+}
+
+void Circuit::update_sim() {
+
 }
 
 void Circuit::debug() {

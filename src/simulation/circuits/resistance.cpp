@@ -4,7 +4,10 @@
 // All resistances
 std::unordered_map<int, double> resistances({
     { PT_SWCH, 1e-8 },
-    { PT_VOLT, 0.0 },
+    // PT_VOLT's resistance only matters when a voltage source is not connected correctly,
+    // so we set it really high to block current through incorrectly placed voltage sources
+    // (Default is 0 if correctly connected)
+    { PT_VOLT, REALLY_BIG_RESISTANCE },
     { PT_COPR, 1.72e-8 },
     { PT_ZINC, 5.5e-8 },
     { PT_SICN, 30 },
@@ -69,13 +72,13 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
             // it's easier. We set effective resistance to 0 when discharging to avoid all the voltage
             // disappearing into the capacitor itself
             if (parts[i].tmp2 == 0)
-                return 0.0f;
+                return 0.0;
             return parts[i].pavg[1];
         case PT_INDC:
             // Inductors have very high initial resistance when there is a positive change in current
             // that slowly reduces, and vice versa. Effective resistance is saved in pavg1
             if (parts[i].tmp2 == 0)
-                return 0.0f;
+                return 0.0;
             return parts[i].pavg[1];
         case PT_RSTR:              // Stores resitivity in pavg0
             return parts[i].pavg[0];

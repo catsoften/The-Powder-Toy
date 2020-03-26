@@ -1,10 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_VCMB PT_VCMB 260
-Element_VCMB::Element_VCMB()
+//#TPT-Directive ElementClass Element_GRND PT_GRND 260
+Element_GRND::Element_GRND()
 {
-	Identifier = "DEFAULT_PT_VCMB";
-	Name = "VCMB";
+	Identifier = "DEFAULT_PT_GRND";
+	Name = "GRND";
 	Colour = PIXPACK(0xFFFFFF);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
@@ -28,7 +28,7 @@ Element_VCMB::Element_VCMB()
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Combiner junction. Accepts voltage from PSCN, outputs combined voltage to NSCN.";
+	Description = "Electrical ground.";
 
 	Properties = TYPE_SOLID;
 
@@ -41,20 +41,20 @@ Element_VCMB::Element_VCMB()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_VCMB::update;
-	Graphics = &Element_VCMB::graphics;
+	Update = &Element_GRND::update;
+	Graphics = &Element_GRND::graphics;
 }
 
-//#TPT-Directive ElementHeader Element_VCMB static int update(UPDATE_FUNC_ARGS)
-int Element_VCMB::update(UPDATE_FUNC_ARGS)
+//#TPT-Directive ElementHeader Element_GRND static int update(UPDATE_FUNC_ARGS)
+int Element_GRND::update(UPDATE_FUNC_ARGS)
 {
 	// update code here
 
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_VCMB static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_VCMB::graphics(GRAPHICS_FUNC_ARGS)
+//#TPT-Directive ElementHeader Element_GRND static int graphics(GRAPHICS_FUNC_ARGS)
+int Element_GRND::graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -62,4 +62,4 @@ int Element_VCMB::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_VCMB::~Element_VCMB() {}
+Element_GRND::~Element_GRND() {}

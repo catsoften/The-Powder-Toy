@@ -55,7 +55,7 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
         int (&output_map)[YRES][XRES], short iter) {
     std::vector<int> delete_these_indices;
-    short x, y, p2, p3, p4, p5, p6, p7, p8, p9;
+    short x, y, p2, p3, p4, p5, p6, p7, p8, p9, typ;
     delete_these_indices.reserve(output.size() / 2);
 
     for (unsigned int i = 0; i < output.size(); i++) {
@@ -65,6 +65,17 @@ void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
         // Edge bounds check
         if (x == 0 || x == XRES - 1 || y == 0 || y == YRES - 1)
             continue;
+
+        // Essential circuit elements cannot be trimmed if only 1 px remains
+        typ = TYP(sim->pmap[y][x]);
+        if (typ == PT_VOLT || typ == PT_GRND || typ == PT_CAPR || typ == PT_INDC) {
+            for (int rx = -1; rx <= 1; rx++)
+            for (int ry = -1; ry <= 1; ry++)
+                if ((rx || ry) && TYP(sim->pmap[y + ry][x + rx]) == typ)
+                    goto exit_loop;
+            continue;
+        }
+        exit_loop:;
 
         // Thinning algorithim
         // Get surrounding points, clockwise starting from point above
