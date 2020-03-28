@@ -14,7 +14,7 @@ class Branch;
 class Circuit;
 
 extern Circuit * circuit_map[NPART]; // ID to Circuit *
-extern std::set<Circuit *> all_circuits;
+extern std::vector<Circuit *> all_circuits;
 
 namespace CIRCUITS {
     // Functions
@@ -49,8 +49,9 @@ public:
     void solve(bool allow_recursion=true);
     void update_sim();
     void reset_effective_resistances();
-    
+
     Circuit(int x, int y, Simulation *sim);
+    Circuit(const Circuit &other);
     ~Circuit();
 };
 

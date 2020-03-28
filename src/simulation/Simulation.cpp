@@ -545,6 +545,8 @@ Snapshot * Simulation::CreateSnapshot()
 	snap->stickmen.insert(snap->stickmen.begin(), &fighters[0], &fighters[MAX_FIGHTERS]);
 	snap->signs = signs;
 	snap->timer = timer;
+	for (auto c : all_circuits)
+		snap->circuits.push_back(Circuit(*c));
 	return snap;
 }
 
@@ -589,6 +591,11 @@ void Simulation::Restore(const Snapshot & snap)
 
 	faraday_updated = false;
 	RecalculateFaraday();
+
+	CIRCUITS::clearCircuits();
+	for (auto circuit : snap.circuits)
+		all_circuits.push_back(new Circuit(circuit));
+	CIRCUITS::updateAllCircuits();
 }
 
 void Simulation::clear_area(int area_x, int area_y, int area_w, int area_h)

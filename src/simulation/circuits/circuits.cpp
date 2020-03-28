@@ -1,5 +1,6 @@
 #include "simulation/circuits/circuits.h"
 #include "simulation/circuits/resistance.h"
+#include "simulation/circuits/util.h"
 
 #include "eigen/Core"
 #include "eigen/Dense"
@@ -8,9 +9,10 @@
 
 #include <iomanip>
 #include <iostream>
+#include <limits>
 
 Circuit * circuit_map[NPART];
-std::set<Circuit *> all_circuits;
+std::vector<Circuit *> all_circuits;
 
 // Functions
 void CIRCUITS::addCircuit(int x, int y, Simulation * sim) {
@@ -19,8 +21,7 @@ void CIRCUITS::addCircuit(int x, int y, Simulation * sim) {
         return; // Already part of a circuit
 
     std::cout << "ADDING CIRCUIT\n";
-    Circuit * c = new Circuit(x, y, sim);
-    all_circuits.insert(c);
+    all_circuits.push_back(new Circuit(x, y, sim));
 }
 
 void CIRCUITS::deleteCircuit(int i) {
@@ -33,6 +34,9 @@ void CIRCUITS::updateAllCircuits() {
         c->solve();
         c->update_sim();
     }
+
+    if (RNG::Ref().chance(1, 60))
+        std::cout << all_circuits.size() << " CIRCUITS\n";
 }
 
 void CIRCUITS::clearCircuits() {
@@ -43,28 +47,6 @@ void CIRCUITS::clearCircuits() {
 }
 
 // Classes
-Circuit::Circuit(int x, int y, Simulation * sim) {
-    this->sim = sim;
-
-    coord_vec skeleton = floodfill(sim, sim->parts, x, y);
-    skeleton = coord_stack_to_skeleton(sim, skeleton);
-
-    std::fill(&skeleton_map[0][0], &skeleton_map[YRES][0], 0);
-    std::fill(&immutable_nodes[0][0], &immutable_nodes[YRES][0], 0);
-    for (auto &pos : skeleton) {
-        skeleton_map[pos.y][pos.x] = 1;
-        sim->parts[ID(sim->photons[pos.y][pos.x])].tmp = 1;
-    }
-    
-    generate(skeleton);
-    solve();
-    update_sim();
-
-    #ifdef DEBUG
-        debug();
-    #endif
-}
-
 /**
  * Mark nodes on the skeleton map, and create branches.
  * Nodes are numbered with an ID
@@ -579,14 +561,17 @@ void Circuit::update_sim() {
             if (node_id->first > node_id->second[i]) continue;
 
             Branch * b = branch_map[node_id->first][i];
-            double total_resistance = 0.0f;
-            int x, y, r, prev_type = -1;
+            int prev_type = -1;
+            int x = (int)(0.5f + sim->parts[b->node1_id].x),
+                y = (int)(0.5f + sim->parts[b->node1_id].y),
+                r = sim->pmap[y][x];
+            double total_resistance = get_effective_resistance(TYP(r), sim->parts, ID(r), sim);
 
             // Set voltage and current at nodes
-            sim->parts[b->node1_id].pavg[0] = b->V1;
-            sim->parts[b->node1_id].pavg[1] = b->current;
-            sim->parts[b->node2_id].pavg[0] = b->V2;
-            sim->parts[b->node2_id].pavg[1] = b->current;
+            sim->parts[b->node1_id].pavg[0] = restrict_double_to_flt(b->V1);
+            sim->parts[b->node1_id].pavg[1] = restrict_double_to_flt(b->current);
+            sim->parts[b->node2_id].pavg[0] = restrict_double_to_flt(b->V2);
+            sim->parts[b->node2_id].pavg[1] = restrict_double_to_flt(b->current);
 
             circuit_map[b->node1_id] = this;
             circuit_map[b->node2_id] = this;
@@ -601,9 +586,9 @@ void Circuit::update_sim() {
                 //      among individual SWCH pixels
                 if (TYP(r) != PT_VOLT && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
                     total_resistance += get_effective_resistance(TYP(r), sim->parts, ID(r), sim);
-                
-                sim->parts[id].pavg[0] = (float)(b->V1 - total_resistance * b->current);
-                sim->parts[id].pavg[1] = b->current;
+
+                sim->parts[id].pavg[0] = restrict_double_to_flt((float)(b->V1 - total_resistance * b->current));
+                sim->parts[id].pavg[1] = restrict_double_to_flt(b->current);
                 circuit_map[id] = this;
                 prev_type = TYP(r);
             }
@@ -611,8 +596,9 @@ void Circuit::update_sim() {
         // Floating branches
         for (size_t i = 0; i < floating_branches[node_id->first].size(); i++) {
             for (size_t j = 0; j < floating_branches[node_id->first][i]->rspk_ids.size(); j++) {
-                sim->parts[floating_branches[node_id->first][i]->rspk_ids[j]].pavg[0] = floating_branches[node_id->first][i]->V2;
-                sim->parts[floating_branches[node_id->first][i]->rspk_ids[j]].pavg[1] = 0.0f;
+                int id = floating_branches[node_id->first][i]->rspk_ids[j];
+                sim->parts[id].pavg[0] = restrict_double_to_flt(floating_branches[node_id->first][i]->V2);
+                sim->parts[id].pavg[1] = restrict_double_to_flt(0.0f);
             }
         }
     }
@@ -635,7 +621,58 @@ void Circuit::debug() {
     // }
 }
 
+Circuit::Circuit(int x, int y, Simulation * sim) {
+    this->sim = sim;
+
+    coord_vec skeleton = floodfill(sim, sim->parts, x, y);
+    skeleton = coord_stack_to_skeleton(sim, skeleton);
+
+    std::fill(&skeleton_map[0][0], &skeleton_map[YRES][0], 0);
+    std::fill(&immutable_nodes[0][0], &immutable_nodes[YRES][0], 0);
+    for (auto &pos : skeleton) {
+        skeleton_map[pos.y][pos.x] = 1;
+        sim->parts[ID(sim->photons[pos.y][pos.x])].tmp = 1;
+    }
+    
+    generate(skeleton);
+    solve();
+    update_sim();
+
+    #ifdef DEBUG
+        debug();
+    #endif
+}
+
+Circuit::Circuit(const Circuit &other) {
+    sim = other.sim;
+    std::copy(&other.skeleton_map[0][0], &other.skeleton_map[YRES][0], &skeleton_map[0][0]);
+    std::copy(&other.immutable_nodes[0][0], &other.immutable_nodes[YRES][0], &immutable_nodes[0][0]);
+    connection_map = other.connection_map;
+    ground_nodes = other.ground_nodes;
+
+    for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
+        for (size_t i = 0; i < node_id->second.size(); i++) {
+            Branch * new_b;
+            if ((size_t)node_id->first >= branch_map[node_id->second[i]].size() || !branch_map[node_id->second[i]][node_id->first]) {
+                new_b = new Branch(*(other.branch_map.at(node_id->first)[i]));
+                branch_cache.push_back(new_b);
+            }
+            else {
+                new_b = branch_map[node_id->second[i]][node_id->first];
+            }
+            branch_map[node_id->first].push_back(new_b);
+        }
+        // Floating branches
+        for (size_t i = 0; i < floating_branches[node_id->first].size(); i++) {
+            Branch * new_b = new Branch(*(other.floating_branches.at(node_id->first)[i]));
+            floating_branches[node_id->first].push_back(new_b);
+            branch_cache.push_back(new_b);
+        }
+    }
+}
+
 Circuit::~Circuit() {
+    std::cout << all_circuits.size() << " DESTRUCTING\n";
     for (unsigned i = 0; i < branch_cache.size(); i++)
         delete branch_cache[i];
 }

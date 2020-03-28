@@ -500,12 +500,15 @@ curved line tool
 
 realistic gardening
 
+make portal / wifi snapshots use way less memory, currently super high!
+
 steal ideas from https://powdertoy.co.uk/Wiki/W/Lua_Functions_in_Jacob1%27s_Mod.html
 
 undoing quantum states and moving solids?
 
 realistic mdoe:
 - fire requires temp to combust (add to realistic fire)
+- oxygen and humidity map
 
 https://github.com/The-Powder-Toy/The-Powder-Toy/pull/698
 
@@ -525,24 +528,27 @@ some kind of circut skeleton viewer thing
 - floodfill fixes for switches 
 - update circuits continually
     - big map of all circuits, if rspk disappears then update circuit and force-recomputation of branches
-    - otherwise recompute branches if rpsk detects new conductor\
+    - otherwise recompute branches if rpsk detects new conductor
 
 average current votlage through votlage sources
 diodes inaccurate, actually drop 0.7 additional
 
 
 voltage indicator use metric prefix, ie 2 mA
-voltage sign, current signs
-    - usem etric format
-    - format seperate header file :D
-
-effective resistance doesn't actually start at 0, should start at node1's particle type
-
 voltage indicator on the top too long with aheat enabled?
+
+make group filling a bit better maybe?
+
 
 portals maybe
 
-deal with undo somehow?
+
+make capacitors (easy), i / c  * dt = dV, add dV
+- use trapezoidal euler approximation
+
+long branches, possibly estimate wire thickness and divide out resistance?
+- idk how effective resistance would work then, maybe save effective resistances in array?
+
 
 INWR different tmp conductivity?
 

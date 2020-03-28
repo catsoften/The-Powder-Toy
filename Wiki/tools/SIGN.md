@@ -9,7 +9,8 @@ The sign tool is the same, but we added some new signs:
 {gen}    - Generation of GOL underneath
 ```
 
-Realistic circuit specific signs:
+Realistic circuit specific signs: (RSPK only)
 ```
-{volt} or {v}  - Voltage of the pixel below
+{volt} or {v}     - Voltage of the pixel below
+{current} or {i}  - Current of pixel below
 ```

@@ -3,6 +3,7 @@
 #include "graphics/Graphics.h"
 #include "simulation/Simulation.h"
 #include "simulation/ElementCommon.h"
+#include "simulation/circuits/format.h"
 
 sign::sign(String text_, int x_, int y_, Justification justification_):
 	x(x_),
@@ -125,9 +126,15 @@ String sign::getDisplayText(Simulation *sim, int &x0, int &y0, int &w, int &h, b
 					}
 					else if (between_curlies == "v" || between_curlies == "volt") {
 						if (part && part->type == PT_RSPK)
-							formatted_text << part->pavg[0] << " V";
+							formatted_text << format_value(part->pavg[0], "V");
 						else
-							formatted_text << "0 V";
+							formatted_text << "0.0 V";
+					}
+					else if (between_curlies == "i" || between_curlies == "current") {
+						if (part && part->type == PT_RSPK)
+							formatted_text << format_value(part->pavg[1], "A");
+						else
+							formatted_text << "0.0 A";
 					}
 					else
 					{

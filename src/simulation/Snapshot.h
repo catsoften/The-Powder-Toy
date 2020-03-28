@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Particle.h"
+#include "simulation/circuits/circuits.h"
 #include "json/json.h"
 
 class Snapshot
@@ -29,7 +30,7 @@ public:
 	std::vector<float> FanVelocityX;
 	std::vector<float> FanVelocityY;
 	std::vector<short> oneWayDir;
-
+	std::vector<Circuit> circuits;
 
 	std::vector<Particle> PortalParticles;
 	std::vector<unsigned char> WirelessData;
