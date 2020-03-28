@@ -54,23 +54,7 @@ int Element_VOLT::update(UPDATE_FUNC_ARGS) {
 	if (parts[i].tmp > 0)
 		return 0;
 
-	int r, rx, ry;
-	for (rx = -1; rx <= 1; rx++)
-	for (ry = -1; ry <= 1; ry++) {
-		r = pmap[y + ry][x + rx];
-		if (r && TYP(r) != PT_VOLT) {
-
-			coord_vec f = floodfill(sim, parts, x + rx, y + ry);
-			f = coord_stack_to_skeleton(sim, f);
-			Circuit(f, sim);
-
-			for (unsigned int i = 0; i < f.size(); i++)
-				parts[ID(sim->photons[f[i].y][f[i].x])].life = 1000;
-
-			parts[i].tmp = 1;
-			return 0;
-		}
-	}
+	CIRCUITS::addCircuit(x, y, sim);
 
 	// int r = sim->photons[y][x];
 

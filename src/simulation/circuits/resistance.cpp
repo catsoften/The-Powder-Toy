@@ -1,5 +1,6 @@
 #include "simulation/circuits/resistance.h"
 #include <exception>
+#include <cmath>
 
 // All resistances
 std::unordered_map<int, double> resistances({
@@ -15,6 +16,7 @@ std::unordered_map<int, double> resistances({
     { PT_BMTL, 1e-7 },
     { PT_BRMT, 1e-7 },
     { PT_TRUS, 1e-7 },
+    { PT_INWR, 1e-7 },
     { PT_NEON, 10e3 }, // Neon
     { PT_NBLE, 539 },  // Helium
     { PT_NICH, 1e-7 },
@@ -56,7 +58,8 @@ bool valid_conductor(int typ, Simulation *sim, int i) {
      * Note: valid conductor only means if RSPK can exist on it, not if its currently capable of conducting
      * Ie, off SWCH should still return true because it has an ON state that can conduct
      */
-    return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT || typ == GROUND_TYPE;
+    return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT || typ == GROUND_TYPE
+        || typ == PT_SWCH;
 }
 
 double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
@@ -88,6 +91,16 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
             return parts[i].temp < 4 ? SUPERCONDUCTING_RESISTANCE : 9.6e-7;
         case PT_CRBN: // Unrealistic critical temp, but matches behavior for SPRK
             return parts[i].temp < 100 ? SUPERCONDUCTING_RESISTANCE : 1e-5;
+
+        // Semiconductors
+        case PT_PTCT: // Resistance goes to 1e-7 above 100 C
+            if (parts[i].temp <= 373.15f)
+                return REALLY_BIG_RESISTANCE;
+            return std::max(-(double)log((parts[i].temp - 373.15f) / 10.0f), 1e-7);
+        case PT_NTCT: // Resistance goes to 1e-7 below 100 C
+            if (parts[i].temp >= 373.15f)
+                return REALLY_BIG_RESISTANCE;
+            return std::max(-(double)log(-(parts[i].temp - 373.15f) / 10.0f), 1e-7);
     }
 
     auto itr = resistances.find(type);
@@ -95,4 +108,18 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
         return itr->second;
 
     return 5e-7; // Random default conductor resistance
+}
+
+// Not base resistance, but actual resistance it behaves as in the circuit
+// (ie, a switch can have either really low or really high resistance depending on state)
+double get_effective_resistance(int type, Particle *parts, int i, Simulation *sim) {
+    switch(type) {
+        case PT_CAPR:
+            return 0.0f;
+        case PT_INDC:
+            return 0.0f;
+        case PT_SWCH:
+            return parts[i].life >= 4 ? resistances[type] : REALLY_BIG_RESISTANCE;
+    }
+    return get_resistance(type, parts, i, sim);
 }

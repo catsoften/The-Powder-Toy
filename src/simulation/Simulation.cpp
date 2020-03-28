@@ -36,6 +36,7 @@
 #include "simulation/mvsd/movingsolids.h"
 #include "simulation/magnetics/magnetics.h"
 #include "simulation/stress/stress.h"
+#include "simulation/circuits/circuits.h"
 #include "gui/game/GameModel.h"
 
 #include "client/Client.h"
@@ -2375,6 +2376,7 @@ void Simulation::clear_sim(void)
 	emfield->Clear();
 	QUANTUM::quantum_states.clear();
 	MOVINGSOLID::solids.clear();
+	CIRCUITS::clearCircuits();
 }
 
 bool Simulation::IsWallBlocking(int x, int y, int type)
@@ -3713,7 +3715,7 @@ void Simulation::UpdateParticles(int start, int end)
 	int surround_hconduct[8];
 	float pGravX, pGravY, pGravD;
 	bool transitionOccurred;
-
+	
 	// Update all moving solids before the particles
 	auto itr = MOVINGSOLID::solids.begin();
 	while (itr != MOVINGSOLID::solids.end()) {
@@ -3732,6 +3734,9 @@ void Simulation::UpdateParticles(int start, int end)
 
 	// Recalc stress field
 	stressField->Clear();
+
+	// Recalc Circuits
+	CIRCUITS::updateAllCircuits();
 
 	//the main particle loop function, goes over all particles.
 	unsigned char update_count;

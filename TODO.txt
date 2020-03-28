@@ -502,6 +502,8 @@ realistic gardening
 
 steal ideas from https://powdertoy.co.uk/Wiki/W/Lua_Functions_in_Jacob1%27s_Mod.html
 
+undoing quantum states and moving solids?
+
 realistic mdoe:
 - fire requires temp to combust (add to realistic fire)
 
@@ -510,7 +512,6 @@ https://github.com/The-Powder-Toy/The-Powder-Toy/pull/698
 floodfill spark
 
 circuits:
-- constructor does skeletonization and shit itself
 - rewrite solving method.md
 
 - preprocessing shapes:
@@ -519,14 +520,7 @@ circuits:
 shapes:
   - capacitor ---||---- (1px gap)
 
-diodes:
-    - smoke and melt
-capacitors:
-    - explode if wrong polarity
-
 some kind of circut skeleton viewer thing 
-- no capacitor polarity?
-    - only for parallel plates?
 
 - floodfill fixes for switches 
 - update circuits continually
@@ -536,11 +530,37 @@ some kind of circut skeleton viewer thing
 average current votlage through votlage sources
 diodes inaccurate, actually drop 0.7 additional
 
+
+voltage indicator use metric prefix, ie 2 mA
+voltage sign, current signs
+    - usem etric format
+    - format seperate header file :D
+
+effective resistance doesn't actually start at 0, should start at node1's particle type
+
+voltage indicator on the top too long with aheat enabled?
+
+portals maybe
+
+deal with undo somehow?
+
+INWR different tmp conductivity?
+
 make ISOL with ION?
 
+- electric noise https://en.wikipedia.org/wiki/Johnson%E2%80%93Nyquist_noise#Quantum_effects_at_high_frequencies_or_low_temperatures 
+    - freq is mesaurement freq
 - transisitors: https://en.wikipedia.org/wiki/Bipolar_junction_transistor#Ebers%E2%80%93Moll_model
 - galvonic cell: https://en.wikipedia.org/wiki/Electrochemical_cell#/media/File:Galvanic_cell_with_no_cation_flow.png
 - thermoelectric https://en.wikipedia.org/wiki/Thermoelectric_effect#Seebeck_effect
+- supercapacitors
+
+diodes:
+    - smoke and melt
+capacitors:
+    - explode if wrong polarity
+- no capacitor polarity?
+    - only for parallel plates?
 
 diamond anvil cells
 

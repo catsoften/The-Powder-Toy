@@ -8,8 +8,23 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <iostream>
 
 class Branch;
+class Circuit;
+
+extern Circuit * circuit_map[NPART]; // ID to Circuit *
+extern std::set<Circuit *> all_circuits;
+
+namespace CIRCUITS {
+    // Functions
+    void addCircuit(int x, int y, Simulation * sim);
+    void deleteCircuit(int i);
+    void updateAllCircuits();
+    void clearCircuits();
+}
+
+// Classes
 class Circuit {
 private:
     Simulation * sim;
@@ -22,17 +37,20 @@ private:
     // and represent different branches
     std::unordered_map<int, std::vector<int> > connection_map; // Node ID: Ids that connect
     std::unordered_map<int, std::vector<Branch *> > branch_map; // Node ID: branches with start_node = id
+    std::unordered_map<int, std::vector<Branch *> > floating_branches; // Node ID, branches with start_node = id
     std::vector<Branch *> branch_cache; // Stores pointers so we can delete them later
     std::set<int> ground_nodes; // Reference for nodes = 0 V
 
     void generate(const coord_vec &skeleton);
     void trim_adjacent_nodes(const coord_vec &nodes);
     void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
-    void solve(bool allow_recursion=true);
-    void update_sim();
     void debug();
 public:
-    Circuit(const coord_vec &skeleton, Simulation *sim);
+    void solve(bool allow_recursion=true);
+    void update_sim();
+    void reset_effective_resistances();
+    
+    Circuit(int x, int y, Simulation *sim);
     ~Circuit();
 };
 
@@ -41,10 +59,16 @@ public:
 class Branch {
 public:
     /**
+     * Resistance is base resistance (only resistors)
+     * Effective resistance is dynamic, base is static
+     * 
      * Notes on polarity:
-     * Voltage: going from node1 to node2 increases by this voltage, ie
-     *   NODE1 ----- - | + ------ NODE2
+     * Voltage: going from node1 to node2 drops by this voltage, ie
+     *   NODE1 ----- + | - ------ NODE2
      * is positive voltage
+     * 
+     * CUrrent: flows from node1 to node2 (positive)
+     *   NODE1 -----> NODE2 (positive)
      * 
      * Dioide: going from node1 to node2 is positive_diode
      *   NODE1 ----- PSCN NSCN ------ NODE2
@@ -52,13 +76,27 @@ public:
 
     const int node1, node2;
     const std::vector<int> ids;
+    const std::vector<int> rspk_ids;
     const std::vector<int> switches;
-    double resistance, voltage_gain;
+    double resistance, voltage_gain, base_resistance, current=0.0;
     const int positive_diodes, negative_diodes;
+    const int node1_id, node2_id;
+    double V1, V2;
+    bool recomputeSwitches = true;
 
-    Branch(int node1, int node2, const std::vector<int> &ids, const std::vector<int> &switch_ids,
-            double resistance, double voltage_gain, int pdiode, int ndiode) :
-        node1(node1), node2(node2), ids(ids), switches(switch_ids), resistance(resistance),
-        voltage_gain(voltage_gain), positive_diodes(pdiode), negative_diodes(ndiode) {}
+    Branch(int node1, int node2, const std::vector<int> &ids, 
+            const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids,
+            double resistance, double voltage_gain, int pdiode, int ndiode, int id1, int id2) :
+        node1(node1), node2(node2), ids(ids), rspk_ids(rspk_ids), switches(switch_ids), resistance(resistance),
+        voltage_gain(voltage_gain), base_resistance(resistance), positive_diodes(pdiode), negative_diodes(ndiode),
+        node1_id(id1), node2_id(id2) {}
+    
+    void print();
+    void computeDynamicResistances(Simulation * sim);
+private:
+    bool switches_on=false;
+
+    bool switchesOn(Simulation * sim);
 };
+
 #endif
