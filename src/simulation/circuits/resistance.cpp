@@ -49,6 +49,8 @@ std::unordered_map<int, double> resistances({
 
 // Functions
 bool valid_conductor(int typ, Simulation *sim, int i) {
+    if (i < 0 || !typ) return false;
+
     /**
      * Exceptions:
      * - INST does not have PROP_CONDUCTS but should be considered a conductor

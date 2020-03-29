@@ -5,6 +5,8 @@
 #include "simulation/ElementCommon.h"
 #include <vector>
 
+class Circuits;
+
 struct pos { short x, y; };
 typedef std::vector<pos> coord_vec;
 

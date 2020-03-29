@@ -7,9 +7,12 @@
  * Floodfill touching conductors with RSPRK
  */
 coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
+    int tmp = sim->pmap[y][x];
+    if (!valid_conductor(TYP(tmp), sim, ID(tmp)))
+        return coord_vec();
+
     CoordStack coords;
     coord_vec output;
-    int id;
     pos temp;
 
     char visited[YRES][XRES];
@@ -19,12 +22,12 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 	while (coords.getSize()) {
 		coords.pop(x, y);
 
-		if (!sim->photons[y][x])
-			sim->create_part(-3, x, y, PT_RSPK);
+		if (!sim->photons[y][x]) {
+			int j = sim->create_part(-3, x, y, PT_RSPK);
+            if (j < 0) break; // Unable to create new particles
+        }
 
-		id = ID(sim->photons[y][x]);
         visited[y][x] = 1;
-
         temp.x = x;
         temp.y = y;
         output.push_back(temp);
@@ -37,7 +40,8 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 			// or the switch can't be toggled
 			int fromtype = TYP(sim->pmap[y][x]);
 			int totype = TYP(sim->pmap[y + ry][x + rx]);
-			if (totype && !visited[y + ry][x + rx] && valid_conductor(totype, sim, ID(sim->pmap[y + ry][x + rx]))) {
+			if ((fromtype != PT_SWCH || (totype != PT_PSCN && totype != PT_NSCN)) &&
+                totype && !visited[y + ry][x + rx] && valid_conductor(totype, sim, ID(sim->pmap[y + ry][x + rx]))) {
 				coords.push(x + rx, y + ry);
                 visited[y + ry][x + rx] = 1;
             }

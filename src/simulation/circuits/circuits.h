@@ -10,6 +10,8 @@
 #include <unordered_map>
 #include <iostream>
 
+#define BASE_RSPK_LIFE 4
+
 class Branch;
 class Circuit;
 
@@ -30,6 +32,8 @@ private:
     Simulation * sim;
     short skeleton_map[YRES][XRES];
     char immutable_nodes[YRES][XRES]; // 1 = directly adjacent, 2 = diagonally adjacent
+    bool recalc_next_frame = false;
+    int startx, starty;
 
     // These can contain duplicate node-node id pairs, and follow same order, ie if connection map
     // for node 5 at index 2 is node 3, then the branch at node 5 index 2 is for node 3
@@ -41,14 +45,17 @@ private:
     std::vector<Branch *> branch_cache; // Stores pointers so we can delete them later
     std::set<int> ground_nodes; // Reference for nodes = 0 V
 
-    void generate(const coord_vec &skeleton);
     void trim_adjacent_nodes(const coord_vec &nodes);
     void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
-    void debug();
 public:
+    void generate();
     void solve(bool allow_recursion=true);
     void update_sim();
     void reset_effective_resistances();
+    void flag_recalc() { recalc_next_frame = true; }
+    bool should_recalc() { return recalc_next_frame; }
+    void reset();
+    void debug();
 
     Circuit(int x, int y, Simulation *sim);
     Circuit(const Circuit &other);
@@ -68,7 +75,7 @@ public:
      *   NODE1 ----- + | - ------ NODE2
      * is positive voltage
      * 
-     * CUrrent: flows from node1 to node2 (positive)
+     * Current: flows from node1 to node2 (positive)
      *   NODE1 -----> NODE2 (positive)
      * 
      * Dioide: going from node1 to node2 is positive_diode
@@ -80,23 +87,22 @@ public:
     const std::vector<int> rspk_ids;
     const std::vector<int> switches;
     double resistance, voltage_gain, base_resistance, current=0.0;
-    const int positive_diodes, negative_diodes;
+    const int diode; // 0 = no diode, 1 = positive, -1 = negative
     const int node1_id, node2_id;
     double V1, V2;
     bool recomputeSwitches = true;
 
     Branch(int node1, int node2, const std::vector<int> &ids, 
             const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids,
-            double resistance, double voltage_gain, int pdiode, int ndiode, int id1, int id2) :
+            double resistance, double voltage_gain, int diode, int id1, int id2) :
         node1(node1), node2(node2), ids(ids), rspk_ids(rspk_ids), switches(switch_ids), resistance(resistance),
-        voltage_gain(voltage_gain), base_resistance(resistance), positive_diodes(pdiode), negative_diodes(ndiode),
+        voltage_gain(voltage_gain), base_resistance(resistance), diode(diode),
         node1_id(id1), node2_id(id2) {}
     
     void print();
     void computeDynamicResistances(Simulation * sim);
 private:
     bool switches_on=false;
-
     bool switchesOn(Simulation * sim);
 };
 

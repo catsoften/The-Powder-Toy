@@ -1,14 +1,14 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/magnetics/magnetics.h"
+#include "simulation/circuits/circuits.h"
+#include "simulation/circuits/resistance.h"
+
 #include <queue>
 #include <iostream>
 
 namespace RSPK {
 const int REFRESH_EVERY_FRAMES = 5;
 
-float get_resistance(int type, Particle *parts, int i, Simulation *sim) {
-	return 0.5f; // Default conductor resistance
-}
 
 float get_power(int x, int y, Simulation *sim) {
 	int r = sim->photons[y][x];
@@ -72,11 +72,43 @@ Element_RSPK::Element_RSPK()
 
 //#TPT-Directive ElementHeader Element_RSPK static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 void Element_RSPK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
-
+	if (circuit_map[i]) circuit_map[i]->flag_recalc();
+	circuit_map[i] = nullptr;
 }
 
 //#TPT-Directive ElementHeader Element_RSPK static int update(UPDATE_FUNC_ARGS)
 int Element_RSPK::update(UPDATE_FUNC_ARGS) {
+	/**
+	 * tmp - Current node ID, 1 = branch, 0 = not part of skeleton
+	 * pavg0  -Voltage relative to ground
+	 * pavg1 - Current through pixel
+	 */
+	for (int rx =- 1; rx <= 1; rx++)
+	for (int ry = -1; ry <= 1; ry++)
+		if (BOUNDS_CHECK && (rx || ry)) {
+			int r = sim->photons[y + ry][x + rx];
+			int fromtype = TYP(pmap[y][x]);
+			int totype = TYP(pmap[y+ry][x+rx]);
+
+			parts[i].tmp2 = circuit_map[i] ? 1 :0;
+			if (TYP(r) != PT_RSPK && circuit_map[i] && valid_conductor(totype, sim, ID(pmap[y+ry][x+rx])) &&
+			   		(fromtype != PT_SWCH || (totype != PT_PSCN && totype != PT_NSCN))) {
+				circuit_map[i]->flag_recalc();
+			}
+		}
+
+	if (!pmap[y][x]) {
+		sim->kill_part(i);
+		return 1;
+	}
+
+	parts[i].life--;
+	if (parts[i].life < 0) {
+		sim->kill_part(i);
+		return 1;
+	}
+
+	// CODE BELOW IS NOT UPDATED
 	/**
 	 * tmp   - Current node ID
 	 * tmp2  - 
@@ -86,7 +118,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	 * 
 	 * RSPK makes an electric field in the direction it goes
 	 */
-	float res = RSPK::get_resistance(parts[i].ctype, parts, ID(pmap[y][x]), sim);
+	float res = 1.0f; // get_resistance(parts[i].ctype, parts, ID(pmap[y][x]), sim);
 
 	// Negate velocity, or it can be affected by Newtonian gravity
 	parts[i].vx = parts[i].vy = 0;
@@ -96,29 +128,33 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	parts[i].temp = parts[ID(pmap[y][x])].temp;
 	parts[i].dcolour = 10000 * res;
 
-	if (!parts[i].pavg[0] && !parts[i].pavg[1]) {
-		for (int rx = -1; rx <= 1; rx++)
-		for (int ry = -1; ry <= 1; ry++)
-			if (rx || ry) {
-				int r = sim->photons[y + ry][x + rx];
-				if (r && TYP(r) == PT_RSPK && parts[ID(r)].tmp) {
-					parts[i].pavg[0] = parts[ID(r)].pavg[0];
-					parts[i].pavg[1] = parts[ID(r)].pavg[1];
-					goto end;
-				}
-			}
-		for (int rx = -1; rx <= 1; rx++)
-		for (int ry = -1; ry <= 1; ry++)
-			if (rx || ry) {
-				int r = sim->photons[y + ry][x + rx];
-				if (r && TYP(r) == PT_RSPK && (sim->parts[ID(r)].pavg[0] || sim->parts[ID(r)].pavg[1])) {
-					parts[i].pavg[0] = parts[ID(r)].pavg[0];
-					parts[i].pavg[1] = parts[ID(r)].pavg[1];
-					goto end;
-				}
-			}
-		end:;
-	}
+	// if (!parts[i].pavg[0] && !parts[i].pavg[1]) {
+	// 	for (int rx = -1; rx <= 1; rx++)
+	// 	for (int ry = -1; ry <= 1; ry++)
+	// 		if (rx || ry) {
+	// 			int r = sim->photons[y + ry][x + rx];
+	// 			if (r && TYP(r) == PT_RSPK && parts[ID(r)].tmp) {
+	// 				parts[i].pavg[0] = parts[ID(r)].pavg[0];
+	// 				parts[i].pavg[1] = parts[ID(r)].pavg[1];
+	// 				if (!circuit_map[i] && circuit_map[ID(r)])
+	// 					circuit_map[i] = circuit_map[ID(r)];
+	// 				goto end;
+	// 			}
+	// 		}
+	// 	for (int rx = -1; rx <= 1; rx++)
+	// 	for (int ry = -1; ry <= 1; ry++)
+	// 		if (rx || ry) {
+	// 			int r = sim->photons[y + ry][x + rx];
+	// 			if (r && TYP(r) == PT_RSPK && (sim->parts[ID(r)].pavg[0] || sim->parts[ID(r)].pavg[1])) {
+	// 				parts[i].pavg[0] = parts[ID(r)].pavg[0];
+	// 				parts[i].pavg[1] = parts[ID(r)].pavg[1];
+	// 				if (!circuit_map[i] && circuit_map[ID(r)])
+	// 					circuit_map[i] = circuit_map[ID(r)];
+	// 				goto end;
+	// 			}
+	// 		}
+	// 	end:;
+	// }
 
 
 	// Kill on low life, life decrements below 0 if no longer connected to a voltage source

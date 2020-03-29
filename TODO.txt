@@ -525,23 +525,31 @@ shapes:
 
 some kind of circut skeleton viewer thing 
 
-- floodfill fixes for switches 
-- update circuits continually
-    - big map of all circuits, if rspk disappears then update circuit and force-recomputation of branches
-    - otherwise recompute branches if rpsk detects new conductor
+op amp maybe
+
+
+cache - if no dynamic components no need to recalculate
+
+test IWALL with RSPK
+
+issues with low resistances
+
+
+refactor fromtype totype check into function in framework
 
 average current votlage through votlage sources
-diodes inaccurate, actually drop 0.7 additional
 
+
+power sign, resistance sign
+INWR different tmp conductivity?
 
 voltage indicator use metric prefix, ie 2 mA
 voltage indicator on the top too long with aheat enabled?
 
 make group filling a bit better maybe?
-
+- laggy on large blobs
 
 portals maybe
-
 
 make capacitors (easy), i / c  * dt = dV, add dV
 - use trapezoidal euler approximation
@@ -550,7 +558,7 @@ long branches, possibly estimate wire thickness and divide out resistance?
 - idk how effective resistance would work then, maybe save effective resistances in array?
 
 
-INWR different tmp conductivity?
+
 
 make ISOL with ION?
 

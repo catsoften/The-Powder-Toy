@@ -593,8 +593,10 @@ void Simulation::Restore(const Snapshot & snap)
 	RecalculateFaraday();
 
 	CIRCUITS::clearCircuits();
-	for (auto circuit : snap.circuits)
+	for (auto circuit : snap.circuits) {
 		all_circuits.push_back(new Circuit(circuit));
+		all_circuits.back()->flag_recalc();
+	}
 	CIRCUITS::updateAllCircuits();
 }
 
