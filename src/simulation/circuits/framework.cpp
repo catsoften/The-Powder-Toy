@@ -14,9 +14,9 @@ bool allow_conduction(int totype, int fromtype) {
     if (!totype) return false; // Cannot conduct to NONE
     // SWCH cannot conduct to NSCN / PSCN or SPRK can't toggle it
     if (fromtype == PT_SWCH && (totype == PT_NSCN || totype == PT_PSCN)) return false;
-    // INWR can only conduct to PSCN / NSCN or COPR / ZINC
-    if (fromtype == PT_INWR && totype != PT_INWR && !is_terminal(totype) && totype != GROUND_TYPE) return false;
-    if (totype == PT_INWR && fromtype != PT_INWR && !is_terminal(fromtype) && fromtype != GROUND_TYPE) return false;
+    // INWR can only conduct to negative terminal, or recieve from positive
+    if (fromtype == PT_INWR && totype != PT_INWR && !negative_terminal(totype) && totype != GROUND_TYPE) return false;
+    if (totype == PT_INWR && fromtype != PT_INWR && !positive_terminal(fromtype) && fromtype != GROUND_TYPE) return false;
     return true;
 }
 

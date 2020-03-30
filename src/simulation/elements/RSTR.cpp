@@ -32,7 +32,7 @@ Element_RSTR::Element_RSTR() {
 
 	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
 
-	DefaultProperties.pavg[0] = 1;
+	DefaultProperties.pavg[0] = 1000;
 	DefaultProperties.pavg[1] = 10;
 
 	LowPressure = IPL;

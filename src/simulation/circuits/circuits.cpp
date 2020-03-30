@@ -354,7 +354,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
             rspk_ids.push_back(ID(sim->photons[y][x]));
             if (TYP(r) == PT_SWCH)
                 switches.push_back(ID(r));
-            else if (TYP(r) == PT_VOLT) {
+            else if (TYP(r) == PT_VOLT || TYP(r) == PT_CAPR) {
                 current_voltage += sim->parts[ID(r)].pavg[0] * current_polarity;
                 source_count++;
             }

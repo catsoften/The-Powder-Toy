@@ -543,11 +543,11 @@ INWR different tmp conductivity?
 voltage indicator use metric prefix, ie 2 mA
 voltage indicator on the top too long with aheat enabled?
 
-sometimes adding extra branches doesn't update
-
 make group filling a bit better maybe?
 - laggy on large blobs
 - extra rspk dies and flickers
+
+capacitor should be under dynamic voltage for branches
 
 portals maybe
 
@@ -556,7 +556,6 @@ make capacitors (easy), i / c  * dt = dV, add dV
 
 long branches, possibly estimate wire thickness and divide out resistance?
 - idk how effective resistance would work then, maybe save effective resistances in array?
-
 
 make ISOL with ION?
 

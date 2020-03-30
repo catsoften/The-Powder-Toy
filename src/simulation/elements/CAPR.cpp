@@ -67,31 +67,36 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 	int r = sim->photons[y][x];
 	float efactor = pow(2.718, 1 / parts[i].pavg[0]);
 
-	if (r && TYP(r) == PT_RSPK && parts[ID(r)].tmp != 1) {
-		parts[i].pavg[1] *= efactor;
-		if (parts[i].pavg[1] > MAX_C)
-			parts[i].pavg[1] = MAX_C;
-		parts[i].tmp = 1000 * parts[ID(r)].pavg[0];
-		parts[i].tmp2 = 1;
+	if (r && TYP(r) == PT_RSPK) {
+		float current = sim->parts[ID(r)].pavg[1];
+		parts[i].pavg[0] -= current * 0.05f;
 	}
-	// Discharging
-	else if (parts[i].pavg[1] > LOWEST_EFFECTIVE_RES) {
-		if (!r || TYP(r) != PT_RSPK)
-			sim->create_part(-3, x, y, PT_RSPK);
-		r = sim->photons[y][x];
-		parts[ID(r)].tmp = 1;
-		parts[ID(r)].life = 2;
 
-		parts[ID(r)].pavg[0] = parts[i].tmp / 1000.0f; // Set voltage based on charge
-		parts[i].pavg[1] /= efactor;
-		parts[i].tmp /= efactor;
-		parts[i].tmp2 = 0;
-	}
-	// Kill the source, discharge over
-	else if (parts[i].pavg[1] <= LOWEST_EFFECTIVE_RES) {
-		if (r && TYP(r) == PT_RSPK)
-			sim->kill_part(ID(r));
-	}
+	// if (r && TYP(r) == PT_RSPK && parts[ID(r)].tmp != 1) {
+	// 	parts[i].pavg[1] *= efactor;
+	// 	if (parts[i].pavg[1] > MAX_C)
+	// 		parts[i].pavg[1] = MAX_C;
+	// 	parts[i].tmp = 1000 * parts[ID(r)].pavg[0];
+	// 	parts[i].tmp2 = 1;
+	// }
+	// // Discharging
+	// else if (parts[i].pavg[1] > LOWEST_EFFECTIVE_RES) {
+	// 	if (!r || TYP(r) != PT_RSPK)
+	// 		sim->create_part(-3, x, y, PT_RSPK);
+	// 	r = sim->photons[y][x];
+	// 	parts[ID(r)].tmp = 1;
+	// 	parts[ID(r)].life = 2;
+
+	// 	parts[ID(r)].pavg[0] = parts[i].tmp / 1000.0f; // Set voltage based on charge
+	// 	parts[i].pavg[1] /= efactor;
+	// 	parts[i].tmp /= efactor;
+	// 	parts[i].tmp2 = 0;
+	// }
+	// // Kill the source, discharge over
+	// else if (parts[i].pavg[1] <= LOWEST_EFFECTIVE_RES) {
+	// 	if (r && TYP(r) == PT_RSPK)
+	// 		sim->kill_part(ID(r));
+	// }
 
 	return 0;
 }

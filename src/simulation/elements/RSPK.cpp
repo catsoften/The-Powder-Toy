@@ -129,33 +129,35 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	parts[i].temp = parts[ID(pmap[y][x])].temp;
 	parts[i].dcolour = 10000 * res;
 
-	// if (!parts[i].pavg[0] && !parts[i].pavg[1]) {
-	// 	for (int rx = -1; rx <= 1; rx++)
-	// 	for (int ry = -1; ry <= 1; ry++)
-	// 		if (rx || ry) {
-	// 			int r = sim->photons[y + ry][x + rx];
-	// 			if (r && TYP(r) == PT_RSPK && parts[ID(r)].tmp) {
-	// 				parts[i].pavg[0] = parts[ID(r)].pavg[0];
-	// 				parts[i].pavg[1] = parts[ID(r)].pavg[1];
-	// 				if (!circuit_map[i] && circuit_map[ID(r)])
-	// 					circuit_map[i] = circuit_map[ID(r)];
-	// 				goto end;
-	// 			}
-	// 		}
-	// 	for (int rx = -1; rx <= 1; rx++)
-	// 	for (int ry = -1; ry <= 1; ry++)
-	// 		if (rx || ry) {
-	// 			int r = sim->photons[y + ry][x + rx];
-	// 			if (r && TYP(r) == PT_RSPK && (sim->parts[ID(r)].pavg[0] || sim->parts[ID(r)].pavg[1])) {
-	// 				parts[i].pavg[0] = parts[ID(r)].pavg[0];
-	// 				parts[i].pavg[1] = parts[ID(r)].pavg[1];
-	// 				if (!circuit_map[i] && circuit_map[ID(r)])
-	// 					circuit_map[i] = circuit_map[ID(r)];
-	// 				goto end;
-	// 			}
-	// 		}
-	// 	end:;
-	// }
+	if (!parts[i].pavg[0] && !parts[i].pavg[1]) {
+		for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
+			if (rx || ry) {
+				int r = sim->photons[y + ry][x + rx];
+				if (r && TYP(r) == PT_RSPK && parts[ID(r)].tmp) {
+					parts[i].pavg[0] = parts[ID(r)].pavg[0];
+					parts[i].pavg[1] = parts[ID(r)].pavg[1];
+					parts[i].life = parts[ID(r)].life;
+					if (!circuit_map[i] && circuit_map[ID(r)])
+						circuit_map[i] = circuit_map[ID(r)];
+					goto end;
+				}
+			}
+		for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
+			if (rx || ry) {
+				int r = sim->photons[y + ry][x + rx];
+				if (r && TYP(r) == PT_RSPK && (sim->parts[ID(r)].pavg[0] || sim->parts[ID(r)].pavg[1])) {
+					parts[i].pavg[0] = parts[ID(r)].pavg[0];
+					parts[i].pavg[1] = parts[ID(r)].pavg[1];
+					parts[i].life = parts[ID(r)].life;
+					if (!circuit_map[i] && circuit_map[ID(r)])
+						circuit_map[i] = circuit_map[ID(r)];
+					goto end;
+				}
+			}
+		end:;
+	}
 
 
 	// Kill on low life, life decrements below 0 if no longer connected to a voltage source

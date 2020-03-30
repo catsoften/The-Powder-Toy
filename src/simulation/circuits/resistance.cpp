@@ -62,7 +62,7 @@ bool valid_conductor(int typ, Simulation *sim, int i) {
      * Ie, off SWCH should still return true because it has an ON state that can conduct
      */
     return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT || typ == GROUND_TYPE
-        || typ == PT_SWCH;
+        || typ == PT_SWCH || typ == PT_CAPR || typ == PT_INDC;
 }
 
 double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
