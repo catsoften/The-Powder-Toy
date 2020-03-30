@@ -3,6 +3,23 @@
 #include "simulation/CoordStack.h"
 #include <vector>
 
+bool positive_terminal(int type) { return type == PT_PSCN || type == PT_COPR; }
+bool negative_terminal(int type) { return type == PT_NSCN || type == PT_ZINC; }
+bool is_terminal(int type) { return positive_terminal(type) || negative_terminal(type); }
+
+/**
+ * Is one type allowed to conduct to another?
+ */
+bool allow_conduction(int totype, int fromtype) {
+    if (!totype) return false; // Cannot conduct to NONE
+    // SWCH cannot conduct to NSCN / PSCN or SPRK can't toggle it
+    if (fromtype == PT_SWCH && (totype == PT_NSCN || totype == PT_PSCN)) return false;
+    // INWR can only conduct to PSCN / NSCN or COPR / ZINC
+    if (fromtype == PT_INWR && totype != PT_INWR && !is_terminal(totype) && totype != GROUND_TYPE) return false;
+    if (totype == PT_INWR && fromtype != PT_INWR && !is_terminal(fromtype) && fromtype != GROUND_TYPE) return false;
+    return true;
+}
+
 /*
  * Floodfill touching conductors with RSPRK
  */
@@ -36,12 +53,11 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 		for (int rx = -1; rx <= 1; ++rx)
 		for (int ry = -1; ry <= 1; ++ry)
 		if ((rx || ry)) {
-			// Floodfill if valid spot. If currently on switch don't conduct to PSCN or NSCN
-			// or the switch can't be toggled
+			// Floodfill if valid spot.
 			int fromtype = TYP(sim->pmap[y][x]);
 			int totype = TYP(sim->pmap[y + ry][x + rx]);
-			if ((fromtype != PT_SWCH || (totype != PT_PSCN && totype != PT_NSCN)) &&
-                totype && !visited[y + ry][x + rx] && valid_conductor(totype, sim, ID(sim->pmap[y + ry][x + rx]))) {
+			if (allow_conduction(totype, fromtype) && !visited[y + ry][x + rx] &&
+                    valid_conductor(totype, sim, ID(sim->pmap[y + ry][x + rx]))) {
 				coords.push(x + rx, y + ry);
                 visited[y + ry][x + rx] = 1;
             }

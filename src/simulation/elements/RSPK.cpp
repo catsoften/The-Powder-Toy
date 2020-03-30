@@ -2,6 +2,7 @@
 #include "simulation/magnetics/magnetics.h"
 #include "simulation/circuits/circuits.h"
 #include "simulation/circuits/resistance.h"
+#include "simulation/circuits/framework.h"
 
 #include <queue>
 #include <iostream>
@@ -92,7 +93,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 
 			parts[i].tmp2 = circuit_map[i] ? 1 :0;
 			if (TYP(r) != PT_RSPK && circuit_map[i] && valid_conductor(totype, sim, ID(pmap[y+ry][x+rx])) &&
-			   		(fromtype != PT_SWCH || (totype != PT_PSCN && totype != PT_NSCN))) {
+			   		allow_conduction(totype, fromtype)) {
 				circuit_map[i]->flag_recalc();
 			}
 		}

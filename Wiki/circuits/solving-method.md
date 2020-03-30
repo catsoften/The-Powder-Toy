@@ -15,7 +15,17 @@ First we take the circuit starting point we identified and do a floodfill to get
 1. New coordinate hasn't been visited
 2. Is a valid conductor
 3. Isn't conducting from SWCH to PSCN or NSCN
+4. Isn't conducting to INWR from anything other than INWR, a terminal or GRND
+5. Isn't conducting from INWR to anything other than INWR, a terminal, GRND
 ```
+
+Terminals:
+```
+Positive: PSCN, COPR
+Negative: NSCN, ZINC
+```
+
+COPR / ZINC can be used as low-resistance alternatives to PSCN / NSCN
 
 The last rule prevents RSPK blocking SPRK from toggling SWCH. Coordinates are added to a coordinate vector and returned.
 
@@ -37,8 +47,8 @@ A node is any pixel of the skeleton that has more than 2 surrounding pixels that
 part of the skeleton. A surrounding pixel is not counted if it is directly adjacent to 
 another surrounding pixel that's on the diagonal.
 
-A PSCN to voltage source type, such as VOLT and CAPR is a node
-A NSCN to voltage source type, such as VOLT and CAPR is a node
+A positive terminal to voltage source type, such as VOLT and CAPR is a node
+A negative terminal to voltage source type, such as VOLT and CAPR is a node
 PSCN to NSCN or NSCN to PSCN (a p-n junction diode)
 The current pixel is a ground
 ```
@@ -99,6 +109,13 @@ Upon finding another node that's not the start node, the floodfill terminates. F
 
 Floodfill takes the following priority list:
 ```
+New node cannot be within 1 px of start node:
+1. Directly adjacent NODES
+2. Directly adjacent pixels (any)
+3. Diagonally adjacent NODES
+4. Diagonally adjacent pixels (any)
+
+Repeat, but new node can be within 1 px of start node:
 1. Directly adjacent NODES
 2. Directly adjacent pixels (any)
 3. Diagonally adjacent NODES
@@ -106,6 +123,8 @@ Floodfill takes the following priority list:
 ```
 
 This search order guarantees we hit most of the pixels in the skeleton while not skipping over nodes. We permeantly delete skeleton pixels as we traverse over them so other branches don't use them, the exception is pixels 1 px from a node, which may be traversed multiple times.
+
+We first ignore pixels within 1 px of start node to avoid making circular loops around start, and force the algorithim to traverse further. But this skips over a pixel in artifical 1 px L shapes, so we traverse again.
 
 If we find an end node, we add the branch to a branch map, otherwise we add it to a map of floating branches.
 
@@ -116,7 +135,7 @@ ids          - Vector of ids of conductors
 rspk_ids  - Vector of ids of RSPK
 switches - Vector of ids of switches
 
-total_resistance - Equivalent resistance of the branch (includes start/end node)
+total_resistance - Equivalent resistance of the branch (includes end node, but not start)
 total_voltage     - Equivalent voltage source of the branch, this overrides resistance
 current_voltage - Used for polarity measurements
 
@@ -124,12 +143,12 @@ diode_type     - 0 = branch is not a diode, 1 = positive diode, 2 = negative dio
 polarity           - Track polarity of objects such as VOLT and diodes, 0, 1 = positive, -1 = negative
 ```
 
-Polarity resets to 0 on non-PSCN/NSCN/[polarized element such as VOLT] particle, is 1 on PSCN and -1 on NSCN.
+Polarity resets to 0 on non-terminal/[polarized element such as VOLT] particle, is 1 on positive terminal and -1 on negative terminal.
 
 **Adding to total voltage:**
 ![Voltage polarity diagram](https://i.imgur.com/WKSG1Gg.png)
 
-If none of the above conditions are met then the voltage source is improperly connected (ie PSCN - VOLT - PSCN) and will not contribute to the total voltage. By default VOLT has super high resistance, so if total_voltage is 0 (invalid voltage source), then the branch will be treated as a  high-value resistor.
+If none of the above conditions are met then the voltage source is improperly connected (ie PSCN - VOLT - PSCN) and will not contribute to the total voltage. By default VOLT has super high resistance, so if total_voltage is 0 (invalid voltage source), then the branch will be treated as a  high-value resistor. Groups of voltage sources are averaged, so connecting through a blob of 10 V VOLT sources won't output 100 V.
 
 **Diode polarity:**
 ![Diode polarity chart](https://i.imgur.com/nKNvEou.png)

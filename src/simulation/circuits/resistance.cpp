@@ -9,6 +9,7 @@ std::unordered_map<int, double> resistances({
     // so we set it really high to block current through incorrectly placed voltage sources
     // (Default is 0 if correctly connected)
     { PT_VOLT, REALLY_BIG_RESISTANCE },
+    { GROUND_TYPE, SUPERCONDUCTING_RESISTANCE },
     { PT_COPR, 1.72e-8 },
     { PT_ZINC, 5.5e-8 },
     { PT_SICN, 30 },

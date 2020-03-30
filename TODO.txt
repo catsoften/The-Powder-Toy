@@ -514,6 +514,10 @@ https://github.com/The-Powder-Toy/The-Powder-Toy/pull/698
 
 floodfill spark
 
+fiber optics affect bray?
+
+anti static powder destroy LIGH and THDR too, absorbs electrons and shit
+
 circuits:
 - rewrite solving method.md
 
@@ -532,13 +536,6 @@ cache - if no dynamic components no need to recalculate
 
 test IWALL with RSPK
 
-issues with low resistances
-
-
-refactor fromtype totype check into function in framework
-
-average current votlage through votlage sources
-
 
 power sign, resistance sign
 INWR different tmp conductivity?
@@ -546,8 +543,11 @@ INWR different tmp conductivity?
 voltage indicator use metric prefix, ie 2 mA
 voltage indicator on the top too long with aheat enabled?
 
+sometimes adding extra branches doesn't update
+
 make group filling a bit better maybe?
 - laggy on large blobs
+- extra rspk dies and flickers
 
 portals maybe
 
@@ -556,8 +556,6 @@ make capacitors (easy), i / c  * dt = dV, add dV
 
 long branches, possibly estimate wire thickness and divide out resistance?
 - idk how effective resistance would work then, maybe save effective resistances in array?
-
-
 
 
 make ISOL with ION?
