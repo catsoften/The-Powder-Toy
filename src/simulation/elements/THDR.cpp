@@ -65,7 +65,7 @@ int Element_THDR::update(UPDATE_FUNC_ARGS)
 					parts[ID(r)].life = 4;
 					kill=true;
 				}
-				else if (rt!=PT_CLNE&&rt!=PT_THDR&&rt!=PT_SPRK&&rt!=PT_DMND&&rt!=PT_FIRE&&rt != PT_CLUD&&rt!=PT_FILL)
+				else if (rt!=PT_CLNE&&rt!=PT_THDR&&rt!=PT_SPRK&&rt!=PT_DMND&&rt!=PT_FIRE&&rt != PT_CLUD&&rt!=PT_FILL&&rt != PT_ASPK)
 				{
 					sim->pv[y/CELL][x/CELL] += 100.0f;
 					if (sim->legacy_enable && RNG::Ref().chance(1, 200))
@@ -87,7 +87,6 @@ int Element_THDR::update(UPDATE_FUNC_ARGS)
 
 //#TPT-Directive ElementHeader Element_THDR static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_THDR::graphics(GRAPHICS_FUNC_ARGS)
-
 {
 	*firea = 160;
 	*fireg = 192;

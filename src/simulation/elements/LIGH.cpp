@@ -271,9 +271,9 @@ int Element_LIGH::contact_part(Simulation * sim, int i, int tp)
 //#TPT-Directive ElementHeader Element_LIGH static bool create_LIGH(Simulation * sim, int x, int y, int c, int temp, int life, int tmp, int tmp2, bool last)
 bool Element_LIGH::create_LIGH(Simulation * sim, int x, int y, int c, int temp, int life, int tmp, int tmp2, bool last)
 {
-	// Force fields block LIGH
+	// Force fields and anti-spark powder block LIGH
 	if (x >= 0 && x < XRES && y >= 0 && y < YRES &&
-			(TYP(sim->pmap[y][x]) == PT_FFLD || sim->parts[ID(sim->photons[y][x])].type == PT_FFLD))
+			(TYP(sim->pmap[y][x]) == PT_ASPK || sim->parts[ID(sim->photons[y][x])].type == PT_FFLD))
 		return true;
 
 	int p = sim->create_part(-1, x, y,c);

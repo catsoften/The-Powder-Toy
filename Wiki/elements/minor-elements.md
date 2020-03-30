@@ -68,7 +68,7 @@ by 100 for each water it touches. At 451 F (232.8 C) PULP ignites. PULP can be c
 the broken SAWD with water.
 
 ## ASPK (Anti-static powder)
-Light powder, sticks to conductors within 2px and prevents them from conducting spark. Auto-ignites at 1583 K, otherwise does not burn. Poor heat conductor.
+Light powder, sticks to conductors within 2px and prevents them from conducting spark. Auto-ignites at 1583 K, otherwise does not burn. Poor heat conductor. Also absorbs electrons, anti-protons. THDR will be absorbed without exploding. Blocks LIGH.
 
 ## NTRI (Neutrino)
 Glows when inside of another element, turns NEUT -> ELEC + PHOT and ELEC -> PHOT. Goes through everything (even DMND), doesn't conduct heat.

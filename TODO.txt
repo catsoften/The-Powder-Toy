@@ -516,8 +516,6 @@ floodfill spark
 
 fiber optics affect bray?
 
-anti static powder destroy LIGH and THDR too, absorbs electrons and shit
-
 circuits:
 - rewrite solving method.md
 

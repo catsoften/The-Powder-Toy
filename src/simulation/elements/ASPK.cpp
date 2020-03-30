@@ -28,7 +28,7 @@ Element_ASPK::Element_ASPK()
 	Weight = 30;
 
 	HeatConduct = 50;
-	Description = "Anti-static powder. Prevents most conductors from conducting spark. Sticky.";
+	Description = "Anti-static powder. Prevents most conductors from conducting spark, blocks lightning. Sticky.";
 
 	Properties = TYPE_PART;
 
@@ -54,6 +54,7 @@ int Element_ASPK::update(UPDATE_FUNC_ARGS) {
 	for (ry = -2; ry <= 2; ++ry)
 		if (BOUNDS_CHECK && (rx || ry)) {
 			r = pmap[y + ry][x + rx];
+			if (!r) r= sim->photons[y + ry][x + rx];
 			if (!r) continue;
 
 			if (sim->elements[TYP(r)].Properties & PROP_CONDUCTS) {
@@ -61,6 +62,8 @@ int Element_ASPK::update(UPDATE_FUNC_ARGS) {
 				vx += rx;
 				vy += ry;
 			}
+			else if (TYP(r) == PT_ELEC || TYP(r) == PT_APRT || TYP(r) == PT_THDR)
+				sim->kill_part(ID(r));
 		}
 
 	parts[i].vx += isign(vx);
