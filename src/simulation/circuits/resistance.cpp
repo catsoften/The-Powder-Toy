@@ -79,7 +79,7 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
             // disappearing into the capacitor itself
             if (parts[i].tmp2 == 0)
                 return 0.0;
-            return parts[i].pavg[1];
+            return 0.0;
         case PT_INDC:
             // Inductors have very high initial resistance when there is a positive change in current
             // that slowly reduces, and vice versa. Effective resistance is saved in pavg1

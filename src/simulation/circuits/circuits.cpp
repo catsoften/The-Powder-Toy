@@ -434,6 +434,9 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
             }
         } 
 
+        if (ids.size())
+            b->setSpecialType(sim->parts[ids[0]].type == PT_CAPR, sim->parts[ids[0]].type == PT_INDC);
+
         connection_map[start_node].push_back(end_node);
         connection_map[end_node].push_back(start_node);
         
@@ -484,6 +487,7 @@ void Circuit::solve(bool allow_recursion) {
             if (b->diode)
                 diode_branches.push_back(std::make_pair(node_id->first, i));
             b->computeDynamicResistances(sim);
+            b->computeDynamicVoltages(sim);
 
             if (!is_grnd) {
                 /* Deal with supernodes later */
@@ -526,8 +530,8 @@ void Circuit::solve(bool allow_recursion) {
 
     x = A.colPivHouseholderQr().solve(b);
 
-    //std::cout << x << "\n";
-    //std::cout << A << "\n";
+    // std::cout << x << "\n";
+    // std::cout << A << "\n";
     // std::cout << b << "\n";
     // std::cout << "\n\n";
 
@@ -570,16 +574,37 @@ void Circuit::solve(bool allow_recursion) {
 
     // If we don't need to resolve everything, assign currents to each branch
     if (!re_solve) {
+        // Used to track current of adjacent branches for branches
+        // that do not obey ohms law. We take the current of the ohmian
+        // branch going into the node (should only be 1)
+
+        // Order of nodes doesn't matter, we find all branches that share the first node, as 
+        // non-ohmian branches must be connected on both ends to be properly connected, ie
+        // a voltage source must be arranged as such: [SOME OTHER NODE] -- [NODE1] - V - [NODE2] -- [SOME OTHER NODE]
+        // both node1 and node2 must connect to another node, so there will always be a non-ohmian branch to borrow a
+        // valid current from
+        std::vector<Branch *> non_ohmian_branches;
+        double current_of_adjacent;
+
         for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
             // Normal branches
+            non_ohmian_branches.clear();
             for (size_t i = 0; i < node_id->second.size(); i++) {
                 Branch * b = branch_map[node_id->first][i];
                 b->V1 = x[b->node1 - 2];
                 b->V2 = x[b->node2 - 2];
 
-                if (b->resistance)
-                    b->current = (x[b->node1 - 2] - x[b->node2 - 2]) / b->resistance;
+                if (b->obeysOhmsLaw() && b->resistance) {
+                    b->current = (b->V1 - b->V2) / b->resistance;
+                    current_of_adjacent = b->current;
+                }
+                else if (!b->obeysOhmsLaw())
+                    non_ohmian_branches.push_back(b);
             }
+            // Branches that do not obey ohms law take current of adjacent branches
+            for (auto &b : non_ohmian_branches)
+                b->current = current_of_adjacent;
+
             // Floating branches
             for (size_t i = 0; i < floating_branches[node_id->first].size(); i++)
                 floating_branches[node_id->first][i]->V2 = x[floating_branches[node_id->first][i]->node2 - 2];
@@ -598,7 +623,8 @@ void Circuit::update_sim() {
             int x = (int)(0.5f + sim->parts[b->node1_id].x),
                 y = (int)(0.5f + sim->parts[b->node1_id].y),
                 r = sim->pmap[y][x];
-            double total_resistance = get_effective_resistance(TYP(r), sim->parts, ID(r), sim);
+            double voltage_drop = 0.0f;
+            // double total_resistance = get_effective_resistance(TYP(r), sim->parts, ID(r), sim);
 
             // Set voltage and current at nodes
             sim->parts[b->node1_id].pavg[0] = restrict_double_to_flt(b->V1);
@@ -616,9 +642,13 @@ void Circuit::update_sim() {
                 // VOLT has high resistance normally, valid VOLT has 0 resistance
                 // Consecutive SWCH - don't add resistance otherwise there will be voltage drops
                 //      among individual SWCH pixels
-                if (TYP(r) != PT_VOLT && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
-                    total_resistance += get_effective_resistance(TYP(r), sim->parts, ID(r), sim);
-                sim->parts[id].pavg[0] = restrict_double_to_flt((float)(b->V1 - total_resistance * b->current));
+                // if (TYP(r) != PT_VOLT && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
+                //     total_resistance += get_effective_resistance(TYP(r), sim->parts, ID(r), sim);
+                if (b->obeysOhmsLaw())
+                    voltage_drop += get_effective_resistance(TYP(r), sim->parts, ID(r), sim) * b->current;
+        
+                sim->parts[id].pavg[0] = restrict_double_to_flt(b->V1 - voltage_drop);
+                // sim->parts[id].pavg[0] = restrict_double_to_flt((float)(b->V1 - total_resistance * b->current));
                 sim->parts[id].pavg[1] = restrict_double_to_flt(b->current);
                 sim->parts[id].life = BASE_RSPK_LIFE;
                 prev_type = TYP(r);
@@ -766,7 +796,21 @@ bool Branch::switchesOn(Simulation * sim) {
     return switches_on;
 }
 
+void Branch::setSpecialType(bool isCapacitor, bool isInductor) {
+    this->isCapacitor = isCapacitor;
+    this->isInductor = isInductor;
+    obeysOhmsLaw_ = !(isCapacitor || isInductor || diode || voltage_gain);
+}
+
 void Branch::computeDynamicResistances(Simulation * sim) {
     if (!switchesOn(sim)) // Increase effective resistances of switches that are off
         resistance += REALLY_BIG_RESISTANCE * switches.size();
+}
+
+void Branch::computeDynamicVoltages(Simulation *sim) {
+    if (isCapacitor) {
+        voltage_gain = 0.0;
+        for (auto id : ids)
+            voltage_gain += sim->parts[id].pavg[0];
+    }
 }

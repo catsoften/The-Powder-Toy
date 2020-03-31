@@ -234,6 +234,7 @@ CFNG RELATED:
 fire is decoable - stuff with deco burns
 shred moving solids
 move shred to another func
+remove the sparingly requirement from NPLM
 
 VSNS - seralize and range settings 
 
@@ -546,6 +547,11 @@ make group filling a bit better maybe?
 - extra rspk dies and flickers
 
 capacitor should be under dynamic voltage for branches
+
+STUFF THAT DOESNT WORK
+3 way diodes from 1 junction don't work
+voltage PSCN sharing PSCN with a diode - currents will be incorrect
+voltage adjaacent with diode (not sharing) still incorrect
 
 portals maybe
 

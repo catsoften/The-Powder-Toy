@@ -90,6 +90,7 @@ public:
     const int diode; // 0 = no diode, 1 = positive, -1 = negative
     const int node1_id, node2_id;
     double V1, V2;
+    
     bool recomputeSwitches = true;
 
     Branch(int node1, int node2, const std::vector<int> &ids, 
@@ -99,10 +100,17 @@ public:
         voltage_gain(voltage_gain), base_resistance(resistance), diode(diode),
         node1_id(id1), node2_id(id2) {}
     
+    void setSpecialType(bool isCapacitor, bool isInductor);
     void print();
+    bool obeysOhmsLaw() { return obeysOhmsLaw_; };
     void computeDynamicResistances(Simulation * sim);
+    void computeDynamicVoltages(Simulation * sim);
 private:
-    bool switches_on=false;
+    bool switches_on = false;
+    bool isCapacitor = false;
+    bool isInductor = false;
+    bool obeysOhmsLaw_ = true;
+
     bool switchesOn(Simulation * sim);
 };
 

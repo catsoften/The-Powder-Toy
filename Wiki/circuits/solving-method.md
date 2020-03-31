@@ -131,16 +131,16 @@ If we find an end node, we add the branch to a branch map, otherwise we add it t
 As we floodfill, we keep track of the following variables, the important ones are:
 ```
 IDs of particles (Only directly on the skeleton)
-ids          - Vector of ids of conductors
-rspk_ids  - Vector of ids of RSPK
+ids      - Vector of ids of conductors
+rspk_ids - Vector of ids of RSPK
 switches - Vector of ids of switches
 
 total_resistance - Equivalent resistance of the branch (includes end node, but not start)
-total_voltage     - Equivalent voltage source of the branch, this overrides resistance
-current_voltage - Used for polarity measurements
+total_voltage    - Equivalent voltage source of the branch, this overrides resistance
+current_voltage  - Used for polarity measurements
 
 diode_type     - 0 = branch is not a diode, 1 = positive diode, 2 = negative diode
-polarity           - Track polarity of objects such as VOLT and diodes, 0, 1 = positive, -1 = negative
+polarity       - Track polarity of objects such as VOLT and diodes, 0, 1 = positive, -1 = negative
 ```
 
 Polarity resets to 0 on non-terminal/[polarized element such as VOLT] particle, is 1 on positive terminal and -1 on negative terminal.
@@ -189,7 +189,11 @@ The only realistic thing about our diodes is that it has a breakdown and forward
 
 When diodes are present, after initially solving the matrix, the voltage across each diode is considered. If the voltage is in the right direction and does not meet V_forward or is the wrong polarity and does not meet V_breakdown, then the diode does not conduct, and gets a 10 gigaohm boost to its resistance. Otherwise, the diode is replaced with a -0.7 V voltage source. The matrix is re-computed once again (not recomputed again after this).
 
+--- 
+
 After solving, branches are assigned node voltages and currents, and floating branches are set to the voltage of the node they're connected to (no current).
+
+When setting currents, branches are seperated depending on whether they obey ohm's law. Branches that obey ohms law simply have their current calculated from voltage drop and resistance, branches that don't "copy" the current from a branch that has the same start node. We can do this because non-ohmian branches (such as voltage sources, capacitors, etc...) must be connected on both ends to another node to function.
 
 ## 3. Translate solution to Simulation
 

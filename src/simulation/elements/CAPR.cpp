@@ -47,7 +47,7 @@ Element_CAPR::Element_CAPR() {
 	Update = &Element_CAPR::update;
 	Graphics = &Element_CAPR::graphics;
 }
-
+#include <iostream>
 //#TPT-Directive ElementHeader Element_CAPR static int update(UPDATE_FUNC_ARGS)
 int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 	/**
