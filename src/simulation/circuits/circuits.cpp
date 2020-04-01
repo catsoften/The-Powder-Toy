@@ -16,23 +16,37 @@ std::vector<Circuit *> all_circuits;
 
 // Functions
 void CIRCUITS::addCircuit(int x, int y, Simulation * sim) {
+    // If the RSPK life is low enough then the RSPK is probably no longer connected
+    // to a circuit and thus can be deleted. We check tmp to see if its part of a skeleton
+    // (To avoid infinite floodfills where circuit components are not part of a skeleton)
     int r = sim->photons[y][x];
-    if (circuit_map[ID(r)])
+    if (circuit_map[ID(r)]) // && sim->parts[ID(r)].life > BASE_RSPK_LIFE / 2 && sim->parts[ID(r)].tmp)
         return; // Already part of a circuit
 
-    std::cout << "ADDING CIRCUIT\n";
-    all_circuits.push_back(new Circuit(x, y, sim));
+    // std::cout << "ADDING CIRCUIT\n";
+    Circuit * c = new Circuit(x, y, sim);
+    if (!c->branch_cache_size()) {
+        delete c;
+        return;
+    }
+    all_circuits.push_back(c);
 }
 
 void CIRCUITS::deleteCircuit(int i) {
-
+    delete all_circuits[i];
+    all_circuits.erase(all_circuits.begin() + i);
 }
 
 void CIRCUITS::updateAllCircuits() {
-    for (auto c : all_circuits) {
+    for (int i = all_circuits.size() - 1; i >= 0; i--) {
+        Circuit * c = all_circuits[i];
         if (c->should_recalc()) {
             c->reset();
             c->generate();
+        }
+        if (!c->branch_cache_size()) {
+            deleteCircuit(i);
+            continue;
         }
         c->reset_effective_resistances();
         c->solve();
@@ -54,10 +68,13 @@ void CIRCUITS::clearCircuits() {
  * starting from 2 (0 = nothing, 1 = wire, 2+ = node_id)
  */
 void Circuit::generate() {
+    global_rspk_ids.clear();
     recalc_next_frame = false;
     coord_vec skeleton = floodfill(sim, sim->parts, startx, starty);
-    for (auto &pos : skeleton)
+    for (auto &pos : skeleton) {
         circuit_map[ID(sim->photons[pos.y][pos.x])] = this;
+        global_rspk_ids.push_back(ID(sim->photons[pos.y][pos.x]));
+    }
     skeleton = coord_stack_to_skeleton(sim, skeleton);
 
     std::fill(&skeleton_map[0][0], &skeleton_map[YRES][0], 0);
@@ -355,7 +372,10 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
             if (TYP(r) == PT_SWCH)
                 switches.push_back(ID(r));
             else if (TYP(r) == PT_VOLT || TYP(r) == PT_CAPR) {
-                current_voltage += sim->parts[ID(r)].pavg[0] * current_polarity;
+                if (TYP(r) == PT_VOLT) // Pavg0 is voltage 
+                    current_voltage += sim->parts[ID(r)].pavg[0] * current_polarity;
+                else if (TYP(r) == PT_CAPR) // Pavg1 is "effective" voltage
+                    current_voltage += sim->parts[ID(r)].pavg[1] * current_polarity;
                 source_count++;
             }
         }
@@ -585,6 +605,7 @@ void Circuit::solve(bool allow_recursion) {
         // valid current from
         std::vector<Branch *> non_ohmian_branches;
         double current_of_adjacent;
+        int node1_of_adjacent = 1;
 
         for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
             // Normal branches
@@ -597,13 +618,17 @@ void Circuit::solve(bool allow_recursion) {
                 if (b->obeysOhmsLaw() && b->resistance) {
                     b->current = (b->V1 - b->V2) / b->resistance;
                     current_of_adjacent = b->current;
+                    node1_of_adjacent = b->node1;
                 }
                 else if (!b->obeysOhmsLaw())
                     non_ohmian_branches.push_back(b);
             }
             // Branches that do not obey ohms law take current of adjacent branches
-            for (auto &b : non_ohmian_branches)
+            for (auto &b : non_ohmian_branches) {
                 b->current = current_of_adjacent;
+                if (node1_of_adjacent == b->node1) // Keep alignment of currents correct 
+                    b->current *= -1;
+            }
 
             // Floating branches
             for (size_t i = 0; i < floating_branches[node_id->first].size(); i++)
@@ -629,28 +654,29 @@ void Circuit::update_sim() {
             // Set voltage and current at nodes
             sim->parts[b->node1_id].pavg[0] = restrict_double_to_flt(b->V1);
             sim->parts[b->node1_id].pavg[1] = restrict_double_to_flt(b->current);
-            sim->parts[b->node1_id].life = BASE_RSPK_LIFE;
+            // sim->parts[b->node1_id].life = BASE_RSPK_LIFE;
             sim->parts[b->node2_id].pavg[0] = restrict_double_to_flt(b->V2);
             sim->parts[b->node2_id].pavg[1] = restrict_double_to_flt(b->current);
-            sim->parts[b->node2_id].life = BASE_RSPK_LIFE;
+            // sim->parts[b->node2_id].life = BASE_RSPK_LIFE;
 
             for (auto id : b->rspk_ids) {
                 x = (int)(0.5f + sim->parts[id].x);
                 y = (int)(0.5f + sim->parts[id].y);
                 r = sim->pmap[y][x];
 
-                // VOLT has high resistance normally, valid VOLT has 0 resistance
+                // Circuit is invalid
+                if (!r) {
+                    flag_recalc();
+                    continue;
+                }
+
                 // Consecutive SWCH - don't add resistance otherwise there will be voltage drops
-                //      among individual SWCH pixels
-                // if (TYP(r) != PT_VOLT && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
-                //     total_resistance += get_effective_resistance(TYP(r), sim->parts, ID(r), sim);
-                if (b->obeysOhmsLaw())
+                if (b->obeysOhmsLaw() && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
                     voltage_drop += get_effective_resistance(TYP(r), sim->parts, ID(r), sim) * b->current;
         
                 sim->parts[id].pavg[0] = restrict_double_to_flt(b->V1 - voltage_drop);
-                // sim->parts[id].pavg[0] = restrict_double_to_flt((float)(b->V1 - total_resistance * b->current));
                 sim->parts[id].pavg[1] = restrict_double_to_flt(b->current);
-                sim->parts[id].life = BASE_RSPK_LIFE;
+                // sim->parts[id].life = BASE_RSPK_LIFE;
                 prev_type = TYP(r);
             }
         }
@@ -660,10 +686,13 @@ void Circuit::update_sim() {
                 int id = floating_branches[node_id->first][i]->rspk_ids[j];
                 sim->parts[id].pavg[0] = restrict_double_to_flt(floating_branches[node_id->first][i]->V2);
                 sim->parts[id].pavg[1] = restrict_double_to_flt(0.0f);
-                sim->parts[id].life = BASE_RSPK_LIFE;
+                // sim->parts[id].life = BASE_RSPK_LIFE;
             }
         }
     }
+    // Make RSPK not die
+    for (auto id : global_rspk_ids)
+        sim->parts[id].life = BASE_RSPK_LIFE;
 }
 
 void Circuit::reset_effective_resistances() {
@@ -707,7 +736,7 @@ Circuit::Circuit(int x, int y, Simulation * sim) {
     update_sim();
 
     #ifdef DEBUG
-        debug();
+        // debug();
     #endif
 }
 
@@ -811,6 +840,6 @@ void Branch::computeDynamicVoltages(Simulation *sim) {
     if (isCapacitor) {
         voltage_gain = 0.0;
         for (auto id : ids)
-            voltage_gain += sim->parts[id].pavg[0];
+            voltage_gain += sim->parts[id].pavg[1];
     }
 }

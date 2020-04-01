@@ -11,6 +11,7 @@
 #include <iostream>
 
 #define BASE_RSPK_LIFE 4
+#define INTEGRATION_TIMESTEP 0.016666666666666666 // 1 frame = 1/60 s
 
 class Branch;
 class Circuit;
@@ -43,6 +44,7 @@ private:
     std::unordered_map<int, std::vector<Branch *> > branch_map; // Node ID: branches with start_node = id
     std::unordered_map<int, std::vector<Branch *> > floating_branches; // Node ID, branches with start_node = id
     std::vector<Branch *> branch_cache; // Stores pointers so we can delete them later
+    std::vector<int> global_rspk_ids;
     std::set<int> ground_nodes; // Reference for nodes = 0 V
 
     void trim_adjacent_nodes(const coord_vec &nodes);
@@ -56,6 +58,7 @@ public:
     bool should_recalc() { return recalc_next_frame; }
     void reset();
     void debug();
+    size_t branch_cache_size() { return branch_cache.size(); }
 
     Circuit(int x, int y, Simulation *sim);
     Circuit(const Circuit &other);

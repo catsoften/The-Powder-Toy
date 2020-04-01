@@ -79,6 +79,11 @@ void Element_RSPK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_RSPK static int update(UPDATE_FUNC_ARGS)
 int Element_RSPK::update(UPDATE_FUNC_ARGS) {
+	if (!circuit_map[i]) {
+		sim->kill_part(i);
+		return 1;
+	}
+
 	/**
 	 * tmp - Current node ID, 1 = branch, 0 = not part of skeleton
 	 * pavg0  -Voltage relative to ground
@@ -183,10 +188,10 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 	// Due to float point precision issues voltage drops are 0 when high voltages are present
 	// So the solution: we superheat metals when resistance is non-zero
 	// Electric field also doesn't exist, so we just set it to 2560
-	if (res != 0.0f && parts[i].pavg[0] > 1000000) {
-		parts[ID(pmap[y][x])].temp += 9000.0f;
-		sim->emfield->electric[FASTXY(x / EMCELL, y / EMCELL)] += isign(parts[i].pavg[0]) * 2560.0f;
-	}
+	// if (res != 0.0f && parts[i].pavg[0] > 1000000) {
+	// 	parts[ID(pmap[y][x])].temp += 9000.0f;
+	// 	sim->emfield->electric[FASTXY(x / EMCELL, y / EMCELL)] += isign(parts[i].pavg[0]) * 2560.0f;
+	// }
 
 	if (parts[i].ctype != PT_VOLT) {
 		for (int rx = -1; rx <= 1; ++rx)

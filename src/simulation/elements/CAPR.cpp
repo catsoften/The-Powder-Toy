@@ -1,7 +1,6 @@
 #include "simulation/ElementCommon.h"
-
-#define MAX_C 10000000.0f // Also check in GameView.cpp
-#define LOWEST_EFFECTIVE_RES 0.001f // Also check in GameView.cpp
+#include "simulation/circuits/circuits.h"
+#include "simulation/circuits/framework.h"
 
 //#TPT-Directive ElementClass Element_CAPR PT_CAPR 263
 Element_CAPR::Element_CAPR() {
@@ -26,14 +25,13 @@ Element_CAPR::Element_CAPR() {
 	Explosive = 0;
 	Meltable = 1;
 	Hardness = 1;
-
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Capacitor. Stores charge from current and releases it when not charging. pavg0 = capacitance. Use 1px.";
+	Description = "Polarized electrolytic capacitor. Stores and releases charge. pavg0 = capacitance.";
 
-	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
-	DefaultProperties.pavg[0] = 10.0f;
+	Properties = TYPE_SOLID;
+	DefaultProperties.pavg[0] = 0.1f;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -47,56 +45,59 @@ Element_CAPR::Element_CAPR() {
 	Update = &Element_CAPR::update;
 	Graphics = &Element_CAPR::graphics;
 }
-#include <iostream>
+
 //#TPT-Directive ElementHeader Element_CAPR static int update(UPDATE_FUNC_ARGS)
 int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 	/**
-	 * pavg0 = capacitance
-	 * pavg1 = effective resistance
-	 * tmp   = 1000 * voltage while charging
-	 * tmp2  = is it charging right now
+	 * Variables:
+	 * tmp   - SPRK stored
+	 * pavg0 - Capacitance (in F)
+	 * pavg1 - Effective voltage
 	 */
 
-	if (parts[i].pavg[0] <= 0.001f) // No invalid capacitance (too small = division by 0 or overflow)
-		parts[i].pavg[0] = 0.001f; 
+	// CAPR can create circuit if not currently part of one
+	if (parts[i].pavg[1])
+		CIRCUITS::addCircuit(x, y, sim);
 
-	if (parts[i].pavg[1] <= LOWEST_EFFECTIVE_RES) // Effective resistance can't be "0"
-		parts[i].pavg[1] = LOWEST_EFFECTIVE_RES; 
+	// Capacitance must be positive
+	parts[i].pavg[0] = fabs(parts[i].pavg[0]);
 
-	// Currently being charged by a non-voltage source
+	// Capacitor function for realistic circuits
 	int r = sim->photons[y][x];
-	float efactor = pow(2.718, 1 / parts[i].pavg[0]);
-
 	if (r && TYP(r) == PT_RSPK) {
-		float current = sim->parts[ID(r)].pavg[1];
-		parts[i].pavg[0] -= current * 0.05f;
+		/**
+		 * Capacitor equation:
+		 * i = C dV / dt, or integral of i dt / C = V
+		 * 
+		 */
+		float current = parts[ID(r)].pavg[1];
+		parts[i].pavg[1] -= INTEGRATION_TIMESTEP / parts[i].pavg[0] * current;
 	}
+	// Capacitor function for SPRK
+	else {
+		for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
+			if (BOUNDS_CHECK && (rx || ry)) {
+				r = sim->pmap[y + ry][x + rx];
+				if (!r) continue;
 
-	// if (r && TYP(r) == PT_RSPK && parts[ID(r)].tmp != 1) {
-	// 	parts[i].pavg[1] *= efactor;
-	// 	if (parts[i].pavg[1] > MAX_C)
-	// 		parts[i].pavg[1] = MAX_C;
-	// 	parts[i].tmp = 1000 * parts[ID(r)].pavg[0];
-	// 	parts[i].tmp2 = 1;
-	// }
-	// // Discharging
-	// else if (parts[i].pavg[1] > LOWEST_EFFECTIVE_RES) {
-	// 	if (!r || TYP(r) != PT_RSPK)
-	// 		sim->create_part(-3, x, y, PT_RSPK);
-	// 	r = sim->photons[y][x];
-	// 	parts[ID(r)].tmp = 1;
-	// 	parts[ID(r)].life = 2;
-
-	// 	parts[ID(r)].pavg[0] = parts[i].tmp / 1000.0f; // Set voltage based on charge
-	// 	parts[i].pavg[1] /= efactor;
-	// 	parts[i].tmp /= efactor;
-	// 	parts[i].tmp2 = 0;
-	// }
-	// // Kill the source, discharge over
-	// else if (parts[i].pavg[1] <= LOWEST_EFFECTIVE_RES) {
-	// 	if (r && TYP(r) == PT_RSPK)
-	// 		sim->kill_part(ID(r));
-	// }
+				// Charging with PSCN or COPR
+				if (TYP(r) == PT_SPRK && (parts[ID(r)].ctype == PT_PSCN || parts[ID(r)].ctype == PT_COPR))
+					parts[i].tmp++;
+				// Discharging to NSCN or ZINC
+				else if ((TYP(r) == PT_ZINC || TYP(r) == PT_NSCN) && parts[ID(r)].life == 0 && parts[i].tmp > 0) {
+					parts[ID(r)].life = 4;
+					parts[ID(r)].ctype = TYP(r);
+					sim->part_change_type(ID(r), x + rx, y + ry, PT_SPRK);
+					parts[i].tmp--;
+				}
+				// Share charge
+				else if (TYP(r) == PT_CAPR && parts[ID(r)].tmp < parts[i].tmp) {
+					parts[i].tmp--;
+					parts[ID(r)].tmp++;
+				}
+			}
+	}
 
 	return 0;
 }
@@ -107,6 +108,3 @@ int Element_CAPR::graphics(GRAPHICS_FUNC_ARGS) {
 }
 
 Element_CAPR::~Element_CAPR() {}
-
-#undef MAX_C
-#undef LOWEST_EFFECTIVE_RES

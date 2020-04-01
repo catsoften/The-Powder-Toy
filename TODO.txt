@@ -512,8 +512,15 @@ realistic mdoe:
 - oxygen and humidity map
 
 https://github.com/The-Powder-Toy/The-Powder-Toy/pull/698
+https://en.wikipedia.org/wiki/Galvanization
 
 floodfill spark
+
+differ colors
+- BAaking soda, calcium
+- scp 009, blod
+- vinegar
+- neon less inviisble
 
 fiber optics affect bray?
 
@@ -535,31 +542,52 @@ cache - if no dynamic components no need to recalculate
 
 test IWALL with RSPK
 
-
 power sign, resistance sign
 INWR different tmp conductivity?
 
 voltage indicator use metric prefix, ie 2 mA
 voltage indicator on the top too long with aheat enabled?
 
+crossover junction
+
 make group filling a bit better maybe?
 - laggy on large blobs
-- extra rspk dies and flickers
 
-capacitor should be under dynamic voltage for branches
 
 STUFF THAT DOESNT WORK
 3 way diodes from 1 junction don't work
 voltage PSCN sharing PSCN with a diode - currents will be incorrect
 voltage adjaacent with diode (not sharing) still incorrect
 
+save the original matrix and only update voltages for dynamic components if no diodes?
+
 portals maybe
 
-make capacitors (easy), i / c  * dt = dV, add dV
-- use trapezoidal euler approximation
+CAPACITORS:
+    make capacitors (easy), i / c  * dt = dV, add dV
+        - use trapezoidal euler approximation
+    if current does not match polarity fail to work and EXPLODENATE
+INDUCTORS:
+
+bug in blobs sometimes 2 nodes beside each other?
+
+
+realistic batteries 
+
+
+pnp, npn transistors
+
+photoresistor, thermoresistor, potetiometer (user controlled?)
 
 long branches, possibly estimate wire thickness and divide out resistance?
 - idk how effective resistance would work then, maybe save effective resistances in array?
+
+transmission lines
+transformers
+solar panels
+logic gates
+
+logic gates
 
 make ISOL with ION?
 
@@ -572,8 +600,6 @@ make ISOL with ION?
 
 diodes:
     - smoke and melt
-capacitors:
-    - explode if wrong polarity
 - no capacitor polarity?
     - only for parallel plates?
 
@@ -606,6 +632,8 @@ toggle magnetic field calculation in update
 NEW TODO:
     MGNT, COPR, ZINC
 
+
+very end: add github links to some elements like QLOG and electronics to desc
 
 
 
