@@ -79,7 +79,7 @@ void Element_RSPK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_RSPK static int update(UPDATE_FUNC_ARGS)
 int Element_RSPK::update(UPDATE_FUNC_ARGS) {
-	if (!circuit_map[i]) {
+	if (!circuit_map[i] || !pmap[y][x]) {
 		sim->kill_part(i);
 		return 1;
 	}
@@ -102,11 +102,6 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 				circuit_map[i]->flag_recalc();
 			}
 		}
-
-	if (!pmap[y][x]) {
-		sim->kill_part(i);
-		return 1;
-	}
 
 	parts[i].life--;
 	if (parts[i].life < 0) {
@@ -142,7 +137,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 				if (r && TYP(r) == PT_RSPK && parts[ID(r)].tmp) {
 					parts[i].pavg[0] = parts[ID(r)].pavg[0];
 					parts[i].pavg[1] = parts[ID(r)].pavg[1];
-					parts[i].life = parts[ID(r)].life;
+					parts[i].life = parts[ID(r)].life - 1;
 					if (!circuit_map[i] && circuit_map[ID(r)])
 						circuit_map[i] = circuit_map[ID(r)];
 					goto end;
@@ -155,7 +150,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 				if (r && TYP(r) == PT_RSPK && (sim->parts[ID(r)].pavg[0] || sim->parts[ID(r)].pavg[1])) {
 					parts[i].pavg[0] = parts[ID(r)].pavg[0];
 					parts[i].pavg[1] = parts[ID(r)].pavg[1];
-					parts[i].life = parts[ID(r)].life;
+					parts[i].life = parts[ID(r)].life - 1;
 					if (!circuit_map[i] && circuit_map[ID(r)])
 						circuit_map[i] = circuit_map[ID(r)];
 					goto end;

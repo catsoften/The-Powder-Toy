@@ -1,10 +1,6 @@
 #include "simulation/circuits/circuits.h"
 #include "simulation/circuits/resistance.h"
 #include "simulation/circuits/util.h"
-
-#include "eigen/Core"
-#include "eigen/Dense"
-#include "eigen/SparseCholesky"
 #include "simulation/ElementCommon.h"
 
 #include <iomanip>
@@ -16,14 +12,10 @@ std::vector<Circuit *> all_circuits;
 
 // Functions
 void CIRCUITS::addCircuit(int x, int y, Simulation * sim) {
-    // If the RSPK life is low enough then the RSPK is probably no longer connected
-    // to a circuit and thus can be deleted. We check tmp to see if its part of a skeleton
-    // (To avoid infinite floodfills where circuit components are not part of a skeleton)
     int r = sim->photons[y][x];
-    if (circuit_map[ID(r)]) // && sim->parts[ID(r)].life > BASE_RSPK_LIFE / 2 && sim->parts[ID(r)].tmp)
+    if (circuit_map[ID(r)])
         return; // Already part of a circuit
 
-    // std::cout << "ADDING CIRCUIT\n";
     Circuit * c = new Circuit(x, y, sim);
     if (!c->branch_cache_size()) {
         delete c;
@@ -33,6 +25,12 @@ void CIRCUITS::addCircuit(int x, int y, Simulation * sim) {
 }
 
 void CIRCUITS::deleteCircuit(int i) {
+    // Why don't we put this in the destructor?
+    // Doing so causes extreme lag as invalid circuits are deleted
+    // but by reseting circuit_map this causes the invalid circuit to
+    // be recreated next frame over and over (ie in blobs of VOLT)
+    for (auto id : all_circuits[i]->get_global_rspk_ids())
+        circuit_map[id] = nullptr;
     delete all_circuits[i];
     all_circuits.erase(all_circuits.begin() + i);
 }
@@ -68,12 +66,12 @@ void CIRCUITS::clearCircuits() {
  * starting from 2 (0 = nothing, 1 = wire, 2+ = node_id)
  */
 void Circuit::generate() {
-    global_rspk_ids.clear();
-    recalc_next_frame = false;
     coord_vec skeleton = floodfill(sim, sim->parts, startx, starty);
     for (auto &pos : skeleton) {
-        circuit_map[ID(sim->photons[pos.y][pos.x])] = this;
-        global_rspk_ids.push_back(ID(sim->photons[pos.y][pos.x]));
+        int id = ID(sim->photons[pos.y][pos.x]);
+        sim->parts[id].tmp = 0;
+        circuit_map[id] = this;
+        global_rspk_ids.push_back(id);
     }
     skeleton = coord_stack_to_skeleton(sim, skeleton);
 
@@ -455,7 +453,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         } 
 
         if (ids.size())
-            b->setSpecialType(sim->parts[ids[0]].type == PT_CAPR, sim->parts[ids[0]].type == PT_INDC);
+            b->setSpecialType(sim->parts[ids[0]].type == PT_CAPR, sim->parts[ids[0]].type == PT_INDC, contains_dynamic);
 
         connection_map[start_node].push_back(end_node);
         connection_map[end_node].push_back(start_node);
@@ -482,6 +480,10 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
 void Circuit::solve(bool allow_recursion) {
     size_t size = connection_map.size();
     if (!size) return;
+
+    // Don't need to solve: circuit is non-dynamic and we already solved it
+    if (!contains_dynamic && solution_computed && allow_recursion)
+        return;
 
     // Additional special case solvers
     std::vector<std::pair<int, int> > diode_branches; // Node1 index
@@ -549,7 +551,7 @@ void Circuit::solve(bool allow_recursion) {
     delete[] row_lookup;
 
     x = A.colPivHouseholderQr().solve(b);
-
+    
     // std::cout << x << "\n";
     // std::cout << A << "\n";
     // std::cout << b << "\n";
@@ -635,6 +637,7 @@ void Circuit::solve(bool allow_recursion) {
                 floating_branches[node_id->first][i]->V2 = x[floating_branches[node_id->first][i]->node2 - 2];
         }
     }
+    solution_computed = true;
 }
 
 void Circuit::update_sim() {
@@ -649,34 +652,32 @@ void Circuit::update_sim() {
                 y = (int)(0.5f + sim->parts[b->node1_id].y),
                 r = sim->pmap[y][x];
             double voltage_drop = 0.0f;
-            // double total_resistance = get_effective_resistance(TYP(r), sim->parts, ID(r), sim);
 
             // Set voltage and current at nodes
             sim->parts[b->node1_id].pavg[0] = restrict_double_to_flt(b->V1);
             sim->parts[b->node1_id].pavg[1] = restrict_double_to_flt(b->current);
-            // sim->parts[b->node1_id].life = BASE_RSPK_LIFE;
             sim->parts[b->node2_id].pavg[0] = restrict_double_to_flt(b->V2);
             sim->parts[b->node2_id].pavg[1] = restrict_double_to_flt(b->current);
-            // sim->parts[b->node2_id].life = BASE_RSPK_LIFE;
 
             for (auto id : b->rspk_ids) {
                 x = (int)(0.5f + sim->parts[id].x);
                 y = (int)(0.5f + sim->parts[id].y);
                 r = sim->pmap[y][x];
 
-                // Circuit is invalid
+                // Circuit is invalid - just in case somehow the particle
+                // below the RSPK was deleted and the RSPK didn't register
                 if (!r) {
                     flag_recalc();
                     continue;
                 }
 
                 // Consecutive SWCH - don't add resistance otherwise there will be voltage drops
+                // (We wish voltage to be uniform across SWCH)
                 if (b->obeysOhmsLaw() && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
                     voltage_drop += get_effective_resistance(TYP(r), sim->parts, ID(r), sim) * b->current;
         
                 sim->parts[id].pavg[0] = restrict_double_to_flt(b->V1 - voltage_drop);
                 sim->parts[id].pavg[1] = restrict_double_to_flt(b->current);
-                // sim->parts[id].life = BASE_RSPK_LIFE;
                 prev_type = TYP(r);
             }
         }
@@ -686,7 +687,6 @@ void Circuit::update_sim() {
                 int id = floating_branches[node_id->first][i]->rspk_ids[j];
                 sim->parts[id].pavg[0] = restrict_double_to_flt(floating_branches[node_id->first][i]->V2);
                 sim->parts[id].pavg[1] = restrict_double_to_flt(0.0f);
-                // sim->parts[id].life = BASE_RSPK_LIFE;
             }
         }
     }
@@ -697,7 +697,7 @@ void Circuit::update_sim() {
 
 void Circuit::reset_effective_resistances() {
     for (auto b : branch_cache) {
-        b->recomputeSwitches = true;
+        b->recompute_switches = true;
         b->resistance = b->base_resistance;
     }
 }
@@ -718,7 +718,10 @@ void Circuit::reset() {
     // This is done in generate(), don't need to do it
     // std::fill(&skeleton_map[0][0], &skeleton_map[YRES][0], 0);
     // std::fill(&immutable_nodes[0][0], &immutable_nodes[YRES][0], 0);
-
+    for (auto id : global_rspk_ids)
+        circuit_map[id] = nullptr;
+    recalc_next_frame = false;
+    global_rspk_ids.clear();
     ground_nodes.clear();
     branch_map.clear();
     floating_branches.clear();
@@ -814,21 +817,22 @@ void Branch::print() {
 }
 
 bool Branch::switchesOn(Simulation * sim) {
-    if (!recomputeSwitches) return switches_on;
+    if (!recompute_switches) return switches_on;
     switches_on = true;
     for (size_t j = 0; j < switches.size(); j++)
         if (sim->parts[switches[j]].life != 10) {
             switches_on = false;
             break;
         }
-    recomputeSwitches = false;
+    recompute_switches = false;
     return switches_on;
 }
 
-void Branch::setSpecialType(bool isCapacitor, bool isInductor) {
-    this->isCapacitor = isCapacitor;
-    this->isInductor = isInductor;
-    obeysOhmsLaw_ = !(isCapacitor || isInductor || diode || voltage_gain);
+void Branch::setSpecialType(bool is_capacitor, bool is_inductor, bool &contains_dynamic) {
+    this->is_capacitor = is_capacitor;
+    this->is_inductor = is_inductor;
+    obeys_ohms_law = !(is_capacitor || is_inductor || diode || voltage_gain);
+    contains_dynamic = is_capacitor || is_inductor || switches.size();
 }
 
 void Branch::computeDynamicResistances(Simulation * sim) {
@@ -837,7 +841,7 @@ void Branch::computeDynamicResistances(Simulation * sim) {
 }
 
 void Branch::computeDynamicVoltages(Simulation *sim) {
-    if (isCapacitor) {
+    if (is_capacitor) {
         voltage_gain = 0.0;
         for (auto id : ids)
             voltage_gain += sim->parts[id].pavg[1];

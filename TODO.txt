@@ -524,6 +524,10 @@ differ colors
 
 fiber optics affect bray?
 
+realistic ore processing
+
+better music
+
 circuits:
 - rewrite solving method.md
 
@@ -535,11 +539,6 @@ shapes:
 
 some kind of circut skeleton viewer thing 
 
-op amp maybe
-
-
-cache - if no dynamic components no need to recalculate
-
 test IWALL with RSPK
 
 power sign, resistance sign
@@ -550,16 +549,16 @@ voltage indicator on the top too long with aheat enabled?
 
 crossover junction
 
-make group filling a bit better maybe?
-- laggy on large blobs
-
 
 STUFF THAT DOESNT WORK
 3 way diodes from 1 junction don't work
 voltage PSCN sharing PSCN with a diode - currents will be incorrect
 voltage adjaacent with diode (not sharing) still incorrect
 
-save the original matrix and only update voltages for dynamic components if no diodes?
+make group filling a bit better maybe?
+- handle correct votlages and shit somehow
+
+
 
 portals maybe
 
@@ -569,11 +568,13 @@ CAPACITORS:
     if current does not match polarity fail to work and EXPLODENATE
 INDUCTORS:
 
-bug in blobs sometimes 2 nodes beside each other?
-
 
 realistic batteries 
 
+temperature coefficents for conducting?
+- move resistances to individual element properties?
+
+op amp maybe
 
 pnp, npn transistors
 

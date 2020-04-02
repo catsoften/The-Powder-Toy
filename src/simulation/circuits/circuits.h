@@ -5,6 +5,10 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/circuits/framework.h"
 
+#include "eigen/Core"
+#include "eigen/Dense"
+#include "eigen/SparseCholesky"
+
 #include <vector>
 #include <set>
 #include <unordered_map>
@@ -33,7 +37,9 @@ private:
     Simulation * sim;
     short skeleton_map[YRES][XRES];
     char immutable_nodes[YRES][XRES]; // 1 = directly adjacent, 2 = diagonally adjacent
-    bool recalc_next_frame = false;
+    bool recalc_next_frame = false; // Flag for regeneration
+    bool contains_dynamic = false;  // Contains dynamic components such as capacitors
+    bool solution_computed = false; // Already computed solution for non-dynamic systems
     int startx, starty;
 
     // These can contain duplicate node-node id pairs, and follow same order, ie if connection map
@@ -54,11 +60,13 @@ public:
     void solve(bool allow_recursion=true);
     void update_sim();
     void reset_effective_resistances();
-    void flag_recalc() { recalc_next_frame = true; }
+    void flag_recalc() { recalc_next_frame = true, solution_computed = false; }
     bool should_recalc() { return recalc_next_frame; }
     void reset();
     void debug();
+
     size_t branch_cache_size() { return branch_cache.size(); }
+    const std::vector<int> &get_global_rspk_ids() { return global_rspk_ids; }
 
     Circuit(int x, int y, Simulation *sim);
     Circuit(const Circuit &other);
@@ -94,7 +102,7 @@ public:
     const int node1_id, node2_id;
     double V1, V2;
     
-    bool recomputeSwitches = true;
+    bool recompute_switches = true;
 
     Branch(int node1, int node2, const std::vector<int> &ids, 
             const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids,
@@ -103,16 +111,16 @@ public:
         voltage_gain(voltage_gain), base_resistance(resistance), diode(diode),
         node1_id(id1), node2_id(id2) {}
     
-    void setSpecialType(bool isCapacitor, bool isInductor);
+    void setSpecialType(bool isCapacitor, bool isInductor, bool &contains_dynamic);
     void print();
-    bool obeysOhmsLaw() { return obeysOhmsLaw_; };
+    bool obeysOhmsLaw() { return obeys_ohms_law; };
     void computeDynamicResistances(Simulation * sim);
     void computeDynamicVoltages(Simulation * sim);
 private:
     bool switches_on = false;
-    bool isCapacitor = false;
-    bool isInductor = false;
-    bool obeysOhmsLaw_ = true;
+    bool is_capacitor = false;
+    bool is_inductor = false;
+    bool obeys_ohms_law = true;
 
     bool switchesOn(Simulation * sim);
 };
