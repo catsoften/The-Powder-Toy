@@ -28,23 +28,28 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
     if (!valid_conductor(TYP(tmp), sim, ID(tmp)))
         return coord_vec();
 
-    CoordStack coords;
+    CoordStack coords, offsets;
     coord_vec output;
     pos temp;
+    int crx, cry; // Temp rx and ry from offsets for junctions
 
     char visited[YRES][XRES];
     std::fill(&visited[0][0], &visited[YRES][0], 0);
  
     coords.push(x, y);
+    offsets.push(0, 0);
+
 	while (coords.getSize()) {
 		coords.pop(x, y);
+        offsets.pop(crx, cry);
 
 		if (!sim->photons[y][x]) {
 			int j = sim->create_part(-3, x, y, PT_RSPK);
             if (j < 0) break; // Unable to create new particles
         }
 
-        visited[y][x] = 1;
+        if (TYP(sim->pmap[y][x]) != PT_JUNC)
+            visited[y][x] = 1;
         temp.x = x;
         temp.y = y;
         output.push_back(temp);
@@ -56,10 +61,17 @@ coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
 			// Floodfill if valid spot.
 			int fromtype = TYP(sim->pmap[y][x]);
 			int totype = TYP(sim->pmap[y + ry][x + rx]);
+
+            if (totype == PT_JUNC && rx && ry)
+                continue;
+            if (fromtype == PT_JUNC && totype == PT_JUNC && (rx != crx || ry != cry))
+                continue;
 			if (allow_conduction(totype, fromtype) && !visited[y + ry][x + rx] &&
                     valid_conductor(totype, sim, ID(sim->pmap[y + ry][x + rx]))) {
 				coords.push(x + rx, y + ry);
-                visited[y + ry][x + rx] = 1;
+                offsets.push(rx, ry);
+                if (totype != PT_JUNC)
+                    visited[y + ry][x + rx] = 1;
             }
 		}
 	}

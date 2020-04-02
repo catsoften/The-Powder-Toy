@@ -1,10 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_VDIV PT_VDIV 259
-Element_VDIV::Element_VDIV()
+//#TPT-Directive ElementClass Element_JUNC PT_JUNC 259
+Element_JUNC::Element_JUNC()
 {
-	Identifier = "DEFAULT_PT_VDIV";
-	Name = "VDIV";
+	Identifier = "DEFAULT_PT_JUNC";
+	Name = "JUNC";
 	Colour = PIXPACK(0xFFFFFF);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
@@ -28,9 +28,9 @@ Element_VDIV::Element_VDIV()
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Divider junction. Accepts single input from PSCN, divides current to NSCN.";
+	Description = "Crossover junction. Allows wires to crossover.";
 
-	Properties = TYPE_SOLID;
+	Properties = TYPE_SOLID | PROP_CONDUCTS;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -41,19 +41,19 @@ Element_VDIV::Element_VDIV()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_VDIV::update;
-	Graphics = &Element_VDIV::graphics;
+	Update = &Element_JUNC::update;
+	Graphics = &Element_JUNC::graphics;
 }
 
-//#TPT-Directive ElementHeader Element_VDIV static int update(UPDATE_FUNC_ARGS)
-int Element_VDIV::update(UPDATE_FUNC_ARGS) {
+//#TPT-Directive ElementHeader Element_JUNC static int update(UPDATE_FUNC_ARGS)
+int Element_JUNC::update(UPDATE_FUNC_ARGS) {
 	// update code here
 
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_VDIV static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_VDIV::graphics(GRAPHICS_FUNC_ARGS)
+//#TPT-Directive ElementHeader Element_JUNC static int graphics(GRAPHICS_FUNC_ARGS)
+int Element_JUNC::graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -61,4 +61,4 @@ int Element_VDIV::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_VDIV::~Element_VDIV() {}
+Element_JUNC::~Element_JUNC() {}

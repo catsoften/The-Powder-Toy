@@ -547,7 +547,6 @@ INWR different tmp conductivity?
 voltage indicator use metric prefix, ie 2 mA
 voltage indicator on the top too long with aheat enabled?
 
-crossover junction
 
 
 STUFF THAT DOESNT WORK
@@ -558,6 +557,9 @@ voltage adjaacent with diode (not sharing) still incorrect
 make group filling a bit better maybe?
 - handle correct votlages and shit somehow
 
+crossover work for SPRK too?
+
+junctions flag recalculations lol
 
 
 portals maybe
@@ -570,9 +572,6 @@ INDUCTORS:
 
 
 realistic batteries 
-
-temperature coefficents for conducting?
-- move resistances to individual element properties?
 
 op amp maybe
 

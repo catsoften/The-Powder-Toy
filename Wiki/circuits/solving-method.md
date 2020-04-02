@@ -19,6 +19,8 @@ First we take the circuit starting point we identified and do a floodfill to get
 5. Isn't conducting from INWR to anything other than INWR, a terminal, GRND
 ```
 
+There is a special case for junctions, which allow circuits to cross: you can't enter a junction on a diagonal (exit any direction, however), and when moving from one junction to another you must keep your original velocity (ie, if you came in from the top, you can only move straight down). Junctions ignore the "visited" map as you can visit a junction multiple times, and you cannot backtrack anyways.
+
 Terminals:
 ```
 Positive: PSCN, COPR
@@ -28,6 +30,8 @@ Negative: NSCN, ZINC
 COPR / ZINC can be used as low-resistance alternatives to PSCN / NSCN
 
 The last rule prevents RSPK blocking SPRK from toggling SWCH. Coordinates are added to a coordinate vector and returned.
+
+All RSPK in the floodfill will have a circuit_map[id] set (maps particle ID to a pointer to the Circuit), their tmp set to: (0: not part of skeleton, 1: part of skeleton, 2 and above: their node ID).
 
 ---
 
@@ -47,11 +51,13 @@ A node is any pixel of the skeleton that has more than 2 surrounding pixels that
 part of the skeleton. A surrounding pixel is not counted if it is directly adjacent to 
 another surrounding pixel that's on the diagonal.
 
-A positive terminal to voltage source type, such as VOLT and CAPR is a node
-A negative terminal to voltage source type, such as VOLT and CAPR is a node
+A positive terminal to voltage source type, such as VOLT and CPTR is a node
+A negative terminal to voltage source type, such as VOLT and CPTR is a node
 PSCN to NSCN or NSCN to PSCN (a p-n junction diode)
 The current pixel is a ground
 ```
+
+For positive / negative terminal nodes, finding directly adjacent takes priority over diagonally adjacent, as diagonally adjacent can be trimmed.
 
 ![Valid node diagram](https://i.imgur.com/PdtHwar.png)
 
@@ -122,9 +128,9 @@ Repeat, but new node can be within 1 px of start node:
 4. Diagonally adjacent pixels (any)
 ```
 
-This search order guarantees we hit most of the pixels in the skeleton while not skipping over nodes. We permeantly delete skeleton pixels as we traverse over them so other branches don't use them, the exception is pixels 1 px from a node, which may be traversed multiple times.
+This search order guarantees we hit most of the pixels in the skeleton while not skipping over nodes. We permanently delete skeleton pixels as we traverse over them so other branches don't use them, the exception is pixels 1 px from a node, which may be traversed multiple times.
 
-We first ignore pixels within 1 px of start node to avoid making circular loops around start, and force the algorithim to traverse further. But this skips over a pixel in artifical 1 px L shapes, so we traverse again.
+We first ignore pixels within 1 px of start node to avoid making circular loops around start, and force the algorithm to traverse further. But this skips over a pixel in artificial 1 px L shapes, so we traverse again.
 
 If we find an end node, we add the branch to a branch map, otherwise we add it to a map of floating branches.
 
@@ -158,7 +164,13 @@ The diode value = 1 if the branch is a diode and allows positive current, = - 1 
 **Current polarity convention:**
 By convention, positive current goes from start_node to end_node, where start_node < end_node. If floodfill discovers this is not the case, it swaps the nodes, reverses rspk_ids and takes the negative of the voltage.
 
+Once the branch is created, it calculates if it's "dynamic" (has a component that updates every frame, such as a capacitor), and is classified as ohmiam (obeys ohm's law), a diode, capacitor, inductor, voltage source or other based on variables set.
+
+1 px floating branches are ignored as they could be part of a node that was trimmed.
+
 ## 2. Solve circuit
+If the circuit contains no dynamic components solving is limited to every 20 frames (to update for console commands and such), as resistances will be static, and any changes to the circuit will trigger a regeneration.
+
 Solving the circuit is done with nodal analysis. Initially all nodes are solved by setting the sum of currents into the node to 0 (KCL). For example, the equation for node1 in the following diagram is:
 
 ![Equation KCL](https://i.imgur.com/IkmeoUC.png)
@@ -180,6 +192,19 @@ This is done by adding one of the rows of the matrix of the 2 ends of the branch
 
 ![Supernode part 2](https://i.imgur.com/R27Gvol.png)
 
+**Capacitors:**
+Capacitors are simply "dynamic voltage sources" that obey the equation i = c dV/dt. The current through the capacitor, divided by the capacitance, is the derivative of voltage. The voltage source value is then multiplied by a timestamp (default: 0.5 s) and added to the original voltage using Euler's method.
+
+(Preferably, we would've used something like a midpoint-eulers or Runge-Kutta, but saving additional floats to each CPTR particle or re-evaluating currents in the future timesteps were considered too costly.)
+
+**NTCT / PTCT / Other dynamic resistors:**
+NTCT / PTCT, despite their names, do not behave at all like normal temperature-coefficient semiconductors (which have exponential change to resistance based on temperature). Rather, they behave as they work for SPRK: for NTCT, at above 100 C the resistance tends to infinity, and decreases logarithmically as the temperature decreases (PTCT is opposite). This creates an incredibly rapid increase in resistance as temperature reaches the limit.
+
+![Chart of PTCT/NTCT](https://i.imgur.com/E0JV4G6.png)
+
+*Graph of effective resistance as a function of temperature (kelvin)*
+
+
 **Diodes:**
 To save time doing newton approximations and solving diode equations, our diodes are *very* ideal:
 
@@ -193,9 +218,16 @@ When diodes are present, after initially solving the matrix, the voltage across 
 
 After solving, branches are assigned node voltages and currents, and floating branches are set to the voltage of the node they're connected to (no current).
 
-When setting currents, branches are seperated depending on whether they obey ohm's law. Branches that obey ohms law simply have their current calculated from voltage drop and resistance, branches that don't "copy" the current from a branch that has the same start node. We can do this because non-ohmian branches (such as voltage sources, capacitors, etc...) must be connected on both ends to another node to function.
+When setting currents, branches are separated depending on whether they obey ohm's law. Branches that obey ohms law simply have their current calculated from voltage drop and resistance, branches that don't "copy" the current from a branch that has the same start node. We can do this because non-ohmian branches (such as voltage sources, capacitors, etc...) must be connected on both ends to another node to function. Polarity is considered when copying so the polarity of current in both branches agree (Ie: If A -> B is positive current, then B -> C will have positive current, OR: C -> B has positive current, depending on which node is sorted first).
 
-## 3. Translate solution to Simulation
+## 3. Translate solution to simulation
+All branches are iterated and the following is done:
+```
+End nodes are assigned branch current and end voltages
+All RSPK has life reset to 4
+Floating branches have current set to 0 and voltage to whatever voltage they are
+```
 
+For voltages in the branch, if the branch does not obey ohm's law the voltage is simply node1 voltage. If it does obey ohm's law, the voltage drop (calculated by V = IR) is done per pixel along the skeleton and set as one traverses from node1 to node2.
 
 ## 4.

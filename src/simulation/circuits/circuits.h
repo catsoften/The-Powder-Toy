@@ -15,6 +15,7 @@
 #include <iostream>
 
 #define BASE_RSPK_LIFE 4
+#define FORCE_RECALC_EVERY_N_FRAMES 20
 #define INTEGRATION_TIMESTEP 0.016666666666666666 // 1 frame = 1/60 s
 
 class Branch;
@@ -55,6 +56,10 @@ private:
 
     void trim_adjacent_nodes(const coord_vec &nodes);
     void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
+
+    static bool is_dynamic_particle(int type) {
+        return type == PT_PTCT || type == PT_NTCT || type == PT_SWCH || type == PT_CAPR || type == PT_INDC;
+    };
 public:
     void generate();
     void solve(bool allow_recursion=true);
@@ -111,7 +116,7 @@ public:
         voltage_gain(voltage_gain), base_resistance(resistance), diode(diode),
         node1_id(id1), node2_id(id2) {}
     
-    void setSpecialType(bool isCapacitor, bool isInductor, bool &contains_dynamic);
+    void setSpecialType(bool isCapacitor, bool isInductor);
     void print();
     bool obeysOhmsLaw() { return obeys_ohms_law; };
     void computeDynamicResistances(Simulation * sim);

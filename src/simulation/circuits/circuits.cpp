@@ -109,9 +109,23 @@ void Circuit::generate() {
         else if (is_terminal(TYP(sim->pmap[y][x]))) {
             int t_is_silicon = TYP(sim->pmap[y][x]) == PT_PSCN || TYP(sim->pmap[y][x]) == PT_NSCN;
             int other_type = TYP(sim->pmap[y][x]) == PT_PSCN ? PT_NSCN : PT_PSCN;
+
+            // Prioritze directly adjacent CAPR / VOLT / other such
             for (int rx = -1; rx <= 1; rx++)
             for (int ry = -1; ry <= 1; ry++)
-                if (rx || ry) {
+                if ((rx || ry) && (rx == 0 || ry == 0)) {
+                    int t = TYP(sim->pmap[y + ry][x + rx]);
+                    if (t == PT_CAPR || t == PT_VOLT || (t_is_silicon && t == other_type)) {
+                        skeleton_map[y][x] = node_id;
+                        immutable_nodes[y][x] = (rx && ry) + 1;
+                        nodes.push_back(pos);
+                        node_id++;
+                        goto end;
+                    }
+                }
+            for (int rx = -1; rx <= 1; rx++)
+            for (int ry = -1; ry <= 1; ry++)
+                if ((rx || ry) && !(rx == 0 || ry == 0)) {
                     int t = TYP(sim->pmap[y + ry][x + rx]);
                     if (t == PT_CAPR || t == PT_VOLT || (t_is_silicon && t == other_type)) {
                         skeleton_map[y][x] = node_id;
@@ -239,7 +253,8 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
 
         while (coords.getSize()) {
             coords.pop(x2, y2);
-            skeleton_map[y2][x2] = 1;
+            if (!immutable_nodes[y2][x2])
+                skeleton_map[y2][x2] = 1;
             node_cluster.push_back(std::make_pair(x2, y2));
             avgx += x2, avgy += y2, count++;
 
@@ -328,6 +343,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
     // Keep flood filling until we find another node
 	while (true) {
         r = sim->pmap[y][x];
+        if (Circuit::is_dynamic_particle(TYP(r)))
+            contains_dynamic = true;
 
         // Polarity handling for voltage drops
         if (positive_terminal(TYP(r))) {
@@ -453,7 +470,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         } 
 
         if (ids.size())
-            b->setSpecialType(sim->parts[ids[0]].type == PT_CAPR, sim->parts[ids[0]].type == PT_INDC, contains_dynamic);
+            b->setSpecialType(sim->parts[ids[0]].type == PT_CAPR, sim->parts[ids[0]].type == PT_INDC);
 
         connection_map[start_node].push_back(end_node);
         connection_map[end_node].push_back(start_node);
@@ -469,7 +486,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         branch_cache.push_back(b);
     }
     // 1 px floating branch may be part of node, reset
-    else {
+    else if (!immutable_nodes[y][x]) {
         skeleton_map[y][x] = 1;
     }
 }
@@ -482,7 +499,8 @@ void Circuit::solve(bool allow_recursion) {
     if (!size) return;
 
     // Don't need to solve: circuit is non-dynamic and we already solved it
-    if (!contains_dynamic && solution_computed && allow_recursion)
+    // Force recalc in case something changes like a console command
+    if (!contains_dynamic && solution_computed && allow_recursion && sim->timer % FORCE_RECALC_EVERY_N_FRAMES != 0)
         return;
 
     // Additional special case solvers
@@ -828,11 +846,10 @@ bool Branch::switchesOn(Simulation * sim) {
     return switches_on;
 }
 
-void Branch::setSpecialType(bool is_capacitor, bool is_inductor, bool &contains_dynamic) {
+void Branch::setSpecialType(bool is_capacitor, bool is_inductor) {
     this->is_capacitor = is_capacitor;
     this->is_inductor = is_inductor;
     obeys_ohms_law = !(is_capacitor || is_inductor || diode || voltage_gain);
-    contains_dynamic = is_capacitor || is_inductor || switches.size();
 }
 
 void Branch::computeDynamicResistances(Simulation * sim) {
