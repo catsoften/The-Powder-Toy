@@ -178,12 +178,15 @@ Solving the circuit is done with nodal analysis. Initially all nodes are solved 
 Using ohm's law to determine the current through each resistor as the difference in voltage, and summing the currents to 0. The actual matrix is solved using the eigen linear algebra library.
 
 **Ground:**
+
 If the node is a ground node, the equation is simply node = 0 (ground = 0V).
 
 **Switches:** 
+
 Each branch has a "base resistance" and an "effective resistance". The base resistance is the resistance of non-dynamic parts, whereas the effective resistance considers dynamic parts such as switches. The resistance is updated before the nodal calculation to consider these values.
 
 **Voltage sources:**
+
 If the current node contains a branch that is a voltage source, KCL is carried out as normal. After the matrix is generated (but not solved), a supernode equation is used:
 
 ![Supernode equations](https://i.imgur.com/Mu0vtIh.png)
@@ -193,11 +196,13 @@ This is done by adding one of the rows of the matrix of the 2 ends of the branch
 ![Supernode part 2](https://i.imgur.com/R27Gvol.png)
 
 **Capacitors:**
+
 Capacitors are simply "dynamic voltage sources" that obey the equation i = c dV/dt. The current through the capacitor, divided by the capacitance, is the derivative of voltage. The voltage source value is then multiplied by a timestamp (default: 0.5 s) and added to the original voltage using Euler's method.
 
 (Preferably, we would've used something like a midpoint-eulers or Runge-Kutta, but saving additional floats to each CPTR particle or re-evaluating currents in the future timesteps were considered too costly.)
 
 **NTCT / PTCT / Other dynamic resistors:**
+
 NTCT / PTCT, despite their names, do not behave at all like normal temperature-coefficient semiconductors (which have exponential change to resistance based on temperature). Rather, they behave as they work for SPRK: for NTCT, at above 100 C the resistance tends to infinity, and decreases logarithmically as the temperature decreases (PTCT is opposite). This creates an incredibly rapid increase in resistance as temperature reaches the limit.
 
 ![Chart of PTCT/NTCT](https://i.imgur.com/E0JV4G6.png)
@@ -206,6 +211,7 @@ NTCT / PTCT, despite their names, do not behave at all like normal temperature-c
 
 
 **Diodes:**
+
 To save time doing newton approximations and solving diode equations, our diodes are *very* ideal:
 
 ![V-I diode graph](https://i.imgur.com/1o7LG3q.png)
@@ -231,3 +237,18 @@ Floating branches have current set to 0 and voltage to whatever voltage they are
 For voltages in the branch, if the branch does not obey ohm's law the voltage is simply node1 voltage. If it does obey ohm's law, the voltage drop (calculated by V = IR) is done per pixel along the skeleton and set as one traverses from node1 to node2.
 
 ## 4.
+
+
+## 5. Additional circuit features
+**Capacitor explosions:**
+
+Capacitors explode when the current through them passes a certain threshold (to avoid shorts causing NaN voltages or currents due to a very fast growth of voltage), and if 10 or more V passes through in the wrong direction (opposite polarity). The later is detected by having each CPTR particle locate a positive terminal, then checking if the voltage drop is in the right direction.
+
+Capacitors explode based on the following rule set:
+```
+< 0.01 capacitance: Sizzle into SMKE, very small temp and pressure increase.
+< 10 capacitance: Explode into steam and BRMT
+< 100 capacitance: Explode into fire and BRMT
+else: Explode into superheated EXOT
+```
+(EXOT implies you somehow made an electrolytic capacitor using EXOT (I mean how else did you get such high capacitance?))

@@ -51,9 +51,11 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Variables:
 	 * tmp   - SPRK stored
+	 * tmp2  - Flag to explode
 	 * pavg0 - Capacitance (in F)
 	 * pavg1 - Effective voltage
 	 */
+	int r;
 
 	// CAPR can create circuit if not currently part of one
 	if (parts[i].pavg[1])
@@ -62,13 +64,68 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 	// Capacitance must be positive
 	parts[i].pavg[0] = fabs(parts[i].pavg[0]);
 
+	// Explode if wrong polarity
+	if (parts[i].tmp2 == 0 && sim->photons[y][x]) {
+		float self_volt = parts[ID(sim->photons[y][x])].pavg[0];
+		float self_current = parts[ID(sim->photons[y][x])].pavg[1];
+
+		// This is actually a limiter from causing high current creating NaN voltages
+		if (fabs(self_current) > MAX_CAPACITOR_CURRENT)
+			goto explode;
+
+		for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
+			if (BOUNDS_CHECK && (rx || ry)) {
+				r = pmap[y + ry][x + rx];
+				if (!r || !sim->photons[y + ry][x + rx]) continue;
+				if (!positive_terminal(TYP(r))) continue;
+
+				// Current flows from positive into CPTR if correct polarity
+				// Thus other_v should >= self_volt
+				float other_v = parts[ID(sim->photons[y + ry][x + rx])].pavg[0];
+				if (other_v > self_volt && fabs(other_v - self_volt) > CAPACITOR_REVERSE_VOLTAGE_THRESHOLD)
+					goto explode;
+			}
+	}
+
+	if (parts[i].tmp2) {
+		explode:;
+		PropertyValue value;
+		value.Integer = 1;
+		sim->flood_prop(x, y, offsetof(Particle, tmp2), value, StructProperty::Integer);
+
+		if (parts[i].pavg[0] < 0.01) { // Small capacitor, sizzle
+			sim->part_change_type(i, x, y, PT_SMKE);
+			sim->pv[y / CELL][x / CELL] += 0.00005f;
+			parts[i].temp += 15.0f;
+			parts[i].life = RNG::Ref().between(10, 100);
+		}
+		else if (parts[i].pavg[0] < 10) { // Bigger capacitor, explode into BRMT and steam
+			sim->part_change_type(i, x, y, RNG::Ref().chance(1, 2) ? PT_BRMT : PT_WTRV);
+			sim->pv[y / CELL][x / CELL] += 0.0005f;
+			parts[i].temp += 100.0f;
+		}
+		else if (parts[i].pavg[0] < 100) { // Really big capacitor... it's going kaboom
+			sim->part_change_type(i, x, y, RNG::Ref().chance(1, 2) ? PT_FIRE : PT_BRMT);
+			sim->pv[y / CELL][x / CELL] += 0.005f;
+			parts[i].temp += 1000.0f;
+			parts[i].life = RNG::Ref().between(100, 300);
+		}
+		else { // Your capacitance value is way too large
+			sim->part_change_type(i, x, y, PT_EXOT);
+			sim->pv[y / CELL][x / CELL] += 0.05f;
+			parts[i].temp += 5000.0f;
+			parts[i].life = RNG::Ref().between(100, 300);
+		}
+		return 0;
+	}
+
 	// Capacitor function for realistic circuits
-	int r = sim->photons[y][x];
+	r = sim->photons[y][x];
 	if (r && TYP(r) == PT_RSPK) {
 		/**
 		 * Capacitor equation:
 		 * i = C dV / dt, or integral of i dt / C = V
-		 * 
 		 */
 		float current = parts[ID(r)].pavg[1];
 		parts[i].pavg[1] -= INTEGRATION_TIMESTEP / parts[i].pavg[0] * current;

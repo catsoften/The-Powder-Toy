@@ -197,16 +197,20 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 					// St elmo's fire
 					if (parts[i].pavg[0] > 100000) {
 						int ni = sim->create_part(-1, x + rx ,y + ry, PT_PLSM);
-						parts[ni].temp = parts[i].temp;
-						parts[ni].life = RNG::Ref().between(0, 70);
+						if (ni > -1) {
+							parts[ni].temp = parts[i].temp;
+							parts[ni].life = RNG::Ref().between(0, 70);
+						}
 					}
 					// Thermonic emission
 					if (parts[i].pavg[0] > 1000) {
-						int ni = sim->create_part(-3, x + rx, y + ry, PT_ELEC);
-						parts[ni].temp = parts[i].temp;
-						parts[ni].life = RNG::Ref().between(0, 570);
-						parts[ni].vx = rx;
-						parts[ni].vy = ry;
+						// int ni = sim->create_part(-3, x + rx, y + ry, PT_ELEC);
+						// if (ni > -1) {
+						// 	parts[ni].temp = parts[i].temp;
+						// 	parts[ni].life = RNG::Ref().between(0, 570);
+						// 	parts[ni].vx = rx;
+						// 	parts[ni].vy = ry;
+						// }
 					}
 				}
 				// Ionizing gases

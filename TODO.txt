@@ -522,9 +522,13 @@ differ colors
 - vinegar
 - neon less inviisble
 
+HUD display dcolor in hex
+
 fiber optics affect bray?
 
 realistic ore processing
+
+anti-hydrogen is weak af
 
 better music
 
@@ -559,15 +563,11 @@ make group filling a bit better maybe?
 
 crossover work for SPRK too?
 
-junctions flag recalculations lol
-
 
 portals maybe
 
-CAPACITORS:
-    make capacitors (easy), i / c  * dt = dV, add dV
-        - use trapezoidal euler approximation
-    if current does not match polarity fail to work and EXPLODENATE
+write capcaitor wiki
+
 INDUCTORS:
 
 
@@ -576,6 +576,8 @@ realistic batteries
 op amp maybe
 
 pnp, npn transistors
+
+RSPK die if not on valid
 
 photoresistor, thermoresistor, potetiometer (user controlled?)
 
@@ -587,7 +589,7 @@ transformers
 solar panels
 logic gates
 
-logic gates
+rspk is tool to act as voltage source
 
 make ISOL with ION?
 

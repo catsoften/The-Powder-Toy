@@ -693,7 +693,7 @@ void Circuit::update_sim() {
                 // (We wish voltage to be uniform across SWCH)
                 if (b->obeysOhmsLaw() && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
                     voltage_drop += get_effective_resistance(TYP(r), sim->parts, ID(r), sim) * b->current;
-        
+               
                 sim->parts[id].pavg[0] = restrict_double_to_flt(b->V1 - voltage_drop);
                 sim->parts[id].pavg[1] = restrict_double_to_flt(b->current);
                 prev_type = TYP(r);
