@@ -237,6 +237,10 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 					if (rx != 0 && ry != 0)
 						continue;
 					break;
+				case PT_JUNC: // Only conduct of opposite direction has a SPRK, no diagonals
+					if (TYP(pmap[y - ry][x - rx]) != PT_SPRK || !(rx == 0 || ry == 0) || abs(rx) > 1 || abs(ry) > 1)
+						continue;
+					break;
 				case PT_SPRK:
 					if (pavg!=PT_INSL && parts[i].life<4)
 					{
@@ -334,6 +338,10 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 					if (receiver==PT_PSCN)
 						goto conduct;
 					continue;
+				case PT_JUNC: // Only conduct of opposite direction has a SPRK, no diagonals
+					if (TYP(pmap[y - ry][x - rx]) != PT_SPRK || !(rx == 0 || ry == 0) || abs(rx) > 1 || abs(ry) > 1)
+						continue;
+					break;
 				default:
 					break;
 				}

@@ -485,6 +485,8 @@ water  reactinos - add Carbonated water and ISOL
 
 ferrofluid
 
+remove graphics = 1 and shit for all elements
+
 aircraft carrier
 
 local gravity mode
@@ -535,6 +537,9 @@ better music
 circuits:
 - rewrite solving method.md
 
+glow less setting
+- stuff like neut and sprk glows less
+
 - preprocessing shapes:
   - "replace" particles with virtual particles, don't set if virtual, but act in simulation
   - (would require seperating particles and actual capacitance / charge and shit)
@@ -552,7 +557,6 @@ voltage indicator use metric prefix, ie 2 mA
 voltage indicator on the top too long with aheat enabled?
 
 
-
 STUFF THAT DOESNT WORK
 3 way diodes from 1 junction don't work
 voltage PSCN sharing PSCN with a diode - currents will be incorrect
@@ -566,8 +570,6 @@ crossover work for SPRK too?
 
 portals maybe
 
-write capcaitor wiki
-
 INDUCTORS:
 
 
@@ -580,6 +582,9 @@ pnp, npn transistors
 RSPK die if not on valid
 
 photoresistor, thermoresistor, potetiometer (user controlled?)
+TRST - thermoresistor
+LOGC - logic gate
+TLNE - Transmission line
 
 long branches, possibly estimate wire thickness and divide out resistance?
 - idk how effective resistance would work then, maybe save effective resistances in array?

@@ -43,7 +43,7 @@ Element_CAPR::Element_CAPR() {
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &Element_CAPR::update;
-	Graphics = &Element_CAPR::graphics;
+	Graphics = NULL;
 }
 
 //#TPT-Directive ElementHeader Element_CAPR static int update(UPDATE_FUNC_ARGS)
@@ -83,37 +83,38 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 				// Current flows from positive into CPTR if correct polarity
 				// Thus other_v should >= self_volt
 				float other_v = parts[ID(sim->photons[y + ry][x + rx])].pavg[0];
-				if (other_v > self_volt && fabs(other_v - self_volt) > CAPACITOR_REVERSE_VOLTAGE_THRESHOLD)
+				if (other_v > self_volt && fabs(self_current) > MAX_CAPACITOR_REVERSE_CURRENT)
 					goto explode;
 			}
+		if (false) {
+			explode:;
+			PropertyValue value;
+			value.Integer = 1;
+			sim->flood_prop(x, y, offsetof(Particle, tmp2), value, StructProperty::Integer);
+		}
 	}
 
 	if (parts[i].tmp2) {
-		explode:;
-		PropertyValue value;
-		value.Integer = 1;
-		sim->flood_prop(x, y, offsetof(Particle, tmp2), value, StructProperty::Integer);
-
 		if (parts[i].pavg[0] < 0.01) { // Small capacitor, sizzle
 			sim->part_change_type(i, x, y, PT_SMKE);
-			sim->pv[y / CELL][x / CELL] += 0.00005f;
+			sim->pv[y / CELL][x / CELL] += 0.05f;
 			parts[i].temp += 15.0f;
 			parts[i].life = RNG::Ref().between(10, 100);
 		}
 		else if (parts[i].pavg[0] < 10) { // Bigger capacitor, explode into BRMT and steam
 			sim->part_change_type(i, x, y, RNG::Ref().chance(1, 2) ? PT_BRMT : PT_WTRV);
-			sim->pv[y / CELL][x / CELL] += 0.0005f;
+			sim->pv[y / CELL][x / CELL] += 0.5f;
 			parts[i].temp += 100.0f;
 		}
 		else if (parts[i].pavg[0] < 100) { // Really big capacitor... it's going kaboom
 			sim->part_change_type(i, x, y, RNG::Ref().chance(1, 2) ? PT_FIRE : PT_BRMT);
-			sim->pv[y / CELL][x / CELL] += 0.005f;
+			sim->pv[y / CELL][x / CELL] += 1.5f;
 			parts[i].temp += 1000.0f;
 			parts[i].life = RNG::Ref().between(100, 300);
 		}
 		else { // Your capacitance value is way too large
 			sim->part_change_type(i, x, y, PT_EXOT);
-			sim->pv[y / CELL][x / CELL] += 0.05f;
+			sim->pv[y / CELL][x / CELL] += 5.0f;
 			parts[i].temp += 5000.0f;
 			parts[i].life = RNG::Ref().between(100, 300);
 		}
@@ -157,11 +158,6 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 	}
 
 	return 0;
-}
-
-//#TPT-Directive ElementHeader Element_CAPR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CAPR::graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
 }
 
 Element_CAPR::~Element_CAPR() {}

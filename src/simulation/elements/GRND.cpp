@@ -5,7 +5,7 @@ Element_GRND::Element_GRND()
 {
 	Identifier = "DEFAULT_PT_GRND";
 	Name = "GRND";
-	Colour = PIXPACK(0xFFFFFF);
+	Colour = PIXPACK(0x8f3535);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
 	Enabled = 1;
@@ -28,7 +28,7 @@ Element_GRND::Element_GRND()
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Electrical ground.";
+	Description = "Electrical ground. Absorbs current, setting local voltage to 0.";
 
 	Properties = TYPE_SOLID;
 
@@ -38,28 +38,11 @@ Element_GRND::Element_GRND()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = ITH;
-	HighTemperatureTransition = NT;
+	HighTemperature = 3000.0f;
+	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_GRND::update;
-	Graphics = &Element_GRND::graphics;
-}
-
-//#TPT-Directive ElementHeader Element_GRND static int update(UPDATE_FUNC_ARGS)
-int Element_GRND::update(UPDATE_FUNC_ARGS)
-{
-	// update code here
-
-	return 0;
-}
-
-//#TPT-Directive ElementHeader Element_GRND static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_GRND::graphics(GRAPHICS_FUNC_ARGS)
-{
-	// graphics code here
-	// return 1 if nothing dymanic happens here
-
-	return 0;
+	Update = NULL;
+	Graphics = NULL;
 }
 
 Element_GRND::~Element_GRND() {}

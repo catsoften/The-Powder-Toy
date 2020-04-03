@@ -242,7 +242,7 @@ For voltages in the branch, if the branch does not obey ohm's law the voltage is
 ## 5. Additional circuit features
 **Capacitor explosions:**
 
-Capacitors explode when the current through them passes a certain threshold (to avoid shorts causing NaN voltages or currents due to a very fast growth of voltage), and if 10 or more V passes through in the wrong direction (opposite polarity). The later is detected by having each CPTR particle locate a positive terminal, then checking if the voltage drop is in the right direction.
+Capacitors explode when the current through them passes a certain threshold (to avoid shorts causing NaN voltages or currents due to a very fast growth of voltage), and if 1 or more amps passes through in the wrong direction (opposite polarity). The later is detected by having each CPTR particle locate a positive terminal, then checking if the voltage drop is in the right direction before checking current.
 
 Capacitors explode based on the following rule set:
 ```
@@ -251,4 +251,4 @@ Capacitors explode based on the following rule set:
 < 100 capacitance: Explode into fire and BRMT
 else: Explode into superheated EXOT
 ```
-(EXOT implies you somehow made an electrolytic capacitor using EXOT (I mean how else did you get such high capacitance?))
+(EXOT implies you somehow made an electrolytic capacitor using EXOT (I mean how else did you get such high capacitance?)

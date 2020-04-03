@@ -5,7 +5,7 @@ Element_JUNC::Element_JUNC()
 {
 	Identifier = "DEFAULT_PT_JUNC";
 	Name = "JUNC";
-	Colour = PIXPACK(0xFFFFFF);
+	Colour = PIXPACK(0x358f36);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
 	Enabled = 1;
@@ -28,9 +28,9 @@ Element_JUNC::Element_JUNC()
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Crossover junction. Allows wires to crossover.";
+	Description = "Crossover junction. Allows wires to cross without interference.";
 
-	Properties = TYPE_SOLID | PROP_CONDUCTS;
+	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -38,27 +38,11 @@ Element_JUNC::Element_JUNC()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = ITH;
-	HighTemperatureTransition = NT;
+	HighTemperature = 3000.0f;
+	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_JUNC::update;
-	Graphics = &Element_JUNC::graphics;
-}
-
-//#TPT-Directive ElementHeader Element_JUNC static int update(UPDATE_FUNC_ARGS)
-int Element_JUNC::update(UPDATE_FUNC_ARGS) {
-	// update code here
-
-	return 0;
-}
-
-//#TPT-Directive ElementHeader Element_JUNC static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_JUNC::graphics(GRAPHICS_FUNC_ARGS)
-{
-	// graphics code here
-	// return 1 if nothing dymanic happens here
-
-	return 0;
+	Update = NULL;
+	Graphics = NULL;
 }
 
 Element_JUNC::~Element_JUNC() {}
