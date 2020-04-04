@@ -98,13 +98,24 @@ void Circuit::generate() {
         /**
          * Special junction (node) cases: NSCN or PSCN connected to any of the following:
          *      capacitor, voltage source, inductor
-         * Or the node itself is VOID
+         * Or the node itself is GRND
          */
         if (TYP(sim->pmap[y][x]) == GROUND_TYPE) {
             skeleton_map[y][x] = node_id;
             immutable_nodes[y][x] = 1;
             nodes.push_back(pos);
             node_id++;
+        }
+        else if (TYP(sim->pmap[y][x]) == PT_INDC) { // Inductor doesn't need terminals
+            for (int rx = -1; rx <= 1; rx++)
+            for (int ry = -1; ry <= 1; ry++)
+                if ((rx || ry) && skeleton_map[y + ry][x + rx] && TYP(sim->pmap[y + ry][x + rx]) != PT_INDC) {
+                    skeleton_map[y + ry][x + rx] = node_id;
+                    immutable_nodes[y + ry][x + rx] = (rx && ry) + 1;
+                    auto npos = pos; npos.x = x + rx; npos.y = y + ry;
+                    nodes.push_back(npos);
+                    node_id++;
+                }
         }
         else if (is_terminal(TYP(sim->pmap[y][x]))) {
             int t_is_silicon = TYP(sim->pmap[y][x]) == PT_PSCN || TYP(sim->pmap[y][x]) == PT_NSCN;
@@ -115,7 +126,7 @@ void Circuit::generate() {
             for (int ry = -1; ry <= 1; ry++)
                 if ((rx || ry) && (rx == 0 || ry == 0)) {
                     int t = TYP(sim->pmap[y + ry][x + rx]);
-                    if (t == PT_CAPR || t == PT_VOLT || (t_is_silicon && t == other_type)) {
+                    if (Circuit::is_voltage_source(t) || (t_is_silicon && t == other_type)) {
                         skeleton_map[y][x] = node_id;
                         immutable_nodes[y][x] = (rx && ry) + 1;
                         nodes.push_back(pos);
@@ -127,7 +138,7 @@ void Circuit::generate() {
             for (int ry = -1; ry <= 1; ry++)
                 if ((rx || ry) && !(rx == 0 || ry == 0)) {
                     int t = TYP(sim->pmap[y + ry][x + rx]);
-                    if (t == PT_CAPR || t == PT_VOLT || (t_is_silicon && t == other_type)) {
+                    if (Circuit::is_voltage_source(t) || (t_is_silicon && t == other_type)) {
                         skeleton_map[y][x] = node_id;
                         immutable_nodes[y][x] = (rx && ry) + 1;
                         nodes.push_back(pos);
@@ -329,6 +340,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
     double total_resistance = 0.0;
     double total_voltage = 0.0;
     double current_voltage = 0.0;
+    double current_gain = 0.0f;
     int source_count = 0;
 
     int end_node = -1, r, px = sx, py = sy, ox = x, oy = y;
@@ -365,7 +377,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
             if (TYP(r) == PT_NSCN && TYP(sim->pmap[py][px]) == PT_PSCN)
                 diode_type = 1;
         }
-        else if (TYP(r) != PT_VOLT && TYP(r) != PT_CAPR)
+        else if (!Circuit::is_voltage_source(TYP(r)))
             current_polarity = 0, current_voltage = 0.0f, source_count = 0;
 
         // Node handling
@@ -386,10 +398,12 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
             rspk_ids.push_back(ID(sim->photons[y][x]));
             if (TYP(r) == PT_SWCH)
                 switches.push_back(ID(r));
-            else if (TYP(r) == PT_VOLT || TYP(r) == PT_CAPR) {
+            else if (TYP(r) == PT_INDC)
+                current_gain = sim->parts[ID(r)].pavg[1];
+            else if (Circuit::is_voltage_source(TYP(r))) {
                 if (TYP(r) == PT_VOLT) // Pavg0 is voltage 
                     current_voltage += sim->parts[ID(r)].pavg[0] * current_polarity;
-                else if (TYP(r) == PT_CAPR) // Pavg1 is "effective" voltage
+                else if (TYP(r) == PT_CAPR || TYP(r) == PT_INDC) // Pavg1 is "effective" voltage
                     current_voltage += sim->parts[ID(r)].pavg[1] * current_polarity;
                 source_count++;
             }
@@ -449,8 +463,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         skeleton_map[oy][ox] = 1; // Make sure points around nodes are never deleted
 
     if (start_node > -1) { // Valid connection actually exists
-        Branch * b = new Branch(start_node, end_node, ids, rspk_ids, switches, total_resistance, total_voltage, diode_type,
-            start_id, end_id);
+        Branch * b = new Branch(start_node, end_node, ids, rspk_ids, switches, total_resistance, total_voltage,
+            current_gain, diode_type, start_id, end_id);
 
         /**
          * Special case where branch ends at a node directly adjacent to start node, because branches
@@ -481,7 +495,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
     }
     // Floating branch
     else if (rspk_ids.size() > 1) {
-        Branch * b = new Branch(-1, end_node, ids, rspk_ids, switches, total_resistance, total_voltage, diode_type, -1, end_id);
+        Branch * b = new Branch(-1, end_node, ids, rspk_ids, switches, total_resistance, total_voltage, current_gain, diode_type, -1, end_id);
         floating_branches[end_node].push_back(b);
         branch_cache.push_back(b);
     }
@@ -527,6 +541,7 @@ void Circuit::solve(bool allow_recursion) {
             if (b->diode)
                 diode_branches.push_back(std::make_pair(node_id->first, i));
             b->computeDynamicResistances(sim);
+            b->computeDynamicCurrents(sim);
             b->computeDynamicVoltages(sim);
 
             if (!is_grnd) {
@@ -534,6 +549,11 @@ void Circuit::solve(bool allow_recursion) {
                 if (b->voltage_gain) {
                     if (node_id->first < node_id->second[i]) // Avoid duplicate supernodes
                         supernodes.push_back(std::make_tuple(node_id->first, node_id->second[i], b->voltage_gain));
+                }
+                /* Instead of doing I = (V2 - V1) / R if a branch has a current source
+                 * add / subtract current value from end */
+                else if (b->isInductor()) {
+                    matrix_row[size] = b->current_gain * (node_id->first < node_id->second[i] ? 1 : -1);
                 }
                 /** Sum of all (N2 - N1) / R = 0 (Ignore resistances across voltage sources, dealt with
                  *  when solving supernodes) */
@@ -624,7 +644,7 @@ void Circuit::solve(bool allow_recursion) {
         // both node1 and node2 must connect to another node, so there will always be a non-ohmian branch to borrow a
         // valid current from
         std::vector<Branch *> non_ohmian_branches;
-        double current_of_adjacent;
+        double current_of_adjacent = 0.0;
         int node1_of_adjacent = 1;
 
         for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
@@ -693,9 +713,26 @@ void Circuit::update_sim() {
                 // (We wish voltage to be uniform across SWCH)
                 if (b->obeysOhmsLaw() && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
                     voltage_drop += get_effective_resistance(TYP(r), sim->parts, ID(r), sim) * b->current;
-               
+
                 sim->parts[id].pavg[0] = restrict_double_to_flt(b->V1 - voltage_drop);
                 sim->parts[id].pavg[1] = restrict_double_to_flt(b->current);
+
+                // Post updates:
+                if (TYP(r) == PT_CAPR || TYP(r) == PT_INDC) {
+                    double step;
+                    // Assign voltages for capcaitor: i / C = dV / dt
+                    if (TYP(r) == PT_CAPR)
+                        step = INTEGRATION_TIMESTEP / sim->parts[ID(r)].pavg[0] * b->current;
+                    // Assign current for inductor: V / L =  dI/dt
+                    else if (TYP(r) == PT_INDC)
+                        step = (b->V2 - b->V1) / sim->parts[ID(r)].pavg[0] * INTEGRATION_TIMESTEP;
+
+                    if (b->prev_step > 0 && fabs(step) > fabs(b->prev_step) * 1.5f)
+                        b->reachedDivergenceCondition();
+                    else
+                        sim->parts[ID(r)].pavg[1] -= step;
+                    b->prev_step = step;
+                }
                 prev_type = TYP(r);
             }
         }
@@ -829,7 +866,7 @@ Circuit::~Circuit() {
 void Branch::print() {
     #ifdef DEBUG
         std::cout << "Branch from " << node1 << " -> " << node2 << " R: " << resistance << " V: " << voltage_gain << 
-            " I: " << current << " | diode: " << diode << " | " <<
+            "  I source: " << current_gain << "    I: " << current << " | diode: " << diode << " | " <<
             V1 << " to " << V2 << " | Node1, node2 id: " << node1_id << " -> " << node2_id << "\n";
     #endif
 }
@@ -852,6 +889,13 @@ void Branch::setSpecialType(bool is_capacitor, bool is_inductor) {
     obeys_ohms_law = !(is_capacitor || is_inductor || diode || voltage_gain);
 }
 
+void Branch::reachedDivergenceCondition() {
+    is_capacitor = is_inductor = false;
+    voltage_gain = 0.0;
+    current_gain = 0.0;
+    obeys_ohms_law = true;
+}
+
 void Branch::computeDynamicResistances(Simulation * sim) {
     if (!switchesOn(sim)) // Increase effective resistances of switches that are off
         resistance += REALLY_BIG_RESISTANCE * switches.size();
@@ -863,4 +907,9 @@ void Branch::computeDynamicVoltages(Simulation *sim) {
         for (auto id : ids)
             voltage_gain += sim->parts[id].pavg[1];
     }
+}
+
+void Branch::computeDynamicCurrents(Simulation * sim) {
+    if (is_inductor && ids.size())
+        current_gain = sim->parts[ids[0]].pavg[1];
 }

@@ -73,20 +73,16 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 
     switch (type) {
         case PT_CAPR:
-            // Capacitor effective 'resistance' starts from 0 and goes to a really big number
-            // as charge builds up. We're modeling a capacitor as a resistor because
-            // it's easier. We set effective resistance to 0 when discharging to avoid all the voltage
-            // disappearing into the capacitor itself
-            if (parts[i].tmp2 == 0)
-                return 0.0;
-            return 0.0;
+            // Capacitor resistance is only considered
+            // when numeric integration diverges, in which
+            // we replace it with a open circuit (or really large resistance)
+            return REALLY_BIG_RESISTANCE;
         case PT_INDC:
-            // Inductors have very high initial resistance when there is a positive change in current
-            // that slowly reduces, and vice versa. Effective resistance is saved in pavg1
-            if (parts[i].tmp2 == 0)
-                return 0.0;
-            return parts[i].pavg[1];
-        case PT_RSTR:              // Stores resitivity in pavg0
+            // Inductor resistance is only considered
+            // when numeric integration diverges, in which
+            // we replace it with a short
+            return 0.0;
+        case PT_RSTR: // Stores resitivity in pavg0
             return parts[i].pavg[0];
         
         // Superconductors
@@ -117,10 +113,6 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 // (ie, a switch can have either really low or really high resistance depending on state)
 double get_effective_resistance(int type, Particle *parts, int i, Simulation *sim) {
     switch(type) {
-        case PT_CAPR:
-            return 0.0f;
-        case PT_INDC:
-            return 0.0f;
         case PT_SWCH:
             return parts[i].life >= 4 ? resistances[type] : REALLY_BIG_RESISTANCE;
     }

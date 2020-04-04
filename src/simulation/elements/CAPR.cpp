@@ -123,16 +123,8 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 
 	// Capacitor function for realistic circuits
 	r = sim->photons[y][x];
-	if (r && TYP(r) == PT_RSPK) {
-		/**
-		 * Capacitor equation:
-		 * i = C dV / dt, or integral of i dt / C = V
-		 */
-		float current = parts[ID(r)].pavg[1];
-		parts[i].pavg[1] -= INTEGRATION_TIMESTEP / parts[i].pavg[0] * current;
-	}
 	// Capacitor function for SPRK
-	else {
+	if (!r || TYP(r) != PT_RSPK) {
 		for (int rx = -1; rx <= 1; rx++)
 		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry)) {

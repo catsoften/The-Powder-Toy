@@ -501,13 +501,19 @@ mercury shatters ALMN
 
 curved line tool
 
+brush size indicator
+
 realistic gardening
+
+id: 94444 breaks - creates new exotic GOL forms :(
 
 make portal / wifi snapshots use way less memory, currently super high!
 
 steal ideas from https://powdertoy.co.uk/Wiki/W/Lua_Functions_in_Jacob1%27s_Mod.html
 
 undoing quantum states and moving solids?
+
+Suggestion: make ~save and @name in the save browser in game be shortcuts for id:save and user:name like they are for tpt.io
 
 realistic mdoe:
 - fire requires temp to combust (add to realistic fire)
@@ -533,6 +539,8 @@ realistic ore processing
 anti-hydrogen is weak af
 
 better music
+
+SICN should conduct to EVERY electronics element (and accept from EVERy)
 
 circuits:
 - rewrite solving method.md
@@ -565,13 +573,22 @@ voltage adjaacent with diode (not sharing) still incorrect
 make group filling a bit better maybe?
 - handle correct votlages and shit somehow
 
-crossover work for SPRK too?
 
+check normal SPRK stuff 
+- like electrolysis
+- control stuff like PSTN, voltage = distnace to push?
 
 portals maybe
 
-INDUCTORS:
+TODO:
+- rewrite solving method about divergences
+- divergence with switches could change time constants :thinking:
+- divergence wouldn't work with RLC because capacitor would instantly explode
+SOLUTION:
+- after divergence check, reset is_inductor is_conductor type, then set voltage or current to current voltage or current across
 
+- RSPK don't heat up unless consistent current <-- for divergence check, 2 frame delay
+- magnetic field induces inductor current
 
 realistic batteries 
 

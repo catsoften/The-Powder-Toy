@@ -66,6 +66,8 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 			parts[i].life = 64;
 		else if (ct == PT_SLTW)
 			parts[i].life = 54;
+		else if (ct == PT_INDC)
+			parts[i].life = 100;
 		else if (ct == PT_SWCH)
 			parts[i].life = 14;
 		else if (ct == PT_NEON)

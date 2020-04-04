@@ -61,8 +61,9 @@ private:
     void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
 
     static bool is_dynamic_particle(int type) {
-        return type == PT_PTCT || type == PT_NTCT || type == PT_SWCH || type == PT_CAPR || type == PT_INDC;
-    };
+        return type == PT_PTCT || type == PT_NTCT || type == PT_SWCH || type == PT_CAPR || type == PT_INDC; }
+    static bool is_voltage_source(int type) {
+        return type == PT_VOLT || type == PT_CAPR; }
 public:
     void generate();
     void solve(bool allow_recursion=true);
@@ -105,25 +106,31 @@ public:
     const std::vector<int> ids;
     const std::vector<int> rspk_ids;
     const std::vector<int> switches;
-    double resistance, voltage_gain, base_resistance, current=0.0;
+    double resistance, voltage_gain, current_gain, base_resistance, current=0.0;
     const int diode; // 0 = no diode, 1 = positive, -1 = negative
     const int node1_id, node2_id;
-    double V1, V2;
+    double V1, V2, prev_step=0.0;
     
     bool recompute_switches = true;
 
     Branch(int node1, int node2, const std::vector<int> &ids, 
             const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids,
-            double resistance, double voltage_gain, int diode, int id1, int id2) :
+            double resistance, double voltage_gain, double current_gain, int diode, int id1, int id2) :
         node1(node1), node2(node2), ids(ids), rspk_ids(rspk_ids), switches(switch_ids), resistance(resistance),
-        voltage_gain(voltage_gain), base_resistance(resistance), diode(diode),
+        voltage_gain(voltage_gain), current_gain(current_gain), base_resistance(resistance), diode(diode),
         node1_id(id1), node2_id(id2) {}
     
     void setSpecialType(bool isCapacitor, bool isInductor);
     void print();
-    bool obeysOhmsLaw() { return obeys_ohms_law; };
+    void reachedDivergenceCondition();
+
     void computeDynamicResistances(Simulation * sim);
     void computeDynamicVoltages(Simulation * sim);
+    void computeDynamicCurrents(Simulation * sim);
+
+    bool obeysOhmsLaw() { return obeys_ohms_law; };
+    bool isInductor() { return is_inductor; }
+    bool isCapacitor() { return is_capacitor; }
 private:
     bool switches_on = false;
     bool is_capacitor = false;
