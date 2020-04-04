@@ -357,6 +357,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         r = sim->pmap[y][x];
         if (Circuit::is_dynamic_particle(TYP(r)))
             contains_dynamic = true;
+        if (Circuit::is_integration_particle(TYP(r)))
+            requires_divergence_checking = true;
 
         // Polarity handling for voltage drops
         if (positive_terminal(TYP(r))) {
@@ -517,9 +519,18 @@ void Circuit::solve(bool allow_recursion) {
     if (!contains_dynamic && solution_computed && allow_recursion && sim->timer % FORCE_RECALC_EVERY_N_FRAMES != 0)
         return;
 
+    bool check_divergence = requires_divergence_checking &&
+        (!computed_divergence || sim->timer % INTEGRATION_RECALC_EVERY_N_FRAMES == 0);
+    if (check_divergence) {
+        if (copy) delete copy;
+        copy = new Circuit(*this);
+        copy->requires_divergence_checking = false;
+    }
+
     // Additional special case solvers
     std::vector<std::pair<int, int> > diode_branches; // Node1 index
     std::vector<std::tuple<int, int, double> > supernodes; // Node 1 Node 2 Voltage
+    std::vector<std::pair<int, int> > numeric_integration; // Node 1 index
     int * row_lookup = new int[size]; // Index = node - 2, value = row
 
     // Solve Ax = b
@@ -543,6 +554,11 @@ void Circuit::solve(bool allow_recursion) {
             b->computeDynamicResistances(sim);
             b->computeDynamicCurrents(sim);
             b->computeDynamicVoltages(sim);
+
+            if (check_divergence && (b->isInductor() || b->isCapacitor())) {
+                numeric_integration.push_back(std::make_pair(node_id->first, i));
+                copy->branch_map[node_id->first][i]->reachedSteadyStateCondition();
+            }
 
             if (!is_grnd) {
                 /* Deal with supernodes later */
@@ -675,6 +691,18 @@ void Circuit::solve(bool allow_recursion) {
                 floating_branches[node_id->first][i]->V2 = x[floating_branches[node_id->first][i]->node2 - 2];
         }
     }
+
+    // Divergence check complete, set steady state current and voltage
+    if (check_divergence) {
+        copy->solve();
+        for (auto &p : numeric_integration) {
+            Branch * b1 = branch_map[p.first][p.second];
+            Branch * b2 = copy->branch_map[p.first][p.second];
+            b1->SS_voltage = b2->V2 - b2->V1;
+            b1->SS_current = b2->current;
+        }
+    }
+    computed_divergence = true;
     solution_computed = true;
 }
 
@@ -721,17 +749,25 @@ void Circuit::update_sim() {
                 if (TYP(r) == PT_CAPR || TYP(r) == PT_INDC) {
                     double step;
                     // Assign voltages for capcaitor: i / C = dV / dt
-                    if (TYP(r) == PT_CAPR)
+                    if (TYP(r) == PT_CAPR) {
                         step = INTEGRATION_TIMESTEP / sim->parts[ID(r)].pavg[0] * b->current;
+                        if (fabs(sim->parts[ID(r)].pavg[1] - step) > fabs(b->SS_voltage) && (b->SS_voltage != 0 || b->SS_current != 0))
+                            sim->parts[ID(r)].pavg[1] = b->SS_voltage;
+                        else if (fabs(sim->parts[ID(r)].pavg[1] - b->SS_voltage) < WITHIN_STEADY_STATE)
+                            sim->parts[ID(r)].pavg[1] = b->SS_voltage;
+                        else
+                            sim->parts[ID(r)].pavg[1] -= step;
+                    }
                     // Assign current for inductor: V / L =  dI/dt
-                    else if (TYP(r) == PT_INDC)
+                    else if (TYP(r) == PT_INDC) {
                         step = (b->V2 - b->V1) / sim->parts[ID(r)].pavg[0] * INTEGRATION_TIMESTEP;
-
-                    if (b->prev_step > 0 && fabs(step) > fabs(b->prev_step) * 1.5f)
-                        b->reachedDivergenceCondition();
-                    else
-                        sim->parts[ID(r)].pavg[1] -= step;
-                    b->prev_step = step;
+                        if (fabs(sim->parts[ID(r)].pavg[1] - step) > fabs(b->SS_current) && (b->SS_voltage != 0 || b->SS_current != 0))
+                            sim->parts[ID(r)].pavg[1] = b->SS_current;
+                        else if (fabs(sim->parts[ID(r)].pavg[1] - b->SS_current) < WITHIN_STEADY_STATE)
+                            sim->parts[ID(r)].pavg[1] = b->SS_current;
+                        else
+                            sim->parts[ID(r)].pavg[1] -= step;
+                    }
                 }
                 prev_type = TYP(r);
             }
@@ -784,6 +820,11 @@ void Circuit::reset() {
     for (auto b : branch_cache)
         delete b;
     branch_cache.clear();
+
+    requires_divergence_checking = false;
+    contains_dynamic = false;
+    solution_computed = false;
+    computed_divergence = false;
 }
 
 Circuit::Circuit(int x, int y, Simulation * sim) {
@@ -806,6 +847,8 @@ Circuit::Circuit(const Circuit &other) {
     ground_nodes = other.ground_nodes;
     recalc_next_frame =  other.recalc_next_frame;
     startx = other.startx, starty = other.starty;
+    contains_dynamic = other.contains_dynamic;
+    requires_divergence_checking = other.requires_divergence_checking;
 
     for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
         for (size_t i = 0; i < node_id->second.size(); i++) {
@@ -833,36 +876,6 @@ Circuit::~Circuit() {
         delete branch_cache[i];
 }
 
-
-// float get_power(int x, int y, Simulation *sim)
-// {
-//     int r = sim->photons[y][x];
-//     float voltage = sim->parts[ID(r)].pavg[1];
-//     r = sim->pmap[y][x];
-//     float resistance = get_resistance(TYP(r), sim->parts, ID(r), sim);
-//     if (resistance == 0.0f)
-//         return 0.0f;
-//     return voltage / resistance * voltage;
-// }
-
-// /**
-//  * Returns type of ground
-//  * 0 = Not a ground
-//  * 1 = Ground voltage is 0
-//  * 2 = Don't multiply voltage drop
-//  */
-// int is_ground(Particle *parts, int i)
-// {
-//     if (!i)
-//         return 0;
-//     if (parts[i].type == PT_VOID)
-//         return 1;
-//     else if (parts[i].type == PT_VCMB)
-//         return 2;
-//     return 0;
-// }
-
-
 void Branch::print() {
     #ifdef DEBUG
         std::cout << "Branch from " << node1 << " -> " << node2 << " R: " << resistance << " V: " << voltage_gain << 
@@ -889,7 +902,7 @@ void Branch::setSpecialType(bool is_capacitor, bool is_inductor) {
     obeys_ohms_law = !(is_capacitor || is_inductor || diode || voltage_gain);
 }
 
-void Branch::reachedDivergenceCondition() {
+void Branch::reachedSteadyStateCondition() {
     is_capacitor = is_inductor = false;
     voltage_gain = 0.0;
     current_gain = 0.0;

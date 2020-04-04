@@ -177,6 +177,8 @@ Solving the circuit is done with nodal analysis. Initially all nodes are solved 
 
 Using ohm's law to determine the current through each resistor as the difference in voltage, and summing the currents to 0. The actual matrix is solved using the eigen linear algebra library.
 
+If a circuit contains components that require numeric integration, the circuit will be solved for steady-state voltage and current too in a copy of the Circuit. (capacitors are open, inductors are short). These steady state values are saved to the branches containing the respective inductors / capacitors.
+
 **Ground:**
 
 If the node is a ground node, the equation is simply node = 0 (ground = 0V).
@@ -197,9 +199,15 @@ This is done by adding one of the rows of the matrix of the 2 ends of the branch
 
 **Capacitors:**
 
-Capacitors are simply "dynamic voltage sources" that obey the equation i = c dV/dt. The current through the capacitor, divided by the capacitance, is the derivative of voltage. The voltage source value is then multiplied by a timestamp (default: 0.5 s) and added to the original voltage using Euler's method.
+Capacitors are simply "dynamic voltage sources" that obey the equation i = c dV/dt. The current through the capacitor, divided by the capacitance, is the derivative of voltage. The voltage source value is then multiplied by a timestamp (default: 1/60 s) and added to the original voltage using Euler's method.
 
 (Preferably, we would've used something like a midpoint-eulers or Runge-Kutta, but saving additional floats to each CPTR particle or re-evaluating currents in the future timesteps were considered too costly.)
+
+**Inductors (Current sources):**
+
+Inductors are current sources that obey the equation V = L di/dt. The derivative of current is the voltage across divided by the inductance, and this value updates the current source value using Euler's method.
+
+Current sources are modeled by changing what the current leaving the circuit has to equal at the nodes. Normally, the currents sum to 0, but now the current source branch is ignored, and the total current equals the current source value (or the negative, depending on polarity).
 
 **NTCT / PTCT / Other dynamic resistors:**
 
@@ -235,6 +243,13 @@ Floating branches have current set to 0 and voltage to whatever voltage they are
 ```
 
 For voltages in the branch, if the branch does not obey ohm's law the voltage is simply node1 voltage. If it does obey ohm's law, the voltage drop (calculated by V = IR) is done per pixel along the skeleton and set as one traverses from node1 to node2.
+
+---
+
+For capacitors and inductors, if the current (for inductors) or voltage (for capacitors) (after adding the current simulation step) would exceed the steady state current / voltage, the value is set to the steady state voltage / current. Similarly, if the value is really close to steady state, it's simply set to steady state.
+
+The reason for this is because numeric integration likes to diverge for really small time constants (time constant is much smaller than the integration timestep). Since our timesteps are huge (1/60 s), divergence is very easy to occur, which creates voltages and currents that tend to infinity. Thus, we must limit the values at steady state before they are updated into the simulation, and potentially cause entire circuits to burst into flames.
+
 
 ## 4.
 

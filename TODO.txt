@@ -198,6 +198,7 @@ add / subtract /multiply/ div element math https://powdertoy.co.uk/Discussions/T
 
 scale https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23708
 
+filt seralizer and setter
 
 adding fields (including fan:) (TODO UPDATE ALL FIELDS FOR THIS)
 - simulation/Snapshot.h
@@ -524,6 +525,8 @@ https://en.wikipedia.org/wiki/Galvanization
 
 floodfill spark
 
+bigger fp like in jacob1s mod
+
 differ colors
 - BAaking soda, calcium
 - scp 009, blod
@@ -580,12 +583,7 @@ check normal SPRK stuff
 
 portals maybe
 
-TODO:
-- rewrite solving method about divergences
-- divergence with switches could change time constants :thinking:
-- divergence wouldn't work with RLC because capacitor would instantly explode
-SOLUTION:
-- after divergence check, reset is_inductor is_conductor type, then set voltage or current to current voltage or current across
+
 
 - RSPK don't heat up unless consistent current <-- for divergence check, 2 frame delay
 - magnetic field induces inductor current

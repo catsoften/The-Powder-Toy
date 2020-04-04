@@ -1,25 +1,72 @@
 #include "simulation/ElementCommon.h"
 
 //#TPT-Directive ElementClass Element_LOGC PT_LOGC 316
-Element_LOGC::Element_LOGC()
-{
+Element_LOGC::Element_LOGC() {
 	Identifier = "DEFAULT_PT_LOGC";
 	Name = "LOGC";
 	Colour = PIXPACK(0xFFFFFF);
 	MenuVisible = 1;
-	MenuSection = SC_SPECIAL;
+	MenuSection = SC_ELECTROMAG;
 	Enabled = 1;
 
-	// element properties here
+	Advection = 0.0f;
+	AirDrag = 0.00f * CFDS;
+	AirLoss = 0.90f;
+	Loss = 0.00f;
+	Collision = 0.0f;
+	Gravity = 0.0f;
+	Diffusion = 0.00f;
+	HotAir = 0.000f	* CFDS;
+	Falldown = 0;
+
+	Flammable = 0;
+	Explosive = 0;
+	Meltable = 1;
+	Hardness = 1;
+
+	Weight = 100;
+
+	HeatConduct = 251;
+	Description = "1 px Logic gate. Use INWR for input. Tmp = type, pavg0 = output voltage.";
+	DefaultProperties.pavg[0] = 5.0f;
+
+	Properties = TYPE_SOLID;
+
+	LowPressure = IPL;
+	LowPressureTransition = NT;
+	HighPressure = IPH;
+	HighPressureTransition = NT;
+	LowTemperature = ITL;
+	LowTemperatureTransition = NT;
+	HighTemperature = 2300.0f + 273.15f;
+	HighTemperatureTransition = PT_LAVA;
 
 	Update = &Element_LOGC::update;
 	Graphics = &Element_LOGC::graphics;
 }
 
 //#TPT-Directive ElementHeader Element_LOGC static int update(UPDATE_FUNC_ARGS)
-int Element_LOGC::update(UPDATE_FUNC_ARGS)
-{
-	// update code here
+int Element_LOGC::update(UPDATE_FUNC_ARGS) {
+	/**
+	 * Properties:
+	 * tmp - Type
+	 * 
+	 * tmp2 - Positive inputs in this frame
+	 * life - Negative inputs in this frame
+	 * pavg0 - Output voltage
+	 */
+	int output_id = -1, ox, oy;
+	for (int rx = -1; rx <= 1; rx++)
+	for (int ry = -1; ry <= 1; ry++)
+		if (BOUNDS_CHECK && (rx || ry)) {
+			int r = pmap[y + ry][x + rx];
+			if (!r) continue;
+
+			if (TYP(r) == PT_INWR) {
+
+			}
+			
+		}
 
 	return 0;
 }

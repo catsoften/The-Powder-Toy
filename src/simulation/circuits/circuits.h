@@ -16,8 +16,13 @@
 
 #define BASE_RSPK_LIFE 4
 #define FORCE_RECALC_EVERY_N_FRAMES 20
-#define INTEGRATION_TIMESTEP 0.016666666666666666 // 1 frame = 1/60 s
 
+// Divergence checking
+#define WITHIN_STEADY_STATE 0.0001 // Error < value is basically steady state
+#define INTEGRATION_TIMESTEP 0.016666666666666666 // 1 frame = 1/60 s
+#define INTEGRATION_RECALC_EVERY_N_FRAMES 20
+
+// Component limits
 #define MAX_CAPACITOR_CURRENT 10000.0f
 #define MAX_CAPACITOR_REVERSE_CURRENT 1.0f
 
@@ -42,9 +47,14 @@ private:
     short skeleton_map[YRES][XRES];
     char immutable_nodes[YRES][XRES]; // 1 = directly adjacent, 2 = diagonally adjacent
     bool recalc_next_frame = false; // Flag for regeneration
-    bool contains_dynamic = false;  // Contains dynamic components such as capacitors
+    bool contains_dynamic = false;  // Contains dynamic components such as capacitors (update every frame)
     bool solution_computed = false; // Already computed solution for non-dynamic systems
     int startx, starty;
+
+    // Divergence checks
+    bool requires_divergence_checking = false; // Steady state bounding for numeric integration (capacitors / inductors)
+    bool computed_divergence = false; // One time flag for creation
+    Circuit * copy = nullptr; // Copy of circuit to solve for divergence check
 
     // These can contain duplicate node-node id pairs, and follow same order, ie if connection map
     // for node 5 at index 2 is node 3, then the branch at node 5 index 2 is for node 3
@@ -64,6 +74,8 @@ private:
         return type == PT_PTCT || type == PT_NTCT || type == PT_SWCH || type == PT_CAPR || type == PT_INDC; }
     static bool is_voltage_source(int type) {
         return type == PT_VOLT || type == PT_CAPR; }
+    static bool is_integration_particle(int type) { // Particle does numeric integration
+        return type == PT_CAPR || type == PT_INDC; }
 public:
     void generate();
     void solve(bool allow_recursion=true);
@@ -109,9 +121,11 @@ public:
     double resistance, voltage_gain, current_gain, base_resistance, current=0.0;
     const int diode; // 0 = no diode, 1 = positive, -1 = negative
     const int node1_id, node2_id;
-    double V1, V2, prev_step=0.0;
-    
+    double V1, V2;
     bool recompute_switches = true;
+    
+    // Divergence checks
+    double SS_voltage=0.0, SS_current=0.0;
 
     Branch(int node1, int node2, const std::vector<int> &ids, 
             const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids,
@@ -122,7 +136,7 @@ public:
     
     void setSpecialType(bool isCapacitor, bool isInductor);
     void print();
-    void reachedDivergenceCondition();
+    void reachedSteadyStateCondition();
 
     void computeDynamicResistances(Simulation * sim);
     void computeDynamicVoltages(Simulation * sim);
