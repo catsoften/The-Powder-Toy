@@ -588,9 +588,13 @@ check normal SPRK stuff
 add all conductors like thermite and brel, plasma
 qrtz can conduct sometimes
 
+possible 2nd node trimming:
+- trim nodes that don't conenct to anything 
+- nodes in series like A - B - C, trim B to only A-C
+
+
 if resistance too great don't conduct
 
-DEBUG - graph shit like current and voltage
 
 use sparsematrix solver somehow?
 

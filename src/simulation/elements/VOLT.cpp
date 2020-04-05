@@ -31,7 +31,7 @@ Element_VOLT::Element_VOLT()
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "Voltage battery. Set output voltage with pavg0.";
+	Description = "Voltage source. Use PSCN/COPR and NSCN/ZINC for terminals. Set output voltage with pavg0.";
 
 	Properties = TYPE_SOLID;
 	DefaultProperties.pavg[0] = 10.0f;
@@ -42,37 +42,17 @@ Element_VOLT::Element_VOLT()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = ITH;
-	HighTemperatureTransition = NT;
+	HighTemperature = 2000.0f + 273.15f;
+	HighTemperatureTransition = PT_LAVA;
 
 	Update = &Element_VOLT::update;
-	Graphics = &Element_VOLT::graphics;
+	Graphics = NULL;
 }
 
 //#TPT-Directive ElementHeader Element_VOLT static int update(UPDATE_FUNC_ARGS)
 int Element_VOLT::update(UPDATE_FUNC_ARGS) {
-	if (parts[i].tmp > 0)
-		return 0;
-
 	CIRCUITS::addCircuit(x, y, sim);
-
-	// int r = sim->photons[y][x];
-
-	// if (!r || TYP(r) != PT_RSPK) {
-	// 	int ni = sim->create_part(-3, x, y, PT_RSPK);
-	// 	parts[ni].tmp = 1;
-	// 	parts[ni].life = 9;
-	// 	parts[ni].pavg[0] = parts[i].pavg[0];
-	// }
-	// else if (TYP(r) == PT_RSPK)
-	// 	parts[ID(r)].pavg[0] = parts[i].pavg[0];
-
 	return 0;
-}
-
-//#TPT-Directive ElementHeader Element_VOLT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_VOLT::graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
 }
 
 Element_VOLT::~Element_VOLT() {}

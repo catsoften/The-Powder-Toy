@@ -62,7 +62,7 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 		parts[i].life = 4;
 		if (ct == PT_BRKN) // Broken change back into broken form
 			parts[i].ctype = parts[i].tmp;
-		else if (ct == PT_WATR || ct == PT_THOR)
+		else if (ct == PT_WATR || ct == PT_THOR || ct == PT_RSTR)
 			parts[i].life = 64;
 		else if (ct == PT_SLTW)
 			parts[i].life = 54;
@@ -387,7 +387,7 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 				}
 			conduct:
 				//Yay, passed normal conduction rules, check a few last things and change receiver to spark
-				if (receiver==PT_WATR||receiver==PT_SLTW||receiver == PT_THOR) {
+				if (receiver==PT_WATR||receiver==PT_SLTW||receiver == PT_THOR||receiver == PT_RSTR) {
 					if (parts[ID(r)].life==0 && parts[i].life<3)
 					{
 						sim->part_change_type(ID(r),x+rx,y+ry,PT_SPRK);

@@ -493,7 +493,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         } 
 
         b->setSpecialType(ids.size() && sim->parts[ids[0]].type == PT_CAPR,
-                            ids.size() && sim->parts[ids[0]].type == PT_INDC);
+                          ids.size() && sim->parts[ids[0]].type == PT_INDC);
 
         connection_map[start_node].push_back(end_node);
         connection_map[end_node].push_back(start_node);

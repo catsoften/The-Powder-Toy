@@ -26,12 +26,10 @@ Element_RSTR::Element_RSTR() {
 	Weight = 100;
 
 	HeatConduct = 2;
-	Description = "Resistor. Set resistivity / px as pavg0. Will melt if exceeds rated max voltage (pavg1)";
+	Description = "Resistor. Set resistivity / px as pavg0.";
 
 	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
-
 	DefaultProperties.pavg[0] = 1000;
-	DefaultProperties.pavg[1] = 10;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -49,36 +47,8 @@ Element_RSTR::Element_RSTR() {
 //#TPT-Directive ElementHeader Element_RSTR static int update(UPDATE_FUNC_ARGS)
 int Element_RSTR::update(UPDATE_FUNC_ARGS) {
 	// pavg0 = restivity
-	// pavg1 = max rated voltage
 	if (parts[i].pavg[0] <= 0.0f)
 		parts[i].pavg[0] = 1.0f;
-
-	// int r = sim->photons[y][x];
-	// if (r && TYP(r) == PT_RSPK) {
-	// 	float voltage = parts[ID(r)].pavg[1];
-
-	// 	// Nearing max rated voltage, smoke
-	// 	if (voltage > parts[i].pavg[1] * 0.95f) {
-	// 		if (RNG::Ref().chance(1, 500)) {
-	// 			if (RNG::Ref().chance(1, 3))
-	// 				sim->create_part(-1, x - 1, y, PT_SMKE);
-	// 			if (RNG::Ref().chance(1, 3))
-	// 				sim->create_part(-1, x + 1, y, PT_SMKE);
-	// 			if (RNG::Ref().chance(1, 3))
-	// 				sim->create_part(-1, x, y - 1, PT_SMKE);
-	// 			if (RNG::Ref().chance(1, 3))
-	// 				sim->create_part(-1, x, y + 1, PT_SMKE);
-	// 		}
-	// 	}
-	// 	// We reached max rated voltage, melt
-	// 	if (voltage >= parts[i].pavg[1]) {
-	// 		sim->part_change_type(i, x, y, PT_LAVA);
-	// 		parts[i].ctype = PT_RSTR;
-	// 		parts[i].temp = 1500.0f + 273.15f;
-	// 		return 1;
-	// 	}
-	// }
-
 	return 0;
 }
 
