@@ -1,7 +1,8 @@
 #include "simulation/circuits/circuits.h"
+#include "gui/game/GameModel.h"
+#include "simulation/ElementCommon.h"
 #include "simulation/circuits/resistance.h"
 #include "simulation/circuits/util.h"
-#include "simulation/ElementCommon.h"
 
 #include <iomanip>
 #include <iostream>
@@ -491,8 +492,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
             }
         } 
 
-        if (ids.size())
-            b->setSpecialType(sim->parts[ids[0]].type == PT_CAPR, sim->parts[ids[0]].type == PT_INDC);
+        b->setSpecialType(ids.size() && sim->parts[ids[0]].type == PT_CAPR,
+                            ids.size() && sim->parts[ids[0]].type == PT_INDC);
 
         connection_map[start_node].push_back(end_node);
         connection_map[end_node].push_back(start_node);
@@ -537,28 +538,30 @@ void Circuit::solve(bool allow_recursion) {
     std::vector<std::pair<int, int> > diode_branches; // Node1 index
     std::vector<std::tuple<int, int, double> > supernodes; // Node 1 Node 2 Voltage
     std::vector<std::pair<int, int> > numeric_integration; // Node 1 index
-    int * row_lookup = new int[size]; // Index = node - 2, value = row
 
     // Solve Ax = b
     Eigen::MatrixXd A(size, size);
     Eigen::VectorXd b(size), x(size);
     int j = 0;
 
-    for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
+    for (size_t row = 0; row < size; row++) {
+        auto node_id = connection_map.find(row + 2);
+        bool is_grnd;
         double * matrix_row = new double[size + 1];
         std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
         
-        bool is_grnd = std::find(ground_nodes.begin(), ground_nodes.end(), node_id->first) != ground_nodes.end();
+        // Due to limitations of node finding sometimes false nodes appear, nodes that don't connect
+        // to any other nodes at all. We just assign them to ground since they don't do anything
+        if (node_id == connection_map.end()) {
+            matrix_row[row] = 1;
+            goto assign_row;
+        }
 
+        is_grnd = std::find(ground_nodes.begin(), ground_nodes.end(), node_id->first) != ground_nodes.end();
+        
         for (size_t i = 0; i < node_id->second.size(); i++) {
             Branch * b = branch_map[node_id->first][i];
-            if (node_id->first - 2 < 0 || node_id->first - 2 >= size) {
-                std::cout << node_id->first - 2 << " " << size << " | " << highest_node_id << "\n";
-                debug();
-                throw node_id->first - 2;
-            }
-            row_lookup[node_id->first - 2] = j;
-            
+
             // Verify diodes and switches
             if (b->diode)
                 diode_branches.push_back(std::make_pair(node_id->first, i));
@@ -592,6 +595,7 @@ void Circuit::solve(bool allow_recursion) {
             if (is_grnd) matrix_row[node_id->first - 2] = 1; // GRND = 0 V
         }
 
+        assign_row:;
         for (size_t i = 0; i < size; i++)
             A(j, i) = matrix_row[i];
         b[j] = matrix_row[size];
@@ -601,19 +605,17 @@ void Circuit::solve(bool allow_recursion) {
 
     /** Handle supernodes */
     for (size_t j = 0; j < supernodes.size(); j++) {
-        int n1 = std::get<0>(supernodes[j]), n2 = std::get<1>(supernodes[j]);
-        int row1 = row_lookup[n1 - 2],
-            row2 = row_lookup[n2 - 2];
-        
+        int row1 = std::get<0>(supernodes[j]) - 2,
+            row2 = std::get<1>(supernodes[j]) - 2;
+
         A.row(row1) += A.row(row2); // KCL over both end nodes
         for (size_t k = 0; k < size; k++) { // KVL equation
-            if ((int)k == n1 - 2)      A(row2, k) = -1;
-            else if ((int)k == n2 - 2) A(row2, k) =  1;
-            else                       A(row2, k) =  0;
+            if ((int)k == row1)      A(row2, k) = -1;
+            else if ((int)k == row2) A(row2, k) =  1;
+            else                     A(row2, k) =  0;
         }
         b[row2] = std::get<2>(supernodes[j]);
     }
-    delete[] row_lookup;
 
     x = A.colPivHouseholderQr().solve(b);
     
@@ -816,8 +818,8 @@ void Circuit::debug() {
             std::cout << *itr2 << " ";
         std::cout << "\n";
     }
-    // for (auto b : branch_cache)
-    //     b->print();
+    for (auto b : branch_cache)
+        b->print();
 }
 
 void Circuit::reset() {
@@ -889,6 +891,7 @@ Circuit::Circuit(const Circuit &other) {
 }
 
 Circuit::~Circuit() {
+    if (copy) delete copy;
     for (unsigned i = 0; i < branch_cache.size(); i++)
         delete branch_cache[i];
 }

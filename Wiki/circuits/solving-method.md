@@ -168,6 +168,12 @@ Once the branch is created, it calculates if it's "dynamic" (has a component tha
 
 1 px floating branches are ignored as they could be part of a node that was trimmed.
 
+**Limitations:** This method does not guarantee a node has to be actually connected to anything.
+
+
+
+
+
 ## 2. Solve circuit
 If the circuit contains no dynamic components solving is limited to every 20 frames (to update for console commands and such), as resistances will be static, and any changes to the circuit will trigger a regeneration.
 
@@ -232,7 +238,15 @@ When diodes are present, after initially solving the matrix, the voltage across 
 
 After solving, branches are assigned node voltages and currents, and floating branches are set to the voltage of the node they're connected to (no current).
 
-When setting currents, branches are separated depending on whether they obey ohm's law. Branches that obey ohms law simply have their current calculated from voltage drop and resistance, branches that don't "copy" the current from a branch that has the same start node. We can do this because non-ohmian branches (such as voltage sources, capacitors, etc...) must be connected on both ends to another node to function. Polarity is considered when copying so the polarity of current in both branches agree (Ie: If A -> B is positive current, then B -> C will have positive current, OR: C -> B has positive current, depending on which node is sorted first).
+When setting currents, branches are separated depending on whether they obey ohm's law. Branches that obey ohms law simply have their current calculated from voltage drop and resistance, branches that don't "copy" the current from a branch that has the same start node. We can do this because non-ohmic branches (such as voltage sources, capacitors, etc...) must be connected on both ends to another node to function. Polarity is considered when copying so the polarity of current in both branches agree (Ie: If A -> B is positive current, then B -> C will have positive current, OR: C -> B has positive current, depending on which node is sorted first).
+
+**Nodes that don't connect to anything:**
+
+Function exactly the same as a ground node. We can't leave it alone because otherwise the matrix would have an empty row / col and thus be unsolvable via inversion.
+
+
+
+
 
 ## 3. Translate solution to simulation
 All branches are iterated and the following is done:

@@ -525,7 +525,13 @@ https://en.wikipedia.org/wiki/Galvanization
 
 floodfill spark
 
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16615
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13562 - irdium
+
 bigger fp like in jacob1s mod
+
+lead don't instamelt from energy
 
 differ colors
 - BAaking soda, calcium
@@ -570,8 +576,6 @@ voltage indicator on the top too long with aheat enabled?
 
 STUFF THAT DOESNT WORK
 3 way diodes from 1 junction don't work
-voltage PSCN sharing PSCN with a diode - currents will be incorrect
-voltage adjaacent with diode (not sharing) still incorrect
 
 make group filling a bit better maybe?
 - handle correct votlages and shit somehow
@@ -582,10 +586,11 @@ check normal SPRK stuff
 - control stuff like PSTN, voltage = distnace to push?
 
 add all conductors like thermite and brel, plasma
+qrtz can conduct sometimes
 
-NBLE nan voltages and shit
-- add changes to solving method
-- figure out how to skeletonize nble properly
+if resistance too great don't conduct
+
+DEBUG - graph shit like current and voltage
 
 use sparsematrix solver somehow?
 
