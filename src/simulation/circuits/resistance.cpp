@@ -18,8 +18,11 @@ std::unordered_map<int, double> resistances({
     { PT_BRMT, 1e-7 },
     { PT_TRUS, 1e-7 },
     { PT_INWR, 1e-7 },
+    { PT_BREC, 1e-7 },
     { PT_NEON, 10e3 }, // Neon
     { PT_NBLE, 539 },  // Helium
+    { PT_HELM, 539 },
+    { PT_PLSM, 539 },
     { PT_NICH, 1e-7 },
     { PT_TUNG, 5.6e-8 },
     { PT_LEAD, 2.2e-8 },
@@ -29,6 +32,7 @@ std::unordered_map<int, double> resistances({
     { PT_SWTR, 30 },
     { PT_IOSL, 30 },
     { PT_IRON, 9.7e-8 },
+    { PT_THRM, 9.7e-8 },
     { PT_GOLD, 2.44e-8 },
     { PT_TTAN, 4.2e-7 },
     { PT_RBDM, 1.2e-7 },
@@ -56,13 +60,17 @@ bool valid_conductor(int typ, Simulation *sim, int i) {
      * Exceptions:
      * - INST does not have PROP_CONDUCTS but should be considered a conductor
      * - VOLT needs conductive property to not break circuits
-     * - VOID needs conductive property to allow connections to ground
+     * - GRND needs conductive property to allow connections to ground
+     * - CAPR and INDC - same logic as VOLT
+     * - QRTZ / PQRT - sometimes conductive
+     * - PLSM, HELM - doesn't conduct SPRK but should conduct RSPK
      * 
      * Note: valid conductor only means if RSPK can exist on it, not if its currently capable of conducting
      * Ie, off SWCH should still return true because it has an ON state that can conduct
      */
     return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT || typ == GROUND_TYPE
-        || typ == PT_SWCH || typ == PT_CAPR || typ == PT_INDC;
+        || typ == PT_SWCH || typ == PT_CAPR || typ == PT_INDC || typ == PT_QRTZ || typ == PT_PQRT
+        || typ == PT_PLSM || typ == PT_HELM;
 }
 
 double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
@@ -84,7 +92,25 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
             return 0.0;
         case PT_RSTR: // Stores resitivity in pavg0
             return parts[i].pavg[0];
+
+        // Quartz
+        case PT_QRTZ:
+        case PT_PQRT:
+            return parts[i].temp < 173.15f ? 50 : REALLY_BIG_RESISTANCE;
         
+        // Negative resistance conductors
+        case PT_PLSM:
+        case PT_NBLE:
+        case PT_NEON:
+        case PT_HELM: {
+            double base_resistance = resistances[type];
+            double current = 0.0;
+            int r = sim->photons[(int)(parts[i].y + 0.5f)][(int)(parts[i].x + 0.5f)];
+            if (r && TYP(r) == PT_RSPK)
+                current = parts[ID(r)].pavg[1];
+            return base_resistance / (1 + current);
+        }
+
         // Superconductors
         case PT_MERC:
             return parts[i].temp < 4 ? SUPERCONDUCTING_RESISTANCE : 9.6e-7;

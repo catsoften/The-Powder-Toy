@@ -585,13 +585,16 @@ check normal SPRK stuff
 - like electrolysis
 - control stuff like PSTN, voltage = distnace to push?
 
-add all conductors like thermite and brel, plasma
-qrtz can conduct sometimes
 
 possible 2nd node trimming:
 - trim nodes that don't conenct to anything 
 - nodes in series like A - B - C, trim B to only A-C
 
+if blob first then GRND, won't connect - skeltonization must reach GRND :/
+
+nble tubes get messed up skeleton for some reason
+
+check if negative resistance works
 
 if resistance too great don't conduct
 
