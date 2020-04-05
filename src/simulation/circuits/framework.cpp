@@ -6,6 +6,11 @@
 bool positive_terminal(int type) { return type == PT_PSCN || type == PT_COPR; }
 bool negative_terminal(int type) { return type == PT_NSCN || type == PT_ZINC; }
 bool is_terminal(int type) { return positive_terminal(type) || negative_terminal(type); }
+bool can_be_node(int i, Simulation * sim) {
+    int typ = sim->parts[i].type;
+    if (!typ) return false;
+    return fabs(sim->parts[i].vx) < 0.5f && fabs(sim->parts[i].vy) < 0.5f;
+}
 
 /**
  * Is one type allowed to conduct to another?
@@ -98,6 +103,12 @@ void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
         if (x == 0 || x == XRES - 1 || y == 0 || y == YRES - 1)
             continue;
 
+        // These elements are always trimmed
+        if (!can_be_node(ID(sim->pmap[y][x]), sim)) {
+            delete_these_indices.push_back(i);
+            continue;
+        }
+
         // Essential circuit elements cannot be trimmed if only 1 px remains
         typ = TYP(sim->pmap[y][x]);
         if (typ == PT_VOLT || typ == PT_GRND || typ == PT_CAPR || typ == PT_INDC) {
@@ -147,7 +158,7 @@ void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
  */
 coord_vec coord_stack_to_skeleton(Simulation *sim, const coord_vec &floodfill) {
     coord_vec output(floodfill);
-    size_t prev_size;
+    size_t prev_size = 0;
     int output_map[YRES][XRES];
     int diff;
 

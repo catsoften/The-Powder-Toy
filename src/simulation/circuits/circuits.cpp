@@ -5,7 +5,6 @@
 
 #include <iomanip>
 #include <iostream>
-#include <limits>
 
 Circuit * circuit_map[NPART];
 std::vector<Circuit *> all_circuits;
@@ -236,6 +235,12 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
     for (auto &pos : nodes) {
         if (skeleton_map[pos.y][pos.x] <= 1 || visited[pos.y][pos.x]) // Already cleared, skip
             continue;
+        if (!can_be_node(ID(sim->pmap[pos.y][pos.x]), sim)) {
+            skeleton_map[pos.y][pos.x] = 1;
+            visited[pos.y][pos.x] = 1;
+            immutable_nodes[pos.y][pos.x] = 0;
+            continue;
+        }
         if (immutable_nodes[pos.y][pos.x]) { // Node is not allowed to be condensed
             // Exception: if diagonal node is touching non-adjacent node of same type
             if (immutable_nodes[pos.y][pos.x] == 2) { // 2 means diagonally adjacent
@@ -331,6 +336,7 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
             new_node_id++;
         }
     }
+    highest_node_id = new_node_id - 1;
 }
 
 void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy) {
@@ -511,8 +517,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
  * Solve the circuit using nodal analysis
  */
 void Circuit::solve(bool allow_recursion) {
-    size_t size = connection_map.size();
-    if (!size) return;
+    size_t size = highest_node_id - 1;
+    if (!connection_map.size()) return;
 
     // Don't need to solve: circuit is non-dynamic and we already solved it
     // Force recalc in case something changes like a console command
@@ -546,6 +552,11 @@ void Circuit::solve(bool allow_recursion) {
 
         for (size_t i = 0; i < node_id->second.size(); i++) {
             Branch * b = branch_map[node_id->first][i];
+            if (node_id->first - 2 < 0 || node_id->first - 2 >= size) {
+                std::cout << node_id->first - 2 << " " << size << " | " << highest_node_id << "\n";
+                debug();
+                throw node_id->first - 2;
+            }
             row_lookup[node_id->first - 2] = j;
             
             // Verify diodes and switches
@@ -751,7 +762,9 @@ void Circuit::update_sim() {
                     // Assign voltages for capcaitor: i / C = dV / dt
                     if (TYP(r) == PT_CAPR) {
                         step = INTEGRATION_TIMESTEP / sim->parts[ID(r)].pavg[0] * b->current;
-                        if (fabs(sim->parts[ID(r)].pavg[1] - step) > fabs(b->SS_voltage) && (b->SS_voltage != 0 || b->SS_current != 0))
+                        if (fabs(sim->parts[ID(r)].pavg[1] - step) > fabs(b->SS_voltage) &&
+                                b->SS_voltage != 0 &&
+                                (b->SS_voltage != std::numeric_limits<double>::max() || b->SS_current != std::numeric_limits<double>::max()))
                             sim->parts[ID(r)].pavg[1] = b->SS_voltage;
                         else if (fabs(sim->parts[ID(r)].pavg[1] - b->SS_voltage) < WITHIN_STEADY_STATE)
                             sim->parts[ID(r)].pavg[1] = b->SS_voltage;
@@ -761,7 +774,9 @@ void Circuit::update_sim() {
                     // Assign current for inductor: V / L =  dI/dt
                     else if (TYP(r) == PT_INDC) {
                         step = (b->V2 - b->V1) / sim->parts[ID(r)].pavg[0] * INTEGRATION_TIMESTEP;
-                        if (fabs(sim->parts[ID(r)].pavg[1] - step) > fabs(b->SS_current) && (b->SS_voltage != 0 || b->SS_current != 0))
+                        if (fabs(sim->parts[ID(r)].pavg[1] - step) > fabs(b->SS_current) &&
+                                b->SS_current != 0 &&
+                                (b->SS_voltage != std::numeric_limits<double>::max() || b->SS_current != std::numeric_limits<double>::max()))
                             sim->parts[ID(r)].pavg[1] = b->SS_current;
                         else if (fabs(sim->parts[ID(r)].pavg[1] - b->SS_current) < WITHIN_STEADY_STATE)
                             sim->parts[ID(r)].pavg[1] = b->SS_current;
@@ -801,8 +816,8 @@ void Circuit::debug() {
             std::cout << *itr2 << " ";
         std::cout << "\n";
     }
-    for (auto b : branch_cache)
-        b->print();
+    // for (auto b : branch_cache)
+    //     b->print();
 }
 
 void Circuit::reset() {
@@ -825,6 +840,7 @@ void Circuit::reset() {
     contains_dynamic = false;
     solution_computed = false;
     computed_divergence = false;
+    highest_node_id = 0;
 }
 
 Circuit::Circuit(int x, int y, Simulation * sim) {
@@ -849,6 +865,7 @@ Circuit::Circuit(const Circuit &other) {
     startx = other.startx, starty = other.starty;
     contains_dynamic = other.contains_dynamic;
     requires_divergence_checking = other.requires_divergence_checking;
+    highest_node_id = other.highest_node_id;
 
     for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
         for (size_t i = 0; i < node_id->second.size(); i++) {

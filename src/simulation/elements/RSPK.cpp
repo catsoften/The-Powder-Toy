@@ -79,16 +79,25 @@ void Element_RSPK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_RSPK static int update(UPDATE_FUNC_ARGS)
 int Element_RSPK::update(UPDATE_FUNC_ARGS) {
-	if (!circuit_map[i] || !pmap[y][x]) {
+	/**
+	 * Properties:
+	 * tmp   - Current node ID, 1 = branch, 0 = not part of skeleton
+	 * pavg0 - Voltage relative to ground
+	 * pavg1 - Current through pixel
+	 */
+	if (!circuit_map[i] || !pmap[y][x] || !valid_conductor(TYP(pmap[y][x]), sim, ID(pmap[y][x]))) {
 		sim->kill_part(i);
 		return 1;
 	}
 
-	/**
-	 * tmp - Current node ID, 1 = branch, 0 = not part of skeleton
-	 * pavg0  -Voltage relative to ground
-	 * pavg1 - Current through pixel
-	 */
+	parts[i].life--;
+	if (parts[i].life < 0) {
+		sim->kill_part(i);
+		return 1;
+	}
+	parts[i].vx = parts[i].vy = 0; // Negate velocity, or it can be affected by Newtonian gravity
+
+	// Detect new unconducted particles
 	for (int rx =- 1; rx <= 1; rx++)
 	for (int ry = -1; ry <= 1; ry++)
 		if (BOUNDS_CHECK && (rx || ry)) {
@@ -103,26 +112,35 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 			}
 		}
 
-	parts[i].life--;
-	if (parts[i].life < 0) {
-		sim->kill_part(i);
-		return 1;
-	}
+	int ontype = TYP(pmap[y][x]);
+	double resistance = get_effective_resistance(ontype, parts, ID(pmap[y][x]), sim);
 
-	// CODE BELOW IS NOT UPDATED
-	/**
-	 * tmp   - Current node ID
-	 * tmp2  - 
-	 * pavg0 - Voltage relative to ground
-	 * pavg1 - Current through pixel
-	 * dcolour - Resistance of the value its on * 10000
-	 * 
-	 * RSPK makes an electric field in the direction it goes
-	 */
+	// Heat up the conductor its on
+	double power = parts[i].pavg[1] * parts[i].pavg[1] * resistance; // I^2 * R
+	if (ontype != PT_CAPR && ontype != PT_VOLT && ontype != PT_SWCH) {
+		if (power > MAX_TEMP)
+			parts[ID(pmap[y][x])].temp = MAX_TEMP;
+		else
+			parts[ID(pmap[y][x])].temp += power;
+	}
+	
+	// Function of RSPK depending on particle it's on
+	switch (ontype) {
+		case PT_SPRK:
+			sim->kill_part(i);
+			return 1;
+		case PT_ETRD:
+		case PT_NBLE:
+		case PT_TESC:
+			break;
+	}
+ 
+	
+	
+
 	float res = 1.0f; // get_resistance(parts[i].ctype, parts, ID(pmap[y][x]), sim);
 
-	// Negate velocity, or it can be affected by Newtonian gravity
-	parts[i].vx = parts[i].vy = 0;
+
 
 	// Set ctype and temp to whats under it
 	parts[i].ctype = TYP(pmap[y][x]);
@@ -169,7 +187,7 @@ int Element_RSPK::update(UPDATE_FUNC_ARGS) {
 
 	// Heat up the conductor its on
 	int r = pmap[y][x];
-	float power = RSPK::get_power(x, y, sim);
+	// float power = RSPK::get_power(x, y, sim);
 	// parts[ID(r)].temp += power / 200.0f;
 
 	// Make sure self conductor can't be SPRKed

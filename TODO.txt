@@ -581,11 +581,17 @@ check normal SPRK stuff
 - like electrolysis
 - control stuff like PSTN, voltage = distnace to push?
 
+add all conductors like thermite and brel, plasma
+
+NBLE nan voltages and shit
+- add changes to solving method
+- figure out how to skeletonize nble properly
+
+use sparsematrix solver somehow?
+
 portals maybe
 
 
-
-- RSPK don't heat up unless consistent current <-- for divergence check, 2 frame delay
 - magnetic field induces inductor current
 
 realistic batteries 
@@ -594,7 +600,6 @@ op amp maybe
 
 pnp, npn transistors
 
-RSPK die if not on valid
 
 photoresistor, thermoresistor, potetiometer (user controlled?)
 TRST - thermoresistor

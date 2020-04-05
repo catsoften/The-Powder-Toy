@@ -13,6 +13,7 @@
 #include <set>
 #include <unordered_map>
 #include <iostream>
+#include <limits>
 
 #define BASE_RSPK_LIFE 4
 #define FORCE_RECALC_EVERY_N_FRAMES 20
@@ -49,6 +50,7 @@ private:
     bool recalc_next_frame = false; // Flag for regeneration
     bool contains_dynamic = false;  // Contains dynamic components such as capacitors (update every frame)
     bool solution_computed = false; // Already computed solution for non-dynamic systems
+    int highest_node_id = 0;
     int startx, starty;
 
     // Divergence checks
@@ -125,7 +127,7 @@ public:
     bool recompute_switches = true;
     
     // Divergence checks
-    double SS_voltage=0.0, SS_current=0.0;
+    double SS_voltage = std::numeric_limits<double>::max(), SS_current = std::numeric_limits<double>::max();
 
     Branch(int node1, int node2, const std::vector<int> &ids, 
             const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids,

@@ -14,6 +14,7 @@ bool allow_conduction(int totype, int fromtype);
 bool positive_terminal(int type);
 bool negative_terminal(int type);
 bool is_terminal(int type);
+bool can_be_node(int i, Simulation * sim);
 
 coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y);
 coord_vec coord_stack_to_skeleton(Simulation *sim, const coord_vec &floodfill);

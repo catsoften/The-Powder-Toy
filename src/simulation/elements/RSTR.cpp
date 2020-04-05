@@ -43,7 +43,7 @@ Element_RSTR::Element_RSTR() {
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &Element_RSTR::update;
-	Graphics = &Element_RSTR::graphics;
+	Graphics = NULL;
 }
 
 //#TPT-Directive ElementHeader Element_RSTR static int update(UPDATE_FUNC_ARGS)
@@ -80,11 +80,6 @@ int Element_RSTR::update(UPDATE_FUNC_ARGS) {
 	// }
 
 	return 0;
-}
-
-//#TPT-Directive ElementHeader Element_RSTR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_RSTR::graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
 }
 
 Element_RSTR::~Element_RSTR() {}

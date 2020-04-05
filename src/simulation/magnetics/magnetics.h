@@ -14,7 +14,7 @@ class Simulation;
 class EMField {
 public:
       Simulation &sim;
-      bool isEnabled = true;
+      bool isEnabled = false;
 
       // Cache for magnetic sources: index -> strength
       std::map<int, float> sources, added_sources;
