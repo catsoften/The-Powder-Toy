@@ -281,7 +281,7 @@ int Element_FIRE::graphics(GRAPHICS_FUNC_ARGS)
 	*colb = (unsigned char)ren->flm_data[caddress+2];
 
 	*firea = 255;
-	if (cpart->dcolour == 0) {
+	if (cpart->dcolour == 0 || cpart->tmp2 == 0) {
 		*firer = *colr;
 		*fireg = *colg;
 		*fireb = *colb;

@@ -5,7 +5,7 @@ Element_009::Element_009()
 {
 	Identifier = "DEFAULT_PT_009";
 	Name = "009";
-	Colour = PIXPACK(0xff1717);
+	Colour = PIXPACK(0xf04848);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
 	Enabled = 1;

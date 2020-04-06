@@ -5,7 +5,7 @@ Element_NEON::Element_NEON()
 {
 	Identifier = "DEFAULT_PT_NEON";
 	Name = "NEON";
-	Colour = PIXPACK(0x000000);
+	Colour = PIXPACK(0x031140);
 	MenuVisible = 1;
 	MenuSection = SC_GAS;
 	Enabled = 1;
@@ -71,7 +71,6 @@ int Element_NEON::graphics(GRAPHICS_FUNC_ARGS)
 	}
 	// Inactive
 	else {
-		*colr = *colg = *colb = 0;
 		*pixel_mode |= NO_DECO;
 	}
 	return 0;

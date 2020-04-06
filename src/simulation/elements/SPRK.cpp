@@ -313,7 +313,7 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 				switch (sender)
 				{
 				case PT_INST:
-					if (receiver==PT_NSCN)
+					if (receiver == PT_SICN || receiver == PT_NSCN)
 						goto conduct;
 					continue;
 				case PT_SWCH:
@@ -325,19 +325,19 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 						goto conduct;
 					continue;
 				case PT_NTCT:
-					if (receiver==PT_PSCN || (receiver==PT_NSCN && parts[i].temp>373.0f))
+					if (receiver==PT_SICN || receiver==PT_PSCN || (receiver==PT_NSCN && parts[i].temp>373.0f))
 						goto conduct;
 					continue;
 				case PT_PTCT:
-					if (receiver==PT_PSCN || (receiver==PT_NSCN && parts[i].temp<373.0f))
+					if (receiver==PT_SICN || receiver==PT_PSCN || (receiver==PT_NSCN && parts[i].temp<373.0f))
 						goto conduct;
 					continue;
 				case PT_INWR:
-					if (receiver==PT_NSCN || receiver==PT_PSCN)
+					if (receiver==PT_SICN || receiver==PT_NSCN || receiver==PT_PSCN)
 						goto conduct;
 					continue;
 				case PT_LEAD:
-					if (receiver==PT_PSCN)
+					if (receiver == PT_SICN || receiver == PT_PSCN)
 						goto conduct;
 					continue;
 				case PT_JUNC: // Only conduct of opposite direction has a SPRK, no diagonals
@@ -351,23 +351,23 @@ int Element_SPRK::update(UPDATE_FUNC_ARGS)
 				switch (receiver)
 				{
 				case PT_QRTZ:
-					if ((sender==PT_NSCN||sender==PT_METL||sender==PT_PSCN||sender==PT_QRTZ) && (parts[ID(r)].temp<173.15||sim->pv[(y+ry)/CELL][(x+rx)/CELL]>8))
+					if ((sender == PT_SICN || sender==PT_NSCN||sender==PT_METL||sender==PT_PSCN||sender==PT_QRTZ) && (parts[ID(r)].temp<173.15||sim->pv[(y+ry)/CELL][(x+rx)/CELL]>8))
 						goto conduct;
 					continue;
 				case PT_NTCT:
-					if (sender==PT_NSCN || (sender==PT_PSCN&&parts[ID(r)].temp>373.0f))
+					if (sender == PT_SICN || sender==PT_NSCN || (sender==PT_PSCN&&parts[ID(r)].temp>373.0f))
 						goto conduct;
 					continue;
 				case PT_PTCT:
-					if (sender==PT_NSCN || (sender==PT_PSCN&&parts[ID(r)].temp<373.0f))
+					if (sender == PT_SICN || sender==PT_NSCN || (sender==PT_PSCN&&parts[ID(r)].temp<373.0f))
 						goto conduct;
 					continue;
 				case PT_INWR:
-					if (sender==PT_NSCN || sender==PT_PSCN)
+					if (sender == PT_SICN || sender==PT_NSCN || sender==PT_PSCN)
 						goto conduct;
 					continue;
 				case PT_INST:
-					if (sender==PT_PSCN)
+					if (sender == PT_SICN || sender==PT_PSCN)
 						goto conduct;
 					continue;
 				case PT_NBLE:

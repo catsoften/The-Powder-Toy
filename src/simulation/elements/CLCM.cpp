@@ -79,7 +79,7 @@ int Element_CLCM::update(UPDATE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_CLCM static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_CLCM::graphics(GRAPHICS_FUNC_ARGS) {
-	int z = (cpart->tmp - 5) * 4; // Speckles!
+	int z = (cpart->tmp - 5) * 8; // Speckles!
 	*colr += z;
 	*colg += z;
 	*colb += z;

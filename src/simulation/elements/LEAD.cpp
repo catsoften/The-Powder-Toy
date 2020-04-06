@@ -58,7 +58,7 @@ int Element_LEAD::update(UPDATE_FUNC_ARGS) {
 			int r = sim->photons[y + ry][x + rx];
 			if (!r || TYP(r) == PT_RSPK || TYP(r) == PT_BALI || TYP(r) == PT_JCB1 || TYP(r) == PT_NTRI) continue;
 
-			parts[i].temp += parts[ID(r)].temp;
+			parts[i].temp += parts[ID(r)].temp * 0.05f;
 			sim->kill_part(ID(r));
 		}
 

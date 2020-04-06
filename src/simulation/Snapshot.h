@@ -32,7 +32,7 @@ public:
 	std::vector<short> oneWayDir;
 	std::vector<Circuit> circuits;
 
-	std::vector<Particle> PortalParticles;
+	std::vector<std::tuple<short, short, short, Particle> > PortalParticles;
 	std::vector<unsigned char> WirelessData;
 	std::vector<playerst> stickmen;
 	std::vector<sign> signs;

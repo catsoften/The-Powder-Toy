@@ -527,7 +527,13 @@ Snapshot * Simulation::CreateSnapshot()
 	snap->AirVelocityY.insert(snap->AirVelocityY.begin(), &vy[0][0], &vy[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->AmbientHeat.insert(snap->AmbientHeat.begin(), &hv[0][0], &hv[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->Particles.insert(snap->Particles.begin(), parts, parts+parts_lastActiveIndex+1);
-	snap->PortalParticles.insert(snap->PortalParticles.begin(), &portalp[0][0][0], &portalp[CHANNELS-1][8-1][80-1]);
+
+	for (size_t channel = 0; channel < FARADAY_CHANNELS * CHANNELS; channel++)
+	for (short i = 0; i < 8; i++)
+	for (short j = 0; j < 80; j++)
+		if (portalp[channel][i][j].type)
+			snap->PortalParticles.push_back(std::make_tuple(channel, i, j, portalp[channel][i][j]));
+			
 	snap->WirelessData.insert(snap->WirelessData.begin(), &wireless[0][0], &wireless[FARADAY_CHANNELS - 1][CHANNELS-1]);
 	snap->FaradayMap.insert(snap->FaradayMap.begin(), &faraday_map[0][0], &faraday_map[YRES / CELL - 1][XRES / CELL - 1]);
 	snap->TimeDilation.insert(snap->TimeDilation.begin(), &time_dilation[0][0], &time_dilation[YRES / CELL - 1][XRES / CELL - 1]);
@@ -566,7 +572,10 @@ void Simulation::Restore(const Snapshot & snap)
 	std::copy(snap.Particles.begin(), snap.Particles.end(), parts);
 	parts_lastActiveIndex = NPART-1;
 	RecalcFreeParticles(false);
-	std::copy(snap.PortalParticles.begin(), snap.PortalParticles.end(), &portalp[0][0][0]);
+
+	memset(portalp, 0, sizeof(portalp));
+	for (auto i = snap.PortalParticles.begin(); i != snap.PortalParticles.end(); i++)
+		portalp[std::get<0>(*i)][std::get<1>(*i)][std::get<2>(*i)] = std::get<3>(*i);
 	std::copy(snap.WirelessData.begin(), snap.WirelessData.end(), &wireless[0][0]);
 	std::copy(snap.FaradayMap.begin(), snap.FaradayMap.end(), &faraday_map[0][0]);
 	std::copy(snap.TimeDilation.begin(), snap.TimeDilation.end(), &time_dilation[0][0]);

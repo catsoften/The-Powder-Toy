@@ -31,7 +31,7 @@ Element_NPLM::Element_NPLM()
 	DefaultProperties.life = 1200;
 
 	HeatConduct = 88;
-	Description = "Napalm. Ultra-long burning explosive (Use sparingly!).";
+	Description = "Napalm. Ultra-long burning explosive.";
 	
 	Properties = TYPE_LIQUID | PROP_LIFE_KILL;
 	

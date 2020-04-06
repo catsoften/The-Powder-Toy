@@ -58,6 +58,8 @@ int Element_SUFR::update(UPDATE_FUNC_ARGS) {
 			// Blue fire
 			if (rt == PT_FIRE) {
 				parts[ID(r)].dcolour = 0xff80dfff;
+				parts[ID(r)].tmp2 = 1;
+				parts[ID(r)].temp += 500.0f;
 				sim->part_change_type(i, x, y, PT_CAUS);
 				return 1;
 			}

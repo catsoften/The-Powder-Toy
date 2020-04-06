@@ -78,8 +78,9 @@ int Element_PHSP::update(UPDATE_FUNC_ARGS) {
 					parts[ni].life = RNG::Ref().between(50, 200);
 					parts[ni].vx = rx;
 					parts[ni].vy = ry;
-					parts[ni].temp = parts[i].temp + 300.0f;
+					parts[ni].temp = parts[i].temp + 1500.0f;
 					parts[ni].dcolour = 0xffffb37d;
+					parts[ni].tmp2 = 1;
 				}
 			}
 			// Fertilize plnt

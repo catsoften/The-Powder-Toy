@@ -140,6 +140,7 @@
 #define AIR_PLOSS 0.9999f
 
 #define NGOL 38
+#define OLD_NGOL 24
 
 #define CIRCLE_BRUSH 0
 #define SQUARE_BRUSH 1

@@ -5,7 +5,7 @@ Element_VNGR::Element_VNGR()
 {
 	Identifier = "DEFAULT_PT_VNGR";
 	Name = "VNGR";
-	Colour = PIXPACK(0xd1beba);
+	Colour = PIXPACK(0xdbb797);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
 	Enabled = 1;

@@ -232,10 +232,9 @@ CFNG RELATED:
     right click to cancel setting, ie when setting length of cray
     CNFG - LSNS top left corner spawns window out of bounds, check window bounds when placing in util
     Add CSNS to CNFG
-fire is decoable - stuff with deco burns
+
 shred moving solids
 move shred to another func
-remove the sparingly requirement from NPLM
 
 VSNS - seralize and range settings 
 
@@ -335,11 +334,8 @@ Copper -> gain
 
 ceramic plate allows passage of ions
 
-RSPRK shouldn't blend, just display if above power threshold
-
 metal alloy making element?
 
-limit voltage max disatance
 
 
 
@@ -352,9 +348,6 @@ limit voltage max disatance
 
 
 
-voltages should add together
-- add to volt divider or whatever
-
 
 microwaves
 0xF7F2F3
@@ -363,12 +356,9 @@ damages stkm and plnt and water shit
 dries liquids
 
 
-TRFR : transformer
+
 
 ionic solutions gerow crystals from metals
-
-rspk diodes - 0.7 V drop
-- only if threshold voltage is met otherwise fail
 
 
 
@@ -424,12 +414,6 @@ same for protons
 
 exotic chemistires - create heavy elements from fusion or something
 
-- tesla coil
-- voltage divider
-- voltage collector 
- - (sums input voltage, outputs to output port)
-- transofmrer
-
 
 
 conductor channels
@@ -453,7 +437,6 @@ bug report button by the new save?
 
 
 egg / yolk
-
 
 
 realstic fire
@@ -482,8 +465,6 @@ spark keys - press key on keyboard, spark
 - bug fixes 
 
 
-water  reactinos - add Carbonated water and ISOL
-
 ferrofluid
 
 remove graphics = 1 and shit for all elements
@@ -504,17 +485,22 @@ curved line tool
 
 brush size indicator
 
+Add more reactions to existing elements:
+
 realistic gardening
 
-id: 94444 breaks - creates new exotic GOL forms :(
-
-make portal / wifi snapshots use way less memory, currently super high!
+wifi snapshots use way less memory, currently super high!
 
 steal ideas from https://powdertoy.co.uk/Wiki/W/Lua_Functions_in_Jacob1%27s_Mod.html
 
 undoing quantum states and moving solids?
 
 Suggestion: make ~save and @name in the save browser in game be shortcuts for id:save and user:name like they are for tpt.io
+
+SLCN - turn into SAND / CLST via oxidation
+SLCN -> QRTZ reaction
+
+STKM HRSE -> GLUE
 
 realistic mdoe:
 - fire requires temp to combust (add to realistic fire)
@@ -531,15 +517,7 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13562 - irdium
 
 bigger fp like in jacob1s mod
 
-lead don't instamelt from energy
-
-differ colors
-- BAaking soda, calcium
-- scp 009, blod
-- vinegar
-- neon less inviisble
-
-HUD display dcolor in hex
+one way wall arrow graphics
 
 fiber optics affect bray?
 
@@ -549,7 +527,20 @@ anti-hydrogen is weak af
 
 better music
 
-SICN should conduct to EVERY electronics element (and accept from EVERy)
+moony - ignore pause button, run to unpause the game (MOON)
+- sad when games paused
+iczero
+- does stupid stuff near console 
+- lament about simulation 
+- corrupts particle states
+MOON and ICZR fight each other over the pause button
+IOVD - sorts particles 
+
+BWBellairs element
+- ACU
+    - upgrading gun
+    - gets sniped
+    - explodes
 
 circuits:
 - rewrite solving method.md
@@ -573,13 +564,10 @@ INWR different tmp conductivity?
 voltage indicator use metric prefix, ie 2 mA
 voltage indicator on the top too long with aheat enabled?
 
-
-STUFF THAT DOESNT WORK
-3 way diodes from 1 junction don't work
-
 make group filling a bit better maybe?
 - handle correct votlages and shit somehow
 
+TRFR : transformer
 
 check normal SPRK stuff 
 - like electrolysis
@@ -590,20 +578,13 @@ possible 2nd node trimming:
 - trim nodes that don't conenct to anything 
 - nodes in series like A - B - C, trim B to only A-C
 
-DONE:
-if blob first then GRND, won't connect - skeltonization must reach GRND :/
-- same for all essential elements :( - circle of ocnductor, then touch it with another
-nble tubes get messed up skeleton for some reason
-- handle all edge cases - don't create new node if can't make node on it!
-check if negative resistance works
-- doesnt work, requires dynamic resistance update
-
 if resistance too great don't conduct
 
 
 use sparsematrix solver somehow?
 
 portals maybe
+
 
 
 - magnetic field induces inductor current
