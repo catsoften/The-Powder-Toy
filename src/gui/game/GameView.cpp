@@ -2314,7 +2314,7 @@ void GameView::OnDraw()
 		if (sample.particle.type) {
 			if (showDebug) {
 				sampleInfo2 << "Tmp2: " << Format::Fixed(sample.particle.tmp2);
-				sampleInfo2 << ", DColor: " << Format::Hex() << Format::Fixed(sample.particle.dcolour);
+				sampleInfo2 << ", DColor: #" << Format::Uppercase() << Format::Hex() << Format::Fixed(sample.particle.dcolour);
 				sampleInfo2 << ", Flags: " << Format::Fixed(sample.particle.flags);
 				sampleInfo2 << ", Pavg0: " << Format::Fixed(sample.particle.pavg[0]);
 				sampleInfo2 << ", Pavg1: " << Format::Fixed(sample.particle.pavg[1]);

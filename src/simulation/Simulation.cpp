@@ -533,7 +533,7 @@ Snapshot * Simulation::CreateSnapshot()
 	for (short j = 0; j < 80; j++)
 		if (portalp[channel][i][j].type)
 			snap->PortalParticles.push_back(std::make_tuple(channel, i, j, portalp[channel][i][j]));
-			
+
 	snap->WirelessData.insert(snap->WirelessData.begin(), &wireless[0][0], &wireless[FARADAY_CHANNELS - 1][CHANNELS-1]);
 	snap->FaradayMap.insert(snap->FaradayMap.begin(), &faraday_map[0][0], &faraday_map[YRES / CELL - 1][XRES / CELL - 1]);
 	snap->TimeDilation.insert(snap->TimeDilation.begin(), &time_dilation[0][0], &time_dilation[YRES / CELL - 1][XRES / CELL - 1]);
@@ -2391,6 +2391,7 @@ void Simulation::clear_sim(void)
 		air->ClearAirH();
 	}
 	SetEdgeMode(edgeMode);
+	
 	emfield->Clear();
 	QUANTUM::quantum_states.clear();
 	MOVINGSOLID::solids.clear();

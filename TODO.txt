@@ -499,8 +499,13 @@ Suggestion: make ~save and @name in the save browser in game be shortcuts for id
 
 SLCN - turn into SAND / CLST via oxidation
 SLCN -> QRTZ reaction
+    LAVA(SLCN) + OXYG + (TEMP < 7719.45) -> LAVA( molten SAND / CLST / STNE)
+    LAVA(SLCN) + OXYG + (TEMP >= 7719.45) -> LAVA(SAND / PQRT / STNE)
+    LAVA(STNE) + BCOL/COAL -> LAVA(SLCN)
+    LAVA(SLCN) + LAVA(METL/BMTL) -> LAVA(NSCN) + LAVA(PSCN)
 
 STKM HRSE -> GLUE
+- stkm can ride
 
 realistic mdoe:
 - fire requires temp to combust (add to realistic fire)
@@ -511,13 +516,14 @@ https://en.wikipedia.org/wiki/Galvanization
 
 floodfill spark
 
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16615
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13562 - irdium
 
 bigger fp like in jacob1s mod
 
 one way wall arrow graphics
+
+hollow brush triggers on windows
 
 fiber optics affect bray?
 
@@ -542,11 +548,11 @@ BWBellairs element
     - gets sniped
     - explodes
 
-circuits:
-- rewrite solving method.md
-
 glow less setting
 - stuff like neut and sprk glows less
+
+circuits:
+- rewrite solving method.md
 
 - preprocessing shapes:
   - "replace" particles with virtual particles, don't set if virtual, but act in simulation
@@ -770,11 +776,6 @@ soviet save :D
 
 INFO element who made the mod 
 - draw art
-
-write guide about quantum 
-have lua mod to place down quantum gates?
-- or website?
-
 
 
 fancy black holes
