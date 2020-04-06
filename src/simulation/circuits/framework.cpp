@@ -7,14 +7,14 @@
 bool positive_terminal(int type) { return type == PT_PSCN || type == PT_COPR; }
 bool negative_terminal(int type) { return type == PT_NSCN || type == PT_ZINC; }
 bool is_terminal(int type) { return positive_terminal(type) || negative_terminal(type); }
+bool negative_resistance(int type) { return type == PT_PLSM || type == PT_NBLE || type == PT_HELM || type == PT_NEON; }
+bool dynamic_resistor(int type) { return negative_resistance(type) || type == PT_TRST || type == PT_NTCT || type == PT_PTCT; }
+
 bool can_be_skeleton(int i, Simulation * sim) {
     int typ = sim->parts[i].type;
     if (!typ) return false;
-    int x = (int)(sim->parts[i].x);
-    int y = (int)(sim->parts[i].y);
-
     return sim->elements[typ].Properties & TYPE_SOLID ||
-        (fabs(sim->parts[i].vx) < 0.05f && fabs(sim->parts[i].vy) < 0.05f);
+        (fabs(sim->parts[i].vx) < 1.0f && fabs(sim->parts[i].vy) < 1.0f);
 }
 bool can_be_node(int i, Simulation * sim) {
     int typ = sim->parts[i].type;
@@ -121,10 +121,14 @@ void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
         // Essential circuit elements cannot be trimmed if only 1 px remains
         typ = TYP(sim->pmap[y][x]);
         if (typ == PT_VOLT || typ == PT_GRND || typ == PT_CAPR || typ == PT_INDC) {
+            int tcount = 0;
             for (int rx = -1; rx <= 1; rx++)
-            for (int ry = -1; ry <= 1; ry++)
+            for (int ry = -1; ry <= 1; ry++) {
                 if ((rx || ry) && TYP(sim->pmap[y + ry][x + rx]) == typ)
+                    tcount++;
+                if (tcount > 2) // > 2 check, otherwise it allows too many to be deleted in rare situations
                     goto exit_loop;
+            }
             continue;
         }
         exit_loop:;

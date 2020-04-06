@@ -590,11 +590,13 @@ possible 2nd node trimming:
 - trim nodes that don't conenct to anything 
 - nodes in series like A - B - C, trim B to only A-C
 
+DONE:
 if blob first then GRND, won't connect - skeltonization must reach GRND :/
-
+- same for all essential elements :( - circle of ocnductor, then touch it with another
 nble tubes get messed up skeleton for some reason
-
+- handle all edge cases - don't create new node if can't make node on it!
 check if negative resistance works
+- doesnt work, requires dynamic resistance update
 
 if resistance too great don't conduct
 

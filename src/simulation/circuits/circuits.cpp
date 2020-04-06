@@ -149,6 +149,9 @@ void Circuit::generate() {
             end:;
         }
 
+        if (!can_be_node(ID(sim->pmap[y][x]), sim))
+            continue;
+
         /**
          * Count surrounding disjoint connections, if > 2 then it must be a junction, ie:
          * #YY
@@ -236,12 +239,12 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
     for (auto &pos : nodes) {
         if (skeleton_map[pos.y][pos.x] <= 1 || visited[pos.y][pos.x]) // Already cleared, skip
             continue;
-        if (!can_be_node(ID(sim->pmap[pos.y][pos.x]), sim)) {
-            skeleton_map[pos.y][pos.x] = 1;
-            visited[pos.y][pos.x] = 1;
-            immutable_nodes[pos.y][pos.x] = 0;
-            continue;
-        }
+        // if (!can_be_node(ID(sim->pmap[pos.y][pos.x]), sim)) {
+        //     skeleton_map[pos.y][pos.x] = 1;
+        //     visited[pos.y][pos.x] = 1;
+        //     immutable_nodes[pos.y][pos.x] = 0;
+        //     continue;
+        // }
         if (immutable_nodes[pos.y][pos.x]) { // Node is not allowed to be condensed
             // Exception: if diagonal node is touching non-adjacent node of same type
             if (immutable_nodes[pos.y][pos.x] == 2) { // 2 means diagonally adjacent
@@ -343,7 +346,7 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
 void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy) {
     if (!skeleton_map[y][x] || (x == sx && y == sy)) return;
 
-    std::vector<int> ids, rspk_ids, switches;
+    std::vector<int> ids, rspk_ids, switches, dynamic_resistors;
     double total_resistance = 0.0;
     double total_voltage = 0.0;
     double current_voltage = 0.0;
@@ -409,6 +412,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
                 switches.push_back(ID(r));
             else if (TYP(r) == PT_INDC)
                 current_gain = sim->parts[ID(r)].pavg[1];
+            else if (dynamic_resistor(TYP(r)))
+                dynamic_resistors.push_back(ID(r));
             else if (Circuit::is_voltage_source(TYP(r))) {
                 if (TYP(r) == PT_VOLT) // Pavg0 is voltage 
                     current_voltage += sim->parts[ID(r)].pavg[0] * current_polarity;
@@ -472,8 +477,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         skeleton_map[oy][ox] = 1; // Make sure points around nodes are never deleted
 
     if (start_node > -1) { // Valid connection actually exists
-        Branch * b = new Branch(start_node, end_node, ids, rspk_ids, switches, total_resistance, total_voltage,
-            current_gain, diode_type, start_id, end_id);
+        Branch * b = new Branch(start_node, end_node, ids, rspk_ids, switches, dynamic_resistors,
+            total_resistance, total_voltage, current_gain, diode_type, start_id, end_id);
 
         /**
          * Special case where branch ends at a node directly adjacent to start node, because branches
@@ -504,7 +509,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
     }
     // Floating branch
     else if (rspk_ids.size() > 1) {
-        Branch * b = new Branch(-1, end_node, ids, rspk_ids, switches, total_resistance, total_voltage, current_gain, diode_type, -1, end_id);
+        Branch * b = new Branch(-1, end_node, ids, rspk_ids, switches, dynamic_resistors,
+            total_resistance, total_voltage, current_gain, diode_type, -1, end_id);
         floating_branches[end_node].push_back(b);
         branch_cache.push_back(b);
     }
@@ -932,6 +938,8 @@ void Branch::reachedSteadyStateCondition() {
 void Branch::computeDynamicResistances(Simulation * sim) {
     if (!switchesOn(sim)) // Increase effective resistances of switches that are off
         resistance += REALLY_BIG_RESISTANCE * switches.size();
+    for (auto id : dynamic_resistors)
+        resistance += get_effective_resistance(sim->parts[id].type, sim->parts, id, sim);
 }
 
 void Branch::computeDynamicVoltages(Simulation *sim) {

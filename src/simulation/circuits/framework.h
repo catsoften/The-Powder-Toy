@@ -14,6 +14,9 @@ bool allow_conduction(int totype, int fromtype);
 bool positive_terminal(int type);
 bool negative_terminal(int type);
 bool is_terminal(int type);
+bool negative_resistance(int type);
+bool dynamic_resistor(int type);
+
 bool can_be_skeleton(int i, Simulation * sim);
 bool can_be_node(int i, Simulation * sim);
 

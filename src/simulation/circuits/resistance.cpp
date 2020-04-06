@@ -1,6 +1,8 @@
 #include "simulation/circuits/resistance.h"
+#include "simulation/circuits/framework.h"
 #include <exception>
 #include <cmath>
+#include <iostream>
 
 // All resistances
 std::unordered_map<int, double> resistances({
@@ -97,19 +99,6 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
         case PT_QRTZ:
         case PT_PQRT:
             return parts[i].temp < 173.15f ? 50 : REALLY_BIG_RESISTANCE;
-        
-        // Negative resistance conductors
-        case PT_PLSM:
-        case PT_NBLE:
-        case PT_NEON:
-        case PT_HELM: {
-            double base_resistance = resistances[type];
-            double current = 0.0;
-            int r = sim->photons[(int)(parts[i].y + 0.5f)][(int)(parts[i].x + 0.5f)];
-            if (r && TYP(r) == PT_RSPK)
-                current = parts[ID(r)].pavg[1];
-            return base_resistance / (1 + current);
-        }
 
         // Superconductors
         case PT_MERC:
@@ -117,16 +106,13 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
         case PT_CRBN: // Unrealistic critical temp, but matches behavior for SPRK
             return parts[i].temp < 100 ? SUPERCONDUCTING_RESISTANCE : 1e-5;
 
-        // Semiconductors
-        case PT_PTCT: // Resistance goes to 1e-7 above 100 C
-            if (parts[i].temp <= 373.15f)
-                return REALLY_BIG_RESISTANCE;
-            return std::max(-(double)log((parts[i].temp - 373.15f) / 10.0f), 1e-7);
-        case PT_NTCT: // Resistance goes to 1e-7 below 100 C
-            if (parts[i].temp >= 373.15f)
-                return REALLY_BIG_RESISTANCE;
-            return std::max(-(double)log(-(parts[i].temp - 373.15f) / 10.0f), 1e-7);
+        // Semiconductors update every frame, return 0
+        case PT_PTCT:
+        case PT_NTCT:
+            return 0.0;
     }
+
+    if (negative_resistance(type)) return 0.0;
 
     auto itr = resistances.find(type);
     if (itr != resistances.end())
@@ -141,6 +127,27 @@ double get_effective_resistance(int type, Particle *parts, int i, Simulation *si
     switch(type) {
         case PT_SWCH:
             return parts[i].life >= 4 ? resistances[type] : REALLY_BIG_RESISTANCE;
+            
+        // Semiconductors
+        case PT_PTCT: // Resistance goes to 1e-7 above 100 C
+            if (parts[i].temp <= 373.15f)
+                return REALLY_BIG_RESISTANCE;
+            return std::max(-(double)log((parts[i].temp - 373.15f) / 10.0f), 1e-7);
+        case PT_NTCT: // Resistance goes to 1e-7 below 100 C
+            if (parts[i].temp >= 373.15f)
+                return REALLY_BIG_RESISTANCE;
+            return std::max(-(double)log(-(parts[i].temp - 373.15f) / 10.0f), 1e-7);
     }
+
+    // Negative resistance conductors
+    if (negative_resistance(type)) {
+        double base_resistance = resistances[type];
+        double current = 0.0;
+        int r = sim->photons[(int)(parts[i].y + 0.5f)][(int)(parts[i].x + 0.5f)];
+        if (r && TYP(r) == PT_RSPK)
+            current = 1000 * fabs(parts[ID(r)].pavg[1]);
+        return base_resistance / (1 + current);
+    }
+
     return get_resistance(type, parts, i, sim);
 }

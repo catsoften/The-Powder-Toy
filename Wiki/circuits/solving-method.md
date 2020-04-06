@@ -39,6 +39,9 @@ Next, we apply the Zhang-Suen algorithm for image thinning to create a skeleton 
 
 ![Skeletonization process](https://i.imgur.com/pyOXJlX.png)
 
+Some circuit elements such as GRND and VOLT can only be trimmed if surrounded by a lot of other VOLT / GRND / etc..., this prevents
+a 1 px ground from being trimmed from the circuit entirely, and it also prevents 100 nodes from forming in a blob of VOLT (compared to
+preventing ANY VOLT / GRND / etc... from being trimmed).
 
 Next, we identify nodes by the following criteria (blue in above diagram). We consider "nodes" as junctions where parts of the skeleton branch, as all wires (aside from superconductors) have resistance, so nodes can't simply be placed between resistors. Rather, we consider the entire wire as one large resistor (Other components detailed later).
 

@@ -120,6 +120,7 @@ public:
     const std::vector<int> ids;
     const std::vector<int> rspk_ids;
     const std::vector<int> switches;
+    const std::vector<int> dynamic_resistors;
     double resistance, voltage_gain, current_gain, base_resistance, current=0.0;
     const int diode; // 0 = no diode, 1 = positive, -1 = negative
     const int node1_id, node2_id;
@@ -130,10 +131,10 @@ public:
     double SS_voltage = std::numeric_limits<double>::max(), SS_current = std::numeric_limits<double>::max();
 
     Branch(int node1, int node2, const std::vector<int> &ids, 
-            const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids,
+            const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids, const std::vector<int> &dynamic_resistors,
             double resistance, double voltage_gain, double current_gain, int diode, int id1, int id2) :
-        node1(node1), node2(node2), ids(ids), rspk_ids(rspk_ids), switches(switch_ids), resistance(resistance),
-        voltage_gain(voltage_gain), current_gain(current_gain), base_resistance(resistance), diode(diode),
+        node1(node1), node2(node2), ids(ids), rspk_ids(rspk_ids), switches(switch_ids), dynamic_resistors(dynamic_resistors),
+        resistance(resistance), voltage_gain(voltage_gain), current_gain(current_gain), base_resistance(resistance), diode(diode),
         node1_id(id1), node2_id(id2) {}
     
     void setSpecialType(bool isCapacitor, bool isInductor);
