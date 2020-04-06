@@ -1,19 +1,21 @@
 #include "OptionsController.h"
 
+#include "ModOptionsView.h"
 #include "OptionsView.h"
 #include "OptionsModel.h"
 
 #include "Controller.h"
 
-OptionsController::OptionsController(GameModel * gModel_, std::function<void ()> onDone_):
+OptionsController::OptionsController(GameModel * gModel_, bool modOption, std::function<void ()> onDone_):
 	gModel(gModel_),
 	onDone(onDone_),
 	HasExited(false)
 {
-	view = new OptionsView();
+	view = modOption ?
+		reinterpret_cast<OptionsView*>(new ModOptionsView()) :
+		reinterpret_cast<OptionsView*>(new VanillaOptionsView());
 	model = new OptionsModel(gModel);
 	model->AddObserver(view);
-
 	view->AttachController(this);
 }
 

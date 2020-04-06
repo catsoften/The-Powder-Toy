@@ -295,13 +295,13 @@ GameView::GameView():
 	tagSimulationButton->SetActionCallback({ [this] { c->OpenTags(); } });
 	AddComponent(tagSimulationButton);
 
-	clearSimButton = new ui::Button(ui::Point(Size.X-159, Size.Y-16), ui::Point(17, 15), "", "Erase everything");
+	clearSimButton = new ui::Button(ui::Point(Size.X-177, Size.Y-16), ui::Point(17, 15), "", "Erase everything");
 	clearSimButton->SetIcon(IconNew);
 	clearSimButton->Appearance.Margin.Left+=2;
 	clearSimButton->SetActionCallback({ [this] { c->ClearSim(); } });
 	AddComponent(clearSimButton);
 
-	loginButton = new SplitButton(ui::Point(Size.X-141, Size.Y-16), ui::Point(92, 15), "[sign in]", "Sign into simulation server", "Edit Profile", 19);
+	loginButton = new SplitButton(ui::Point(Size.X-159, Size.Y-16), ui::Point(94, 15), "[sign in]", "Sign into simulation server", "Edit Profile", 19);
 	loginButton->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	loginButton->SetIcon(IconLogin);
 	loginButton->SetSplitActionCallback({
@@ -309,6 +309,12 @@ GameView::GameView():
 		[this] { c->OpenProfile(); }
 	});
 	AddComponent(loginButton);
+
+	modOptionButton = new ui::Button(ui::Point(Size.X - 64, Size.Y - 16), ui::Point(15, 15), "", "Mod options");
+	modOptionButton->SetIcon(IconModSettings);
+	modOptionButton->Appearance.Margin.Left += 2;
+	modOptionButton->SetActionCallback({[this] { c->OpenModOptions(); }});
+	AddComponent(modOptionButton);
 
 	simulationOptionButton = new ui::Button(ui::Point(Size.X-48, Size.Y-16), ui::Point(15, 15), "", "Simulation options");
 	simulationOptionButton->SetIcon(IconSimulationSettings);

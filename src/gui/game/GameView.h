@@ -104,6 +104,7 @@ private:
 	ui::Button * clearSimButton;
 	SplitButton * loginButton;
 	ui::Button * simulationOptionButton;
+	ui::Button * modOptionButton;
 	ui::Button * displayModeButton;
 	ui::Button * pauseButton;
 

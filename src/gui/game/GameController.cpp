@@ -1405,12 +1405,20 @@ void GameController::OpenStamps()
 
 void GameController::OpenOptions()
 {
-	options = new OptionsController(gameModel, [this] {
+	options = new OptionsController(gameModel, false, [this] {
 		gameModel->UpdateQuickOptions();
 		Client::Ref().WritePrefs();
 	});
 	ui::Engine::Ref().ShowWindow(options->GetView());
+}
 
+void GameController::OpenModOptions()
+{
+	options = new OptionsController(gameModel, true, [this] {
+		gameModel->UpdateQuickOptions();
+		Client::Ref().WritePrefs();
+	});
+	ui::Engine::Ref().ShowWindow(options->GetView());
 }
 
 void GameController::ShowConsole()

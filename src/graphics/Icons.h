@@ -15,6 +15,7 @@ enum Icon
 	IconLogin,
 	IconRenderSettings,
 	IconSimulationSettings,
+	IconModSettings,
 	IconPause,
 	IconVoteSort,
 	IconDateSort,

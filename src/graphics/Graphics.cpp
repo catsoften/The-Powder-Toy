@@ -797,6 +797,12 @@ void Graphics::draw_icon(int x, int y, Icon icon, unsigned char alpha, bool inve
 		else
 			drawchar(x, y+1, 0xE04F, 255, 255, 255, alpha);
 		break;
+	case IconModSettings:
+		if(invert)
+			drawchar(x, y+1, 0xE07A, 0, 0, 0, alpha);
+		else
+			drawchar(x, y+1, 0xE07A, 255, 255, 255, alpha);
+		break;
 	case IconRenderSettings:
 		if(invert)
 		{

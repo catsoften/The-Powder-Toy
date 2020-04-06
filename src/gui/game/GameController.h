@@ -130,6 +130,7 @@ public:
 	void OpenLocalSaveWindow(bool asCurrent);
 	void OpenLocalBrowse();
 	void OpenOptions();
+	void OpenModOptions();
 	void OpenRenderOptions();
 	void OpenSaveWindow();
 	void SaveAsCurrent();
