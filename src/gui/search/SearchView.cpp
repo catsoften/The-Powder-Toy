@@ -160,6 +160,10 @@ void SearchView::NotifyMessageOfTheDay(Client * sender)
 
 void SearchView::doSearch()
 {
+	if (searchField->GetText().BeginsWith("~"))
+		searchField->SetText(String::Build("id:", searchField->GetText().Substr(1)));
+	else if (searchField->GetText().BeginsWith("@"))
+		searchField->SetText(String::Build("user:", searchField->GetText().Substr(1)));
 	if (searchField->GetText().length() > 3 || !searchField->GetText().length())
 		c->DoSearch(searchField->GetText());
 }

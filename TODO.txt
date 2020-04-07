@@ -493,8 +493,6 @@ steal ideas from https://powdertoy.co.uk/Wiki/W/Lua_Functions_in_Jacob1%27s_Mod.
 
 undoing quantum states and moving solids?
 
-Suggestion: make ~save and @name in the save browser in game be shortcuts for id:save and user:name like they are for tpt.io
-
 SLCN - turn into SAND / CLST via oxidation
 SLCN -> QRTZ reaction
     LAVA(SLCN) + OXYG + (TEMP < 7719.45) -> LAVA( molten SAND / CLST / STNE)
