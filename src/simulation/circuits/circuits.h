@@ -139,7 +139,7 @@ public:
     
     void setSpecialType(bool isCapacitor, bool isInductor);
     void print();
-    void reachedSteadyStateCondition();
+    void setToSteadyState();
 
     void computeDynamicResistances(Simulation * sim);
     void computeDynamicVoltages(Simulation * sim);

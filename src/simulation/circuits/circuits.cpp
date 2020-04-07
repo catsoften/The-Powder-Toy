@@ -239,12 +239,6 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
     for (auto &pos : nodes) {
         if (skeleton_map[pos.y][pos.x] <= 1 || visited[pos.y][pos.x]) // Already cleared, skip
             continue;
-        // if (!can_be_node(ID(sim->pmap[pos.y][pos.x]), sim)) {
-        //     skeleton_map[pos.y][pos.x] = 1;
-        //     visited[pos.y][pos.x] = 1;
-        //     immutable_nodes[pos.y][pos.x] = 0;
-        //     continue;
-        // }
         if (immutable_nodes[pos.y][pos.x]) { // Node is not allowed to be condensed
             // Exception: if diagonal node is touching non-adjacent node of same type
             if (immutable_nodes[pos.y][pos.x] == 2) { // 2 means diagonally adjacent
@@ -577,7 +571,7 @@ void Circuit::solve(bool allow_recursion) {
 
             if (check_divergence && (b->isInductor() || b->isCapacitor())) {
                 numeric_integration.push_back(std::make_pair(node_id->first, i));
-                copy->branch_map[node_id->first][i]->reachedSteadyStateCondition();
+                copy->branch_map[node_id->first][i]->setToSteadyState();
             }
 
             if (!is_grnd) {
@@ -928,7 +922,7 @@ void Branch::setSpecialType(bool is_capacitor, bool is_inductor) {
     obeys_ohms_law = !(is_capacitor || is_inductor || diode || voltage_gain);
 }
 
-void Branch::reachedSteadyStateCondition() {
+void Branch::setToSteadyState() {
     is_capacitor = is_inductor = false;
     voltage_gain = 0.0;
     current_gain = 0.0;

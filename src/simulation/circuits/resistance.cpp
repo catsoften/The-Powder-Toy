@@ -75,6 +75,15 @@ bool valid_conductor(int typ, Simulation *sim, int i) {
         || typ == PT_PLSM || typ == PT_HELM;
 }
 
+/**
+ * Use get_resistance or get_effective_resistance?
+ * If your element updates its resistance every frame like a thermoresistor (or could, like a switch)
+ * then use get_effective_resistance, otherwise use get_resistance, which updates only every couple of frames
+ * 
+ * If you set a resistance in effective_resistance, set the resistance in get_resistance to 0.0
+ * Also dynamic resistance elements should be added to framework.cpp:dynamic_resistor
+ */
+
 double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
     if (type <= 0 || type > PT_NUM) // Should never happen, the throw below is just in case you need to debug
         throw "Error: Invalid particle type found in get_resistance in circuit simulation";
@@ -95,18 +104,11 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
         case PT_RSTR: // Stores resitivity in pavg0
             return parts[i].pavg[0];
 
-        // Quartz
+        // These are dynamic, set to 0
         case PT_QRTZ:
         case PT_PQRT:
-            return parts[i].temp < 173.15f ? 50 : REALLY_BIG_RESISTANCE;
-
-        // Superconductors
         case PT_MERC:
-            return parts[i].temp < 4 ? SUPERCONDUCTING_RESISTANCE : 9.6e-7;
-        case PT_CRBN: // Unrealistic critical temp, but matches behavior for SPRK
-            return parts[i].temp < 100 ? SUPERCONDUCTING_RESISTANCE : 1e-5;
-
-        // Semiconductors update every frame, return 0
+        case PT_CRBN:
         case PT_PTCT:
         case PT_NTCT:
             return 0.0;
@@ -123,10 +125,23 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
 
 // Not base resistance, but actual resistance it behaves as in the circuit
 // (ie, a switch can have either really low or really high resistance depending on state)
+// This updates every frame, if your element has a dynamic resistance set the resistance
+// in get resistance to 0.0.
 double get_effective_resistance(int type, Particle *parts, int i, Simulation *sim) {
     switch(type) {
         case PT_SWCH:
             return parts[i].life >= 4 ? resistances[type] : REALLY_BIG_RESISTANCE;
+
+        // Quartz
+        case PT_QRTZ:
+        case PT_PQRT:
+            return parts[i].temp < 173.15f ? 50 : REALLY_BIG_RESISTANCE;
+
+        // Superconductors
+        case PT_MERC:
+            return parts[i].temp < 4 ? SUPERCONDUCTING_RESISTANCE : 9.6e-7;
+        case PT_CRBN: // Unrealistic critical temp, but matches behavior for SPRK
+            return parts[i].temp < 100 ? SUPERCONDUCTING_RESISTANCE : 1e-5;
             
         // Semiconductors
         case PT_PTCT: // Resistance goes to 1e-7 above 100 C

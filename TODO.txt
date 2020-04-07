@@ -487,6 +487,8 @@ Add more reactions to existing elements:
 
 realistic gardening
 
+rope
+
 wifi snapshots use way less memory, currently super high!
 
 steal ideas from https://powdertoy.co.uk/Wiki/W/Lua_Functions_in_Jacob1%27s_Mod.html
@@ -502,6 +504,13 @@ SLCN -> QRTZ reaction
 
 STKM HRSE -> GLUE
 - stkm can ride
+- neighs
+- gallops from danger
+- eats grass and potatoes
+- turns into glue in hot water
+
+Add a PROP_EDIBLE and food nutrient value
+
 
 realistic mdoe:
 - fire requires temp to combust (add to realistic fire)
