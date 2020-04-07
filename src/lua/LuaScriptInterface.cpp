@@ -212,6 +212,7 @@ LuaScriptInterface::LuaScriptInterface(GameController * c, GameModel * m):
 		{"graphics_func",&luatpt_graphics_func},
 		{"get_clipboard", &platform_clipboardCopy},
 		{"set_clipboard", &platform_clipboardPaste},
+		{"setdrawfreq", &luatpt_setdrawcap},
 		{NULL,NULL}
 	};
 

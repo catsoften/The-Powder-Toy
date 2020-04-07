@@ -63,6 +63,8 @@ public:
 	void SetAutoHideHUD(bool enabled);
 	bool GetDimGlowMode();
 	void SetDimGlowMode(bool enabled);
+	int GetDrawingFrequencyLimit();
+	void SetDrawingFrequencyLimit(int limit);
 	virtual ~OptionsModel();
 };
 

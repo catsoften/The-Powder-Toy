@@ -132,6 +132,9 @@ void OptionsController::SetAutoHideHUD(bool enabled) {
 void OptionsController::SetDimGlowMode(bool enabled) {
 	model->SetDimGlowMode(enabled);
 }
+void OptionsController::SetDrawingFrequencyLimit(int limit) {
+	model->SetDrawingFrequencyLimit(limit);
+}
 
 void OptionsController::Exit()
 {

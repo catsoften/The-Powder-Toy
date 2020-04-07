@@ -286,6 +286,17 @@ void OptionsModel::SetDimGlowMode(bool enabled) {
 	notifySettingsChanged();
 }
 
+int OptionsModel::GetDrawingFrequencyLimit() {
+	return ui::Engine::Ref().GetDrawingFrequencyLimit();
+}
+
+void OptionsModel::SetDrawingFrequencyLimit(int limit) {
+	ui::Engine::Ref().SetDrawingFrequencyLimit(std::min(limit, ui::Engine::Ref().GetMaxDrawingFrequencyLimit()));
+	Client::Ref().SetPref("Renderer.DrawFrqLimit", int(limit));
+	notifySettingsChanged();
+}
+
+
 void OptionsModel::notifySettingsChanged()
 {
 	for (size_t i = 0; i < observers.size(); i++)

@@ -156,6 +156,26 @@ ModOptionsView::ModOptionsView() { // Originally 320, 340
 	scrollPanel->AddChild(tempLabel);
     scrollPanel->AddChild(dimGlowMode);
 
+	// ------------------
+	currentY += 20;
+	drawingFrqLimit = new ui::DropDown(ui::Point(Size.X-95, currentY), ui::Point(80, 16));
+	scrollPanel->AddChild(drawingFrqLimit);
+	int max = ui::Engine::Ref().GetMaxDrawingFrequencyLimit();
+	drawingFrqLimit->AddOption(std::pair<String, int>(String::Build("Auto (", max, ")"), max));
+	if (max > 120) drawingFrqLimit->AddOption(std::pair<String, int>("240 Hz", 240));
+	if (max > 60)  drawingFrqLimit->AddOption(std::pair<String, int>("120 Hz", 120));
+	if (max > 30)  drawingFrqLimit->AddOption(std::pair<String, int>("60 Hz", 60));
+	drawingFrqLimit->AddOption(std::pair<String, int>("30 Hz", 30));
+	drawingFrqLimit->AddOption(std::pair<String, int>("20 Hz", 20));
+	drawingFrqLimit->AddOption(std::pair<String, int>("10 Hz", 10));
+	drawingFrqLimit->AddOption(std::pair<String, int>("5 Hz", 5));
+	drawingFrqLimit->SetActionCallback({ [this] { c->SetDrawingFrequencyLimit(drawingFrqLimit->GetOption().second); } });
+
+	tempLabel = new ui::Label(ui::Point(8, currentY), ui::Point(Size.X - 96, 16), "Redraw frequency (simulation isn't affected)");
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+
     // ------------------
 
 	ui::Button * tempButton = new ui::Button(ui::Point(0, Size.Y-16), ui::Point(Size.X, 16), "OK");
@@ -174,6 +194,7 @@ void ModOptionsView::NotifySettingsChanged(OptionsModel * sender) {
 	hollowBrushes->SetChecked(sender->GetHollowBrushes());
 	autoHideHUD->SetChecked(sender->GetAutoHideHUD());
     dimGlowMode->SetChecked(sender->GetDimGlowMode());
+	drawingFrqLimit->SetOption(sender->GetDrawingFrequencyLimit());
 }
 
 ModOptionsView::~ModOptionsView() {}

@@ -545,6 +545,8 @@ iczero
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
+make bluescreen red
+
 BWBellairs element
 - ACU
     - upgrading gun
@@ -757,6 +759,14 @@ STKM portla opens to another save
 spaceships generate heat
 - raidators
 
+
+Add credits:
+- chinarichway - inspiration for faraday walls
+- jebbyk - limit redraw frequency
+- 
+
+add wiki for lua commands added:
+tpt.setdrawfreq(freq)
 
 
 fancy black holes

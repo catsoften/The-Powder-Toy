@@ -77,6 +77,7 @@ GameModel::GameModel():
 
 	//Load config into renderer
 	ren->SetColourMode(Client::Ref().GetPrefUInteger("Renderer.ColourMode", 0));
+	ui::Engine::Ref().SetDrawingFrequencyLimit(Client::Ref().GetPrefInteger("Renderer.DrawFrqLimit", 60));
 
 	tempArray = Client::Ref().GetPrefUIntegerArray("Renderer.DisplayModes");
 	if(tempArray.size())

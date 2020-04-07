@@ -46,6 +46,10 @@ namespace ui
 		void Break();
 		void UnBreak();
 
+		void SetDrawingFrequencyLimit(int limit) { drawingFrequencyLimit = limit; }
+		inline int GetDrawingFrequencyLimit() { return drawingFrequencyLimit; }
+		void SetMaxDrawingFrequencyLimit(int limit) { maxDrawingFrequencyLimit = limit; }
+		inline int GetMaxDrawingFrequencyLimit() { return maxDrawingFrequencyLimit; }
 		void SetFullscreen(bool fullscreen) { Fullscreen = fullscreen; }
 		inline bool GetFullscreen() { return Fullscreen; }
 		void SetAltFullscreen(bool altFullscreen) { this->altFullscreen = altFullscreen; }
@@ -102,6 +106,8 @@ namespace ui
 		Point windowTargetPosition;
 		int windowOpenState;
 		bool ignoreEvents = false;
+		float drawingFrequencyLimit = 60.0f;
+		float maxDrawingFrequencyLimit = 60.0f;
 
 		bool running_;
 		bool break_;

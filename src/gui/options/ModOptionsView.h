@@ -20,6 +20,7 @@ class ModOptionsView: public OptionsView {
 	ui::Checkbox * hollowBrushes;
 	ui::Checkbox * autoHideHUD;
 	ui::Checkbox * dimGlowMode;
+	ui::DropDown * drawingFrqLimit;
 
 	ui::ScrollPanel * scrollPanel;
 public:

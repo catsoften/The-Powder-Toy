@@ -139,7 +139,7 @@ void CalculateMousePosition(int *x, int *y)
 #ifdef OGLI
 void blit()
 {
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(sdl_window);
 }
 #else
 void blit(pixel * vid)
@@ -173,6 +173,15 @@ int SDLOpen()
 			desktopWidth = rect.w;
 			desktopHeight = rect.h;
 		}
+	}
+
+	// Autodetect refresh rate and set to drawing limit
+	SDL_DisplayMode displayMode;
+	SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
+
+	if (displayMode.refresh_rate >= 60) {
+		ui::Engine::Ref().SetDrawingFrequencyLimit(displayMode.refresh_rate);
+		ui::Engine::Ref().SetMaxDrawingFrequencyLimit(displayMode.refresh_rate);
 	}
 
 #ifdef WIN
@@ -252,8 +261,8 @@ void RecreateWindow()
 		SDL_DestroyWindow(sdl_window);
 	}
 
-	sdl_window = SDL_CreateWindow("The Powder Toy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOWW * scale, WINDOWH * scale,
-	                              flags);
+	sdl_window = SDL_CreateWindow("The Powder Toy Ultimata", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOWW * scale, WINDOWH * scale,
+								  flags);
 	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
 	SDL_RenderSetLogicalSize(sdl_renderer, WINDOWW, WINDOWH);
 	if (forceIntegerScaling && fullscreen)
@@ -498,9 +507,17 @@ void EngineProcess()
 {
 	double frameTimeAvg = 0.0f, correctedFrameTimeAvg = 0.0f;
 	SDL_Event event;
+
+	float drawingTimer = 0;
+	int oldFrameStart = 0;
+	int frameStart = 0;
+
 	while(engine->Running())
 	{
-		int frameStart = SDL_GetTicks();
+		oldFrameStart = frameStart;
+		frameStart = SDL_GetTicks();
+		drawingTimer += frameStart - oldFrameStart;
+
 		if(engine->Broken()) { engine->UnBreak(); break; }
 		event.type = 0;
 		while (SDL_PollEvent(&event))
@@ -509,23 +526,26 @@ void EngineProcess()
 			event.type = 0; //Clear last event
 		}
 		if(engine->Broken()) { engine->UnBreak(); break; }
-
 		engine->Tick();
-		engine->Draw();
 
-		if (scale != engine->Scale || fullscreen != engine->Fullscreen ||
-				altFullscreen != engine->GetAltFullscreen() ||
-				forceIntegerScaling != engine->GetForceIntegerScaling() || resizable != engine->GetResizable())
-		{
-			SDLSetScreen(engine->Scale, engine->GetResizable(), engine->Fullscreen, engine->GetAltFullscreen(),
-						 engine->GetForceIntegerScaling());
+		if (drawingTimer > 1000 / ui::Engine::Ref().GetDrawingFrequencyLimit()) {
+			engine->Draw();
+			drawingTimer = 0;
+
+			if (scale != engine->Scale || fullscreen != engine->Fullscreen ||
+					altFullscreen != engine->GetAltFullscreen() ||
+					forceIntegerScaling != engine->GetForceIntegerScaling() || resizable != engine->GetResizable())
+			{
+				SDLSetScreen(engine->Scale, engine->GetResizable(), engine->Fullscreen, engine->GetAltFullscreen(),
+							engine->GetForceIntegerScaling());
+			}
+
+	#ifdef OGLI
+			blit();
+	#else
+			blit(engine->g->vid);
+	#endif
 		}
-
-#ifdef OGLI
-		blit();
-#else
-		blit(engine->g->vid);
-#endif
 
 		int frameTime = SDL_GetTicks() - frameStart;
 		frameTimeAvg = frameTimeAvg * 0.8 + frameTime * 0.2;
