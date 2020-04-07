@@ -582,12 +582,11 @@ void EngineProcess()
 void BlueScreen(String detailMessage)
 {
 	ui::Engine * engine = &ui::Engine::Ref();
-	engine->g->fillrect(0, 0, engine->GetWidth(), engine->GetHeight(), 17, 114, 169, 210);
+	engine->g->fillrect(0, 0, engine->GetWidth(), engine->GetHeight(), 169, 17, 17, 210); // Used to be blue: 17, 144, 169
 
 	String errorTitle = "ERROR";
 	String errorDetails = "Details: " + detailMessage;
-	String errorHelp = "An unrecoverable fault has occurred, please report the error by visiting the website below\n"
-		SCHEME SERVER;
+	String errorHelp = "An unrecoverable fault has occurred, please report the error to the main mod thread.\n";
 	int currentY = 0, width, height;
 	int errorWidth = 0;
 	Graphics::textsize(errorHelp, errorWidth, height);

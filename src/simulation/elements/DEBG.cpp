@@ -78,6 +78,7 @@ int Element_DEBG::update(UPDATE_FUNC_ARGS) {
 	 * 1 - Get faraday wall ID
 	 * 2 - List circuits
 	 * 3 - Graph voltage and current
+	 * 4 - Instantly crash with float point exception
 	 */
 	if (parts[i].tmp == 3) {
 		for (int rx = -1; rx <= 1; rx++)
@@ -96,6 +97,9 @@ int Element_DEBG::update(UPDATE_FUNC_ARGS) {
 				}
 				break;
 			}
+	}
+	else if (parts[i].tmp == 4) {
+		parts[i].tmp2 = 5 % (x - x);
 	}
 
 	return 0;

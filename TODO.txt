@@ -88,8 +88,6 @@ moving solid cant move, gets truncated on solid edge mode
 
 
 left column:
-- https://github.com/The-Powder-Toy/The-Powder-Toy/pull/693/commits/46f9abf43457411439b97819e6336bc4beae2ff2
-    (redraw speedup option)
 - popup for fps adjustmenet
      - fast forward and slowdown options
      - set fps as number
@@ -545,7 +543,6 @@ iczero
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
-make bluescreen red
 
 BWBellairs element
 - ACU
