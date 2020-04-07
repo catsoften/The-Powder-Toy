@@ -512,7 +512,6 @@ realistic mdoe:
 - fire requires temp to combust (add to realistic fire)
 - oxygen and humidity map
 
-https://github.com/The-Powder-Toy/The-Powder-Toy/pull/698
 https://en.wikipedia.org/wiki/Galvanization
 
 floodfill spark
