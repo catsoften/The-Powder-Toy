@@ -183,10 +183,8 @@ int Element_NEUT::update(UPDATE_FUNC_ARGS)
 }
 
 
-
 //#TPT-Directive ElementHeader Element_NEUT static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_NEUT::graphics(GRAPHICS_FUNC_ARGS)
-
 {
 	*firea = 120;
 	*firer = 10;

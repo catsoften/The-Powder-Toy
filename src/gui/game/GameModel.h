@@ -82,6 +82,7 @@ private:
 	bool crosshairInBrush = true;
 	bool hollowBrushes = true;
 	bool autoHideHUD = false;
+	bool dimGlowMode = false;
 
 	size_t activeColourPreset;
 	std::vector<ui::Colour> colourPresets;
@@ -180,6 +181,8 @@ public:
 	void SetHollowBrushes(bool t);
 	bool GetAutoHideHUD() { return autoHideHUD; }
 	void SetAutoHideHUD(bool t) { autoHideHUD = t; }
+	bool GetDimGlowMode() { return dimGlowMode; }
+	void SetDimGlowMode(bool t) { dimGlowMode = t; }
 	
 	std::vector<Tool*> GetToolList();
 	std::vector<Tool*> GetUnlistedTools();

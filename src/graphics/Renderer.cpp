@@ -13,6 +13,7 @@
 #include "common/tpt-compat.h"
 
 #include "gui/game/RenderPreset.h"
+#include "gui/game/GameModel.h"
 
 #include "simulation/Simulation.h"
 #include "simulation/ElementGraphics.h"
@@ -20,7 +21,9 @@
 #include "simulation/Gravity.h"
 #include "simulation/magnetics/magnetics.h"
 #include "simulation/stress/stress.h"
+
 #include "ElementClasses.h"
+
 
 #ifdef LUACONSOLE
 #include "lua/LuaScriptInterface.h"
@@ -1484,6 +1487,26 @@ void Renderer::render_parts()
 				if(firea>255) firea = 255;
 				else if(firea<0) firea = 0;
 	#endif
+
+				// Dim glow for certain particles in dim mode
+				if (sim->getModel() && sim->getModel()->GetDimGlowMode()) {
+					switch(t) {
+						case PT_NEUT:
+						case PT_SPRK:
+							firea = 50;
+							break;
+						case PT_ELEC:
+						case PT_POSI:
+						case PT_PHOT:
+							firea = 35;
+							break;
+						case PT_FIRE:
+							if (firea > 150)
+								firea = 150;
+							break;
+						default: break;
+					}
+				}
 
 				//Pixel rendering
 				if (pixel_mode & EFFECT_LINES)

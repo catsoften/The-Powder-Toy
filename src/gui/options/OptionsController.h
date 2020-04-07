@@ -40,6 +40,7 @@ public:
 	void SetCrosshairInBrush(bool enabled);
 	void SetHollowBrushes(bool enabled);
 	void SetAutoHideHUD(bool enabled);
+	void SetDimGlowMode(bool enabled);
 	
 	void Exit();
 	OptionsView * GetView();

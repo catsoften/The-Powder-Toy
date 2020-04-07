@@ -276,6 +276,16 @@ void OptionsModel::SetAutoHideHUD(bool enabled) {
 	notifySettingsChanged();
 }
 
+bool OptionsModel::GetDimGlowMode() {
+	return Client::Ref().GetPrefBool("Renderer.DimGlow", false);
+}
+
+void OptionsModel::SetDimGlowMode(bool enabled) {
+	Client::Ref().SetPref("Renderer.DimGlow", enabled);
+	gModel->SetDimGlowMode(enabled);
+	notifySettingsChanged();
+}
+
 void OptionsModel::notifySettingsChanged()
 {
 	for (size_t i = 0; i < observers.size(); i++)

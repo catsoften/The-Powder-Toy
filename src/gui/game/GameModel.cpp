@@ -104,7 +104,8 @@ GameModel::GameModel():
 	if (ngrav_enable)
 		sim->grav->start_grav_async();
 	sim->aheat_enable =  Client::Ref().GetPrefInteger("Simulation.AmbientHeat", 0);
-	sim->pretty_powder =  Client::Ref().GetPrefInteger("Simulation.PrettyPowder", 0);
+	sim->pretty_powder = Client::Ref().GetPrefInteger("Simulation.PrettyPowder", 0);
+	dimGlowMode = Client::Ref().GetPrefBool("Renderer.DimGlow", false);
 
 	Favorite::Ref().LoadFavoritesFromPrefs();
 

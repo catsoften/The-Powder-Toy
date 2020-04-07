@@ -129,6 +129,9 @@ void OptionsController::SetHollowBrushes(bool enabled) {
 void OptionsController::SetAutoHideHUD(bool enabled) {
 	model->SetAutoHideHUD(enabled);
 }
+void OptionsController::SetDimGlowMode(bool enabled) {
+	model->SetDimGlowMode(enabled);
+}
 
 void OptionsController::Exit()
 {

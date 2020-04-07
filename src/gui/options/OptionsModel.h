@@ -61,6 +61,8 @@ public:
 	void SetHollowBrushes(bool enabled);
 	bool GetAutoHideHUD();
 	void SetAutoHideHUD(bool enabled);
+	bool GetDimGlowMode();
+	void SetDimGlowMode(bool enabled);
 	virtual ~OptionsModel();
 };
 
