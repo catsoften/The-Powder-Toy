@@ -50,6 +50,8 @@ public:
 	float HighTemperature;
 	int HighTemperatureTransition;
 
+	int FoodValue;
+
 	int (*Update) (UPDATE_FUNC_ARGS);
 	int (*Graphics) (GRAPHICS_FUNC_ARGS);
 

@@ -31,7 +31,8 @@ Element_ALGE::Element_ALGE()
 	HeatConduct = 70;
 	Description = "Algae. Grows on the surface of water.";
 
-	Properties = TYPE_PART;
+	Properties = TYPE_PART | PROP_EDIBLE;
+	FoodValue = 1;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

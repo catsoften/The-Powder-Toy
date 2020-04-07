@@ -31,7 +31,8 @@ Element_HONY::Element_HONY()
 	HeatConduct = 29;
 	Description = "Honey. Sweet liquid produced by BEEs.";
 
-	Properties = TYPE_LIQUID;
+	Properties = TYPE_LIQUID | PROP_EDIBLE;
+	FoodValue = 5;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

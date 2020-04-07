@@ -31,7 +31,8 @@ Element_MILK::Element_MILK()
 	HeatConduct = 29;
 	Description = "Milk. Heals STKM, goes bad over time.";
 
-	Properties = TYPE_LIQUID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_NEUTPASS;
+	Properties = TYPE_LIQUID | PROP_CONDUCTS | PROP_LIFE_DEC | PROP_NEUTPASS | PROP_EDIBLE;
+	FoodValue = 5;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

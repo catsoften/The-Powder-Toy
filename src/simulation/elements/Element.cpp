@@ -42,6 +42,8 @@ Element::Element():
 	HighTemperature(ITH),
 	HighTemperatureTransition(NT),
 
+	FoodValue(0),
+
 	Update(nullptr),
 	Graphics(&Element::defaultGraphics),
 	CtypeDraw(nullptr),
@@ -88,7 +90,8 @@ std::vector<StructProperty> const &Element::GetProperties()
 		{ "LowTemperature",            StructProperty::Float,    offsetof(Element, LowTemperature           ) },
 		{ "LowTemperatureTransition",  StructProperty::TransitionType,  offsetof(Element, LowTemperatureTransition ) },
 		{ "HighTemperature",           StructProperty::Float,    offsetof(Element, HighTemperature          ) },
-		{ "HighTemperatureTransition", StructProperty::TransitionType,  offsetof(Element, HighTemperatureTransition) }
+		{ "HighTemperatureTransition", StructProperty::TransitionType,  offsetof(Element, HighTemperatureTransition) },
+		{ "FoodValue", 				   StructProperty::Integer,  offsetof(Element, FoodValue) }
 	};
 	return properties;
 }

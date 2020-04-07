@@ -32,7 +32,8 @@ Element_POTO::Element_POTO()
 
 	DefaultProperties.life = 4;
 
-	Properties = TYPE_PART;
+	Properties = TYPE_PART | PROP_EDIBLE;
+	FoodValue = 10;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

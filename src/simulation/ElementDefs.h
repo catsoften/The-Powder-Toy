@@ -35,6 +35,7 @@
 #define PROP_NO_TIME        0x400000 // 2^22 Not affected by time dilation
 #define PROP_WATER          0x1000000 // 2^23 Water element (like SLTW, SWTR)
 #define PROP_INDESTRUCTIBLE 0x2000000 // 2^24 Indestructible
+#define PROP_EDIBLE         0x4000000 // 2^25 Edible (food)
 
 #define FLAG_STAGNANT	0x1
 #define FLAG_SKIPMOVE  0x2 // skip movement for one frame, only implemented for PHOT

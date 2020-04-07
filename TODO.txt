@@ -509,8 +509,6 @@ STKM HRSE -> GLUE
 - eats grass and potatoes
 - turns into glue in hot water
 
-Add a PROP_EDIBLE and food nutrient value
-
 
 realistic mdoe:
 - fire requires temp to combust (add to realistic fire)

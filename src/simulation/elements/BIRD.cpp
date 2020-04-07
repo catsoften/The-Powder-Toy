@@ -40,7 +40,8 @@ Element_BIRD::Element_BIRD()
 	HeatConduct = 150;
 	Description = "Birds, flies in flocks, eats ants, fish, and seeds. Flammable.";
 
-	Properties = TYPE_PART;
+	Properties = TYPE_PART | PROP_EDIBLE;
+	FoodValue = 2;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

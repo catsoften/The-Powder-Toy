@@ -30,7 +30,8 @@ Element_FISH::Element_FISH()
 	HeatConduct = 150;
 	Description = "Freshwater fish, swims in water and eats ANT and SEED.";
 
-	Properties = TYPE_PART;
+	Properties = TYPE_PART | PROP_EDIBLE;
+	FoodValue = 3;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;

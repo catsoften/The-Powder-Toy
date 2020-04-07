@@ -400,11 +400,10 @@ int Element_STKM::run_stickman(playerst *playerp, UPDATE_FUNC_ARGS) {
 					continue;
 
 				STKM_set_element(sim, playerp, TYP(r));
-				if ((TYP(r) == PT_PLNT || TYP(r) == PT_HONY || TYP(r) == PT_MILK) && parts[i].life<100) //Plant gives him 5 HP
+				if ((sim->elements[TYP(r)].Properties & PROP_EDIBLE) && parts[i].life<100)
 				{
-					if (parts[i].life<=95)
-						parts[i].life += 5;
-					else
+					parts[i].life += sim->elements[TYP(r)].FoodValue;
+					if (parts[i].life > 100)
 						parts[i].life = 100;
 					sim->kill_part(ID(r));
 				}
