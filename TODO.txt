@@ -487,21 +487,14 @@ realistic gardening
 
 rope
 
-standardize code for vehicles, fields
-- vehicles:
-    - get command (from player or AI automatically)
-    - replace 273.15f with 0C #define
-    - better vehicle constructor
-        - vehicle builder :D
-    - STKM tmp2 values as enum in vehicle.h
-    - check FIHG id exists
-    - set displacement and copy value to function
+standardize code for fields
+ - consistent casing (uppercase) for ufnctions
 - reduce circuit constructor size
 - standardize fields (caps and shit)
 - fix { or \n{
 
-DONE:
-- Dropdown.h is miscased (DropDown.h)
+generate wiki page py
+
 
 wifi snapshots use way less memory, currently super high!
 

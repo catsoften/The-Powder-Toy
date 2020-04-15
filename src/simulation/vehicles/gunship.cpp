@@ -1,27 +1,33 @@
 #include "simulation/vehicles/vehicle.h"
 #include "simulation/vehicles/gunship.h"
-#include <vector>
 
-// See vehicle.h for parameter list
-Vehicle Gunship(76, 30, 0.05f, 0.4f, 2.5f, 55.0f, 1.1f, 0.1f);
+Vehicle Gunship = VehicleBuilder()
+    .SetSize(70, 30)
+    .SetGroundAccel(0.05f)
+    .SetFlyAccel(0.4f)
+    .SetMaxSpeed(2.5f)
+    .SetCollisionSpeed(55.0f)
+    .SetRunoverSpeed(1.1f)
+    .SetRotationSpeed(0.1f)
+    .Build();
 
 void draw_gunship(Renderer *ren, Particle *cpart, float vx, float vy) {
     draw_px(GUNSHIP_BASE, ren, cpart, cpart->pavg[0]);
 
     int t1x, t1y, t2x, t2y;
-    float tangle = (fabs(vx) > 0.2f || fabs(vy) > 0.2f) ? atan2(vy, vx) : 3.1415f / 2;
-    if (tangle > 3.1415f)
-        tangle -= 3.1415f;
+    float tangle = (fabs(vx) > 0.2f || fabs(vy) > 0.2f) ? atan2(vy, vx) : PI / 2;
+    if (tangle > PI)
+        tangle -= PI;
 
-    t1x = -Gunship.WIDTH * 0.3f * (cpart->pavg[1] ? -1 : 1);
-    t1y = Gunship.HEIGHT * 0.4f;
+    t1x = -Gunship.width * 0.3f * (cpart->pavg[1] ? -1 : 1);
+    t1y = Gunship.height * 0.4f;
     rotate(t1x, t1y, cpart->pavg[0]);
-    draw_px_raw(THRUSTER1, ren, cpart, cpart->x + t1x, cpart->y + t1y, cpart->pavg[1], tangle);
+    draw_px_raw(THRUSTER_FRONT, ren, cpart, cpart->x + t1x, cpart->y + t1y, cpart->pavg[1], tangle);
 
-    t2x = Gunship.WIDTH * 0.4f * (cpart->pavg[1] ? -1 : 1);
-    t2y = -Gunship.HEIGHT * 0.3f;
+    t2x = Gunship.width * 0.4f * (cpart->pavg[1] ? -1 : 1);
+    t2y = -Gunship.height * 0.3f;
     rotate(t2x, t2y, cpart->pavg[0]);
-    draw_px_raw(THRUSTER2, ren, cpart, cpart->x + t2x, cpart->y + t2y, cpart->pavg[1], tangle);
+    draw_px_raw(THRUSTER_BACK, ren, cpart, cpart->x + t2x, cpart->y + t2y, cpart->pavg[1], tangle);
 }
 
 std::vector<VehiclePixel> GUNSHIP_BASE({
@@ -1110,7 +1116,7 @@ std::vector<VehiclePixel> GUNSHIP_BASE({
     VehiclePixel(-9, 14, 96, 96, 96)
 });
 
-std::vector<VehiclePixel> THRUSTER2({
+std::vector<VehiclePixel> THRUSTER_BACK({
     VehiclePixel(-9, -7, 95, 104, 116),
     VehiclePixel(-8, -7, 101, 106, 123),
     VehiclePixel(-7, -7, 153, 167, 186),
@@ -1430,7 +1436,7 @@ std::vector<VehiclePixel> THRUSTER2({
     VehiclePixel(1, 7, 21, 22, 23)
 });
 
-std::vector<VehiclePixel> THRUSTER1({
+std::vector<VehiclePixel> THRUSTER_FRONT({
 VehiclePixel(-7, -5, 30, 30, 36),
 VehiclePixel(-7, -4, 70, 78, 93),
 VehiclePixel(-6, -4, 56, 66, 78),

@@ -1,22 +1,11 @@
-#include "simulation/ElementCommon.h"
 #include "simulation/vehicles/vehicle.h"
 #include "hmap.h"
 
-#include <vector>
-#include <cmath>
-
-void rotate(int &x, int &y, float rotation) {
-    if (fabs(rotation) < 0.01) return;
-    int x2 = round(x * cos(rotation)) - round(y * sin(rotation));
-    int y2 = round(y * cos(rotation)) + round(x * sin(rotation));
-    x = x2; y = y2;
-}
-
-void rotate(float &x, float &y, float rotation) {
-    if (fabs(rotation) < 0.01) return;
-    float x2 = x * cos(rotation) - y * sin(rotation);
-    float y2 = y * cos(rotation) + x * sin(rotation);
-    x = x2; y = y2;
+Vehicle& VehicleBuilder::Build() {
+    if (vehicle) delete vehicle;
+    vehicle = new Vehicle(width, height, accel, fly_accel, max_speed,
+        collision_speed, runover_speed, rotation_speed);
+    return *vehicle;
 }
 
 void draw_px_raw(const std::vector<VehiclePixel> &img, Renderer *ren, Particle *cpart, int cx, int cy, bool flip, float rotation) {
@@ -30,9 +19,8 @@ void draw_px_raw(const std::vector<VehiclePixel> &img, Renderer *ren, Particle *
         rotate(x, y, rotation);
 
         // Heat display
-        if (ren->colour_mode & COLOUR_HEAT) {
+        if (ren->colour_mode & COLOUR_HEAT)
             ren->drawrect(cx + x, cy + y, 1, 1, color_data[caddress],  color_data[caddress + 1],  color_data[caddress + 2], 255);
-        }
         // Normal display
         else {
             ren->drawrect(cx + x, cy + y, 1, 1, px->r, px->g, px->b, 255);

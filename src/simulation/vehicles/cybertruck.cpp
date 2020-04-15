@@ -1,9 +1,15 @@
 #include "simulation/vehicles/vehicle.h"
 #include "simulation/vehicles/cybertruck.h"
-#include <vector>
 
-// See vehicle.h for parameter list
-Vehicle CYBERTRUCK(46, 14, 2.5f, 1.0f, 10.0f, 3.0f, 2.0f, 0.1f);
+Vehicle Cybertruck = VehicleBuilder()
+    .SetSize(46, 14)
+    .SetGroundAccel(2.5f)
+    .SetFlyAccel(1.0f)
+    .SetMaxSpeed(10.0f)
+    .SetCollisionSpeed(3.0f)
+    .SetRunoverSpeed(2.0f)
+    .SetRotationSpeed(0.1f)
+    .Build();
 
 void draw_cybertruck(Renderer *ren, Particle *cpart, float rotation) {
     draw_px(CYBERTRUCK_PIXELS, ren, cpart, rotation);

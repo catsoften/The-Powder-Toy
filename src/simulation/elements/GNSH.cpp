@@ -4,8 +4,7 @@
 #include "gui/game/GameModel.h"
 
 //#TPT-Directive ElementClass Element_GNSH PT_GNSH 214
-Element_GNSH::Element_GNSH()
-{
+Element_GNSH::Element_GNSH() {
 	Identifier = "DEFAULT_PT_GNSH";
 	Name = "GNSH";
 	Colour = PIXPACK(0x8fa7b3);
@@ -29,7 +28,6 @@ Element_GNSH::Element_GNSH()
 	Hardness = 1;
 
 	Weight = 100;
-
 	HeatConduct = 10;
 	Description = "UEF T3 Heavy Gunship. Now rideable! UP = Shoot, DOWN = Fly, L + R + D = exit";
 
@@ -48,33 +46,44 @@ Element_GNSH::Element_GNSH()
 
 	Update = &Element_GNSH::update;
 	Graphics = &Element_GNSH::graphics;
+	ChangeType = &Element_GNSH::changeType;
 }
 
-//#TPT-Directive ElementHeader Element_GNSH static void accelerate_air(float rx, float ry, Simulation *sim, Particle *parts, int i, int x, int y, float tangle, float speed)
-void Element_GNSH::accelerate_air(float rx, float ry, Simulation *sim, Particle *parts, int i, int x, int y, float tangle, float speed) {
+//#TPT-Directive ElementHeader Element_GNSH static void accelerate_air(float rx, float ry, Simulation *sim, Particle *parts, int i, int x, int y, float t_angle, float speed)
+void Element_GNSH::accelerate_air(float rx, float ry, Simulation *sim, Particle *parts, int i, int x, int y, float t_angle, float speed) {
 	rotate(rx, ry, parts[i].pavg[0]);
-
-	// Accelerate air
-	sim->vx[(int)(y + ry) / CELL][(int)(x + rx) / CELL] += speed * cos(tangle);
-	sim->vy[(int)(y + ry) / CELL][(int)(x + rx) / CELL] += speed * sin(tangle);
+	sim->vx[(int)(y + ry) / CELL][(int)(x + rx) / CELL] += speed * cos(t_angle);
+	sim->vy[(int)(y + ry) / CELL][(int)(x + rx) / CELL] += speed * sin(t_angle);
 
 	// Search for nearby birds and kill 'em
 	for (int rx2 = -3; rx2 <= 3; ++rx2)
 		for (int ry2 = -3; ry2 <= 3; ++ry2)
 			if (BOUNDS_CHECK && (rx2 || ry2)) {
 				int r = sim->pmap[(int)(y + ry + ry2)][(int)(x + rx + rx2)];
-				if (!r) continue;
-
-				// Shred any birds :D
-				if (TYP(r) == PT_BIRD)
-					sim->part_change_type(ID(r), parts[ID(r)].x, parts[ID(r)].y, PT_BLOD);
+				if (!r || TYP(r) != PT_BIRD) continue;
+				sim->part_change_type(ID(r), parts[ID(r)].x, parts[ID(r)].y, PT_BLOD);
 			}
+}
+
+//#TPT-Directive ElementHeader Element_GNSH static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
+void Element_GNSH::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
+	if (to == PT_NONE && sim->parts[i].life <= 0) {
+		// Upon death, turn into a gunship shaped pile of CRBN
+		for (auto px = GUNSHIP_BASE.begin(); px != GUNSHIP_BASE.end(); ++px) {
+			int j = Element_CYTK::create_part(sim, px->x, px->y, PT_CRBN, sim->parts[i].pavg[0], sim->parts, i);
+			if (j > -1) {
+				sim->parts[j].dcolour = 0xAF000000 | PIXRGB(px->r, px->g, px->b);
+				sim->parts[j].vx = sim->parts[i].vx;
+				sim->parts[j].vy = sim->parts[i].vy;
+				sim->parts[j].temp = sim->parts[i].temp;
+			}
+		}
+	}
 }
 
 //#TPT-Directive ElementHeader Element_GNSH static int update(UPDATE_FUNC_ARGS)
 int Element_GNSH::update(UPDATE_FUNC_ARGS) {
-	// NOTE: TANK UPDATES TWICE PER FRAME
-
+	// NOTE: GNSH UPDATES TWICE PER FRAME
 	/**
 	 * Properties:
 	 * vx, vy (velocity)
@@ -87,11 +96,6 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 	 * 
 	 * If touched by a FIGH the FIGH will attempt to use the gunship to fire on STKM
 	 */
-
-	// Collision checking and update
-	// We'll consider moving in the direction of velocity
-	// We only check collisions with 6 points on the rectangle that
-	// bounds the tank
 	float ovx = parts[i].vx, ovy = parts[i].vy;
 	bool has_collision;
 	Element_CYTK::initial_collision(sim, parts, i, Gunship, has_collision);
@@ -99,7 +103,6 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 	// Heat damage
 	if (parts[i].temp > 273.15f + 9000.0f)
 		parts[i].life--;
-
 	// Self destruction, leave a randomized Gunship shaped pile of powder
 	if (parts[i].life <= 0) {
 		sim->kill_part(i);
@@ -109,82 +112,67 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 	// If life <= 1000 spawn sparks (EMBR)
 	if (parts[i].life <= 1000) {
 		if (RNG::Ref().chance(1, 50))
-			Element_CYTK::create_part(sim, Gunship.WIDTH * 0.4f, -Gunship.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK::create_part(sim, Gunship.width * 0.4f, -Gunship.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 		if (RNG::Ref().chance(1, 50))
-			Element_CYTK::create_part(sim, -Gunship.WIDTH * 0.4f, -Gunship.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK::create_part(sim, -Gunship.width * 0.4f, -Gunship.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 		if (RNG::Ref().chance(1, 50))
-			Element_CYTK::create_part(sim, 0, -Gunship.HEIGHT / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK::create_part(sim, 0, -Gunship.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 	}
 	// If life <= 300 spawn fire damage
 	if (parts[i].life <= 300 && RNG::Ref().chance(1, 30)) {
-		Element_CYTK::create_part(sim, -Gunship.WIDTH * 0.4f, -Gunship.HEIGHT / 2, PT_FIRE, parts[i].pavg[0], parts, i);
+		Element_CYTK::create_part(sim, -Gunship.width * 0.4f, -Gunship.height / 2, PT_FIRE, parts[i].pavg[0], parts, i);
 	}
 
 	// Player controls
-	int cmd = 0, cmd2 = 0;
-	if (parts[i].tmp2 == 1 || parts[i].tmp2 == 2) {
-		int command = parts[i].tmp2 == 1 ? sim->player.comm : sim->player2.comm;
-		if (((int)command & 0x01) == 0x01) // Left
-			cmd = 1;
-		else if (((int)command & 0x02) == 0x02) // Right
-			cmd = 2;
-		if (((int)command & 0x03) == 0x03) // Left & Right
-			cmd = 3;
-		if (((int)command & 0x04) == 0x04) // Up (Shoot)
-			cmd2 = 3;
-		else if (((int)command & 0x08) == 0x08) // Down (fly)
-			cmd2 = 4;
-	}
-	
-	// Fighter AI
-	// Get target
+	int cmd = NOCMD, cmd2 = NOCMD;
 	int tarx = -1, tary = -1;
-	if (parts[i].tmp2 > 2) {
+	if (is_stkm(parts[i].tmp2))
+		Element_CYTK::get_player_command(sim, parts, i, cmd, cmd2);
+	// Fighter AI
+	else if (is_figh(parts[i].tmp2)) {
 		Element_CYTK::get_target(sim, parts, tarx, tary);
 		if (tarx > 0) {
-			cmd = tarx > parts[i].x ? 2 : 1;
-			cmd2 = RNG::Ref().chance(1, 3) ? 3 : 0;
+			cmd = tarx > parts[i].x ? RIGHT : LEFT;
+			cmd2 = RNG::Ref().chance(1, 3) ? UP : NOCMD;
 			if (RNG::Ref().chance(1, 10))
-				cmd2 = tary < parts[i].y ? 3 : 4;
+				cmd2 = tary < parts[i].y ? UP : DOWN;
 		}
 	}
 
 	// Do controls
-	if (cmd != 0 || cmd2 != 0) {
-		float vx = -Gunship.SPEED, vy = 0.0f;
-		if (cmd == 1) { // Left
-			rotate(vx, vy, parts[i].pavg[0]);
-			parts[i].vx += vx;
-			parts[i].vy += vy;
+	if (cmd != NOCMD || cmd2 != NOCMD) {
+		float ax = -Gunship.acceleration, ay = 0.0f;
+		if (cmd == LEFT) { // Left
+			rotate(ax, ay, parts[i].pavg[0]);
+			parts[i].vx += ax, parts[i].vy += ay;
 			parts[i].pavg[1] = 0; // Set face direction
 			parts[i].y -= 0.5;
 		}
-		else if (cmd == 2) { // Right
-			vx *= -1;
-			rotate(vx, vy, parts[i].pavg[0]);
-			parts[i].vx += vx;
-			parts[i].vy += vy;
+		else if (cmd == RIGHT) { // Right
+			ax *= -1;
+			rotate(ax, ay, parts[i].pavg[0]);
+			parts[i].vx += ax, parts[i].vy += ay;
 			parts[i].pavg[1] = 1; // Set face direction
 			parts[i].y -= 0.5;
 		}
-		else if (cmd == 3 && cmd2 == 4) { // Exit (left and right and down)
+		else if (cmd == LEFT_AND_RIGHT && cmd2 == DOWN) { // Exit (left and right and down)
 			Element_CYTK::exit_vehicle(sim, parts, i, x, y);
 			return 0;
 		}
 		// Thruster angle calculation
-		float tangle = (fabs(vx) > 0.2f || fabs(vy) > 0.2f) ? atan2(vy, vx) : 3.1415f / 2;
-		if (tangle > 3.1415f)
-			tangle -= 3.1415f;
+		float tangle = (fabs(ax) > 0.2f || fabs(ay) > 0.2f) ? atan2(ay, ax) : PI / 2;
+		if (tangle > PI)
+			tangle -= PI;
 
-		if (cmd2 == 3) { // Shoot (up)
+		if (cmd2 == UP) { // Shoot (up)
 			// Hover while shooting
-			float vx = 0.0f, vy = -0.08f;
-			rotate(vx, vy, parts[i].pavg[0]);
-			parts[i].vx += vx; parts[i].vy += vy;
+			float ax = 0.0f, ay = -0.08f;
+			rotate(ax, ay, parts[i].pavg[0]);
+			parts[i].vx += ax; parts[i].vy += ay;
 
 			// Accelerate air
-			accelerate_air(Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, sim, parts, i, x, y, tangle, 7.0f);
-			accelerate_air(-Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, sim, parts, i, x, y, tangle, 7.0f);
+			accelerate_air(Gunship.width * 0.4f, Gunship.height / 2, sim, parts, i, x, y, tangle, 7.0f);
+			accelerate_air(-Gunship.width * 0.4f, Gunship.height / 2, sim, parts, i, x, y, tangle, 7.0f);
 
 			// Get target, mouse pos or fighter target
 			std::pair<float, float> target = parts[i].tmp2 == 3 ?
@@ -205,18 +193,17 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 				}
 			}
 		}
-		else if (cmd2 == 4) { // Fly (down)
-			float vx = 0.0f, vy = -Gunship.FLY_SPEED / 4.0f;
-			rotate(vx, vy, parts[i].pavg[0]);
-			parts[i].vx += vx;
-			parts[i].vy += vy;
+		else if (cmd2 == DOWN) { // Fly (down)
+			float ax = 0.0f, ay = -Gunship.fly_acceleration / 4.0f;
+			rotate(ax, ay, parts[i].pavg[0]);
+			parts[i].vx += ax, parts[i].vy += ay;
 
 			// Accelerate air
-			accelerate_air(Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, sim, parts, i, x, y, tangle, 7.0f);
-			accelerate_air(-Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, sim, parts, i, x, y, tangle, 7.0f);
+			accelerate_air(Gunship.width * 0.4f, Gunship.height / 2, sim, parts, i, x, y, tangle, 7.0f);
+			accelerate_air(-Gunship.width * 0.4f, Gunship.height / 2, sim, parts, i, x, y, tangle, 7.0f);
 
-			int j1 = Element_CYTK::create_part(sim, Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, PT_SMKE, parts[i].pavg[0], parts, i);
-			int j2 = Element_CYTK::create_part(sim, -Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, PT_SMKE, parts[i].pavg[0], parts, i);
+			int j1 = Element_CYTK::create_part(sim, Gunship.width * 0.4f, Gunship.height / 2, PT_SMKE, parts[i].pavg[0], parts, i);
+			int j2 = Element_CYTK::create_part(sim, -Gunship.width * 0.4f, Gunship.height / 2, PT_SMKE, parts[i].pavg[0], parts, i);
 			if (j1 > -1 && j2 > -1) {
 				parts[j1].temp = parts[j2].temp = 400.0f;
 				parts[j1].life = RNG::Ref().between(0, 100) + 50;

@@ -7,7 +7,7 @@
 Element_HRSE::Element_HRSE() {
 	Identifier = "DEFAULT_PT_HRSE";
 	Name = "HRSE";
-	Colour = PIXPACK(0xFFFFFF);
+	Colour = PIXPACK(0xC27536);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -15,7 +15,7 @@ Element_HRSE::Element_HRSE() {
 	Advection = 0.01f;
 	AirDrag = 0.01f * CFDS;
 	AirLoss = 0.94f;
-	Loss = 0.95f;
+	Loss = 0.9999f;
 	Collision = -0.1f;
 	Gravity = 0.1f;
 	Diffusion = 0.0f;
@@ -44,7 +44,7 @@ Element_HRSE::Element_HRSE() {
 	HighTemperatureTransition = PT_FIRE;
 
 	DefaultProperties.life = 100;
-	DefaultProperties.pavg[1] = -0.77f; // About 45 deg upwards default neck rotation
+	DefaultProperties.pavg[1] = -PI / 4; // About 45 deg upwards default neck rotation
 
 	Update = &Element_HRSE::update;
 	Graphics = &Element_HRSE::graphics;
@@ -107,6 +107,8 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 	// Heat damage
 	if (parts[i].temp > 273.15f + 50.0f)
 		parts[i].life -= 2;
+	if (parts[i].temp > 273.15f + 100.0f)
+		sim->kill_part(i);
 	// Pressure damage
 	if (fabs(sim->pv[y / CELL][x / CELL]) > 1.0f)
 		parts[i].life -= 2;
@@ -117,15 +119,15 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 		parts[i].life--;
 	}
 
-	int cmd = 0, cmd2 = 0;
+	int cmd = NOCMD, cmd2 = NOCMD;
 	// Fleeing from danger
 	if (parts[i].tmp & 4) {
-		cmd = 1;
+		cmd = LEFT;
 		if (RNG::Ref().chance(1, 150))
 			parts[i].tmp &= ~4;
 	}
 	else if (parts[i].tmp & 8) {
-		cmd = 2;
+		cmd = RIGHT;
 		if (RNG::Ref().chance(1, 150))
 			parts[i].tmp &= ~8;
 	}
@@ -133,7 +135,7 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 	// Horse AI
 	else if (parts[i].tmp2 == 0) {
 		// Eat stuff
-		int foodx = Horse.WIDTH / 2, foody = Horse.HEIGHT / 2;
+		int foodx = Horse.width / 2, foody = Horse.height / 2;
 		if (parts[i].tmp & 2) foodx = -foodx - 5; // 5 is correction offset for some reason
 		rotate(foodx, foody, parts[i].pavg[0]);
 		bool found_food = false;
@@ -152,32 +154,21 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 				}
 			}
 		if (!found_food) {
-			parts[i].pavg[1] = -0.77f; // Normal neck angle
+			parts[i].pavg[1] = -PI / 4; // Normal neck angle
 			if (RNG::Ref().chance(1, 200))
 				cmd = RNG::Ref().chance(1, 2) ? 1 : 2;
 		}
 	}
 
 	// Player controls
-	else if (parts[i].tmp2 == 1 || parts[i].tmp2 == 2) {
-		int command = parts[i].tmp2 == 1 ? sim->player.comm : sim->player2.comm;
-		if (((int)command & 0x01) == 0x01) // Left
-			cmd = 1;
-		if (((int)command & 0x02) == 0x02) // Right
-			cmd = 2;
-		if (((int)command & 0x04) == 0x04) // Up (Jump)
-			cmd2 = 3;
-		if (((int)command & 0x08) == 0x08) // Down (Exit)
-			cmd2 = 4;
-	}
-	
+	else if (is_stkm(parts[i].tmp2))
+		Element_CYTK::get_player_command(sim, parts, i, cmd, cmd2);
 	// Fighter AI
-	else if (parts[i].tmp2 > 2) {
-		// Get target and run towards it
-		int tarx = -1, tary = -1;
+	else if (is_figh(parts[i].tmp2)) {
+		int tarx = -1, tary = -1; // Get target and run towards it
 		Element_CYTK::get_target(sim, parts, tarx, tary);
 		if (tarx > 0 && has_collision)
-			cmd = tarx > parts[i].x ? 2 : 1;
+			cmd = tarx > parts[i].x ? RIGHT : LEFT;
 	}
 
 	// Horse instinct that overrides any player controls
@@ -209,40 +200,37 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 		parts[i].tmp &= ~8;
 		if (rx > 0) parts[i].tmp |= 4;
 		if (rx < 0) parts[i].tmp |= 8;
-		cmd = rx > 0 ? 1 : 2;
+		cmd = rx > 0 ? LEFT : RIGHT;
 	}
 
 	// Do controls
-	if (cmd != 0 || cmd2 != 0) {
+	if (cmd != NOCMD || cmd2 != NOCMD) {
 		if (has_collision || (parts[i].tmp & 1)) { // Accelerating only can be done on ground or if rocket
-		 	float vx = has_collision ? -Horse.SPEED : -Horse.FLY_SPEED / 8.0f, vy = 0.0f;
-			if (cmd == 1) { // Left
-				rotate(vx, vy, parts[i].pavg[0]);
-				parts[i].vx += vx;
-				parts[i].vy += vy;
+		 	float ax = has_collision ? -Horse.acceleration : -Horse.fly_acceleration / 8.0f, ay = 0.0f;
+			if (cmd == LEFT) { // Left
+				rotate(ax, ay, parts[i].pavg[0]);
+				parts[i].vx += ax, parts[i].vy += ay;
 				parts[i].tmp |= 2; // Set face direction
 				parts[i].y -= 0.5;
 			}
-			if (cmd == 2) { // Right
-				vx *= -1;
-				rotate(vx, vy, parts[i].pavg[0]);
-				parts[i].vx += vx;
-				parts[i].vy += vy;
+			else if (cmd == RIGHT) { // Right
+				ax *= -1;
+				rotate(ax, ay, parts[i].pavg[0]);
+				parts[i].vx += ax, parts[i].vy += ay;
 				parts[i].tmp &= ~2; // Set face direction
 				parts[i].y -= 0.5;
 			}
 		}
-		if (cmd2 == 4) { // Exit (down)
+		if (cmd2 == DOWN) { // Exit (down)
 			Element_CYTK::exit_vehicle(sim, parts, i, x, y);
 			return 0;
 		}
-		if (cmd2 == 3) { // Jump
-			float vx = 0.0f, vy = 0.0f;
-
+		else if (cmd2 == UP) { // Jump
+			float ax = 0.0f, ay = 0.0f;
 			if (parts[i].tmp & 1) {
-				vy = -Horse.FLY_SPEED / 4.0f;
-				int j1 = Element_CYTK::create_part(sim, Horse.WIDTH * 0.4f, Horse.HEIGHT / 2, PT_PLSM, parts[i].pavg[0], parts, i);
-				int j2 = Element_CYTK::create_part(sim, -Horse.WIDTH * 0.4f, Horse.HEIGHT / 2, PT_PLSM, parts[i].pavg[0], parts, i);
+				ay = -Horse.fly_acceleration / 4.0f;
+				int j1 = Element_CYTK::create_part(sim, Horse.width * 0.4f, Horse.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
+				int j2 = Element_CYTK::create_part(sim, -Horse.width * 0.4f, Horse.height / 2, PT_PLSM, parts[i].pavg[0], parts, i);
 				if (j1 > -1 && j2 > -1) {
 					parts[j1].temp = parts[j2].temp = 400.0f;
 					parts[j1].life = RNG::Ref().between(0, 100) + 50;
@@ -250,12 +238,11 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 				}
 			}
 			else if (has_collision) {
-				vy = -10;
+				ay -= 10;
 			}
-
-			rotate(vx, vy, parts[i].pavg[0]);
-			parts[i].vx += vx;
-			parts[i].vy += vy;
+			rotate(ax, ay, parts[i].pavg[0]);
+			parts[i].vx += ax;
+			parts[i].vy += ay;
 		}
 	}
 
@@ -265,6 +252,7 @@ int Element_HRSE::update(UPDATE_FUNC_ARGS) {
 
 //#TPT-Directive ElementHeader Element_HRSE static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_HRSE::graphics(GRAPHICS_FUNC_ARGS) {
+	*cola = 0;
 	draw_horse(ren, cpart, cpart->vx, cpart->vy);
 	return 0;
 }

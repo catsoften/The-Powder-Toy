@@ -8,11 +8,13 @@
 
 #include "gui/interface/Colour.h"
 #include "gui/interface/Point.h"
-#include "simulation/vehicles/vehicle.h" // rotate(x, y, angle)
+#include "simulation/ElementCommon.h"
 
 typedef std::vector<std::pair<ui::Point, ui::Colour> > pixel_vector;
 typedef std::vector<std::pair<ui::Point, int> > element_vector;
 
+void rotate(int &x, int &y, float rotation);
+void rotate(float &x, float &y, float rotation);
 void rotate_around(int &x, int &y, int cx, int cy, float rotation);
 void rotate_around(float &x, float &y, float cx, float cy, float rotation);
 

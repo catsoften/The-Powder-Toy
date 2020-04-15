@@ -1,15 +1,21 @@
 #include "simulation/vehicles/vehicle.h"
 #include "simulation/vehicles/horse.h"
-#include <vector>
 
-#define NECK_RADIUS 9
-#define NOSE_RADIUS 4
-#define TAIL_RADIUS 4
-#define GALLOP_PHASE_FREQ 5.0f
-#define STKM_HEAD_DY -6
+const int NECK_RADIUS = 9;
+const int NOSE_RADIUS = 4;
+const int TAIL_RADIUS = 4;
+const int STKM_HEAD_DY = -6;
+const float GALLOP_PHASE_FREQ = 5.0f;
 
-// See vehicle.h for parameter list
-Vehicle Horse(25, 15, 1.5f, 0.4f, 2.5f, 2.0f, 1.5f, 0.1f);
+Vehicle Horse = VehicleBuilder()
+    .SetSize(25, 15)
+    .SetGroundAccel(1.5f)
+    .SetFlyAccel(1.5f)
+    .SetMaxSpeed(2.5f)
+    .SetCollisionSpeed(2.0f)
+    .SetRunoverSpeed(1.5f)
+    .SetRotationSpeed(0.1f)
+    .Build();
 
 void draw_horse(Renderer *ren, Particle *cpart, float vx, float vy) {
     /**
@@ -21,10 +27,9 @@ void draw_horse(Renderer *ren, Particle *cpart, float vx, float vy) {
      */
 
     // Main body (a stick). Right part is smaller to account for neck
-    int leftx = - Horse.WIDTH / 2,
-        lefty = 0,
-        rightx = Horse.WIDTH / 2 - NECK_RADIUS,
-        righty = 0;
+    int leftx = -Horse.width / 2,
+        rightx = Horse.width / 2 - NECK_RADIUS,
+        lefty = 0, righty = 0;
     if (cpart->tmp & 2) { // Going other direction
         std::swap(leftx, rightx);
         std::swap(lefty, righty);
@@ -43,14 +48,14 @@ void draw_horse(Renderer *ren, Particle *cpart, float vx, float vy) {
     ren->draw_line(cpart->x + rightx_rot, cpart->y + righty_rot, cpart->x + neckx_rot, cpart->y + necky_rot, 255, 255, 255, 255);
 
     // The nose (snout? face?) of the horse, 90 deg offset from neck
-    int nosex = neckx + flip * NOSE_RADIUS * cos(cpart->pavg[1] + 1.7f);
-    int nosey = necky + NOSE_RADIUS * sin(cpart->pavg[1] + 1.7f);
+    int nosex = neckx + flip * NOSE_RADIUS * cos(cpart->pavg[1] + PI / 2);
+    int nosey = necky + NOSE_RADIUS * sin(cpart->pavg[1] + PI / 2);
     rotate(nosex, nosey, cpart->pavg[0]);
     ren->draw_line(cpart->x + nosex, cpart->y + nosey, cpart->x + neckx_rot, cpart->y + necky_rot, 255, 255, 255, 255);
 
     // Tail, gets straighter the faster the horse goes
     float speed = sqrt(vx * vx + vy * vy);
-    float tail_theta = -3.1415f / 4 + std::min(10.0f, speed) / 10.0f * 3.1415f / 2;
+    float tail_theta = -PI / 4 + std::min(10.0f, speed) / 10.0f * PI / 2;
     int tailx = leftx - flip * TAIL_RADIUS * cos(tail_theta),
         taily = lefty - TAIL_RADIUS * sin(tail_theta);
     rotate(tailx, taily, cpart->pavg[0]);
@@ -58,10 +63,10 @@ void draw_horse(Renderer *ren, Particle *cpart, float vx, float vy) {
 
     // Legs depend on speed
     if (fabs(cpart->vx) < 0.4f && fabs(cpart->vy) < 0.4f) { // Idle animation
-        int leg1x = -Horse.WIDTH / 2,
-            leg1y = Horse.HEIGHT / 2,
-            leg2x = Horse.WIDTH / 2 - NECK_RADIUS,
-            leg2y = Horse.HEIGHT / 2;
+        int leg1x = -Horse.width / 2,
+            leg1y = Horse.height / 2,
+            leg2x = Horse.width / 2 - NECK_RADIUS,
+            leg2y = Horse.height / 2;
 
         if (cpart->tmp & 2) { // Going other direction
             std::swap(leg1x, leg2x);
@@ -92,17 +97,17 @@ void draw_horse(Renderer *ren, Particle *cpart, float vx, float vy) {
             joint1y_rot = leg < 2 ? lefty_rot : righty_rot;
 
             // Rotate knee (from 3/4 pi to 1/4 pi)
-            float knee_rotation = sin(gallop_phase / GALLOP_PHASE_FREQ) * (3.1415f / 6) + (3.1415f / 2);
-            int kneex = joint1x + Horse.HEIGHT / 3 * cos(knee_rotation) * flip;
-            int kneey = joint1y + Horse.HEIGHT / 3 * sin(knee_rotation);
+            float knee_rotation = sin(gallop_phase / GALLOP_PHASE_FREQ) * (PI / 6) + (PI / 2);
+            int kneex = joint1x + Horse.height / 3 * cos(knee_rotation) * flip;
+            int kneey = joint1y + Horse.height / 3 * sin(knee_rotation);
             int kneex_rot = kneex, kneey_rot = kneey;
             rotate(kneex_rot, kneey_rot, cpart->pavg[0]);
             ren->draw_line(cpart->x + joint1x_rot, cpart->y + joint1y_rot, cpart->x + kneex_rot, cpart->y + kneey_rot, 255, 255, 255, 255);
 
             // Foot
-            float foot_rotation = sin(gallop_phase / GALLOP_PHASE_FREQ) * (3.1415f / 4) + (3.1415f / 4);
-            int footx = kneex + Horse.HEIGHT / 3 * cos(knee_rotation + foot_rotation) * flip;
-            int footy = kneey + Horse.HEIGHT / 3 * sin(knee_rotation + foot_rotation);
+            float foot_rotation = sin(gallop_phase / GALLOP_PHASE_FREQ) * (PI / 4) + (PI / 4);
+            int footx = kneex + Horse.height / 3 * cos(knee_rotation + foot_rotation) * flip;
+            int footy = kneey + Horse.height / 3 * sin(knee_rotation + foot_rotation);
             rotate(footx, footy, cpart->pavg[0]);
             ren->draw_line(cpart->x + footx, cpart->y + footy, cpart->x + kneex_rot, cpart->y + kneey_rot, 255, 255, 255, 255);
         }

@@ -1,9 +1,15 @@
 #include "simulation/vehicles/vehicle.h"
 #include "simulation/vehicles/kv2.h"
-#include <vector>
 
-// See vehicle.h for parameter list
-Vehicle KV2(35, 18, 1.5f, 0.5f, 5.0f, 4.5f, 1.1f, 0.1f);
+Vehicle KV2 = VehicleBuilder()
+    .SetSize(35, 18)
+    .SetGroundAccel(1.5f)
+    .SetFlyAccel(0.5f)
+    .SetMaxSpeed(5.0f)
+    .SetCollisionSpeed(4.5f)
+    .SetRunoverSpeed(1.1f)
+    .SetRotationSpeed(0.1f)
+    .Build();
 
 void draw_kv2(Renderer *ren, Particle *cpart, float rotation) {
     draw_px(KV2_PIXELS, ren, cpart, rotation);
