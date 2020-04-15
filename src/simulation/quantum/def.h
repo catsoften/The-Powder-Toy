@@ -1,7 +1,7 @@
 #ifndef QDEF
 #define QDEF
 
-#include "common/string.h"
+#include "common/String.h"
 #include "simulation/quantum/linalg.h"
 
 using LINALG::matrix;

@@ -217,9 +217,11 @@ int Element_GNSH::update(UPDATE_FUNC_ARGS) {
 
 			int j1 = Element_CYTK::create_part(sim, Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, PT_SMKE, parts[i].pavg[0], parts, i);
 			int j2 = Element_CYTK::create_part(sim, -Gunship.WIDTH * 0.4f, Gunship.HEIGHT / 2, PT_SMKE, parts[i].pavg[0], parts, i);
-			parts[j1].temp = parts[j2].temp = 400.0f;
-			parts[j1].life = RNG::Ref().between(0, 100) + 50;
-			parts[j2].life = RNG::Ref().between(0, 100) + 50;
+			if (j1 > -1 && j2 > -1) {
+				parts[j1].temp = parts[j2].temp = 400.0f;
+				parts[j1].life = RNG::Ref().between(0, 100) + 50;
+				parts[j2].life = RNG::Ref().between(0, 100) + 50;
+			}
 		}
 	}
 

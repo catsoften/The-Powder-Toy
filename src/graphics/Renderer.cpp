@@ -2079,67 +2079,69 @@ void Renderer::render_parts()
 					}
 				}
 				//Fire effects
-				if(firea && (pixel_mode & FIRE_BLEND))
-				{
-#ifdef OGLR
-					smokeV[csmokeV++] = nx;
-					smokeV[csmokeV++] = ny;
-					smokeC[csmokeC++] = ((float)firer)/255.0f;
-					smokeC[csmokeC++] = ((float)fireg)/255.0f;
-					smokeC[csmokeC++] = ((float)fireb)/255.0f;
-					smokeC[csmokeC++] = ((float)firea)/255.0f;
-					csmoke++;
-#else
-					firea /= 2;
-					fire_r[ny/CELL][nx/CELL] = (firea*firer + (255-firea)*fire_r[ny/CELL][nx/CELL]) >> 8;
-					fire_g[ny/CELL][nx/CELL] = (firea*fireg + (255-firea)*fire_g[ny/CELL][nx/CELL]) >> 8;
-					fire_b[ny/CELL][nx/CELL] = (firea*fireb + (255-firea)*fire_b[ny/CELL][nx/CELL]) >> 8;
-#endif
-				}
-				if(firea && (pixel_mode & FIRE_ADD))
-				{
-#ifdef OGLR
-					fireV[cfireV++] = nx;
-					fireV[cfireV++] = ny;
-					fireC[cfireC++] = ((float)firer)/255.0f;
-					fireC[cfireC++] = ((float)fireg)/255.0f;
-					fireC[cfireC++] = ((float)fireb)/255.0f;
-					fireC[cfireC++] = ((float)firea)/255.0f;
-					cfire++;
-#else
-					firea /= 8;
-					firer = ((firea*firer) >> 8) + fire_r[ny/CELL][nx/CELL];
-					fireg = ((firea*fireg) >> 8) + fire_g[ny/CELL][nx/CELL];
-					fireb = ((firea*fireb) >> 8) + fire_b[ny/CELL][nx/CELL];
+				if (firea && (firer || fireg || fireb)) {
+					if(pixel_mode & FIRE_BLEND)
+					{
+	#ifdef OGLR
+						smokeV[csmokeV++] = nx;
+						smokeV[csmokeV++] = ny;
+						smokeC[csmokeC++] = ((float)firer)/255.0f;
+						smokeC[csmokeC++] = ((float)fireg)/255.0f;
+						smokeC[csmokeC++] = ((float)fireb)/255.0f;
+						smokeC[csmokeC++] = ((float)firea)/255.0f;
+						csmoke++;
+	#else
+						firea /= 2;
+						fire_r[ny/CELL][nx/CELL] = (firea*firer + (255-firea)*fire_r[ny/CELL][nx/CELL]) >> 8;
+						fire_g[ny/CELL][nx/CELL] = (firea*fireg + (255-firea)*fire_g[ny/CELL][nx/CELL]) >> 8;
+						fire_b[ny/CELL][nx/CELL] = (firea*fireb + (255-firea)*fire_b[ny/CELL][nx/CELL]) >> 8;
+	#endif
+					}
+					if(pixel_mode & FIRE_ADD)
+					{
+	#ifdef OGLR
+						fireV[cfireV++] = nx;
+						fireV[cfireV++] = ny;
+						fireC[cfireC++] = ((float)firer)/255.0f;
+						fireC[cfireC++] = ((float)fireg)/255.0f;
+						fireC[cfireC++] = ((float)fireb)/255.0f;
+						fireC[cfireC++] = ((float)firea)/255.0f;
+						cfire++;
+	#else
+						firea /= 8;
+						firer = ((firea*firer) >> 8) + fire_r[ny/CELL][nx/CELL];
+						fireg = ((firea*fireg) >> 8) + fire_g[ny/CELL][nx/CELL];
+						fireb = ((firea*fireb) >> 8) + fire_b[ny/CELL][nx/CELL];
 
-					if(firer>255)
-						firer = 255;
-					if(fireg>255)
-						fireg = 255;
-					if(fireb>255)
-						fireb = 255;
+						if(firer>255)
+							firer = 255;
+						if(fireg>255)
+							fireg = 255;
+						if(fireb>255)
+							fireb = 255;
 
-					fire_r[ny/CELL][nx/CELL] = firer;
-					fire_g[ny/CELL][nx/CELL] = fireg;
-					fire_b[ny/CELL][nx/CELL] = fireb;
-#endif
-				}
-				if(firea && (pixel_mode & FIRE_SPARK))
-				{
-#ifdef OGLR
-					smokeV[csmokeV++] = nx;
-					smokeV[csmokeV++] = ny;
-					smokeC[csmokeC++] = ((float)firer)/255.0f;
-					smokeC[csmokeC++] = ((float)fireg)/255.0f;
-					smokeC[csmokeC++] = ((float)fireb)/255.0f;
-					smokeC[csmokeC++] = ((float)firea)/255.0f;
-					csmoke++;
-#else
-					firea /= 4;
-					fire_r[ny/CELL][nx/CELL] = (firea*firer + (255-firea)*fire_r[ny/CELL][nx/CELL]) >> 8;
-					fire_g[ny/CELL][nx/CELL] = (firea*fireg + (255-firea)*fire_g[ny/CELL][nx/CELL]) >> 8;
-					fire_b[ny/CELL][nx/CELL] = (firea*fireb + (255-firea)*fire_b[ny/CELL][nx/CELL]) >> 8;
-#endif
+						fire_r[ny/CELL][nx/CELL] = firer;
+						fire_g[ny/CELL][nx/CELL] = fireg;
+						fire_b[ny/CELL][nx/CELL] = fireb;
+	#endif
+					}
+					if (pixel_mode & FIRE_SPARK)
+					{
+	#ifdef OGLR
+						smokeV[csmokeV++] = nx;
+						smokeV[csmokeV++] = ny;
+						smokeC[csmokeC++] = ((float)firer)/255.0f;
+						smokeC[csmokeC++] = ((float)fireg)/255.0f;
+						smokeC[csmokeC++] = ((float)fireb)/255.0f;
+						smokeC[csmokeC++] = ((float)firea)/255.0f;
+						csmoke++;
+	#else
+						firea /= 4;
+						fire_r[ny/CELL][nx/CELL] = (firea*firer + (255-firea)*fire_r[ny/CELL][nx/CELL]) >> 8;
+						fire_g[ny/CELL][nx/CELL] = (firea*fireg + (255-firea)*fire_g[ny/CELL][nx/CELL]) >> 8;
+						fire_b[ny/CELL][nx/CELL] = (firea*fireb + (255-firea)*fire_b[ny/CELL][nx/CELL]) >> 8;
+	#endif
+					}
 				}
 			}
 		}

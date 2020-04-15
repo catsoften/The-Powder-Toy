@@ -105,6 +105,10 @@ bool Element_CYTK::attempt_move(int x, int y, Simulation *sim, Particle *parts, 
 	for (auto ov = sim->vehicles.begin(); ov != sim->vehicles.end(); ++ov) {
 		if (*ov == i) // Dont collide with self
 			continue;
+		if (parts[i].type == PT_TANK && parts[*ov].type == PT_HRSE)
+			sim->kill_part(*ov);
+		if (parts[*ov].type == PT_HRSE) // Don't collide with horses
+			continue;
 		float dx = fabs(parts[i].x - parts[*ov].x);
 		float dy = fabs(parts[i].y - parts[*ov].y);
 
@@ -134,6 +138,7 @@ bool Element_CYTK::attempt_move(int x, int y, Simulation *sim, Particle *parts, 
 
 				r = sim->pmap[y + ry][x + rx];
 				if (!r) continue;
+				if (TYP(r) == PT_HRSE)
 
 				// Cybertrucks heal from electrons
 				if (parts[i].type == PT_CYTK && TYP(r) == PT_ELEC) {
@@ -163,7 +168,7 @@ bool Element_CYTK::attempt_move(int x, int y, Simulation *sim, Particle *parts, 
 			fabs(-dvx + dvx * count) <= fabs(parts[i].vx) && fabs(-dvy + dvy * count) <= fabs(parts[i].vy)) {
 		r = sim->pmap[(int)round(sy)][(int)round(sx)];
 		if (r) {
-			if (TYP(r) != PT_CYTK && TYP(r) != PT_PRTI && TYP(r) != PT_PRTO && TYP(r) != PT_TRUS &&
+			if (TYP(r) != parts[i].type && TYP(r) != PT_PRTI && TYP(r) != PT_PRTO && TYP(r) != PT_TRUS &&
 				(sim->elements[TYP(r)].Properties & TYPE_PART ||
 				sim->elements[TYP(r)].Properties & TYPE_SOLID)) {
 				parts[i].vx = parts[i].vy = 0;
@@ -337,7 +342,7 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * vx, vy (velocity)
-	 * ctype = eleemnt of STKM when it entered
+	 * ctype = element of STKM when it entered
 	 * tmp2 = which STKM controls it (1 = STKM, 2 = STK2, 3 = AI car)
 	 * tmp = rocket or flamethrower (0 none, 1 rocket, 2 flamethrower)
 	 * temp = damage
@@ -459,12 +464,11 @@ int Element_CYTK::update(UPDATE_FUNC_ARGS) {
 
 				int j1 = create_part(sim, CYBERTRUCK.WIDTH * 0.4f, CYBERTRUCK.HEIGHT / 2, PT_PLSM, parts[i].pavg[0], parts, i);
 				int j2 = create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, CYBERTRUCK.HEIGHT / 2, PT_PLSM, parts[i].pavg[0], parts, i);
-				if (j1 > -1) {
+				if (j1 > -1 && j2 > -1) {
 					parts[j1].temp = parts[j2].temp = 400.0f;
 					parts[j1].life = RNG::Ref().between(0, 100) + 50;
-				}
-				if (j2 > -1)
 					parts[j2].life = RNG::Ref().between(0, 100) + 50;
+				}
 			}
 			else if (parts[i].tmp == 2) { // Flamethrower
 				int j = create_part(sim, -CYBERTRUCK.WIDTH * 0.4f, -CYBERTRUCK.HEIGHT / 2, PT_BCOL, parts[i].pavg[0], parts, i);

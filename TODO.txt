@@ -487,6 +487,19 @@ realistic gardening
 
 rope
 
+standardize code for vehicles, fields
+- vehicles:
+    - get command (from player or AI automatically)
+    - replace 273.15f with 0C #define
+    - better vehicle constructor
+        - vehicle builder :D
+    - STKM tmp2 values as enum in vehicle.h
+    - check FIHG id exists
+    - set displacement and copy value to function
+- reduce circuit constructor size
+- standardize fields (caps and shit)
+- fix { or \n{
+
 wifi snapshots use way less memory, currently super high!
 
 steal ideas from https://powdertoy.co.uk/Wiki/W/Lua_Functions_in_Jacob1%27s_Mod.html
@@ -500,13 +513,11 @@ SLCN -> QRTZ reaction
     LAVA(STNE) + BCOL/COAL -> LAVA(SLCN)
     LAVA(SLCN) + LAVA(METL/BMTL) -> LAVA(NSCN) + LAVA(PSCN)
 
-STKM HRSE -> GLUE
-- stkm can ride
-- neighs
-- gallops from danger
-- eats grass and potatoes
-- turns into glue in hot water
+Dropdown.h is miscased (DropDown.h)
 
+vx vy signs that follow particles lmao
+
+portal guns
 
 realistic mdoe:
 - fire requires temp to combust (add to realistic fire)
@@ -526,6 +537,8 @@ one way wall arrow graphics
 hollow brush triggers on windows
 
 fiber optics affect bray?
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=24086 - keybind reset AHEAT
 
 realistic ore processing
 
@@ -759,7 +772,7 @@ spaceships generate heat
 Add credits:
 - chinarichway - inspiration for faraday walls
 - jebbyk - limit redraw frequency
-- 
+- conor-create - ctrl-a select all
 
 add wiki for lua commands added:
 tpt.setdrawfreq(freq)

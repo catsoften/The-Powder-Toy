@@ -474,7 +474,7 @@ int Element_STKM::run_stickman(playerst *playerp, UPDATE_FUNC_ARGS) {
 			}
 			else if (playerp->elem==PT_LIGH && playerp->frames<30)//limit lightning creation rate
 				np = -1;
-			else if (playerp->elem == PT_CYTK) // STKM can't spawn cybertrucks
+			else if (sim->elements[playerp->elem].Properties & PROP_VEHICLE) // STKM can't spawn vehicles
 				np = -1;
 			else
 				np = sim->create_part(-1, rx, ry, playerp->elem);

@@ -229,8 +229,7 @@ int Element_TANK::update(UPDATE_FUNC_ARGS)
 }
 
 //#TPT-Directive ElementHeader Element_TANK static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_TANK::graphics(GRAPHICS_FUNC_ARGS)
-{
+int Element_TANK::graphics(GRAPHICS_FUNC_ARGS) {
 	*cola = 0;
 	draw_kv2(ren, cpart, cpart->pavg[0]);
 	return 0;
