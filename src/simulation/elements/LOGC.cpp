@@ -1,4 +1,6 @@
 #include "simulation/ElementCommon.h"
+#include "simulation/circuits/framework.h"
+#include "simulation/circuits/circuits.h"
 
 //#TPT-Directive ElementClass Element_LOGC PT_LOGC 316
 Element_LOGC::Element_LOGC() {
@@ -56,6 +58,8 @@ int Element_LOGC::update(UPDATE_FUNC_ARGS) {
 	 * pavg0 - Output voltage
 	 * pavg1 - Effective output voltage
 	 */
+	CIRCUITS::addCircuit(x, y, sim);
+	
 	int output_id = -1, ox, oy;
 	for (int rx = -1; rx <= 1; rx++)
 	for (int ry = -1; ry <= 1; ry++)
@@ -73,12 +77,11 @@ int Element_LOGC::update(UPDATE_FUNC_ARGS) {
 }
 
 //#TPT-Directive ElementHeader Element_LOGC static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_LOGC::graphics(GRAPHICS_FUNC_ARGS)
-{
+int Element_LOGC::graphics(GRAPHICS_FUNC_ARGS) {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
 
-	return 0;
+	return 1;
 }
 
 Element_LOGC::~Element_LOGC() {}

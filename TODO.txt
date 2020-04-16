@@ -568,7 +568,6 @@ circuits:
   - "replace" particles with virtual particles, don't set if virtual, but act in simulation
   - (would require seperating particles and actual capacitance / charge and shit)
 shapes:
-  - capacitor ---||---- (1px gap)
   - transformer || (same thing lol)
 
 some kind of circut skeleton viewer thing 
@@ -600,6 +599,18 @@ use sparsematrix solver somehow?
 
 portals maybe
 
+no parallel plate capacitance - capacitance would be so low instantly goes to steady state which is empty
+no diode like transistors - sepretate element for polarity
+
+PNP:
+         C
+base (B)-|
+         E
+if V_BE < 0.7 then do nothing
+if V_BE > some max voltage turn into short
+else 0.7 V drop
+
+NPN: do opposite
 
 
 - magnetic field induces inductor current

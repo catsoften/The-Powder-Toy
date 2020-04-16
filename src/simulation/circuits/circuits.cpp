@@ -241,6 +241,7 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
         if (skeleton_map[pos.y][pos.x] <= 1 || visited[pos.y][pos.x]) // Already cleared, skip
             continue;
         if (immutable_nodes[pos.y][pos.x]) { // Node is not allowed to be condensed
+            int type = 0;
             // Exception: if diagonal node is touching non-adjacent node of same type
             if (immutable_nodes[pos.y][pos.x] == 2) { // 2 means diagonally adjacent
                 for (int rx = -1; rx <= 1; ++rx)
@@ -255,9 +256,12 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
             visited[pos.y][pos.x] = 1;
             new_node_id++;
 
-            if (TYP(sim->pmap[pos.y][pos.x]) == GROUND_TYPE)
+            type = TYP(sim->pmap[pos.y][pos.x]);
+            if (type == GROUND_TYPE) {
                 constrained_nodes[new_node_id - 1] = 0.0;
-            else if (negative_terminal(TYP(sim->pmap[pos.y][pos.x]))) {
+                goto end;
+            }
+            if (negative_terminal(type)) {
                 // Negative terminals of chips are constrained
                 for (int rx = -1; rx <= 1; ++rx)
                 for (int ry = -1; ry <= 1; ++ry)
@@ -639,6 +643,7 @@ void Circuit::solve(bool allow_recursion) {
     // std::cout << "\n\n";
 
     // Diode branches may involve re-solving if diode blocks current or voltage drop is insufficent
+    // Same goes for transistors, which can be detected as 2 diodes sharing a node
     bool re_solve = false;
     if (allow_recursion) {
         re_solve = diode_branches.size() > 0; // Diodes force resolve
@@ -647,10 +652,12 @@ void Circuit::solve(bool allow_recursion) {
         for (size_t i = 0; i < diode_branches.size(); i++) {
             int node1 = diode_branches[i].first;
             int index = diode_branches[i].second;
-            double deltaV = x[connection_map[node1][index] - 2] - x[node1 - 2];
+            int node2 = connection_map[node1][index];
+            double deltaV = x[node2 - 2] - x[node1 - 2];
 
-            if (node1 > connection_map[node1][index])
+            if (node1 > node2)
                 deltaV *= -1; // Maintain polarity: node1 -> node2 is positive
+                
             Branch * b = branch_map[node1][index];
 
             // Fail on the following conditions:
@@ -662,12 +669,9 @@ void Circuit::solve(bool allow_recursion) {
                 (deltaV > 0 && b->diode < 0 && fabs(deltaV) < DIODE_V_THRESHOLD) || // Correct dir
                 (deltaV < 0 && b->diode < 0 && fabs(deltaV) < DIODE_V_BREAKDOWN)    // Wrong dir
             ) {
-                // This commented out code makes diodes ideal (INF resistance)
-                // branch_map[node1].erase(branch_map[node1].begin() + index);
-                // connection_map[node1].erase(connection_map[node1].begin() + index);
                 b->resistance += REALLY_BIG_RESISTANCE;
             }
-            else {
+            else if (fabs(deltaV) > DIODE_V_THRESHOLD) {
                 // Voltage drop across diodes :D
                 b->voltage_gain = -DIODE_V_THRESHOLD;
             }
