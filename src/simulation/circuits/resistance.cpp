@@ -1,5 +1,6 @@
 #include "simulation/circuits/resistance.h"
 #include "simulation/circuits/framework.h"
+
 #include <exception>
 #include <cmath>
 #include <iostream>
@@ -72,7 +73,7 @@ bool valid_conductor(int typ, Simulation *sim, int i) {
      */
     return sim->elements[typ].Properties & PROP_CONDUCTS || typ == PT_INST || typ == PT_VOLT || typ == GROUND_TYPE
         || typ == PT_SWCH || typ == PT_CAPR || typ == PT_INDC || typ == PT_QRTZ || typ == PT_PQRT
-        || typ == PT_PLSM || typ == PT_HELM;
+        || typ == PT_PLSM || typ == PT_HELM || is_chip(typ);
 }
 
 /**
@@ -87,7 +88,7 @@ bool valid_conductor(int typ, Simulation *sim, int i) {
 double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
     if (type <= 0 || type > PT_NUM) // Should never happen, the throw below is just in case you need to debug
         throw "Error: Invalid particle type found in get_resistance in circuit simulation";
-    if (!valid_conductor(type, sim, i)) // Insulators, set to really high value
+    if (!valid_conductor(type, sim, i) || is_chip(type)) // Insulators or ideal chips, set to really high value
         return REALLY_BIG_RESISTANCE;
 
     switch (type) {

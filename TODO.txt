@@ -550,6 +550,8 @@ iczero
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
+faster fire renderer
+
 
 BWBellairs element
 - ACU
@@ -559,12 +561,15 @@ BWBellairs element
 
 circuits:
 - rewrite solving method.md
+- add animated blog to explore :D
+    - show code along side too
 
 - preprocessing shapes:
   - "replace" particles with virtual particles, don't set if virtual, but act in simulation
   - (would require seperating particles and actual capacitance / charge and shit)
 shapes:
   - capacitor ---||---- (1px gap)
+  - transformer || (same thing lol)
 
 some kind of circut skeleton viewer thing 
 
@@ -590,8 +595,6 @@ possible 2nd node trimming:
 - trim nodes that don't conenct to anything 
 - nodes in series like A - B - C, trim B to only A-C
 
-if resistance too great don't conduct
-
 
 use sparsematrix solver somehow?
 
@@ -606,7 +609,6 @@ realistic batteries
 op amp maybe
 
 pnp, npn transistors
-
 
 photoresistor, thermoresistor, potetiometer (user controlled?)
 TRST - thermoresistor

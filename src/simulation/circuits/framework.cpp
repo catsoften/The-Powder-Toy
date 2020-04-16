@@ -4,15 +4,6 @@
 #include <vector>
 #include <iostream>
 
-bool positive_terminal(int type) { return type == PT_PSCN || type == PT_COPR; }
-bool negative_terminal(int type) { return type == PT_NSCN || type == PT_ZINC; }
-bool is_terminal(int type) { return positive_terminal(type) || negative_terminal(type); }
-bool negative_resistance(int type) { return type == PT_PLSM || type == PT_NBLE || type == PT_HELM || type == PT_NEON; }
-bool dynamic_resistor(int type) {
-    return negative_resistance(type) || type == PT_TRST || type == PT_NTCT || type == PT_PTCT ||
-        type == PT_PQRT || type == PT_QRTZ || type == PT_MERC || type == PT_CRBN;
-}
-
 bool can_be_skeleton(int i, Simulation * sim) {
     int typ = sim->parts[i].type;
     if (!typ) return false;
@@ -192,5 +183,3 @@ coord_vec coord_stack_to_skeleton(Simulation *sim, const coord_vec &floodfill) {
     } while (diff);
     return output;
 }
-
-

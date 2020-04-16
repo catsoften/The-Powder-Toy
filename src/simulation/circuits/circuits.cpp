@@ -85,12 +85,13 @@ void Circuit::generate() {
     // Node marking
     char count;
     short x, y;
-    int node_id = 2;
+    int node_id = 2, type;
     std::vector<pos> nodes;
 
     for (auto &pos : skeleton) {
         count = 0;
         x = pos.x, y = pos.y;
+        type = TYP(sim->pmap[y][x]);
 
         if (skeleton_map[y][x] > 1) // Already marked as node
             continue;
@@ -100,13 +101,13 @@ void Circuit::generate() {
          *      capacitor, voltage source, inductor
          * Or the node itself is GRND
          */
-        if (TYP(sim->pmap[y][x]) == GROUND_TYPE) {
+        if (type == GROUND_TYPE) {
             skeleton_map[y][x] = node_id;
             immutable_nodes[y][x] = 1;
             nodes.push_back(pos);
             node_id++;
         }
-        else if (TYP(sim->pmap[y][x]) == PT_INDC) { // Inductor doesn't need terminals
+        else if (type == PT_INDC) { // Inductor doesn't need terminals
             for (int rx = -1; rx <= 1; rx++)
             for (int ry = -1; ry <= 1; ry++)
                 if ((rx || ry) && skeleton_map[y + ry][x + rx] && TYP(sim->pmap[y + ry][x + rx]) != PT_INDC) {
@@ -117,16 +118,16 @@ void Circuit::generate() {
                     node_id++;
                 }
         }
-        else if (is_terminal(TYP(sim->pmap[y][x]))) {
-            int t_is_silicon = TYP(sim->pmap[y][x]) == PT_PSCN || TYP(sim->pmap[y][x]) == PT_NSCN;
-            int other_type = TYP(sim->pmap[y][x]) == PT_PSCN ? PT_NSCN : PT_PSCN;
+        else if (is_terminal(type)) {
+            int t_is_silicon = type == PT_PSCN || type == PT_NSCN;
+            int other_type = type == PT_PSCN ? PT_NSCN : PT_PSCN;
 
             // Prioritze directly adjacent CAPR / VOLT / other such
             for (int rx = -1; rx <= 1; rx++)
             for (int ry = -1; ry <= 1; ry++)
                 if ((rx || ry) && (rx == 0 || ry == 0)) {
                     int t = TYP(sim->pmap[y + ry][x + rx]);
-                    if (Circuit::is_voltage_source(t) || (t_is_silicon && t == other_type)) {
+                    if (is_voltage_source(t) || (t_is_silicon && t == other_type) || is_chip(t)) {
                         skeleton_map[y][x] = node_id;
                         immutable_nodes[y][x] = (rx && ry) + 1;
                         nodes.push_back(pos);
@@ -138,7 +139,7 @@ void Circuit::generate() {
             for (int ry = -1; ry <= 1; ry++)
                 if ((rx || ry) && !(rx == 0 || ry == 0)) {
                     int t = TYP(sim->pmap[y + ry][x + rx]);
-                    if (Circuit::is_voltage_source(t) || (t_is_silicon && t == other_type)) {
+                    if (is_voltage_source(t) || (t_is_silicon && t == other_type) || is_chip(t)) {
                         skeleton_map[y][x] = node_id;
                         immutable_nodes[y][x] = (rx && ry) + 1;
                         nodes.push_back(pos);
@@ -255,7 +256,16 @@ void Circuit::trim_adjacent_nodes(const coord_vec &nodes) {
             new_node_id++;
 
             if (TYP(sim->pmap[pos.y][pos.x]) == GROUND_TYPE)
-                ground_nodes.insert(new_node_id - 1);
+                constrained_nodes[new_node_id - 1] = 0.0;
+            else if (negative_terminal(TYP(sim->pmap[pos.y][pos.x]))) {
+                // Negative terminals of chips are constrained
+                for (int rx = -1; rx <= 1; ++rx)
+                for (int ry = -1; ry <= 1; ++ry)
+                    if ((rx || ry) && is_chip(TYP(sim->pmap[pos.y + ry][pos.x + rx]))) {
+                        constrained_nodes[new_node_id - 1] = sim->parts[ID(sim->pmap[pos.y + ry][pos.x + rx])].pavg[1];
+                        goto end;
+                    }
+            }
             end:;
             continue;
         }
@@ -359,9 +369,9 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
     // Keep flood filling until we find another node
 	while (true) {
         r = sim->pmap[y][x];
-        if (Circuit::is_dynamic_particle(TYP(r)))
+        if (is_dynamic_particle(TYP(r)))
             contains_dynamic = true;
-        if (Circuit::is_integration_particle(TYP(r)))
+        if (is_integration_particle(TYP(r)))
             requires_divergence_checking = true;
 
         // Polarity handling for voltage drops
@@ -383,7 +393,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
             if (TYP(r) == PT_NSCN && TYP(sim->pmap[py][px]) == PT_PSCN)
                 diode_type = 1;
         }
-        else if (!Circuit::is_voltage_source(TYP(r)))
+        else if (!is_voltage_source(TYP(r)))
             current_polarity = 0, current_voltage = 0.0f, source_count = 0;
 
         // Node handling
@@ -408,7 +418,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
                 current_gain = sim->parts[ID(r)].pavg[1];
             else if (dynamic_resistor(TYP(r)))
                 dynamic_resistors.push_back(ID(r));
-            else if (Circuit::is_voltage_source(TYP(r))) {
+            else if (is_voltage_source(TYP(r))) {
                 if (TYP(r) == PT_VOLT) // Pavg0 is voltage 
                     current_voltage += sim->parts[ID(r)].pavg[0] * current_polarity;
                 else if (TYP(r) == PT_CAPR || TYP(r) == PT_INDC) // Pavg1 is "effective" voltage
@@ -492,7 +502,8 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, 
         } 
 
         b->setSpecialType(ids.size() && sim->parts[ids[0]].type == PT_CAPR,
-                          ids.size() && sim->parts[ids[0]].type == PT_INDC);
+                          ids.size() && sim->parts[ids[0]].type == PT_INDC,
+                          ids.size() && is_chip(sim->parts[ids[0]].type));
 
         connection_map[start_node].push_back(end_node);
         connection_map[end_node].push_back(start_node);
@@ -546,7 +557,7 @@ void Circuit::solve(bool allow_recursion) {
 
     for (size_t row = 0; row < size; row++) {
         auto node_id = connection_map.find(row + 2);
-        bool is_grnd;
+        bool is_constrained;
         double * matrix_row = new double[size + 1];
         std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
         
@@ -557,26 +568,26 @@ void Circuit::solve(bool allow_recursion) {
             goto assign_row;
         }
 
-        is_grnd = std::find(ground_nodes.begin(), ground_nodes.end(), node_id->first) != ground_nodes.end();
+        is_constrained = constrained_nodes.count(node_id->first);
         
         for (size_t i = 0; i < node_id->second.size(); i++) {
             Branch * b = branch_map[node_id->first][i];
 
             // Verify diodes and switches
-            if (b->diode)
+            if (b->isDiode())
                 diode_branches.push_back(std::make_pair(node_id->first, i));
-            b->computeDynamicResistances(sim);
-            b->computeDynamicCurrents(sim);
-            b->computeDynamicVoltages(sim);
+            b->computeDynamicResistances(sim, this);
+            b->computeDynamicCurrents(sim, this);
+            b->computeDynamicVoltages(sim, this);
 
             if (check_divergence && (b->isInductor() || b->isCapacitor())) {
                 numeric_integration.push_back(std::make_pair(node_id->first, i));
                 copy->branch_map[node_id->first][i]->setToSteadyState();
             }
 
-            if (!is_grnd) {
+            if (!is_constrained) {
                 /* Deal with supernodes later */
-                if (b->voltage_gain) {
+                if (b->isVoltageSource()) {
                     if (node_id->first < node_id->second[i]) // Avoid duplicate supernodes
                         supernodes.push_back(std::make_tuple(node_id->first, node_id->second[i], b->voltage_gain));
                 }
@@ -592,7 +603,10 @@ void Circuit::solve(bool allow_recursion) {
                     matrix_row[node_id->second[i] - 2] += 1.0f / b->resistance;
                 }
             }
-            if (is_grnd) matrix_row[node_id->first - 2] = 1; // GRND = 0 V
+            if (is_constrained) {
+                matrix_row[node_id->first - 2] = 1;
+                matrix_row[size] = constrained_nodes[node_id->first];
+            }
         }
 
         assign_row:;
@@ -830,7 +844,7 @@ void Circuit::reset() {
         circuit_map[id] = nullptr;
     recalc_next_frame = false;
     global_rspk_ids.clear();
-    ground_nodes.clear();
+    constrained_nodes.clear();
     branch_map.clear();
     floating_branches.clear();
     connection_map.clear();
@@ -862,7 +876,7 @@ Circuit::Circuit(const Circuit &other) {
     std::copy(&other.skeleton_map[0][0], &other.skeleton_map[YRES][0], &skeleton_map[0][0]);
     std::copy(&other.immutable_nodes[0][0], &other.immutable_nodes[YRES][0], &immutable_nodes[0][0]);
     connection_map = other.connection_map;
-    ground_nodes = other.ground_nodes;
+    constrained_nodes = other.constrained_nodes;
     recalc_next_frame =  other.recalc_next_frame;
     startx = other.startx, starty = other.starty;
     contains_dynamic = other.contains_dynamic;
@@ -916,35 +930,48 @@ bool Branch::switchesOn(Simulation * sim) {
     return switches_on;
 }
 
-void Branch::setSpecialType(bool is_capacitor, bool is_inductor) {
-    this->is_capacitor = is_capacitor;
-    this->is_inductor = is_inductor;
-    obeys_ohms_law = !(is_capacitor || is_inductor || diode || voltage_gain);
+void Branch::setSpecialType(bool is_capacitor, bool is_inductor, bool is_chip) {
+    if (diode)             branch_type = DIODE;
+    else if (is_capacitor) branch_type = CAPACITOR;
+    else if (is_inductor)  branch_type = INDUCTOR;
+    else if (is_chip)      branch_type = CHIP;
+    else if (voltage_gain) branch_type = VOLTAGE_SOURCE;
+
+    obeys_ohms_law = !(is_capacitor || is_inductor || diode || voltage_gain || is_chip);
 }
 
 void Branch::setToSteadyState() {
-    is_capacitor = is_inductor = false;
+    branch_type = RESISTOR;
     voltage_gain = 0.0;
     current_gain = 0.0;
     obeys_ohms_law = true;
 }
 
-void Branch::computeDynamicResistances(Simulation * sim) {
+void Branch::computeDynamicResistances(Simulation * sim, Circuit * c) {
     if (!switchesOn(sim)) // Increase effective resistances of switches that are off
         resistance += REALLY_BIG_RESISTANCE * switches.size();
     for (auto id : dynamic_resistors)
         resistance += get_effective_resistance(sim->parts[id].type, sim->parts, id, sim);
 }
 
-void Branch::computeDynamicVoltages(Simulation *sim) {
-    if (is_capacitor) {
+void Branch::computeDynamicVoltages(Simulation *sim, Circuit * c) {
+    if (branch_type == CAPACITOR) {
         voltage_gain = 0.0;
         for (auto id : ids)
             voltage_gain += sim->parts[id].pavg[1];
     }
+    else if (branch_type == CHIP) {
+        float output_voltage = 0.0;
+        if (ids.size())
+            output_voltage = sim->parts[ids[0]].pavg[1];
+        if (c->constrained_nodes.count(node1))
+            c->constrained_nodes[node1] = output_voltage;
+        else if (c->constrained_nodes.count(node2))
+            c->constrained_nodes[node2] = output_voltage;
+    }
 }
 
-void Branch::computeDynamicCurrents(Simulation * sim) {
-    if (is_inductor && ids.size())
+void Branch::computeDynamicCurrents(Simulation * sim, Circuit * c) {
+    if (branch_type == INDUCTOR && ids.size())
         current_gain = sim->parts[ids[0]].pavg[1];
 }

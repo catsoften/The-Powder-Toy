@@ -27,7 +27,7 @@ Element_LOGC::Element_LOGC() {
 	Weight = 100;
 
 	HeatConduct = 251;
-	Description = "1 px Logic gate. Use INWR for input. Tmp = type, pavg0 = output voltage.";
+	Description = "Multi-pixel Logic gate. Use PSCN / COPR for input, NSCN / ZINC for output. Tmp = type, pavg0 = output voltage.";
 	DefaultProperties.pavg[0] = 5.0f;
 
 	Properties = TYPE_SOLID;
@@ -54,6 +54,7 @@ int Element_LOGC::update(UPDATE_FUNC_ARGS) {
 	 * tmp2 - Positive inputs in this frame
 	 * life - Negative inputs in this frame
 	 * pavg0 - Output voltage
+	 * pavg1 - Effective output voltage
 	 */
 	int output_id = -1, ox, oy;
 	for (int rx = -1; rx <= 1; rx++)

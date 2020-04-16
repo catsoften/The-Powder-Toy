@@ -43,6 +43,7 @@ namespace CIRCUITS {
 
 // Classes
 class Circuit {
+friend Branch;
 private:
     Simulation * sim;
     short skeleton_map[YRES][XRES];
@@ -67,17 +68,10 @@ private:
     std::unordered_map<int, std::vector<Branch *> > floating_branches; // Node ID, branches with start_node = id
     std::vector<Branch *> branch_cache; // Stores pointers so we can delete them later
     std::vector<int> global_rspk_ids;
-    std::set<int> ground_nodes; // Reference for nodes = 0 V
+    std::unordered_map<int, double> constrained_nodes; // Reference for nodes = 0 V
 
     void trim_adjacent_nodes(const coord_vec &nodes);
     void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
-
-    static bool is_dynamic_particle(int type) {
-        return type == PT_PTCT || type == PT_NTCT || type == PT_SWCH || type == PT_CAPR || type == PT_INDC; }
-    static bool is_voltage_source(int type) {
-        return type == PT_VOLT || type == PT_CAPR; }
-    static bool is_integration_particle(int type) { // Particle does numeric integration
-        return type == PT_CAPR || type == PT_INDC; }
 public:
     void generate();
     void solve(bool allow_recursion=true);
@@ -137,24 +131,28 @@ public:
         resistance(resistance), voltage_gain(voltage_gain), current_gain(current_gain), base_resistance(resistance), diode(diode),
         node1_id(id1), node2_id(id2) {}
     
-    void setSpecialType(bool isCapacitor, bool isInductor);
+    void setSpecialType(bool isCapacitor, bool isInductor, bool isChip);
     void print();
     void setToSteadyState();
 
-    void computeDynamicResistances(Simulation * sim);
-    void computeDynamicVoltages(Simulation * sim);
-    void computeDynamicCurrents(Simulation * sim);
+    void computeDynamicResistances(Simulation * sim, Circuit * c);
+    void computeDynamicVoltages(Simulation * sim, Circuit * c);
+    void computeDynamicCurrents(Simulation * sim, Circuit * c);
 
-    bool obeysOhmsLaw() { return obeys_ohms_law; };
-    bool isInductor() { return is_inductor; }
-    bool isCapacitor() { return is_capacitor; }
+    bool obeysOhmsLaw()    { return obeys_ohms_law; };
+    bool isVoltageSource() { return voltage_gain; }
+
+    bool isInductor()      { return branch_type == INDUCTOR; }
+    bool isCapacitor()     { return branch_type == CAPACITOR; }
+    bool isChip()          { return branch_type == CHIP; }
+    bool isDiode()         { return branch_type == DIODE; }
 private:
-    bool switches_on = false;
-    bool is_capacitor = false;
-    bool is_inductor = false;
     bool obeys_ohms_law = true;
-
+    bool switches_on = false;
     bool switchesOn(Simulation * sim);
+
+    enum TYPE { RESISTOR, CAPACITOR, INDUCTOR, CHIP, DIODE, VOLTAGE_SOURCE };
+    TYPE branch_type = RESISTOR;    
 };
 
 #endif
