@@ -621,8 +621,7 @@ op amp maybe
 
 pnp, npn transistors
 
-photoresistor, thermoresistor, potetiometer (user controlled?)
-TRST - thermoresistor
+photoresistor, potetiometer (user controlled?)
 LOGC - logic gate
 TLNE - Transmission line
 
@@ -647,8 +646,6 @@ make ISOL with ION?
 
 diodes:
     - smoke and melt
-- no capacitor polarity?
-    - only for parallel plates?
 
 diamond anvil cells
 

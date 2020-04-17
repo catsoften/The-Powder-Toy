@@ -1,36 +1,46 @@
 #include "simulation/ElementCommon.h"
 
 //#TPT-Directive ElementClass Element_TRST PT_TRST 315
-Element_TRST::Element_TRST()
-{
+Element_TRST::Element_TRST() {
 	Identifier = "DEFAULT_PT_TRST";
 	Name = "TRST";
-	Colour = PIXPACK(0xFFFFFF);
+	Colour = PIXPACK(0xE09972);
 	MenuVisible = 1;
-	MenuSection = SC_SPECIAL;
+	MenuSection = SC_ELECTROMAG;
 	Enabled = 1;
 
-	// element properties here
+	Advection = 0.0f;
+	AirDrag = 0.00f * CFDS;
+	AirLoss = 0.90f;
+	Loss = 0.00f;
+	Collision = 0.0f;
+	Gravity = 0.0f;
+	Diffusion = 0.00f;
+	HotAir = 0.000f	* CFDS;
+	Falldown = 0;
 
-	Update = &Element_TRST::update;
-	Graphics = &Element_TRST::graphics;
-}
+	Flammable = 0;
+	Explosive = 0;
+	Meltable = 1;
+	Hardness = 1;
 
-//#TPT-Directive ElementHeader Element_TRST static int update(UPDATE_FUNC_ARGS)
-int Element_TRST::update(UPDATE_FUNC_ARGS)
-{
-	// update code here
+	Weight = 100;
 
-	return 0;
-}
+	HeatConduct = 251;
+	Description = "Thermoresistor, resistance is pavg0 + pavg1 * temp.";
+	DefaultProperties.pavg[0] = 1000.0f;
+	DefaultProperties.pavg[1] = 10.0f;
 
-//#TPT-Directive ElementHeader Element_TRST static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_TRST::graphics(GRAPHICS_FUNC_ARGS)
-{
-	// graphics code here
-	// return 1 if nothing dymanic happens here
+	Properties = TYPE_SOLID | PROP_CONDUCTS;
 
-	return 0;
+	LowPressure = IPL;
+	LowPressureTransition = NT;
+	HighPressure = IPH;
+	HighPressureTransition = NT;
+	LowTemperature = ITL;
+	LowTemperatureTransition = NT;
+	HighTemperature = 3000.0f + 273.15f;
+	HighTemperatureTransition = PT_LAVA;
 }
 
 Element_TRST::~Element_TRST() {}

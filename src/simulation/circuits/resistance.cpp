@@ -112,6 +112,7 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
         case PT_CRBN:
         case PT_PTCT:
         case PT_NTCT:
+        case PT_TRST:
             return 0.0;
     }
 
@@ -153,6 +154,10 @@ double get_effective_resistance(int type, Particle *parts, int i, Simulation *si
             if (parts[i].temp >= 373.15f)
                 return REALLY_BIG_RESISTANCE;
             return std::max(-(double)log(-(parts[i].temp - 373.15f) / 10.0f), 1e-7);
+
+        // Thermoresistor
+        case PT_TRST:
+            return std::max(1e-7, (double)(parts[i].pavg[0] + parts[i].temp * parts[i].pavg[1]));
     }
 
     // Negative resistance conductors
