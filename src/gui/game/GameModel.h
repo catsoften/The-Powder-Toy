@@ -83,6 +83,7 @@ private:
 	bool hollowBrushes = true;
 	bool autoHideHUD = false;
 	bool dimGlowMode = false;
+	bool fasterRenderer = true;
 
 	size_t activeColourPreset;
 	std::vector<ui::Colour> colourPresets;
@@ -183,6 +184,8 @@ public:
 	void SetAutoHideHUD(bool t) { autoHideHUD = t; }
 	bool GetDimGlowMode() { return dimGlowMode; }
 	void SetDimGlowMode(bool t) { dimGlowMode = t; }
+	bool GetFasterRenderer() { return fasterRenderer; }
+	void SetFasterRenderer(bool t) { fasterRenderer = t; }
 	
 	std::vector<Tool*> GetToolList();
 	std::vector<Tool*> GetUnlistedTools();

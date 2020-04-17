@@ -135,6 +135,9 @@ void OptionsController::SetDimGlowMode(bool enabled) {
 void OptionsController::SetDrawingFrequencyLimit(int limit) {
 	model->SetDrawingFrequencyLimit(limit);
 }
+void OptionsController::SetFasterRenderer(bool enabled) {
+	model->SetFasterRenderer(enabled);
+}
 
 void OptionsController::Exit()
 {

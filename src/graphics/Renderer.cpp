@@ -121,8 +121,10 @@ void Renderer::RenderBegin()
 	if(display_mode & DISPLAY_WARP)
 	{
 		oldVid = vid;
-		vid = warpVid;
-		std::fill(warpVid, warpVid+(VIDXRES*VIDYRES), 0);
+		if (sim->grav->IsEnabled()) {
+			vid = warpVid;
+			std::fill(warpVid, warpVid+(VIDXRES*VIDYRES), 0);
+		}
 	}
 
 	draw_air();
@@ -1051,6 +1053,8 @@ void Renderer::render_gravlensing(pixel * source)
 	pixel *dst = vid;
 	if (!dst)
 		return;
+	if (!sim->grav->IsEnabled())
+		return;
 	for(nx = 0; nx < XRES; nx++)
 	{
 		for(ny = 0; ny < YRES; ny++)
@@ -1100,7 +1104,8 @@ void Renderer::render_fire()
 						a = fire_alpha[y+CELL][x+CELL];
 						if (findingElement)
 							a /= 2;
-						addpixel(i*CELL+x, j*CELL+y, r, g, b, a);
+						if (a)
+							addpixel(i*CELL+x, j*CELL+y, r, g, b, a);
 					}
 			r *= 8;
 			g *= 8;
@@ -1213,6 +1218,7 @@ void Renderer::render_parts()
 	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer, fireg, fireb, pixel_mode, q, i, t, nx, ny, x, y, caddress;
 	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
 	float gradv, flicker;
+	bool fast_render_disabled;
 	Particle * parts;
 	Element *elements;
 	if(!sim)
@@ -1250,6 +1256,7 @@ void Renderer::render_parts()
 			}
 	}
 #endif
+	fast_render_disabled = !sim->getModel() || !sim->getModel()->GetFasterRenderer();
 	foundElements = 0;
 	for(i = 0; i<=sim->parts_lastActiveIndex; i++) {
 		if (sim->parts[i].type && sim->parts[i].type >= 0 && sim->parts[i].type < PT_NUM) {
@@ -1725,8 +1732,7 @@ void Renderer::render_parts()
 					addpixel(nx, ny, colr, colg, colb, cola);
 #endif
 				}
-				if(pixel_mode & PMODE_BLOB)
-				{
+				if(pixel_mode & PMODE_BLOB) {
 #ifdef OGLR
 					blobV[cblobV++] = nx;
 					blobV[cblobV++] = ny;
@@ -1738,19 +1744,20 @@ void Renderer::render_parts()
 #else
 					vid[ny*(VIDXRES)+nx] = PIXRGB(colr,colg,colb);
 
-					blendpixel(nx+1, ny, colr, colg, colb, 223);
-					blendpixel(nx-1, ny, colr, colg, colb, 223);
-					blendpixel(nx, ny+1, colr, colg, colb, 223);
-					blendpixel(nx, ny-1, colr, colg, colb, 223);
+					if (fast_render_disabled || sim->density_map[ny / DENSITY_CELL][nx / DENSITY_CELL] < 10) {
+						blendpixel(nx+1, ny, colr, colg, colb, 223);
+						blendpixel(nx-1, ny, colr, colg, colb, 223);
+						blendpixel(nx, ny+1, colr, colg, colb, 223);
+						blendpixel(nx, ny-1, colr, colg, colb, 223);
 
-					blendpixel(nx+1, ny-1, colr, colg, colb, 112);
-					blendpixel(nx-1, ny-1, colr, colg, colb, 112);
-					blendpixel(nx+1, ny+1, colr, colg, colb, 112);
-					blendpixel(nx-1, ny+1, colr, colg, colb, 112);
+						blendpixel(nx+1, ny-1, colr, colg, colb, 112);
+						blendpixel(nx-1, ny-1, colr, colg, colb, 112);
+						blendpixel(nx+1, ny+1, colr, colg, colb, 112);
+						blendpixel(nx-1, ny+1, colr, colg, colb, 112);
+					}
 #endif
 				}
-				if(pixel_mode & PMODE_GLOW)
-				{
+				if(pixel_mode & PMODE_GLOW) {
 					int cola1 = (5*cola)/255;
 #ifdef OGLR
 					glowV[cglowV++] = nx;
@@ -1762,29 +1769,41 @@ void Renderer::render_parts()
 					cglow++;
 #else
 					addpixel(nx, ny, colr, colg, colb, (192*cola)/255);
-					addpixel(nx+1, ny, colr, colg, colb, (96*cola)/255);
-					addpixel(nx-1, ny, colr, colg, colb, (96*cola)/255);
-					addpixel(nx, ny+1, colr, colg, colb, (96*cola)/255);
-					addpixel(nx, ny-1, colr, colg, colb, (96*cola)/255);
 
-					for (x = 1; x < 6; x++) {
-						addpixel(nx, ny-x, colr, colg, colb, cola1);
-						addpixel(nx, ny+x, colr, colg, colb, cola1);
-						addpixel(nx-x, ny, colr, colg, colb, cola1);
-						addpixel(nx+x, ny, colr, colg, colb, cola1);
-						for (y = 1; y < 6; y++) {
-							if(x + y > 7)
-								continue;
-							addpixel(nx+x, ny-y, colr, colg, colb, cola1);
-							addpixel(nx-x, ny+y, colr, colg, colb, cola1);
-							addpixel(nx+x, ny+y, colr, colg, colb, cola1);
-							addpixel(nx-x, ny-y, colr, colg, colb, cola1);
+					// Always render glow if not ADDing (ie, URAN)
+					// Otherwise, only render if low particle densit, or else the adding blend
+					// will "drown out" any tiny specks we put in
+					if (fast_render_disabled || !(pixel_mode & PMODE_ADD) ||
+						sim->density_map[ny / DENSITY_CELL][nx / DENSITY_CELL] < 6) {
+						addpixel(nx+1, ny, colr, colg, colb, (96*cola)/255);
+						addpixel(nx-1, ny, colr, colg, colb, (96*cola)/255);
+						addpixel(nx, ny+1, colr, colg, colb, (96*cola)/255);
+						addpixel(nx, ny-1, colr, colg, colb, (96*cola)/255);
+
+						int max_val = 6;
+						if (!fast_render_disabled && sim->density_map[ny / DENSITY_CELL][nx / DENSITY_CELL] > 3) {
+							max_val = 2;
+							addpixel(nx, ny, colr, colg, colb, cola1 * 12);
+						}
+
+						for (x = 1; x < max_val; x++) {
+							addpixel(nx, ny-x, colr, colg, colb, cola1);
+							addpixel(nx, ny+x, colr, colg, colb, cola1);
+							addpixel(nx-x, ny, colr, colg, colb, cola1);
+							addpixel(nx+x, ny, colr, colg, colb, cola1);
+							for (y = 1; y < max_val; y++) {
+								if(x + y > max_val + 1)
+									continue;
+								addpixel(nx+x, ny-y, colr, colg, colb, cola1);
+								addpixel(nx-x, ny+y, colr, colg, colb, cola1);
+								addpixel(nx+x, ny+y, colr, colg, colb, cola1);
+								addpixel(nx-x, ny-y, colr, colg, colb, cola1);
+							}
 						}
 					}
 #endif
 				}
-				if(pixel_mode & PMODE_BLUR)
-				{
+				if(pixel_mode & PMODE_BLUR) {
 #ifdef OGLR
 					blurV[cblurV++] = nx;
 					blurV[cblurV++] = ny;
@@ -1794,16 +1813,16 @@ void Renderer::render_parts()
 					blurC[cblurC++] = 1.0f;
 					cblur++;
 #else
-					for (x=-3; x<4; x++)
-					{
-						for (y=-3; y<4; y++)
-						{
-							if (abs(x)+abs(y) <2 && !(abs(x)==2||abs(y)==2))
-								blendpixel(x+nx, y+ny, colr, colg, colb, 30);
-							if (abs(x)+abs(y) <=3 && abs(x)+abs(y))
-								blendpixel(x+nx, y+ny, colr, colg, colb, 20);
-							if (abs(x)+abs(y) == 2)
-								blendpixel(x+nx, y+ny, colr, colg, colb, 10);
+					if (fast_render_disabled || sim->density_map[ny / DENSITY_CELL][nx / DENSITY_CELL] < 16) {
+						for (x=-3; x<4; x++) {
+							for (y=-3; y<4; y++) {
+								if (abs(x)+abs(y) <2 && !(abs(x)==2||abs(y)==2))
+									blendpixel(x+nx, y+ny, colr, colg, colb, 30);
+								if (abs(x)+abs(y) <=3 && abs(x)+abs(y))
+									blendpixel(x+nx, y+ny, colr, colg, colb, 20);
+								if (abs(x)+abs(y) == 2)
+									blendpixel(x+nx, y+ny, colr, colg, colb, 10);
+							}
 						}
 					}
 #endif

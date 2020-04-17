@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TPT_STRING_H // Used to be #pragma once, but then VS shits itself
+#define TPT_STRING_H
 
 #include <stdexcept>
 #include <sstream>
@@ -683,3 +684,4 @@ template<typename... Ts> String String::Build(Ts&&... args)
 }
 
 #include "common/Format.h"
+#endif

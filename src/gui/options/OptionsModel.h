@@ -65,6 +65,8 @@ public:
 	void SetDimGlowMode(bool enabled);
 	int GetDrawingFrequencyLimit();
 	void SetDrawingFrequencyLimit(int limit);
+	bool GetFasterRenderer();
+	void SetFasterRenderer(bool enabled);
 	virtual ~OptionsModel();
 };
 

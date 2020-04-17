@@ -42,6 +42,7 @@ public:
 	void SetAutoHideHUD(bool enabled);
 	void SetDimGlowMode(bool enabled);
 	void SetDrawingFrequencyLimit(int limit);
+	void SetFasterRenderer(bool enabled);
 
 	void Exit();
 	OptionsView * GetView();

@@ -1,9 +1,9 @@
 #include "Sign.h"
 
 #include "graphics/Graphics.h"
-#include "simulation/Simulation.h"
 #include "simulation/ElementCommon.h"
-#include "simulation/circuits/format.h"
+#include "simulation/Simulation.h"
+#include "simulation/circuits/format_circuits.h"
 
 sign::sign(String text_, int x_, int y_, Justification justification_):
 	x(x_),

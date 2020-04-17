@@ -1,5 +1,4 @@
 #include "OptionsModel.h"
-
 #include "OptionsView.h"
 
 #include "simulation/Simulation.h"
@@ -10,6 +9,7 @@
 
 #include "gui/interface/Engine.h"
 #include "gui/game/GameModel.h"
+#include <algorithm>
 
 OptionsModel::OptionsModel(GameModel * gModel_) {
 	gModel = gModel_;
@@ -296,6 +296,15 @@ void OptionsModel::SetDrawingFrequencyLimit(int limit) {
 	notifySettingsChanged();
 }
 
+bool OptionsModel::GetFasterRenderer() {
+	return Client::Ref().GetPrefBool("Renderer.Fast", true);
+}
+
+void OptionsModel::SetFasterRenderer(bool enabled) {
+	Client::Ref().SetPref("Renderer.Fast", enabled);
+	gModel->SetFasterRenderer(enabled);
+	notifySettingsChanged();
+}
 
 void OptionsModel::notifySettingsChanged()
 {

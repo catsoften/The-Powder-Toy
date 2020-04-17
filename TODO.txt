@@ -550,8 +550,10 @@ iczero
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
-faster fire renderer
+saving portals and wifi requires iterating everything - check if there IS wifi or portal before copying
 
+faster renderer
+- experiment with multithreading the renderer
 
 BWBellairs element
 - ACU

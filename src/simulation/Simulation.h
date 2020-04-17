@@ -23,6 +23,7 @@
 #define MAX_FARADAY_DIVISIONS 100
 #define MAX_TMP2_CHANNELS 100
 #define FARADAY_CHANNELS MAX_FARADAY_DIVISIONS + MAX_TMP2_CHANNELS
+#define DENSITY_CELL 4
 
 class Snapshot;
 class SimTool;
@@ -129,6 +130,7 @@ public:
 	int pmap[YRES][XRES];
 	int photons[YRES][XRES];
 	unsigned int pmap_count[YRES][XRES];
+	short density_map[YRES / DENSITY_CELL][XRES / DENSITY_CELL];
 	//Simulation Settings
 	int edgeMode;
 	int gravityMode;

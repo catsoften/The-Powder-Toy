@@ -147,7 +147,8 @@ ModOptionsView::ModOptionsView() { // Originally 320, 340
 	dimGlowMode->SetActionCallback({[this] { c->SetDimGlowMode(dimGlowMode->GetChecked()); }});
 
 	currentY += 12;
-    tempLabel = new ui::Label(ui::Point(dimGlowMode->Position.X + 12, currentY), ui::Point(1, 16), "- Dimmer glow effects on certain particles (mostly energy).");
+    tempLabel = new ui::Label(ui::Point(dimGlowMode->Position.X + 12, currentY), ui::Point(1, 16),
+		"- Dimmer glow effects on certain particles (mostly energy).");
     tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
 
 	autowidth(tempLabel);
@@ -176,6 +177,23 @@ ModOptionsView::ModOptionsView() { // Originally 320, 340
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 	scrollPanel->AddChild(tempLabel);
 
+	// ------------------
+	currentY += 20;
+	fasterRenderer = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Faster Renderer", "");
+	autowidth(fasterRenderer);
+	fasterRenderer->SetActionCallback({[this] { c->SetFasterRenderer(fasterRenderer->GetChecked()); }});
+
+	currentY += 12;
+    tempLabel = new ui::Label(ui::Point(fasterRenderer->Position.X + 12, currentY), ui::Point(1, 16),
+		"- Use fancy optimizations that might break your renderer.");
+    tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+    scrollPanel->AddChild(fasterRenderer);
+
     // ------------------
 
 	ui::Button * tempButton = new ui::Button(ui::Point(0, Size.Y-16), ui::Point(Size.X, 16), "OK");
@@ -195,6 +213,7 @@ void ModOptionsView::NotifySettingsChanged(OptionsModel * sender) {
 	autoHideHUD->SetChecked(sender->GetAutoHideHUD());
     dimGlowMode->SetChecked(sender->GetDimGlowMode());
 	drawingFrqLimit->SetOption(sender->GetDrawingFrequencyLimit());
+	fasterRenderer->SetChecked(sender->GetFasterRenderer());
 }
 
 ModOptionsView::~ModOptionsView() {}

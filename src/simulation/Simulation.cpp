@@ -101,6 +101,7 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 	}
 
 	int i;
+	std::fill(&density_map[0][0], &density_map[YRES / DENSITY_CELL][0], 0);
 	// Map of soap particles loaded into this save, old ID -> new ID
 	std::map<unsigned int, unsigned int> soapList;
 	for (int n = 0; n < NPART && n < save->particlesCount; n++)
@@ -179,6 +180,8 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 			parts[i] = tempPart;
 			elementCount[tempPart.type]++;
 		}
+
+		density_map[(int)(parts[i].y) / DENSITY_CELL][(int)(parts[i].x) / DENSITY_CELL]++;
 
 		switch (parts[i].type)
 		{
@@ -3363,6 +3366,8 @@ void Simulation::kill_part(int i, bool ignore_iwall)//kills particle number i
 	}
 
 	elementCount[t]--;
+	if (sys_pause)
+		density_map[y / DENSITY_CELL][x / DENSITY_CELL]--;
 
 	parts[i].type = PT_NONE;
 	parts[i].life = pfree;
@@ -3543,6 +3548,9 @@ int Simulation::create_part(int p, int x, int y, int t, int v)
 	parts[i].type = t;
 	parts[i].x = (float)x;
 	parts[i].y = (float)y;
+
+	if (sys_pause)
+		density_map[y / DENSITY_CELL][x / DENSITY_CELL]++;
 
 	//and finally set the pmap/photon maps to the newly created particle
 	if (elements[t].Properties & TYPE_ENERGY)
@@ -3752,6 +3760,9 @@ void Simulation::UpdateParticles(int start, int end)
 			itr++;
 		}
 	}
+
+	// Reset density calculations
+	std::fill(&density_map[0][0], &density_map[YRES / DENSITY_CELL][0], 0);
 
 	// Recalc stress field
 	stressField->Clear();
@@ -5038,6 +5049,10 @@ movedone:
 			// Time dilation: speed up
 			if (!(elements[t].Properties & PROP_NO_TIME) && time_dilation[y / CELL][x / CELL] > 0 && update_count <= time_dilation[y / CELL][x / CELL])
 				goto update_loop_begin;
+
+			// Update density value
+			if (parts[i].type)
+				density_map[(int)(parts[i].y + 0.5f) / DENSITY_CELL][(int)(parts[i].x + 0.5f) / DENSITY_CELL]++;
 			continue;
 		}
 	}
@@ -5643,6 +5658,7 @@ Simulation::Simulation():
 
 	memcpy(portal_rx, tportal_rx, sizeof(tportal_rx));
 	memcpy(portal_ry, tportal_ry, sizeof(tportal_ry));
+	std::fill(&density_map[0][0], &density_map[YRES / DENSITY_CELL][0], 0);
 
 	currentTick = 0;
 	std::fill(elementCount, elementCount+PT_NUM, 0);

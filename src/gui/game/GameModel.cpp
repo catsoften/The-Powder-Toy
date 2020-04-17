@@ -107,6 +107,7 @@ GameModel::GameModel():
 	sim->aheat_enable =  Client::Ref().GetPrefInteger("Simulation.AmbientHeat", 0);
 	sim->pretty_powder = Client::Ref().GetPrefInteger("Simulation.PrettyPowder", 0);
 	dimGlowMode = Client::Ref().GetPrefBool("Renderer.DimGlow", false);
+	fasterRenderer = Client::Ref().GetPrefBool("Renderer.Fast", true);
 
 	Favorite::Ref().LoadFavoritesFromPrefs();
 
