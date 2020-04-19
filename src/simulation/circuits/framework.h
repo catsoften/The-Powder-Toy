@@ -13,7 +13,7 @@ bool can_be_skeleton(int i, Simulation * sim);
 bool can_be_node(int i, Simulation * sim);
 
 coord_vec floodfill(Simulation *sim, int x, int y);
-coord_vec coord_stack_to_skeleton(Simulation *sim, const coord_vec &floodfill);
+coord_vec coord_vec_to_skeleton(Simulation *sim, const coord_vec &floodfill);
 
 // Type classifications
 inline bool positive_terminal(int type) {

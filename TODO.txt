@@ -588,6 +588,10 @@ test IWALL with RSPK
 power sign, resistance sign
 INWR different tmp conductivity?
 
+unmeltable wire
+
+thermoresistor unmeltable too
+
 voltage indicator use metric prefix, ie 2 mA
 voltage indicator on the top too long with aheat enabled?
 
@@ -616,7 +620,12 @@ limit number of nodes in a circuit anyways? no need to use short, maybe a byte w
 optimize memory:
 - undo redo don't save circuit, recompute while paused
 
- rename do floodfill
+adding a new component 
+- mark nodes
+
+
+DONE:
+rename do floodfill
 
 - rename framework to someting reasonable
 - seperate file for Circuit class

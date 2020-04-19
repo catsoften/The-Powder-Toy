@@ -9,14 +9,25 @@
 #include <vector>
 #include <unordered_map>
 
+const std::vector<int> ADJACENT_PRIORITY_RX({ 0, 0, -1, 1, -1, -1, 1, 1});
+const std::vector<int> ADJACENT_PRIORITY_RY({ -1, 1, 0, 0, 1, -1, 1, -1});
+
+namespace NodeHandler {
+    const NodeId SKELETON = 1;
+    const NodeId START_NODE_ID = 2;
+
+    static_assert(SKELETON == START_NODE_ID - 1, "Skeleton ID must be 1 less than the start node ID");
+    static_assert(SKELETON > 0, "Skeleton ID must be greater than 0");
+};
+
 class Branch;
 
 class Circuit {
     friend Branch;
 private:
     Simulation *sim;
-    short * skeleton_map = nullptr;
-    char * immutable_nodes = nullptr; // 1 = directly adjacent, 2 = diagonally adjacent
+    NodeId * node_skeleton_map = nullptr;
+    char * immutable_node_map = nullptr; // 1 = directly adjacent, 2 = diagonally adjacent
     bool recalc_next_frame = false;   // Flag for regeneration
     bool contains_dynamic = false;    // Contains dynamic components such as capacitors (update every frame)
     bool solution_computed = false;   // Already computed solution for non-dynamic systems
@@ -39,14 +50,14 @@ private:
     std::vector<int> global_rspk_ids;
     std::unordered_map<NodeId, Volts> constrained_nodes; // Reference for nodes = 0 V
 
-    void DoFloodfill(coord_vec &skeleton);
-    void MarkNodes();
-    void TrimAdjacentNodes(const coord_vec &nodes);
-    void AddBranchFromSkeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
+    void process_skeleton(coord_vec &skeleton);
+    void mark_nodes(const coord_vec &skeleton, coord_vec &nodes);
+    void trim_adjacent_nodes(const coord_vec &nodes);
+    void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
 
-    void AddImmutableNode(NodeId node_id, Pos position, bool is_diagonal_connection);
+    void add_immutable_node(NodeId node_id, Pos position, bool is_diagonal_connection);
 
-    void DeleteMaps();
+    void delete_maps();
 public:
     void generate();
     void solve(bool allow_recursion = true);

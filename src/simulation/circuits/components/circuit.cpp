@@ -13,29 +13,150 @@
 
 #define YX(y, x) ((y) * XRES + (x))
 
-void Circuit::AddImmutableNode(NodeId node_id, Pos position, bool is_diagonal_connection) {
-    skeleton_map[YX(position.y, position.x)] = node_id;
-    immutable_nodes[YX(position.y, position.x)] = (is_diagonal_connection ? 1 : 0) + 1;
+void Circuit::add_immutable_node(NodeId node_id, Pos position, bool is_diagonal_connection) {
+    node_skeleton_map[YX(position.y, position.x)] = node_id;
+    immutable_node_map[YX(position.y, position.x)] = (is_diagonal_connection ? 1 : 0) + 1;
 }
 
-void Circuit::DoFloodfill(coord_vec &skeleton) {
-    DeleteMaps();
-    skeleton_map = new short[XRES * YRES];
-    immutable_nodes = new char[XRES * YRES];
-    std::fill(skeleton_map, skeleton_map + XRES * YRES, 0);
-    std::fill(immutable_nodes, immutable_nodes + XRES * YRES, 0);
+/**
+ * Pre-node generation processing for a circuit skeleton. Does the following:
+ * 1. Reset node_skeleton_map, immutable_node_map
+ * 2. Update global reference in circuit_map
+ * 3. Add RSPK ids to circuit
+ * 4. Set circuit RSPK tmp to 1 if on skeleton, else 0
+ * 5. Set node_skeleton_map to 1 in parts of the circuit that are the skeleton
+ * 
+ * Note that the skeleton coord_vec is only actually a skeleton when this is complete running
+ * @param coord_vec skeleton - Input floodfill data that's edited to be a skeleton
+ */
+void Circuit::process_skeleton(coord_vec &skeleton) {
+    delete_maps();
+    node_skeleton_map = new NodeId[XRES * YRES];
+    immutable_node_map = new char[XRES * YRES];
+    std::fill(node_skeleton_map, node_skeleton_map + XRES * YRES, 0);
+    std::fill(immutable_node_map, immutable_node_map + XRES * YRES, 0);
 
     for (auto &pos : skeleton) {
+        // It's safe to assume the id exists because
+        // floodfill creates missing RSPK
         int id = ID(sim->photons[pos.y][pos.x]);
-        sim->parts[id].tmp = 0;
+        sim->parts[id].tmp = 0; // Clear for setting later after nodes are assigned
         circuit_map[id] = this;
         global_rspk_ids.push_back(id);
     }
-    skeleton = coord_stack_to_skeleton(sim, skeleton);
 
+    skeleton = coord_vec_to_skeleton(sim, skeleton);
     for (auto &pos : skeleton) {
-        skeleton_map[YX(pos.y, pos.x)] = 1;
-        sim->parts[ID(sim->photons[pos.y][pos.x])].tmp = 1;
+        node_skeleton_map[YX(pos.y, pos.x)] = NodeHandler::SKELETON;
+        sim->parts[ID(sim->photons[pos.y][pos.x])].tmp = NodeHandler::SKELETON;
+    }
+}
+
+/**
+ * Preliminary node marking, can cause duplicates that will be later trimmed.
+ * 
+ * @param coord_vec skeleton  Circuit skeleton
+ * @param coord_vec nodes     Cleared on function call. Locations of nodes will be written to this.
+ */
+void Circuit::mark_nodes(const coord_vec &skeleton, coord_vec &nodes) {
+    NodeId node_id = NodeHandler::START_NODE_ID;
+    nodes.clear();
+
+    for (const auto &pos : skeleton) {
+        int count = 0,
+            x = pos.x,
+            y = pos.y;
+        int type = TYP(sim->pmap[y][x]);
+
+        if (node_skeleton_map[YX(y, x)] > NodeHandler::SKELETON) // Already marked as node
+            continue;
+
+        /* Special Node Type 1
+         * These elements have the node on the element itself
+         * (For instance, ground). The node can only be assigned if it's touching
+         * another conductor that's not itself to avoid excessive useless nodes */
+
+        if (type == PT_GRND) {
+            for (int rx : ADJACENT_PRIORITY_RX)
+            for (int ry : ADJACENT_PRIORITY_RY)
+                if (node_skeleton_map[YX(y + ry, x + rx)] && TYP(sim->pmap[y + ry][x + rx]) != type) {
+                    add_immutable_node(node_id, pos, false);
+                    nodes.push_back(pos);
+                    node_id++;
+                    goto end_node_type1;
+                }
+            end_node_type1:;
+        }
+
+        /* Special Node Type 2
+         * These elements DO NOT need terminals, ALL particles of a different type that
+         * border the element will be a node (for instance, an inductor): -H- will have the wires
+         * (-) around it marked as nodes */
+
+        else if (type == PT_INDC) {
+            for (int rx : ADJACENT_PRIORITY_RX)
+            for (int ry : ADJACENT_PRIORITY_RY)
+                if (node_skeleton_map[YX(y + ry, x + rx)] && TYP(sim->pmap[y + ry][x + rx]) != type) {
+                    auto npos = pos;
+                    npos.x = x + rx, npos.y = y + ry;
+                    add_immutable_node(node_id, npos, rx && ry);
+                    nodes.push_back(npos);
+                    node_id++;
+                }
+        }
+
+        /* Special Node Type 3
+         * Elements with polarity need terminal type elements. The node will be on the terminal element, ie
+         *      PSCN - VOLT => NODE - VOLT
+         * There is also special handling code for diodes that does a check for change from PSCN to NSCN
+         * and vice versa */
+
+        else if (is_terminal(type)) {
+            bool t_is_silicon = type == PT_PSCN || type == PT_NSCN;
+            int other_silicon_type = type == PT_PSCN ? PT_NSCN : PT_PSCN;
+
+            for (int rx : ADJACENT_PRIORITY_RX)
+            for (int ry : ADJACENT_PRIORITY_RY) {
+                int t = TYP(sim->pmap[y + ry][x + rx]);
+                if (is_voltage_source(t) || is_chip(t) || (t_is_silicon && t == other_silicon_type)) {
+                    add_immutable_node(node_id, pos, rx && ry);
+                    nodes.push_back(pos);
+                    node_id++;
+                    goto end_node_type3;
+                }
+            }
+            end_node_type3:;
+        }
+
+        // Can't be a non-special node (special nodes are exempt from this check)
+        // This category mostly includes gases / liquids which disperse lot and create
+        // a lot of unnecessary node calculations
+        if (!can_be_node(ID(sim->pmap[y][x]), sim))
+            continue;
+
+        /* Count surrounding disjoint connections, if > 2 then it must be a junction, ie:
+         * #YY
+         *   X##
+         *   #
+         * The pixel marked x has 3 connections going into it, even though it has 4 surrounding
+         * pixels, as the surrounding pixels marked with Y are touching, so are only counted once.
+         * By convention, the code below ignores directly adjacent pixels (up, down, left, right) if a diagonal
+         * touching that pixel is already filled; this allows for more diagonal connections to be considered. */
+
+        for (int rx = -1; rx <= 1; rx++)
+        for (int ry = -1; ry <= 1; ry++)
+            if ((rx || ry) && node_skeleton_map[YX(y + ry, x + rx)]) {
+                if (!rx && ry && (node_skeleton_map[YX(y + ry, x - 1)] || node_skeleton_map[YX(y + ry, x + 1)]))
+                    continue;
+                if (rx && !ry && (node_skeleton_map[YX(y + 1, x + rx)] || node_skeleton_map[YX(y - 1, x + rx)]))
+                    continue;
+                count++;
+            }
+        if (count > 2) {
+            node_skeleton_map[YX(y, x)] = node_id;
+            nodes.push_back(pos);
+            node_id++;
+        }
     }
 }
 
@@ -47,123 +168,21 @@ void Circuit::DoFloodfill(coord_vec &skeleton) {
  */
 void Circuit::generate() {
     coord_vec skeleton = floodfill(sim, startx, starty);
-    DoFloodfill(skeleton);
-
-    // Node marking
-    int count, x, y, type;
-    NodeId node_id = 2;
     coord_vec nodes;
 
-    for (auto &pos : skeleton) {
-        count = 0;
-        x = pos.x, y = pos.y;
-        type = TYP(sim->pmap[y][x]);
+    process_skeleton(skeleton);
+    mark_nodes(skeleton, nodes);
+    trim_adjacent_nodes(nodes);
 
-        if (skeleton_map[YX(y, x)] > 1) // Already marked as node
-            continue;
-
-        /**
-         * Special junction (node) cases: NSCN or PSCN connected to any of the following:
-         *      capacitor, voltage source, inductor
-         * Or the node itself is GRND
-         */
-        if (type == GROUND_TYPE)
-        {
-            AddImmutableNode(node_id, pos, false);
-            nodes.push_back(pos);
-            node_id++;
-        }
-        else if (type == PT_INDC) { // Inductor doesn't need terminals
-            for (int rx = -1; rx <= 1; rx++)
-                for (int ry = -1; ry <= 1; ry++)
-                    if ((rx || ry) && skeleton_map[YX(y + ry, x + rx)] && TYP(sim->pmap[y + ry][x + rx]) != PT_INDC)
-                    {
-                        auto npos = pos;
-                        npos.x = x + rx;
-                        npos.y = y + ry;
-                        AddImmutableNode(node_id, npos, rx && ry);
-                        nodes.push_back(npos);
-                        node_id++;
-                    }
-        }
-        else if (is_terminal(type))
-        {
-            int t_is_silicon = type == PT_PSCN || type == PT_NSCN;
-            int other_type = type == PT_PSCN ? PT_NSCN : PT_PSCN;
-
-            // Prioritze directly adjacent CAPR / VOLT / other such
-            for (int rx = -1; rx <= 1; rx++)
-                for (int ry = -1; ry <= 1; ry++)
-                    if ((rx || ry) && (rx == 0 || ry == 0))
-                    {
-                        int t = TYP(sim->pmap[y + ry][x + rx]);
-                        if (is_voltage_source(t) || (t_is_silicon && t == other_type) || is_chip(t))
-                        {
-                            skeleton_map[YX(y, x)] = node_id;
-                            immutable_nodes[YX(y, x)] = (rx && ry) + 1;
-                            nodes.push_back(pos);
-                            node_id++;
-                            goto end;
-                        }
-                    }
-            for (int rx = -1; rx <= 1; rx++)
-                for (int ry = -1; ry <= 1; ry++)
-                    if ((rx || ry) && !(rx == 0 || ry == 0))
-                    {
-                        int t = TYP(sim->pmap[y + ry][x + rx]);
-                        if (is_voltage_source(t) || (t_is_silicon && t == other_type) || is_chip(t))
-                        {
-                            skeleton_map[YX(y, x)] = node_id;
-                            immutable_nodes[YX(y, x)] = (rx && ry) + 1;
-                            nodes.push_back(pos);
-                            node_id++;
-                            goto end;
-                        }
-                    }
-        end:;
-        }
-
-        if (!can_be_node(ID(sim->pmap[y][x]), sim))
-            continue;
-
-        /**
-         * Count surrounding disjoint connections, if > 2 then it must be a junction, ie:
-         * #YY
-         *   X##
-         *   #
-         * The pixel marked x has 3 connections going into it, even though it has 4 surrounding
-         * pixels, as the surrounding pixels marked with Y are touching, so are only counted once.
-         * By convention, the code below ignores directly adjacent pixels (up, down, left, right) if a diagonal
-         * touching that pixel is already filled; this allows for more diagonal connections to be considered.
-         */
-        for (int rx = -1; rx <= 1; rx++)
-            for (int ry = -1; ry <= 1; ry++)
-                if ((rx || ry) && skeleton_map[YX(y + ry, x + rx)])
-                {
-                    if (!rx && ry && (skeleton_map[YX(y + ry, x - 1)] || skeleton_map[YX(y + ry, x + 1)]))
-                        continue;
-                    if (rx && !ry && (skeleton_map[YX(y + 1, x + rx)] || skeleton_map[YX(y - 1, x + rx)]))
-                        continue;
-                    count++;
-                }
-        if (count > 2)
-        {
-            skeleton_map[YX(y, x)] = node_id;
-            nodes.push_back(pos);
-            node_id++;
-            continue;
-        }
-    }
-    TrimAdjacentNodes(nodes);
-
+    int x, y;
     // Branch generation
     for (auto &pos : skeleton)
     {
         x = pos.x, y = pos.y;
 
-        if (skeleton_map[YX(y, x)] > 1)
+        if (node_skeleton_map[YX(y, x)] > 1)
         {
-            sim->parts[ID(sim->photons[y][x])].tmp = skeleton_map[YX(y, x)];
+            sim->parts[ID(sim->photons[y][x])].tmp = node_skeleton_map[YX(y, x)];
 
             // Sometimes 2 paths might share a pixel, so we iterate twice to check for all paths
             // the efficency cost should be very small
@@ -175,10 +194,10 @@ void Circuit::generate() {
                 {
                     if ((rx == 0 || ry == 0) && (rx || ry))
                     {
-                        if (skeleton_map[YX(y + ry, x + rx)] > 1)
+                        if (node_skeleton_map[YX(y + ry, x + rx)] > 1)
                             adjacent_node = true;
-                        AddBranchFromSkeleton(skeleton, x + rx, y + ry, skeleton_map[YX(y, x)], x, y);
-                        AddBranchFromSkeleton(skeleton, x + rx, y + ry, skeleton_map[YX(y, x)], x, y);
+                        add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
+                        add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
                     }
                 }
             for (int rx = -1; rx <= 1; rx++)
@@ -187,16 +206,16 @@ void Circuit::generate() {
                     if (rx && ry)
                     {
                         // Directly adjacent node existed earlier, check if the new location is touching a node
-                        if (!adjacent_node && (skeleton_map[YX(y + ry, x)] > 1 || skeleton_map[YX(y, x + rx)] > 1))
+                        if (!adjacent_node && (node_skeleton_map[YX(y + ry, x)] > 1 || node_skeleton_map[YX(y, x + rx)] > 1))
                             continue;
-                        AddBranchFromSkeleton(skeleton, x + rx, y + ry, skeleton_map[YX(y, x)], x, y);
-                        AddBranchFromSkeleton(skeleton, x + rx, y + ry, skeleton_map[YX(y, x)], x, y);
+                        add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
+                        add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
                     }
                 }
         }
     }
 
-    DeleteMaps();
+    delete_maps(); // No longer needed, deallocate to save RAM (~16 MB per circuit)
 }
 
 /* Trim adjacent nodes, nodes often become grouped in arrangments like
@@ -206,7 +225,7 @@ void Circuit::generate() {
  * In which case we take only the center (above, the center node)
  * Also reassigns node ids as it deletes nodes, leaving empty gaps
  * in ids */
-void Circuit::TrimAdjacentNodes(const coord_vec &nodes)
+void Circuit::trim_adjacent_nodes(const coord_vec &nodes)
 {
     float avgx, avgy;
     int x2, y2, count = 0, new_node_id = 2;
@@ -219,24 +238,24 @@ void Circuit::TrimAdjacentNodes(const coord_vec &nodes)
 
     for (auto &pos : nodes)
     {
-        if (skeleton_map[YX(pos.y, pos.x)] <= 1 || visited[pos.y][pos.x]) // Already cleared, skip
+        if (node_skeleton_map[YX(pos.y, pos.x)] <= 1 || visited[pos.y][pos.x]) // Already cleared, skip
             continue;
-        if (immutable_nodes[YX(pos.y, pos.x)])
+        if (immutable_node_map[YX(pos.y, pos.x)])
         { // Node is not allowed to be condensed
             int type = 0;
             // Exception: if diagonal node is touching non-adjacent node of same type
-            if (immutable_nodes[YX(pos.y, pos.x)] == 2)
+            if (immutable_node_map[YX(pos.y, pos.x)] == 2)
             { // 2 means diagonally adjacent
                 for (int rx = -1; rx <= 1; ++rx)
                     for (int ry = -1; ry <= 1; ++ry)
-                        if ((rx || ry) && immutable_nodes[YX(pos.y + ry, pos.x + rx)] == 1)
+                        if ((rx || ry) && immutable_node_map[YX(pos.y + ry, pos.x + rx)] == 1)
                         {
-                            immutable_nodes[YX(pos.y, pos.x)] = 0;
-                            skeleton_map[YX(pos.y, pos.x)] = 1;
+                            immutable_node_map[YX(pos.y, pos.x)] = 0;
+                            node_skeleton_map[YX(pos.y, pos.x)] = 1;
                             goto end;
                         }
             }
-            skeleton_map[YX(pos.y, pos.x)] = new_node_id;
+            node_skeleton_map[YX(pos.y, pos.x)] = new_node_id;
             visited[pos.y][pos.x] = 1;
             new_node_id++;
 
@@ -269,8 +288,8 @@ void Circuit::TrimAdjacentNodes(const coord_vec &nodes)
         while (coords.getSize())
         {
             coords.pop(x2, y2);
-            if (!immutable_nodes[YX(y2, x2)])
-                skeleton_map[YX(y2, x2)] = 1;
+            if (!immutable_node_map[YX(y2, x2)])
+                node_skeleton_map[YX(y2, x2)] = 1;
             node_cluster.push_back(std::make_pair(x2, y2));
             avgx += x2, avgy += y2, count++;
 
@@ -281,10 +300,10 @@ void Circuit::TrimAdjacentNodes(const coord_vec &nodes)
 
             for (int rx = -1; rx <= 1; ++rx)
                 for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx || ry) && skeleton_map[YX(y2 + ry, x2 + rx)] > 1 && !immutable_nodes[YX(y2 + ry, x2 + rx)])
+                    if ((rx || ry) && node_skeleton_map[YX(y2 + ry, x2 + rx)] > 1 && !immutable_node_map[YX(y2 + ry, x2 + rx)])
                     {
                         coords.push(x2 + rx, y2 + ry);
-                        skeleton_map[YX(y2 + ry, x2 + rx)] = 1;
+                        node_skeleton_map[YX(y2 + ry, x2 + rx)] = 1;
                     }
         }
         x2 = (int)(avgx / count + 0.5f), y2 = (int)(avgy / count + 0.5f);
@@ -296,7 +315,7 @@ void Circuit::TrimAdjacentNodes(const coord_vec &nodes)
             {
                 if (p.first == x2 && p.second == y2) // Skip center instead
                     continue;
-                skeleton_map[YX(p.second, p.first)] = new_node_id;
+                node_skeleton_map[YX(p.second, p.first)] = new_node_id;
                 visited[p.second][p.first] = 1;
                 new_node_id++;
             }
@@ -314,19 +333,19 @@ void Circuit::TrimAdjacentNodes(const coord_vec &nodes)
 
                 for (int rx = -1; rx <= 1; ++rx)
                     for (int ry = -1; ry <= 1; ++ry)
-                        if ((rx || ry) && (!rx || !ry) && skeleton_map[YX(y2 + ry, x2 + rx)])
+                        if ((rx || ry) && (!rx || !ry) && node_skeleton_map[YX(y2 + ry, x2 + rx)])
                             count++;
                 if (count > 2)
                 {
-                    skeleton_map[YX(p.second, p.first)] = new_node_id;
+                    node_skeleton_map[YX(p.second, p.first)] = new_node_id;
                     visited[p.second][p.first] = 1;
                     new_node_id++;
                 }
             }
         }
-        else if (skeleton_map[YX(y2, x2)] == 1)
+        else if (node_skeleton_map[YX(y2, x2)] == 1)
         {
-            skeleton_map[YX(y2, x2)] = new_node_id;
+            node_skeleton_map[YX(y2, x2)] = new_node_id;
             visited[y2][x2] = 1;
             new_node_id++;
         }
@@ -340,7 +359,7 @@ void Circuit::TrimAdjacentNodes(const coord_vec &nodes)
                 if (closest < 0 || distance < closest)
                     closest = distance, closest_p = p;
             }
-            skeleton_map[YX(closest_p.second, closest_p.first)] = new_node_id;
+            node_skeleton_map[YX(closest_p.second, closest_p.first)] = new_node_id;
             visited[closest_p.second][closest_p.first] = 1;
             new_node_id++;
         }
@@ -348,9 +367,9 @@ void Circuit::TrimAdjacentNodes(const coord_vec &nodes)
     highest_node_id = new_node_id - 1;
 }
 
-void Circuit::AddBranchFromSkeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy)
+void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy)
 {
-    if (!skeleton_map[YX(y, x)] || (x == sx && y == sy))
+    if (!node_skeleton_map[YX(y, x)] || (x == sx && y == sy))
         return;
 
     std::vector<int> ids, rspk_ids, switches, dynamic_resistors;
@@ -407,19 +426,19 @@ void Circuit::AddBranchFromSkeleton(const coord_vec &skeleton, int x, int y, int
             current_polarity = 0, current_voltage = 0.0f, source_count = 0;
 
         // Node handling
-        if (skeleton_map[YX(y, x)] > 1 && skeleton_map[YX(y, x)] != start_node)
+        if (node_skeleton_map[YX(y, x)] > 1 && node_skeleton_map[YX(y, x)] != start_node)
         { // Found end_node
-            end_node = skeleton_map[YX(y, x)];
+            end_node = node_skeleton_map[YX(y, x)];
             total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
             r = sim->pmap[sy][sx];
             total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
-            if (skeleton_map[YX(py, px)] == 0)
-                skeleton_map[YX(py, px)] = 1; // Make sure points around nodes are never deleted
+            if (node_skeleton_map[YX(py, px)] == 0)
+                node_skeleton_map[YX(py, px)] = 1; // Make sure points around nodes are never deleted
             break;
         }
-        if (skeleton_map[YX(y, x)] == 1)
+        if (node_skeleton_map[YX(y, x)] == 1)
         { // Non-node
-            skeleton_map[YX(y, x)] = 0;
+            node_skeleton_map[YX(y, x)] = 0;
             total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
 
             ids.push_back(ID(r));
@@ -447,7 +466,7 @@ void Circuit::AddBranchFromSkeleton(const coord_vec &skeleton, int x, int y, int
             // Check directly adjacent nodes (Highest priority)
             for (int rx = -1; rx <= 1; ++rx)
                 for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx == 0 || ry == 0) && (rx || ry) && skeleton_map[YX(y + ry, x + rx)] > 1 && skeleton_map[YX(y + ry, x + rx)] != start_node)
+                    if ((rx == 0 || ry == 0) && (rx || ry) && node_skeleton_map[YX(y + ry, x + rx)] > 1 && node_skeleton_map[YX(y + ry, x + rx)] != start_node)
                     {
                         x += rx, y += ry, found_next = true;
                         goto end;
@@ -455,7 +474,7 @@ void Circuit::AddBranchFromSkeleton(const coord_vec &skeleton, int x, int y, int
             // Check directly adjacent
             for (int rx = -1; rx <= 1; ++rx)
                 for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx == 0 || ry == 0) && (rx || ry) && skeleton_map[YX(y + ry, x + rx)] && skeleton_map[YX(y + ry, x + rx)] != start_node &&
+                    if ((rx == 0 || ry == 0) && (rx || ry) && node_skeleton_map[YX(y + ry, x + rx)] && node_skeleton_map[YX(y + ry, x + rx)] != start_node &&
                         (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
                     {
                         x += rx, y += ry, found_next = true;
@@ -465,7 +484,7 @@ void Circuit::AddBranchFromSkeleton(const coord_vec &skeleton, int x, int y, int
             // Node: any nodes found below this step cannot be next to start node
             for (int rx = -1; rx <= 1; ++rx)
                 for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx || ry) && skeleton_map[YX(y + ry, x + rx)] != start_node && skeleton_map[YX(y + ry, x + rx)] > 1 &&
+                    if ((rx || ry) && node_skeleton_map[YX(y + ry, x + rx)] != start_node && node_skeleton_map[YX(y + ry, x + rx)] > 1 &&
                         (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
                     {
                         x += rx, y += ry, found_next = true;
@@ -474,7 +493,7 @@ void Circuit::AddBranchFromSkeleton(const coord_vec &skeleton, int x, int y, int
             // Check non-adjacent
             for (int rx = -1; rx <= 1; ++rx)
                 for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx && ry) && skeleton_map[YX(y + ry, x + rx)] && skeleton_map[YX(y + ry, x + rx)] != start_node &&
+                    if ((rx && ry) && node_skeleton_map[YX(y + ry, x + rx)] && node_skeleton_map[YX(y + ry, x + rx)] != start_node &&
                         (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
                     {
                         x += rx, y += ry, found_next = true;
@@ -497,8 +516,8 @@ void Circuit::AddBranchFromSkeleton(const coord_vec &skeleton, int x, int y, int
         total_voltage *= -1;
         std::reverse(rspk_ids.begin(), rspk_ids.end());
     }
-    if (skeleton_map[YX(oy, ox)] == 0)
-        skeleton_map[YX(oy, ox)] = 1; // Make sure points around nodes are never deleted
+    if (node_skeleton_map[YX(oy, ox)] == 0)
+        node_skeleton_map[YX(oy, ox)] = 1; // Make sure points around nodes are never deleted
 
     if (start_node > -1)
     { // Valid connection actually exists
@@ -544,9 +563,9 @@ void Circuit::AddBranchFromSkeleton(const coord_vec &skeleton, int x, int y, int
         branch_cache.push_back(b);
     }
     // 1 px floating branch may be part of node, reset
-    else if (!immutable_nodes[YX(y, x)])
+    else if (!immutable_node_map[YX(y, x)])
     {
-        skeleton_map[YX(y, x)] = 1;
+        node_skeleton_map[YX(y, x)] = 1;
     }
 }
 
@@ -909,8 +928,8 @@ void Circuit::debug()
 void Circuit::reset()
 {
     // This is done in generate(), don't need to do it
-    // std::fill(&skeleton_map[YX(0, 0)], &skeleton_map[YX(YRES, 0)], 0);
-    // std::fill(&immutable_nodes[YX(0, 0)], &immutable_nodes[YX(YRES, 0)], 0);
+    // std::fill(&node_skeleton_map[YX(0, 0)], &node_skeleton_map[YX(YRES, 0)], 0);
+    // std::fill(&immutable_node_map[YX(0, 0)], &immutable_node_map[YX(YRES, 0)], 0);
     for (auto id : global_rspk_ids)
         circuit_map[id] = nullptr;
     recalc_next_frame = false;
@@ -947,13 +966,13 @@ Circuit::Circuit(int x, int y, Simulation *sim)
 Circuit::Circuit(const Circuit &other)
 {
     sim = other.sim;
-    // if (other.skeleton_map)
-    //     std::copy(other.skeleton_map, other.skeleton_map + XRES * YRES, skeleton_map);
-    // else delete[] skeleton_map;
-    // if (other.immutable_nodes)
-    //     std::copy(other.immutable_nodes, other.immutable_nodes + XRES * YRES, immutable_nodes);
-    // else delete[] immutable_nodes;
-    DeleteMaps();
+    // if (other.node_skeleton_map)
+    //     std::copy(other.node_skeleton_map, other.node_skeleton_map + XRES * YRES, node_skeleton_map);
+    // else delete[] node_skeleton_map;
+    // if (other.immutable_node_map)
+    //     std::copy(other.immutable_node_map, other.immutable_node_map + XRES * YRES, immutable_node_map);
+    // else delete[] immutable_node_map;
+    delete_maps();
 
     connection_map = other.connection_map;
     constrained_nodes = other.constrained_nodes;
@@ -992,14 +1011,14 @@ Circuit::Circuit(const Circuit &other)
 Circuit::~Circuit()
 {
     delete copy;
-    DeleteMaps();
+    delete_maps();
     for (unsigned i = 0; i < branch_cache.size(); i++)
         delete branch_cache[i];
 }
 
-void Circuit::DeleteMaps() {
-    delete[] skeleton_map;
-    delete[] immutable_nodes;
-    skeleton_map = nullptr;
-    immutable_nodes = nullptr;
+void Circuit::delete_maps() {
+    delete[] node_skeleton_map;
+    delete[] immutable_node_map;
+    node_skeleton_map = nullptr;
+    immutable_node_map = nullptr;
 }

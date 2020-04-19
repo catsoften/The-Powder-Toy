@@ -4,7 +4,7 @@
 #include <vector>
 
 /* Defines for variable types to be less ambigious in code */
-typedef int NodeId;
+typedef unsigned short NodeId;
 typedef int ElementType;
 
 typedef double Ohms;

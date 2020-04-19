@@ -163,7 +163,7 @@ void coord_stack_to_skeleton_iteration(Simulation *sim, coord_vec &output,
  * Returns a new vector of coordinates that can be considered
  * the middle portion (a 1px wide skeleton)
  */
-coord_vec coord_stack_to_skeleton(Simulation *sim, const coord_vec &floodfill) {
+coord_vec coord_vec_to_skeleton(Simulation *sim, const coord_vec &floodfill) {
     coord_vec output(floodfill);
     size_t prev_size = 0;
     int output_map[YRES][XRES];
