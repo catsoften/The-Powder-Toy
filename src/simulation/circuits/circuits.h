@@ -4,6 +4,9 @@
 #include "simulation/CoordStack.h"
 #include "simulation/ElementCommon.h"
 #include "simulation/circuits/framework.h"
+#include "simulation/circuits/circuit_core.h"
+
+#include "components/circuit.h"
 
 #include "eigen/Core"
 #include "eigen/Dense"
@@ -11,24 +14,14 @@
 
 #include <vector>
 #include <set>
+#include <queue>
 #include <unordered_map>
 #include <iostream>
 #include <limits>
 
-#define BASE_RSPK_LIFE 4
-#define FORCE_RECALC_EVERY_N_FRAMES 20
-
-// Divergence checking
-#define WITHIN_STEADY_STATE 0.0001 // Error < value is basically steady state
-#define INTEGRATION_TIMESTEP 0.016666666666666666 // 1 frame = 1/60 s
-#define INTEGRATION_RECALC_EVERY_N_FRAMES 20
-
-// Component limits
-#define MAX_CAPACITOR_CURRENT 10000.0f
-#define MAX_CAPACITOR_REVERSE_CURRENT 1.0f
 
 class Branch;
-class Circuit;
+class Component;
 
 extern Circuit * circuit_map[NPART]; // ID to Circuit *
 extern std::vector<Circuit *> all_circuits;
@@ -42,117 +35,15 @@ namespace CIRCUITS {
 }
 
 // Classes
-class Circuit {
-friend Branch;
-private:
-    Simulation * sim;
-    short skeleton_map[YRES][XRES];
-    char immutable_nodes[YRES][XRES]; // 1 = directly adjacent, 2 = diagonally adjacent
-    bool recalc_next_frame = false; // Flag for regeneration
-    bool contains_dynamic = false;  // Contains dynamic components such as capacitors (update every frame)
-    bool solution_computed = false; // Already computed solution for non-dynamic systems
-    int highest_node_id = 0;
-    int startx, starty;
 
-    // Divergence checks
-    bool requires_divergence_checking = false; // Steady state bounding for numeric integration (capacitors / inductors)
-    bool computed_divergence = false; // One time flag for creation
-    Circuit * copy = nullptr; // Copy of circuit to solve for divergence check
-
-    // These can contain duplicate node-node id pairs, and follow same order, ie if connection map
-    // for node 5 at index 2 is node 3, then the branch at node 5 index 2 is for node 3
-    // Note: duplicate node-node pairs indicate multiple connections from 1 node to another
-    // and represent different branches
-    std::unordered_map<int, std::vector<int> > connection_map; // Node ID: Ids that connect
-    std::unordered_map<int, std::vector<Branch *> > branch_map; // Node ID: branches with start_node = id
-    std::unordered_map<int, std::vector<Branch *> > floating_branches; // Node ID, branches with start_node = id
-    std::vector<Branch *> branch_cache; // Stores pointers so we can delete them later
-    std::vector<int> global_rspk_ids;
-    std::unordered_map<int, double> constrained_nodes; // Reference for nodes = 0 V
-
-    void trim_adjacent_nodes(const coord_vec &nodes);
-    void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
-public:
-    void generate();
-    void solve(bool allow_recursion=true);
-    void update_sim();
-    void reset_effective_resistances();
-    void flag_recalc() { recalc_next_frame = true, solution_computed = false; }
-    bool should_recalc() { return recalc_next_frame; }
-    void reset();
-    void debug();
-
-    size_t branch_cache_size() { return branch_cache.size(); }
-    const std::vector<int> &get_global_rspk_ids() { return global_rspk_ids; }
-
-    Circuit(int x, int y, Simulation *sim);
-    Circuit(const Circuit &other);
-    ~Circuit();
-};
-
-// A line between 2 nodes. I have no idea what they're actually called
-// so I'll call them branches (or maybe edges)
-class Branch {
-public:
-    /**
-     * Resistance is base resistance (only resistors)
-     * Effective resistance is dynamic, base is static
-     * 
-     * Notes on polarity:
-     * Voltage: going from node1 to node2 drops by this voltage, ie
-     *   NODE1 ----- + | - ------ NODE2
-     * is positive voltage
-     * 
-     * Current: flows from node1 to node2 (positive)
-     *   NODE1 -----> NODE2 (positive)
-     * 
-     * Dioide: going from node1 to node2 is positive_diode
-     *   NODE1 ----- PSCN NSCN ------ NODE2
-     */
-
-    const int node1, node2;
-    const std::vector<int> ids;
-    const std::vector<int> rspk_ids;
-    const std::vector<int> switches;
-    const std::vector<int> dynamic_resistors;
-    double resistance, voltage_gain, current_gain, base_resistance, current=0.0;
-    const int diode; // 0 = no diode, 1 = positive, -1 = negative
-    const int node1_id, node2_id;
-    double V1, V2;
-    bool recompute_switches = true;
+class Component {
+    enum COMPONENT_TYPE { LOGIC_GATE };
+    COMPONENT_TYPE type;
+    std::vector<int> input_nodes, output_nodes;
+    const bool is_dynamic;
     
-    // Divergence checks
-    double SS_voltage = std::numeric_limits<double>::max(), SS_current = std::numeric_limits<double>::max();
-
-    Branch(int node1, int node2, const std::vector<int> &ids, 
-            const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids, const std::vector<int> &dynamic_resistors,
-            double resistance, double voltage_gain, double current_gain, int diode, int id1, int id2) :
-        node1(node1), node2(node2), ids(ids), rspk_ids(rspk_ids), switches(switch_ids), dynamic_resistors(dynamic_resistors),
-        resistance(resistance), voltage_gain(voltage_gain), current_gain(current_gain), base_resistance(resistance), diode(diode),
-        node1_id(id1), node2_id(id2) {}
-    
-    void setSpecialType(bool isCapacitor, bool isInductor, bool isChip);
-    void print();
-    void setToSteadyState();
-
-    void computeDynamicResistances(Simulation * sim, Circuit * c);
-    void computeDynamicVoltages(Simulation * sim, Circuit * c);
-    void computeDynamicCurrents(Simulation * sim, Circuit * c);
-
-    bool obeysOhmsLaw()    { return obeys_ohms_law; };
-    bool isVoltageSource() { return voltage_gain; }
-
-    bool isInductor()      { return branch_type == INDUCTOR; }
-    bool isCapacitor()     { return branch_type == CAPACITOR; }
-    bool isChip()          { return branch_type == CHIP; }
-    bool isDiode()         { return branch_type == DIODE; }
-private:
-    bool obeys_ohms_law = true;
-    bool switches_on = false;
-    bool switchesOn(Simulation * sim);
-
-    enum TYPE { RESISTOR, CAPACITOR, INDUCTOR, CHIP, DIODE, VOLTAGE_SOURCE };
-    TYPE branch_type = RESISTOR;    
+    Component(COMPONENT_TYPE type, bool is_dynamic, std::vector<int> input_nodes, std::vector<int> output_nodes):
+        type(type), input_nodes(input_nodes), output_nodes(output_nodes), is_dynamic(is_dynamic) {};
 };
 
 #endif

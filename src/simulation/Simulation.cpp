@@ -37,6 +37,7 @@
 #include "simulation/magnetics/magnetics.h"
 #include "simulation/stress/stress.h"
 #include "simulation/circuits/circuits.h"
+#include "simulation/circuits/components/circuit.h"
 #include "gui/game/GameModel.h"
 
 #include "client/Client.h"

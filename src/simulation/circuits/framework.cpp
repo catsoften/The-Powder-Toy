@@ -31,14 +31,14 @@ bool allow_conduction(int totype, int fromtype) {
 /*
  * Floodfill touching conductors with RSPRK
  */
-coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y) {
+coord_vec floodfill(Simulation *sim, int x, int y) {
     int tmp = sim->pmap[y][x];
     if (!valid_conductor(TYP(tmp), sim, ID(tmp)))
         return coord_vec();
 
     CoordStack coords, offsets;
     coord_vec output;
-    pos temp;
+    Pos temp;
     int crx, cry; // Temp rx and ry from offsets for junctions
 
     char visited[YRES][XRES];
@@ -170,7 +170,7 @@ coord_vec coord_stack_to_skeleton(Simulation *sim, const coord_vec &floodfill) {
     int diff;
 
     std::fill(&output_map[0][0], &output_map[YRES][0], 0.0f);
-    for (pos p : floodfill)
+    for (Pos p : floodfill)
         output_map[p.y][p.x] = 1;
 
     // Repeatedly thin the image to 1 px until it can no longer be further thined

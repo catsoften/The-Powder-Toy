@@ -1,12 +1,13 @@
-#include "simulation/circuits/resistance.h"
-#include "simulation/circuits/framework.h"
+#include "resistance.h"
+#include "framework.h"
+#include "circuit_core.h"
 
 #include <exception>
 #include <cmath>
 #include <iostream>
 
 // All resistances
-std::unordered_map<int, double> resistances({
+std::unordered_map<int, Ohms> resistances({
     { PT_SWCH, 1e-8 },
     // PT_VOLT's resistance only matters when a voltage source is not connected correctly,
     // so we set it really high to block current through incorrectly placed voltage sources

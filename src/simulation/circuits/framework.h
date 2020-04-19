@@ -3,18 +3,16 @@
 
 #include "simulation/CoordStack.h"
 #include "simulation/ElementCommon.h"
+#include "circuit_core.h"
 #include <vector>
 
 class Circuits;
-
-struct pos { short x, y; };
-typedef std::vector<pos> coord_vec;
 
 bool allow_conduction(int totype, int fromtype);
 bool can_be_skeleton(int i, Simulation * sim);
 bool can_be_node(int i, Simulation * sim);
 
-coord_vec floodfill(Simulation *sim, Particle *parts, int x, int y);
+coord_vec floodfill(Simulation *sim, int x, int y);
 coord_vec coord_stack_to_skeleton(Simulation *sim, const coord_vec &floodfill);
 
 // Type classifications

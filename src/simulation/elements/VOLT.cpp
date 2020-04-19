@@ -4,8 +4,7 @@
 #include "simulation/circuits/circuits.h"
 
 //#TPT-Directive ElementClass Element_VOLT PT_VOLT 258
-Element_VOLT::Element_VOLT()
-{
+Element_VOLT::Element_VOLT() {
 	Identifier = "DEFAULT_PT_VOLT";
 	Name = "VOLT";
 	Colour = PIXPACK(0x826108);
