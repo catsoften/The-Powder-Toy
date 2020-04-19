@@ -16,6 +16,9 @@ namespace NodeHandler {
     const NodeId SKELETON = 1;
     const NodeId START_NODE_ID = 2;
 
+    const int DIRECTLY_ADJACENT = 1;
+    const int DIAGONALLY_ADJACENT = 2;
+
     static_assert(SKELETON == START_NODE_ID - 1, "Skeleton ID must be 1 less than the start node ID");
     static_assert(SKELETON > 0, "Skeleton ID must be greater than 0");
 };
@@ -52,10 +55,12 @@ private:
 
     void process_skeleton(coord_vec &skeleton);
     void mark_nodes(const coord_vec &skeleton, coord_vec &nodes);
-    void trim_adjacent_nodes(const coord_vec &nodes);
-    void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
+    void trim_nodes(const coord_vec &nodes);
+    void add_branches(const coord_vec &skeleton);
 
+    void add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy);
     void add_immutable_node(NodeId node_id, Pos position, bool is_diagonal_connection);
+    void delete_node(Pos position);
 
     void delete_maps();
 public:

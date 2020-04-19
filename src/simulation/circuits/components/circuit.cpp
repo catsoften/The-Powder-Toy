@@ -15,7 +15,13 @@
 
 void Circuit::add_immutable_node(NodeId node_id, Pos position, bool is_diagonal_connection) {
     node_skeleton_map[YX(position.y, position.x)] = node_id;
-    immutable_node_map[YX(position.y, position.x)] = (is_diagonal_connection ? 1 : 0) + 1;
+    immutable_node_map[YX(position.y, position.x)] = is_diagonal_connection ?
+        NodeHandler::DIAGONALLY_ADJACENT : NodeHandler::DIRECTLY_ADJACENT;
+}
+
+void Circuit::delete_node(Pos position) {
+    immutable_node_map[YX(position.y, position.x)] = 0;
+    node_skeleton_map[YX(position.y, position.x)] = 1;
 }
 
 /**
@@ -160,6 +166,183 @@ void Circuit::mark_nodes(const coord_vec &skeleton, coord_vec &nodes) {
     }
 }
 
+/* Trim adjacent nodes, nodes often become grouped in arrangments like
+ *    N
+ *   NNN
+ *    N
+ * In which case we take only the center (above, the center node)
+ * Also reassigns node ids as it deletes nodes, leaving empty gaps
+ * in ids */
+void Circuit::trim_nodes(const coord_vec &nodes) {
+    NodeId new_node_id = 2;
+    bool visited[YRES][XRES];
+    std::fill(&visited[0][0], &visited[YRES][0], 0);
+
+    for (const auto &pos : nodes) {
+        if (node_skeleton_map[YX(pos.y, pos.x)] <= NodeHandler::SKELETON || visited[pos.y][pos.x]) // Already cleared, skip
+            continue;
+        if (immutable_node_map[YX(pos.y, pos.x)]) { // Node is not allowed to be condensed
+            int type = 0;
+            if (immutable_node_map[YX(pos.y, pos.x)] == NodeHandler::DIAGONALLY_ADJACENT) {
+                for (int rx = -1; rx <= 1; ++rx)
+                for (int ry = -1; ry <= 1; ++ry)
+                    // Exception: if diagonal node is touching non-adjacent immutable node
+                    // it can be deleted (redundant node)
+                    if ((rx || ry) && immutable_node_map[YX(pos.y + ry, pos.x + rx)] == NodeHandler::DIRECTLY_ADJACENT) {
+                        delete_node(pos);
+                        goto end;
+                    }
+            }
+
+            // Ground is constrained to 0
+            type = TYP(sim->pmap[pos.y][pos.x]);
+            if (type == PT_GRND)
+                constrained_nodes[new_node_id] = 0.0;
+
+            node_skeleton_map[YX(pos.y, pos.x)] = new_node_id;
+            visited[pos.y][pos.x] = true;
+            new_node_id++;
+
+            end:;
+            continue;
+        }
+
+        int count = 0, x, y;
+        float avgx = 0.0f, avgy = 0.0f;
+        bool x_all_same = true, y_all_same = true;
+
+        CoordStack coords;
+        coord_vec node_cluster;
+        coords.push(pos.x, pos.y);
+
+        while (coords.getSize()) {
+            coords.pop(x, y);
+
+            // Remove all nodes (except immutable ones) for now, reassign later
+            if (!immutable_node_map[YX(y, x)])
+                node_skeleton_map[YX(y, x)] = NodeHandler::SKELETON;
+
+            node_cluster.push_back(Pos{(short)x, (short)y});
+            avgx += x, avgy += y, count++;
+
+            if (node_cluster.back().x != node_cluster[0].x)
+                x_all_same = false;
+            if (node_cluster.back().y != node_cluster[0].y)
+                y_all_same = false;
+
+            for (int rx = -1; rx <= 1; ++rx)
+            for (int ry = -1; ry <= 1; ++ry)
+                if ((rx || ry) &&
+                        node_skeleton_map[YX(y + ry, x + rx)] > NodeHandler::SKELETON &&
+                        !immutable_node_map[YX(y + ry, x + rx)]) {
+                    coords.push(x + rx, y + ry);
+                    node_skeleton_map[YX(y + ry, x + rx)] = NodeHandler::SKELETON;
+                }
+        }
+
+        x = (int)std::round(avgx / count), y = (int)std::round(avgy / count);
+
+        /* Check: special case where 3 repeated nodes lie in the same line
+         * Instead of averaging to center, we trim the center one. For example,
+         * NNN should be trimmed as N-N instead of -N- as averaging would */
+
+        if (node_cluster.size() == 3 && (x_all_same || y_all_same)) {
+            for (auto p : node_cluster) {
+                if (p.x == x && p.y == y) // Skip center instead
+                    continue;
+                node_skeleton_map[YX(p.y, p.x)] = new_node_id;
+                visited[p.y][p.x] = true;
+                new_node_id++;
+            }
+        }
+
+        /* Large clusters (>5, which is size of star:)
+         *  N    Might indicate a mesh of 1px branches, in which case
+         * NNN   we only consider directly adjacent counts
+         *  N */
+
+        else if (node_cluster.size() > 5) {
+            for (auto p : node_cluster) {
+                int x = p.x, y = p.y;
+                int count = 0;
+
+                for (int rx = -1; rx <= 1; ++rx)
+                for (int ry = -1; ry <= 1; ++ry) // Count directly adjacent nodes
+                    if ((rx || ry) && (!rx || !ry) && node_skeleton_map[YX(y + ry, x + rx)])
+                        count++;
+                if (count > 2) {
+                    node_skeleton_map[YX(p.y, p.x)] = new_node_id;
+                    visited[p.y][p.x] = true;
+                    new_node_id++;
+                }
+            }
+        }
+
+        /* No need to floodfill, assign new ID */
+        else if (node_skeleton_map[YX(y, x)] == 1) {
+            node_skeleton_map[YX(y, x)] = new_node_id;
+            visited[y][x] = true;
+            new_node_id++;
+        }
+
+        /* Re-add closest node to average in the cluster */
+        else {
+            float closest = -1.0f, distance;
+            auto closest_p = node_cluster[0];
+            for (auto p : node_cluster) {
+                distance = abs(x - p.x) + fabs(y - p.y);
+                if (closest < 0 || distance < closest)
+                    closest = distance, closest_p = p;
+            }
+            node_skeleton_map[YX(closest_p.y, closest_p.x)] = new_node_id;
+            visited[closest_p.y][closest_p.x] = true;
+            new_node_id++;
+        }
+    }
+
+    // Last used node_id is new_node_id - 1 because new_node_id++ after each assignment
+    highest_node_id = new_node_id - 1;
+}
+
+/**
+ * Add all the branches
+ * @param coord_vec skeleton Skeleton coordinate list
+ */
+void Circuit::add_branches(const coord_vec &skeleton) {
+    for (auto &pos : skeleton) {
+        int x = pos.x, y = pos.y;
+
+        if (node_skeleton_map[YX(y, x)] > NodeHandler::SKELETON) {
+            sim->parts[ID(sim->photons[y][x])].tmp = node_skeleton_map[YX(y, x)];
+
+            bool adjacent_node = false;
+            for (int rx : ADJACENT_PRIORITY_RX)
+            for (int ry : ADJACENT_PRIORITY_RY) {
+                // Since directly adjacent takes priority this check will run before the next
+                // else if statement
+                if ((rx == 0 || ry == 0) && node_skeleton_map[YX(y + ry, x + rx)] > NodeHandler::SKELETON)
+                    adjacent_node = true;
+
+                // Don't start branches on diagonally adjacent nodes if there's a directly adjacent
+                // node touching it
+                else if ((rx && ry) && !adjacent_node &&
+                        (node_skeleton_map[YX(y + ry, x)] > NodeHandler::SKELETON ||
+                         node_skeleton_map[YX(y, x + rx)] > NodeHandler::SKELETON))
+                    continue;
+
+                // It's possible for more than 2 paths to share a pixel, so we iterate twice
+                // to make sure we get all paths. The efficency loss is small because if there is
+                // only 1 path, all the allowed traversals will be removed in the 1st pass, causing the
+                // branch fill to terminate early.
+
+                // (I'm not sure if there can be 3 paths, seems unlikely given the skeletonization algorithim)
+                
+                add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
+                add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
+            }
+        }
+    }
+}
 
 /**
  * Mark nodes on the skeleton map, and create branches.
@@ -172,200 +355,12 @@ void Circuit::generate() {
 
     process_skeleton(skeleton);
     mark_nodes(skeleton, nodes);
-    trim_adjacent_nodes(nodes);
-
-    int x, y;
-    // Branch generation
-    for (auto &pos : skeleton)
-    {
-        x = pos.x, y = pos.y;
-
-        if (node_skeleton_map[YX(y, x)] > 1)
-        {
-            sim->parts[ID(sim->photons[y][x])].tmp = node_skeleton_map[YX(y, x)];
-
-            // Sometimes 2 paths might share a pixel, so we iterate twice to check for all paths
-            // the efficency cost should be very small
-            // (I'm not sure if there can be 3 paths, seems unlikely given the skeletonization algorithim)
-            // We stop if there's a directly adjacent node to avoid excess paths
-            bool adjacent_node = false;
-            for (int rx = -1; rx <= 1; rx++)
-                for (int ry = -1; ry <= 1; ry++)
-                {
-                    if ((rx == 0 || ry == 0) && (rx || ry))
-                    {
-                        if (node_skeleton_map[YX(y + ry, x + rx)] > 1)
-                            adjacent_node = true;
-                        add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
-                        add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
-                    }
-                }
-            for (int rx = -1; rx <= 1; rx++)
-                for (int ry = -1; ry <= 1; ry++)
-                {
-                    if (rx && ry)
-                    {
-                        // Directly adjacent node existed earlier, check if the new location is touching a node
-                        if (!adjacent_node && (node_skeleton_map[YX(y + ry, x)] > 1 || node_skeleton_map[YX(y, x + rx)] > 1))
-                            continue;
-                        add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
-                        add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
-                    }
-                }
-        }
-    }
+    trim_nodes(nodes);
+    add_branches(skeleton);
 
     delete_maps(); // No longer needed, deallocate to save RAM (~16 MB per circuit)
 }
 
-/* Trim adjacent nodes, nodes often become grouped in arrangments like
- *    N
- *   NNN
- *    N
- * In which case we take only the center (above, the center node)
- * Also reassigns node ids as it deletes nodes, leaving empty gaps
- * in ids */
-void Circuit::trim_adjacent_nodes(const coord_vec &nodes)
-{
-    float avgx, avgy;
-    int x2, y2, count = 0, new_node_id = 2;
-    std::vector<std::pair<int, int>> node_cluster;
-    int visited[YRES][XRES];
-    bool x_all_same = true, y_all_same = true;
-    CoordStack coords;
-
-    std::fill(&visited[0][0], &visited[YRES][0], 0);
-
-    for (auto &pos : nodes)
-    {
-        if (node_skeleton_map[YX(pos.y, pos.x)] <= 1 || visited[pos.y][pos.x]) // Already cleared, skip
-            continue;
-        if (immutable_node_map[YX(pos.y, pos.x)])
-        { // Node is not allowed to be condensed
-            int type = 0;
-            // Exception: if diagonal node is touching non-adjacent node of same type
-            if (immutable_node_map[YX(pos.y, pos.x)] == 2)
-            { // 2 means diagonally adjacent
-                for (int rx = -1; rx <= 1; ++rx)
-                    for (int ry = -1; ry <= 1; ++ry)
-                        if ((rx || ry) && immutable_node_map[YX(pos.y + ry, pos.x + rx)] == 1)
-                        {
-                            immutable_node_map[YX(pos.y, pos.x)] = 0;
-                            node_skeleton_map[YX(pos.y, pos.x)] = 1;
-                            goto end;
-                        }
-            }
-            node_skeleton_map[YX(pos.y, pos.x)] = new_node_id;
-            visited[pos.y][pos.x] = 1;
-            new_node_id++;
-
-            type = TYP(sim->pmap[pos.y][pos.x]);
-            if (type == GROUND_TYPE)
-            {
-                constrained_nodes[new_node_id - 1] = 0.0;
-                goto end;
-            }
-            if (negative_terminal(type))
-            {
-                // Negative terminals of chips are constrained
-                for (int rx = -1; rx <= 1; ++rx)
-                    for (int ry = -1; ry <= 1; ++ry)
-                        if ((rx || ry) && is_chip(TYP(sim->pmap[pos.y + ry][pos.x + rx])))
-                        {
-                            constrained_nodes[new_node_id - 1] = sim->parts[ID(sim->pmap[pos.y + ry][pos.x + rx])].pavg[1];
-                            goto end;
-                        }
-            }
-        end:;
-            continue;
-        }
-
-        count = 0, avgx = 0.0f, avgy = 0.0f;
-        coords.clear();
-        node_cluster.clear();
-        coords.push(pos.x, pos.y);
-
-        while (coords.getSize())
-        {
-            coords.pop(x2, y2);
-            if (!immutable_node_map[YX(y2, x2)])
-                node_skeleton_map[YX(y2, x2)] = 1;
-            node_cluster.push_back(std::make_pair(x2, y2));
-            avgx += x2, avgy += y2, count++;
-
-            if (node_cluster[node_cluster.size() - 1].first != node_cluster[0].first)
-                x_all_same = false;
-            if (node_cluster[node_cluster.size() - 1].second != node_cluster[0].second)
-                y_all_same = false;
-
-            for (int rx = -1; rx <= 1; ++rx)
-                for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx || ry) && node_skeleton_map[YX(y2 + ry, x2 + rx)] > 1 && !immutable_node_map[YX(y2 + ry, x2 + rx)])
-                    {
-                        coords.push(x2 + rx, y2 + ry);
-                        node_skeleton_map[YX(y2 + ry, x2 + rx)] = 1;
-                    }
-        }
-        x2 = (int)(avgx / count + 0.5f), y2 = (int)(avgy / count + 0.5f);
-        if (node_cluster.size() == 3 && (x_all_same || y_all_same))
-        {
-            // Special case with a 1px branch, avoid taking center pixel
-            // Ie, NNN -> N-N instead of -N- as center picking would result in
-            for (auto p : node_cluster)
-            {
-                if (p.first == x2 && p.second == y2) // Skip center instead
-                    continue;
-                node_skeleton_map[YX(p.second, p.first)] = new_node_id;
-                visited[p.second][p.first] = 1;
-                new_node_id++;
-            }
-        }
-        else if (node_cluster.size() > 5)
-        {
-            // Large clusters (>5, which is size of star:)
-            //  N    Might indicate a mesh of 1px branches, in which case
-            // NNN   we only consider directly adjacent counts
-            //  N
-            for (auto p : node_cluster)
-            {
-                x2 = p.first, y2 = p.second;
-                int count = 0;
-
-                for (int rx = -1; rx <= 1; ++rx)
-                    for (int ry = -1; ry <= 1; ++ry)
-                        if ((rx || ry) && (!rx || !ry) && node_skeleton_map[YX(y2 + ry, x2 + rx)])
-                            count++;
-                if (count > 2)
-                {
-                    node_skeleton_map[YX(p.second, p.first)] = new_node_id;
-                    visited[p.second][p.first] = 1;
-                    new_node_id++;
-                }
-            }
-        }
-        else if (node_skeleton_map[YX(y2, x2)] == 1)
-        {
-            node_skeleton_map[YX(y2, x2)] = new_node_id;
-            visited[y2][x2] = 1;
-            new_node_id++;
-        }
-        else
-        { // Find closest node in cluster
-            float closest = -1.0f, distance;
-            auto closest_p = node_cluster[0];
-            for (auto p : node_cluster)
-            {
-                distance = abs(x2 - p.first) + fabs(y2 - p.second);
-                if (closest < 0 || distance < closest)
-                    closest = distance, closest_p = p;
-            }
-            node_skeleton_map[YX(closest_p.second, closest_p.first)] = new_node_id;
-            visited[closest_p.second][closest_p.first] = 1;
-            new_node_id++;
-        }
-    }
-    highest_node_id = new_node_id - 1;
-}
 
 void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy)
 {

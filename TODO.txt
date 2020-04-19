@@ -614,18 +614,19 @@ circuits-refactor:
 - char with std::byte
 - setNodeId to set node id instead of immeutable and shit
 
+- better adding method, ie severe lag when molten circuit resolidifies (large circuit)
+    - 
+- molten circuits tend to resolidify into large messes of nodes
+    - entropy grid somehow and limit max number of nodes in a grid if entropy is high
+    - count deviations from a straight line
+
 replace nodeId == 1 with a fancy #define
 
 limit number of nodes in a circuit anyways? no need to use short, maybe a byte will do
 optimize memory:
 - undo redo don't save circuit, recompute while paused
 
-adding a new component 
-- mark nodes
 
-
-DONE:
-rename do floodfill
 
 - rename framework to someting reasonable
 - seperate file for Circuit class
