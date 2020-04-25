@@ -83,7 +83,7 @@ bool valid_conductor(int typ, Simulation *sim, int i) {
  * then use get_effective_resistance, otherwise use get_resistance, which updates only every couple of frames
  * 
  * If you set a resistance in effective_resistance, set the resistance in get_resistance to 0.0
- * Also dynamic resistance elements should be added to framework.cpp:dynamic_resistor
+ * Also dynamic resistance elements should be added to framework.cpp:is_dynamic_resistor
  */
 
 double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
@@ -117,7 +117,7 @@ double get_resistance(int type, Particle *parts, int i, Simulation *sim) {
             return 0.0;
     }
 
-    if (negative_resistance(type)) return 0.0;
+    if (has_negative_resistance(type)) return 0.0;
 
     auto itr = resistances.find(type);
     if (itr != resistances.end())
@@ -162,7 +162,7 @@ double get_effective_resistance(int type, Particle *parts, int i, Simulation *si
     }
 
     // Negative resistance conductors
-    if (negative_resistance(type)) {
+    if (has_negative_resistance(type)) {
         double base_resistance = resistances[type];
         double current = 0.0;
         int r = sim->photons[(int)(parts[i].y + 0.5f)][(int)(parts[i].x + 0.5f)];

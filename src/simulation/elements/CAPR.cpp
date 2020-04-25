@@ -78,7 +78,7 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 			if (BOUNDS_CHECK && (rx || ry)) {
 				r = pmap[y + ry][x + rx];
 				if (!r || !sim->photons[y + ry][x + rx]) continue;
-				if (!positive_terminal(TYP(r))) continue;
+				if (!is_positive_terminal(TYP(r))) continue;
 
 				// Current flows from positive into CPTR if correct polarity
 				// Thus other_v should >= self_volt

@@ -7,6 +7,8 @@
 #include "simulation/circuits/resistance.h"
 #include "simulation/circuits/util.h"
 
+#include <iostream>
+
 
 void Branch::print() {
     #ifdef DEBUG

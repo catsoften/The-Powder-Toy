@@ -5,10 +5,21 @@
 #include "simulation/circuits/circuit_core.h"
 
 #include <vector>
-#include <unordered_map>
-#include <iostream>
 
 class Circuit;
+
+struct BranchConstructionData {
+    std::vector<int> ids,
+        rspk_ids,
+        switches,
+        dynamic_resistors;
+    double total_resistance = 0.0;
+    double voltage_gain = 0.0;
+    double current_gain = 0.0f;
+    int diode_type = 0;
+
+    ParticleId node1_id, node2_id;
+};
 
 // A line between 2 nodes. I have no idea what they're actually called
 // so I'll call them branches (or maybe edges)
@@ -50,6 +61,12 @@ public:
         node1(node1), node2(node2), ids(ids), rspk_ids(rspk_ids), switches(switch_ids), dynamic_resistors(dynamic_resistors),
         resistance(resistance), voltage_gain(voltage_gain), current_gain(current_gain), base_resistance(resistance), diode(diode),
         node1_id(id1), node2_id(id2) {}
+
+    Branch(NodeId node1, NodeId node2, BranchConstructionData data) :
+        node1(node1), node2(node2), ids(data.ids), rspk_ids(data.rspk_ids), switches(data.switches),
+        dynamic_resistors(data.dynamic_resistors), resistance(data.total_resistance), voltage_gain(data.voltage_gain),
+        current_gain(data.current_gain), base_resistance(data.total_resistance), diode(data.diode_type),
+        node1_id(data.node1_id), node2_id(data.node2_id) {}
     
     void setSpecialType(bool isCapacitor, bool isInductor, bool isChip);
     void print();

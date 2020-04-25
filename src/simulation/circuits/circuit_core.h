@@ -2,19 +2,36 @@
 #define CIRCUIT_CORE
 
 #include <vector>
+#include <exception>
 
 /* Defines for variable types to be less ambigious in code */
-typedef unsigned short NodeId;
+typedef short NodeId; // Must be signed type as some code uses -1 as invalid placeholder
 typedef int ElementType;
+typedef int ParticleId;
 
 typedef double Ohms;
 typedef double Volts;
 typedef double Amps;
 
-struct Pos { short x, y; };
+class Pos {
+public:
+    short x, y;
+
+    Pos(int x, int y) : x((short)x), y((short)y) {}
+    Pos(short x, short y) : x(x), y(y) {}
+
+    inline bool operator==(const Pos &other) const { return x == other.x && y == other.y; }
+};
 typedef std::vector<Pos> coord_vec;
 
-/* Config variables */
+// Exceptions
+class CircuitParticleMapDesync: public std::exception {
+    inline virtual const char* what() const throw() {
+        return "Circuit tried to access non-existent conductor, circuit id map and particle map may have desynced.";
+    }
+};
+
+// Config variables
 const int BASE_RSPK_LIFE = 4;
 const int FORCE_RECALC_EVERY_N_FRAMES = 20;
 

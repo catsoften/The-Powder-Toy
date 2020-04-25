@@ -606,13 +606,18 @@ circuits-refactor:
 - get branch by node helper
 - make some checks like IS_GRND valuated at evaltime
 
+RSPRK SPRK converter
+
+https://en.wikipedia.org/wiki/Iron%E2%80%93hydrogen_resistor
+
 - 2nd node trimming
     A - B - C -> A - C
     - trim nodes in chips until there's only 1 (trim branches that are chip-chip)
 - Add node method
 - ReID() nodes method at end that rids of unused nodes
-- char with std::byte
-- setNodeId to set node id instead of immeutable and shit
+- don't use -1 to represent no node in branch finding, make it 0 for signed
+
+coputeDynamicVoltages polarity check?
 
 - better adding method, ie severe lag when molten circuit resolidifies (large circuit)
     - 

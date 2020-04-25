@@ -23,8 +23,8 @@ bool allow_conduction(int totype, int fromtype) {
     // SWCH cannot conduct to NSCN / PSCN or SPRK can't toggle it
     if (fromtype == PT_SWCH && (totype == PT_NSCN || totype == PT_PSCN)) return false;
     // INWR can only conduct to negative terminal, or recieve from positive
-    if (fromtype == PT_INWR && totype != PT_INWR && !negative_terminal(totype) && totype != GROUND_TYPE) return false;
-    if (totype == PT_INWR && fromtype != PT_INWR && !positive_terminal(fromtype) && fromtype != GROUND_TYPE) return false;
+    if (fromtype == PT_INWR && totype != PT_INWR && !is_negative_terminal(totype) && totype != GROUND_TYPE) return false;
+    if (totype == PT_INWR && fromtype != PT_INWR && !is_positive_terminal(fromtype) && fromtype != GROUND_TYPE) return false;
     return true;
 }
 
@@ -38,7 +38,6 @@ coord_vec floodfill(Simulation *sim, int x, int y) {
 
     CoordStack coords, offsets;
     coord_vec output;
-    Pos temp;
     int crx, cry; // Temp rx and ry from offsets for junctions
 
     char visited[YRES][XRES];
@@ -58,9 +57,7 @@ coord_vec floodfill(Simulation *sim, int x, int y) {
 
         if (TYP(sim->pmap[y][x]) != PT_JUNC)
             visited[y][x] = 1;
-        temp.x = x;
-        temp.y = y;
-        output.push_back(temp);
+        output.push_back(Pos(x, y));
 
 		// Floodfill
 		for (int rx = -1; rx <= 1; ++rx)

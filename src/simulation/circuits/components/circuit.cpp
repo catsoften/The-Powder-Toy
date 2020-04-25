@@ -20,8 +20,8 @@ void Circuit::add_immutable_node(NodeId node_id, Pos position, bool is_diagonal_
 }
 
 void Circuit::delete_node(Pos position) {
-    immutable_node_map[YX(position.y, position.x)] = 0;
-    node_skeleton_map[YX(position.y, position.x)] = 1;
+    immutable_node_map[YX(position.y, position.x)] = NodeHandler::NOSKELETON;
+    node_skeleton_map[YX(position.y, position.x)] = NodeHandler::SKELETON;
 }
 
 /**
@@ -39,14 +39,14 @@ void Circuit::process_skeleton(coord_vec &skeleton) {
     delete_maps();
     node_skeleton_map = new NodeId[XRES * YRES];
     immutable_node_map = new char[XRES * YRES];
-    std::fill(node_skeleton_map, node_skeleton_map + XRES * YRES, 0);
-    std::fill(immutable_node_map, immutable_node_map + XRES * YRES, 0);
+    std::fill(node_skeleton_map, node_skeleton_map + XRES * YRES, NodeHandler::NOSKELETON);
+    std::fill(immutable_node_map, immutable_node_map + XRES * YRES, NodeHandler::NOSKELETON);
 
     for (auto &pos : skeleton) {
         // It's safe to assume the id exists because
         // floodfill creates missing RSPK
         int id = ID(sim->photons[pos.y][pos.x]);
-        sim->parts[id].tmp = 0; // Clear for setting later after nodes are assigned
+        sim->parts[id].tmp = NodeHandler::NOSKELETON; // Clear for setting later after nodes are assigned
         circuit_map[id] = this;
         global_rspk_ids.push_back(id);
     }
@@ -103,8 +103,7 @@ void Circuit::mark_nodes(const coord_vec &skeleton, coord_vec &nodes) {
             for (int rx : ADJACENT_PRIORITY_RX)
             for (int ry : ADJACENT_PRIORITY_RY)
                 if (node_skeleton_map[YX(y + ry, x + rx)] && TYP(sim->pmap[y + ry][x + rx]) != type) {
-                    auto npos = pos;
-                    npos.x = x + rx, npos.y = y + ry;
+                    Pos npos(x + rx, y + ry);
                     add_immutable_node(node_id, npos, rx && ry);
                     nodes.push_back(npos);
                     node_id++;
@@ -222,7 +221,7 @@ void Circuit::trim_nodes(const coord_vec &nodes) {
             if (!immutable_node_map[YX(y, x)])
                 node_skeleton_map[YX(y, x)] = NodeHandler::SKELETON;
 
-            node_cluster.push_back(Pos{(short)x, (short)y});
+            node_cluster.push_back(Pos(x, y));
             avgx += x, avgy += y, count++;
 
             if (node_cluster.back().x != node_cluster[0].x)
@@ -305,6 +304,253 @@ void Circuit::trim_nodes(const coord_vec &nodes) {
 }
 
 /**
+ * Starting from a point next to a node (the node is at start_node_pos, the start position is start_offset_pos
+ * which should be adjacent to the start_node_pos), floodfill a branch and add self to circuit
+ */
+void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node_pos, Pos start_offset_pos, NodeId start_node) {
+    if (!node_skeleton_map[YX(start_offset_pos.y, start_offset_pos.x)] || (start_offset_pos == start_node_pos))
+        return;
+
+    int x = start_offset_pos.x,
+        y = start_offset_pos.y,
+        sx = start_node_pos.x,
+        sy = start_node_pos.y;
+    int r, rt,
+        px = sx, py = sy, ox = x, oy = y;
+
+    BranchConstructionData data;
+    NodeId end_node = -1;
+
+    double current_voltage = 0.0;
+    int source_count = 0;
+    char current_polarity = NodeHandler::NEUTRAL_POLARITY; // Changed by terminals
+
+    // Initial polarity check
+    if (is_positive_terminal(TYP(sim->pmap[sy][sx])))
+        current_polarity = NodeHandler::POSITIVE_POLARITY;
+    else if (is_negative_terminal(TYP(sim->pmap[sy][sx])))
+        current_polarity = NodeHandler::NEGATIVE_POLARITY;
+
+    // Keep flood filling until we find another node
+    while (true) {
+        r = sim->pmap[y][x];
+        if (!r) {
+            // This should never happen because we should only be traversing
+            // elements on the skeleton, which must contain a conductor. If this
+            // happens, this means the skeleton id map has been desynced with
+            // the actual particle map (ie, a particle was deleted but circuit
+            // still thinks it exists). We'll ignore this for the production build
+            // as the circuit *should* trigger a re-construction
+            #ifndef DEBUG
+                return;
+            #endif
+            throw CircuitParticleMapDesync();
+        }
+        rt = TYP(r);
+
+
+        if (is_dynamic_particle(rt))
+            this->contains_dynamic = true;
+        if (is_integration_particle(rt))
+            this->requires_divergence_checking = true;
+
+
+        // Polarity handling for voltage drops
+        // Handle voltage drops. Voltage across a blob of a voltage source
+        // is the average of the voltage of each pixel (on the skeleton only)
+
+        // Negative -> Positive is positive voltage:
+        // -  ----.|.| ---- + going left to right is a voltage gain (positive)
+        
+        // If transitioning directly from PSCN to NSCN the branch is a diode
+
+        if (is_positive_terminal(rt)) {
+            if (current_polarity == NodeHandler::NEGATIVE_POLARITY)
+                data.voltage_gain += current_voltage / std::max(1, source_count);
+            if (rt == PT_PSCN && TYP(sim->pmap[py][px]) == PT_NSCN) // NSCN -> PSCN
+                data.diode_type = NodeHandler::NEGATIVE_POLARITY;
+
+            current_voltage = 0.0f;
+            source_count = 0;
+            current_polarity = NodeHandler::POSITIVE_POLARITY;
+        }
+        else if (is_negative_terminal(rt)) {
+            if (current_polarity == NodeHandler::POSITIVE_POLARITY)
+                data.voltage_gain += current_voltage / std::max(1, source_count);
+            if (TYP(r) == PT_NSCN && TYP(sim->pmap[py][px]) == PT_PSCN) // PSCN -> NSCN
+                data.diode_type = NodeHandler::POSITIVE_POLARITY;
+
+            current_voltage = 0.0f;
+            current_polarity = NodeHandler::NEGATIVE_POLARITY;
+            source_count = 0;
+        }
+        // We left the voltage source without encountering the opposite terminal
+        // Examples: PSCN - VOLT - PSCN,  PSCN - VOLT - METL
+        else if (!is_voltage_source(rt))
+            current_polarity = 0, current_voltage = 0.0f, source_count = 0;
+
+
+        // Found an end node
+        if (node_skeleton_map[YX(y, x)] > NodeHandler::SKELETON && node_skeleton_map[YX(y, x)] != start_node) {
+            end_node = node_skeleton_map[YX(y, x)];
+            data.total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
+            r = sim->pmap[sy][sx];
+            data.total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
+
+            // Make sure that points around a node are never deleted as points around nodes
+            // might be part of 2 seperate branches, so if one is deleted then an entire branch
+            // could be missed
+            if (node_skeleton_map[YX(py, px)] == NodeHandler::NOSKELETON)
+                node_skeleton_map[YX(py, px)] = NodeHandler::SKELETON;
+            break;
+        }
+        
+        if (node_skeleton_map[YX(y, x)] == NodeHandler::SKELETON) { // Non-node
+            // Delete skeleton so we don't traverse over this again for
+            // another branch (resulting in duplicate branches)
+            node_skeleton_map[YX(y, x)] = NodeHandler::NOSKELETON;
+            data.total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
+            data.ids.push_back(ID(r));
+            data.rspk_ids.push_back(ID(sim->photons[y][x]));
+
+            // Switches have 1 set "off state" resistance (a line of OFF SWCH has the
+            // same resistance as a single pixel of OFF SWCH) so they're considered
+            // seperate from a dynamic resistor
+            if (rt == PT_SWCH)
+                data.switches.push_back(ID(r));
+
+            // Current sources go here (currently inductor is only one)
+            // Inductor has no polarity checks so we just set current gain to
+            // whatever the current inductor is
+            else if (rt == PT_INDC)
+                data.current_gain = sim->parts[ID(r)].pavg[1];
+            else if (is_dynamic_resistor(TYP(r)))
+                data.dynamic_resistors.push_back(ID(r));
+            else if (is_voltage_source(TYP(r))) {
+                if (TYP(r) == PT_VOLT) // Pavg0 is voltage
+                    current_voltage -= sim->parts[ID(r)].pavg[0] * current_polarity;
+                else if (TYP(r) == PT_CAPR) // Pavg1 is "effective" voltage
+                    current_voltage -= sim->parts[ID(r)].pavg[1] * current_polarity;
+                source_count++;
+            }
+        }
+
+        bool found_next = false; // Is there a new node to connect to?
+        px = x, py = y;
+
+        // If ignore_startnode_distance = 0, the new node must not be within 1 px of the startnode (on any side)
+        // this is to avoid floodfill loops, where ie, the branch just makes a circle around the start node
+        // blocking off any other branches. However, sometimes a connection must make a connection somewhere
+        // within 1px, so if all searches fail the constraint is relaxed for a 2nd pass
+        for (size_t ignore_startnode_distance = 0; ignore_startnode_distance <= 1; ignore_startnode_distance++) {
+            // Check directly adjacent nodes (Highest priority)
+            for (int rx = -1; rx <= 1; rx++)
+            for (int ry = -1; ry <= 1; ry++)
+                if ((rx == 0 || ry == 0) && (rx || ry) &&
+                    node_skeleton_map[YX(y + ry, x + rx)] > NodeHandler::SKELETON &&
+                    node_skeleton_map[YX(y + ry, x + rx)] != start_node)
+                {
+                    x += rx, y += ry, found_next = true;
+                    goto end;
+                }
+            // Check directly adjacent
+            for (int rx = -1; rx <= 1; rx++)
+            for (int ry = -1; ry <= 1; ry++)
+                if ((rx == 0 || ry == 0) && (rx || ry) &&
+                    node_skeleton_map[YX(y + ry, x + rx)] &&
+                    node_skeleton_map[YX(y + ry, x + rx)] != start_node &&
+                    (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
+                {
+                    x += rx, y += ry, found_next = true;
+                    goto end;
+                }
+            // Check for nodes (3rd highest priority)
+            for (int rx = -1; rx <= 1; ++rx)
+            for (int ry = -1; ry <= 1; ++ry)
+                if ((rx || ry) && node_skeleton_map[YX(y + ry, x + rx)] != start_node &&
+                    node_skeleton_map[YX(y + ry, x + rx)] > NodeHandler::SKELETON &&
+                    (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
+                {
+                    x += rx, y += ry, found_next = true;
+                    goto end;
+                }
+            // Check non-adjacent
+            for (int rx = -1; rx <= 1; ++rx)
+            for (int ry = -1; ry <= 1; ++ry)
+                if ((rx && ry) && node_skeleton_map[YX(y + ry, x + rx)] &&
+                    node_skeleton_map[YX(y + ry, x + rx)] != start_node &&
+                    (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
+                {
+                    x += rx, y += ry, found_next = true;
+                    goto end;
+                }
+        }
+        end:;
+        if (!found_next)
+            break; // No end node found, terminate
+    }
+
+    data.node1_id = ID(sim->photons[sy][sx]);
+    data.node2_id = ID(sim->photons[y][x]);
+
+    if (start_node > end_node) { // Convention: smaller node goes first
+        std::swap(start_node, end_node);
+        std::swap(data.node1_id, data.node2_id);
+        std::reverse(data.rspk_ids.begin(), data.rspk_ids.end());
+        data.voltage_gain *= -1;
+    }
+
+    // Make sure that points around a node are never deleted as points around nodes
+    // might be part of 2 seperate branches, so if one is deleted then an entire branch
+    // could be missed
+    if (node_skeleton_map[YX(oy, ox)] == NodeHandler::NOSKELETON)
+        node_skeleton_map[YX(oy, ox)] = NodeHandler::SKELETON;
+
+    if (start_node > -1) { // Valid connection actually exists
+        Branch *b = new Branch(start_node, end_node, data);
+
+        /**
+         * Special case where branch ends at a node directly adjacent to start node, because branches
+         * search diagonals this might result in duplicate branches. Same case applies for branches of length up to 2
+         * because end and start are overwritten
+         */
+        if (b->ids.size() <= 2) {
+            // Search backwards as chance of match is higher at ends due to searching near
+            // physical proximity. If a duplicate is found ignore
+            for (int j = branch_map[start_node].size() - 1; j >= 0; j--) {
+                if (branch_map[start_node][j]->node1 == std::min(start_node, end_node) &&
+                    branch_map[start_node][j]->node2 == std::max(start_node, end_node) &&
+                    (branch_map[start_node][j]->ids.size() <= 2 ||
+                     branch_map[start_node][j]->ids == b->ids))
+                    return;
+            }
+        }
+
+        // ids does not include end nodes, so branches of length 2 have 0 id size
+        b->setSpecialType(b->ids.size() && sim->parts[b->ids[0]].type == PT_CAPR,
+                          b->ids.size() && sim->parts[b->ids[0]].type == PT_INDC,
+                          b->ids.size() && is_chip(sim->parts[b->ids[0]].type));
+
+        connection_map[start_node].push_back(end_node);
+        connection_map[end_node].push_back(start_node);
+
+        branch_cache.push_back(b);
+        branch_map[start_node].push_back(b);
+        branch_map[end_node].push_back(b);
+    }
+    // Floating branch (> 1 px size)
+    else if (data.rspk_ids.size() > 1) {
+        Branch *b = new Branch(-1, end_node, data);
+        floating_branches[end_node].push_back(b);
+        branch_cache.push_back(b);
+    }
+    // 1 px floating branch may be part of node, reset
+    else if (!immutable_node_map[YX(y, x)]) {
+        node_skeleton_map[YX(y, x)] = NodeHandler::SKELETON;
+    }
+}
+
+/**
  * Add all the branches
  * @param coord_vec skeleton Skeleton coordinate list
  */
@@ -336,18 +582,16 @@ void Circuit::add_branches(const coord_vec &skeleton) {
                 // branch fill to terminate early.
 
                 // (I'm not sure if there can be 3 paths, seems unlikely given the skeletonization algorithim)
-                
-                add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
-                add_branch_from_skeleton(skeleton, x + rx, y + ry, node_skeleton_map[YX(y, x)], x, y);
+                add_branch_from_skeleton(skeleton, Pos(x, y), Pos(x + rx, y + ry), node_skeleton_map[YX(y, x)]);
+                add_branch_from_skeleton(skeleton, Pos(x, y), Pos(x + rx, y + ry), node_skeleton_map[YX(y, x)]);
             }
         }
     }
 }
 
 /**
- * Mark nodes on the skeleton map, and create branches.
- * Nodes are numbered with an ID
- * starting from 2 (0 = nothing, 1 = wire, 2+ = node_id)
+ * Internal method to map particles and convert into a circuit
+ * mesh, branches, nodes, etc...
  */
 void Circuit::generate() {
     coord_vec skeleton = floodfill(sim, startx, starty);
@@ -362,214 +606,20 @@ void Circuit::generate() {
 }
 
 
-void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, int x, int y, int start_node, int sx, int sy)
-{
-    if (!node_skeleton_map[YX(y, x)] || (x == sx && y == sy))
-        return;
 
-    std::vector<int> ids, rspk_ids, switches, dynamic_resistors;
-    double total_resistance = 0.0;
-    double total_voltage = 0.0;
-    double current_voltage = 0.0;
-    double current_gain = 0.0f;
-    int source_count = 0;
 
-    int end_node = -1, r, px = sx, py = sy, ox = x, oy = y;
-    int diode_type = 0;
-    bool found_next;
-    char current_polarity = 0; // 0, 1 = positive, -1 = negative
 
-    // Initial polarity
-    if (positive_terminal(TYP(sim->pmap[sy][sx])))
-        current_polarity = 1;
-    else if (negative_terminal(TYP(sim->pmap[sy][sx])))
-        current_polarity = -1;
 
-    // Keep flood filling until we find another node
-    while (true)
-    {
-        r = sim->pmap[y][x];
-        if (!r) return; // Never supposed to happen TODO log
 
-        if (is_dynamic_particle(TYP(r)))
-            contains_dynamic = true;
-        if (is_integration_particle(TYP(r)))
-            requires_divergence_checking = true;
 
-        // Polarity handling for voltage drops
-        if (positive_terminal(TYP(r)))
-        {
-            if (current_polarity == -1)
-                total_voltage += current_voltage / std::max(1, source_count);
-            current_voltage = 0.0f;
-            source_count = 0;
-            current_polarity = 1;
-            if (TYP(r) == PT_PSCN && TYP(sim->pmap[py][px]) == PT_NSCN)
-                diode_type = -1;
-        }
-        else if (negative_terminal(TYP(r)))
-        {
-            if (current_polarity == 1)
-                total_voltage += current_voltage / std::max(1, source_count);
-            current_voltage = 0.0f;
-            current_polarity = -1;
-            source_count = 0;
-            if (TYP(r) == PT_NSCN && TYP(sim->pmap[py][px]) == PT_PSCN)
-                diode_type = 1;
-        }
-        else if (!is_voltage_source(TYP(r)))
-            current_polarity = 0, current_voltage = 0.0f, source_count = 0;
 
-        // Node handling
-        if (node_skeleton_map[YX(y, x)] > 1 && node_skeleton_map[YX(y, x)] != start_node)
-        { // Found end_node
-            end_node = node_skeleton_map[YX(y, x)];
-            total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
-            r = sim->pmap[sy][sx];
-            total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
-            if (node_skeleton_map[YX(py, px)] == 0)
-                node_skeleton_map[YX(py, px)] = 1; // Make sure points around nodes are never deleted
-            break;
-        }
-        if (node_skeleton_map[YX(y, x)] == 1)
-        { // Non-node
-            node_skeleton_map[YX(y, x)] = 0;
-            total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
-
-            ids.push_back(ID(r));
-            rspk_ids.push_back(ID(sim->photons[y][x]));
-            if (TYP(r) == PT_SWCH)
-                switches.push_back(ID(r));
-            else if (TYP(r) == PT_INDC)
-                current_gain = sim->parts[ID(r)].pavg[1];
-            else if (dynamic_resistor(TYP(r)))
-                dynamic_resistors.push_back(ID(r));
-            else if (is_voltage_source(TYP(r)))
-            {
-                if (TYP(r) == PT_VOLT) // Pavg0 is voltage
-                    current_voltage += sim->parts[ID(r)].pavg[0] * current_polarity;
-                else if (TYP(r) == PT_CAPR || TYP(r) == PT_INDC) // Pavg1 is "effective" voltage
-                    current_voltage += sim->parts[ID(r)].pavg[1] * current_polarity;
-                source_count++;
-            }
-        }
-
-        found_next = false;
-        px = x, py = y;
-        for (size_t ignore_startnode_distance = 0; ignore_startnode_distance <= 1; ignore_startnode_distance++)
-        {
-            // Check directly adjacent nodes (Highest priority)
-            for (int rx = -1; rx <= 1; ++rx)
-                for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx == 0 || ry == 0) && (rx || ry) && node_skeleton_map[YX(y + ry, x + rx)] > 1 && node_skeleton_map[YX(y + ry, x + rx)] != start_node)
-                    {
-                        x += rx, y += ry, found_next = true;
-                        goto end;
-                    }
-            // Check directly adjacent
-            for (int rx = -1; rx <= 1; ++rx)
-                for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx == 0 || ry == 0) && (rx || ry) && node_skeleton_map[YX(y + ry, x + rx)] && node_skeleton_map[YX(y + ry, x + rx)] != start_node &&
-                        (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
-                    {
-                        x += rx, y += ry, found_next = true;
-                        goto end;
-                    }
-            // Check for nodes (3rd highest priority)
-            // Node: any nodes found below this step cannot be next to start node
-            for (int rx = -1; rx <= 1; ++rx)
-                for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx || ry) && node_skeleton_map[YX(y + ry, x + rx)] != start_node && node_skeleton_map[YX(y + ry, x + rx)] > 1 &&
-                        (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
-                    {
-                        x += rx, y += ry, found_next = true;
-                        goto end;
-                    }
-            // Check non-adjacent
-            for (int rx = -1; rx <= 1; ++rx)
-                for (int ry = -1; ry <= 1; ++ry)
-                    if ((rx && ry) && node_skeleton_map[YX(y + ry, x + rx)] && node_skeleton_map[YX(y + ry, x + rx)] != start_node &&
-                        (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
-                    {
-                        x += rx, y += ry, found_next = true;
-                        goto end;
-                    }
-        }
-    end:;
-        if (!found_next)
-            break; // No end node found, terminate
-    }
-
-    total_voltage *= -1; // We incremented voltage drops so far, reverse for voltage gain
-    int start_id = ID(sim->photons[sy][sx]);
-    int end_id = ID(sim->photons[y][x]);
-
-    if (start_node > end_node)
-    { // Convention: smaller node goes first
-        std::swap(start_node, end_node);
-        std::swap(start_id, end_id);
-        total_voltage *= -1;
-        std::reverse(rspk_ids.begin(), rspk_ids.end());
-    }
-    if (node_skeleton_map[YX(oy, ox)] == 0)
-        node_skeleton_map[YX(oy, ox)] = 1; // Make sure points around nodes are never deleted
-
-    if (start_node > -1)
-    { // Valid connection actually exists
-        Branch *b = new Branch(start_node, end_node, ids, rspk_ids, switches, dynamic_resistors,
-                               total_resistance, total_voltage, current_gain, diode_type, start_id, end_id);
-
-        /**
-         * Special case where branch ends at a node directly adjacent to start node, because branches
-         * search diagonals this might result in duplicate branches. Same case applies for branches of length up to 2
-         * because end and start are overwritten
-         */
-        if (b->ids.size() <= 2)
-        {
-            // Search backwards as chance of match is higher at ends due to searching near
-            // physical proximity
-            for (int j = branch_map[start_node].size() - 1; j >= 0; j--)
-            {
-                if (branch_map[start_node][j]->node1 == std::min(start_node, end_node) &&
-                    branch_map[start_node][j]->node2 == std::max(start_node, end_node) &&
-                    (branch_map[start_node][j]->ids.size() <= 2 ||
-                     branch_map[start_node][j]->ids == b->ids))
-                    return;
-            }
-        }
-
-        b->setSpecialType(ids.size() && sim->parts[ids[0]].type == PT_CAPR,
-                          ids.size() && sim->parts[ids[0]].type == PT_INDC,
-                          ids.size() && is_chip(sim->parts[ids[0]].type));
-
-        connection_map[start_node].push_back(end_node);
-        connection_map[end_node].push_back(start_node);
-
-        branch_cache.push_back(b);
-        branch_map[start_node].push_back(b);
-        branch_map[end_node].push_back(b);
-    }
-    // Floating branch
-    else if (rspk_ids.size() > 1)
-    {
-        Branch *b = new Branch(-1, end_node, ids, rspk_ids, switches, dynamic_resistors,
-                               total_resistance, total_voltage, current_gain, diode_type, -1, end_id);
-        floating_branches[end_node].push_back(b);
-        branch_cache.push_back(b);
-    }
-    // 1 px floating branch may be part of node, reset
-    else if (!immutable_node_map[YX(y, x)])
-    {
-        node_skeleton_map[YX(y, x)] = 1;
-    }
-}
 
 /**
  * Solve the circuit using nodal analysis
  */
 void Circuit::solve(bool allow_recursion)
 {
-    size_t size = highest_node_id - 1;
+    size_t size = highest_node_id - NodeHandler::START_NODE_ID + 1;
     if (!connection_map.size())
         return;
 
@@ -941,11 +991,10 @@ void Circuit::reset()
     contains_dynamic = false;
     solution_computed = false;
     computed_divergence = false;
-    highest_node_id = 0;
+    highest_node_id = NodeHandler::NOSKELETON;
 }
 
-Circuit::Circuit(int x, int y, Simulation *sim)
-{
+Circuit::Circuit(int x, int y, Simulation *sim) {
     this->sim = sim;
     startx = x, starty = y;
 
@@ -954,7 +1003,7 @@ Circuit::Circuit(int x, int y, Simulation *sim)
     update_sim();
 
 #ifdef DEBUG
-    // debug();
+    debug();
 #endif
 }
 
@@ -1003,10 +1052,9 @@ Circuit::Circuit(const Circuit &other)
     }
 }
 
-Circuit::~Circuit()
-{
-    delete copy;
+Circuit::~Circuit() {
     delete_maps();
+    delete copy;
     for (unsigned i = 0; i < branch_cache.size(); i++)
         delete branch_cache[i];
 }
