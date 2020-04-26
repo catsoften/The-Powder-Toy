@@ -9,7 +9,6 @@
 
 class Circuit;
 class Simulation;
-
 struct BranchConstructionData {
     std::vector<int> ids,
         rspk_ids,

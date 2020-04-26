@@ -16,12 +16,12 @@
 void Circuit::add_immutable_node(NodeId node_id, Pos position, bool is_diagonal_connection) {
     node_skeleton_map[YX(position.y, position.x)] = node_id;
     immutable_node_map[YX(position.y, position.x)] = is_diagonal_connection ?
-        NodeHandler::DIAGONALLY_ADJACENT : NodeHandler::DIRECTLY_ADJACENT;
+        CircuitParams::DIAGONALLY_ADJACENT : CircuitParams::DIRECTLY_ADJACENT;
 }
 
 void Circuit::delete_node(Pos position) {
-    immutable_node_map[YX(position.y, position.x)] = NodeHandler::NOSKELETON;
-    node_skeleton_map[YX(position.y, position.x)] = NodeHandler::SKELETON;
+    immutable_node_map[YX(position.y, position.x)] = CircuitParams::NOSKELETON;
+    node_skeleton_map[YX(position.y, position.x)] = CircuitParams::SKELETON;
 }
 
 /**
@@ -39,22 +39,22 @@ void Circuit::process_skeleton(coord_vec &skeleton) {
     delete_maps();
     node_skeleton_map = new NodeId[XRES * YRES];
     immutable_node_map = new char[XRES * YRES];
-    std::fill(node_skeleton_map, node_skeleton_map + XRES * YRES, NodeHandler::NOSKELETON);
-    std::fill(immutable_node_map, immutable_node_map + XRES * YRES, NodeHandler::NOSKELETON);
+    std::fill(node_skeleton_map, node_skeleton_map + XRES * YRES, CircuitParams::NOSKELETON);
+    std::fill(immutable_node_map, immutable_node_map + XRES * YRES, CircuitParams::NOSKELETON);
 
     for (auto &pos : skeleton) {
         // It's safe to assume the id exists because
         // floodfill creates missing RSPK
         int id = ID(sim->photons[pos.y][pos.x]);
-        sim->parts[id].tmp = NodeHandler::NOSKELETON; // Clear for setting later after nodes are assigned
+        sim->parts[id].tmp = CircuitParams::NOSKELETON; // Clear for setting later after nodes are assigned
         circuit_map[id] = this;
         global_rspk_ids.push_back(id);
     }
 
     skeleton = coord_vec_to_skeleton(sim, skeleton);
     for (auto &pos : skeleton) {
-        node_skeleton_map[YX(pos.y, pos.x)] = NodeHandler::SKELETON;
-        sim->parts[ID(sim->photons[pos.y][pos.x])].tmp = NodeHandler::SKELETON;
+        node_skeleton_map[YX(pos.y, pos.x)] = CircuitParams::SKELETON;
+        sim->parts[ID(sim->photons[pos.y][pos.x])].tmp = CircuitParams::SKELETON;
     }
 }
 
@@ -65,7 +65,7 @@ void Circuit::process_skeleton(coord_vec &skeleton) {
  * @param coord_vec nodes     Cleared on function call. Locations of nodes will be written to this.
  */
 void Circuit::mark_nodes(const coord_vec &skeleton, coord_vec &nodes) {
-    NodeId node_id = NodeHandler::START_NODE_ID;
+    NodeId node_id = CircuitParams::START_NODE_ID;
     nodes.clear();
 
     for (const auto &pos : skeleton) {
@@ -74,7 +74,7 @@ void Circuit::mark_nodes(const coord_vec &skeleton, coord_vec &nodes) {
             y = pos.y;
         int type = TYP(sim->pmap[y][x]);
 
-        if (node_skeleton_map[YX(y, x)] > NodeHandler::SKELETON) // Already marked as node
+        if (node_skeleton_map[YX(y, x)] > CircuitParams::SKELETON) // Already marked as node
             continue;
 
         /* Special Node Type 1
@@ -178,16 +178,16 @@ void Circuit::trim_nodes(const coord_vec &nodes) {
     std::fill(&visited[0][0], &visited[YRES][0], 0);
 
     for (const auto &pos : nodes) {
-        if (node_skeleton_map[YX(pos.y, pos.x)] <= NodeHandler::SKELETON || visited[pos.y][pos.x]) // Already cleared, skip
+        if (node_skeleton_map[YX(pos.y, pos.x)] <= CircuitParams::SKELETON || visited[pos.y][pos.x]) // Already cleared, skip
             continue;
         if (immutable_node_map[YX(pos.y, pos.x)]) { // Node is not allowed to be condensed
             int type = 0;
-            if (immutable_node_map[YX(pos.y, pos.x)] == NodeHandler::DIAGONALLY_ADJACENT) {
+            if (immutable_node_map[YX(pos.y, pos.x)] == CircuitParams::DIAGONALLY_ADJACENT) {
                 for (int rx = -1; rx <= 1; ++rx)
                 for (int ry = -1; ry <= 1; ++ry)
                     // Exception: if diagonal node is touching non-adjacent immutable node
                     // it can be deleted (redundant node)
-                    if ((rx || ry) && immutable_node_map[YX(pos.y + ry, pos.x + rx)] == NodeHandler::DIRECTLY_ADJACENT) {
+                    if ((rx || ry) && immutable_node_map[YX(pos.y + ry, pos.x + rx)] == CircuitParams::DIRECTLY_ADJACENT) {
                         delete_node(pos);
                         goto end;
                     }
@@ -219,7 +219,7 @@ void Circuit::trim_nodes(const coord_vec &nodes) {
 
             // Remove all nodes (except immutable ones) for now, reassign later
             if (!immutable_node_map[YX(y, x)])
-                node_skeleton_map[YX(y, x)] = NodeHandler::SKELETON;
+                node_skeleton_map[YX(y, x)] = CircuitParams::SKELETON;
 
             node_cluster.push_back(Pos(x, y));
             avgx += x, avgy += y, count++;
@@ -232,10 +232,10 @@ void Circuit::trim_nodes(const coord_vec &nodes) {
             for (int rx = -1; rx <= 1; ++rx)
             for (int ry = -1; ry <= 1; ++ry)
                 if ((rx || ry) &&
-                        node_skeleton_map[YX(y + ry, x + rx)] > NodeHandler::SKELETON &&
+                        node_skeleton_map[YX(y + ry, x + rx)] > CircuitParams::SKELETON &&
                         !immutable_node_map[YX(y + ry, x + rx)]) {
                     coords.push(x + rx, y + ry);
-                    node_skeleton_map[YX(y + ry, x + rx)] = NodeHandler::SKELETON;
+                    node_skeleton_map[YX(y + ry, x + rx)] = CircuitParams::SKELETON;
                 }
         }
 
@@ -319,17 +319,17 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
         px = sx, py = sy, ox = x, oy = y;
 
     BranchConstructionData data;
-    NodeId end_node = NodeHandler::NOSKELETON;
+    NodeId end_node = CircuitParams::NOSKELETON;
 
     double current_voltage = 0.0;
     int source_count = 0;
-    char current_polarity = NodeHandler::NEUTRAL_POLARITY; // Changed by terminals
+    char current_polarity = CircuitParams::NEUTRAL_POLARITY; // Changed by terminals
 
     // Initial polarity check
     if (is_positive_terminal(TYP(sim->pmap[sy][sx])))
-        current_polarity = NodeHandler::POSITIVE_POLARITY;
+        current_polarity = CircuitParams::POSITIVE_POLARITY;
     else if (is_negative_terminal(TYP(sim->pmap[sy][sx])))
-        current_polarity = NodeHandler::NEGATIVE_POLARITY;
+        current_polarity = CircuitParams::NEGATIVE_POLARITY;
 
     // Keep flood filling until we find another node
     while (true) {
@@ -365,23 +365,23 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
         // If transitioning directly from PSCN to NSCN the branch is a diode
 
         if (is_positive_terminal(rt)) {
-            if (current_polarity == NodeHandler::NEGATIVE_POLARITY)
+            if (current_polarity == CircuitParams::NEGATIVE_POLARITY)
                 data.voltage_gain += current_voltage / std::max(1, source_count);
             if (rt == PT_PSCN && TYP(sim->pmap[py][px]) == PT_NSCN) // NSCN -> PSCN
-                data.diode_type = NodeHandler::NEGATIVE_POLARITY;
+                data.diode_type = CircuitParams::NEGATIVE_POLARITY;
 
             current_voltage = 0.0f;
             source_count = 0;
-            current_polarity = NodeHandler::POSITIVE_POLARITY;
+            current_polarity = CircuitParams::POSITIVE_POLARITY;
         }
         else if (is_negative_terminal(rt)) {
-            if (current_polarity == NodeHandler::POSITIVE_POLARITY)
+            if (current_polarity == CircuitParams::POSITIVE_POLARITY)
                 data.voltage_gain += current_voltage / std::max(1, source_count);
             if (TYP(r) == PT_NSCN && TYP(sim->pmap[py][px]) == PT_PSCN) // PSCN -> NSCN
-                data.diode_type = NodeHandler::POSITIVE_POLARITY;
+                data.diode_type = CircuitParams::POSITIVE_POLARITY;
 
             current_voltage = 0.0f;
-            current_polarity = NodeHandler::NEGATIVE_POLARITY;
+            current_polarity = CircuitParams::NEGATIVE_POLARITY;
             source_count = 0;
         }
         // We left the voltage source without encountering the opposite terminal
@@ -391,7 +391,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
 
 
         // Found an end node
-        if (node_skeleton_map[YX(y, x)] > NodeHandler::SKELETON && node_skeleton_map[YX(y, x)] != start_node) {
+        if (node_skeleton_map[YX(y, x)] > CircuitParams::SKELETON && node_skeleton_map[YX(y, x)] != start_node) {
             end_node = node_skeleton_map[YX(y, x)];
             data.total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
             r = sim->pmap[sy][sx];
@@ -400,15 +400,15 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
             // Make sure that points around a node are never deleted as points around nodes
             // might be part of 2 seperate branches, so if one is deleted then an entire branch
             // could be missed
-            if (node_skeleton_map[YX(py, px)] == NodeHandler::NOSKELETON)
-                node_skeleton_map[YX(py, px)] = NodeHandler::SKELETON;
+            if (node_skeleton_map[YX(py, px)] == CircuitParams::NOSKELETON)
+                node_skeleton_map[YX(py, px)] = CircuitParams::SKELETON;
             break;
         }
         
-        if (node_skeleton_map[YX(y, x)] == NodeHandler::SKELETON) { // Non-node
+        if (node_skeleton_map[YX(y, x)] == CircuitParams::SKELETON) { // Non-node
             // Delete skeleton so we don't traverse over this again for
             // another branch (resulting in duplicate branches)
-            node_skeleton_map[YX(y, x)] = NodeHandler::NOSKELETON;
+            node_skeleton_map[YX(y, x)] = CircuitParams::NOSKELETON;
             data.total_resistance += get_resistance(TYP(r), sim->parts, ID(r), sim);
             data.ids.push_back(ID(r));
             data.rspk_ids.push_back(ID(sim->photons[y][x]));
@@ -447,7 +447,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
             for (int rx = -1; rx <= 1; rx++)
             for (int ry = -1; ry <= 1; ry++)
                 if ((rx == 0 || ry == 0) && (rx || ry) &&
-                    node_skeleton_map[YX(y + ry, x + rx)] > NodeHandler::SKELETON &&
+                    node_skeleton_map[YX(y + ry, x + rx)] > CircuitParams::SKELETON &&
                     node_skeleton_map[YX(y + ry, x + rx)] != start_node)
                 {
                     x += rx, y += ry, found_next = true;
@@ -468,7 +468,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
             for (int rx = -1; rx <= 1; ++rx)
             for (int ry = -1; ry <= 1; ++ry)
                 if ((rx || ry) && node_skeleton_map[YX(y + ry, x + rx)] != start_node &&
-                    node_skeleton_map[YX(y + ry, x + rx)] > NodeHandler::SKELETON &&
+                    node_skeleton_map[YX(y + ry, x + rx)] > CircuitParams::SKELETON &&
                     (ignore_startnode_distance || abs(x + rx - sx) > 1 || abs(y + ry - sy) > 1))
                 {
                     x += rx, y += ry, found_next = true;
@@ -503,10 +503,10 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
     // Make sure that points around a node are never deleted as points around nodes
     // might be part of 2 seperate branches, so if one is deleted then an entire branch
     // could be missed
-    if (node_skeleton_map[YX(oy, ox)] == NodeHandler::NOSKELETON)
-        node_skeleton_map[YX(oy, ox)] = NodeHandler::SKELETON;
+    if (node_skeleton_map[YX(oy, ox)] == CircuitParams::NOSKELETON)
+        node_skeleton_map[YX(oy, ox)] = CircuitParams::SKELETON;
 
-    if (start_node > NodeHandler::NOSKELETON) { // Valid connection actually exists
+    if (start_node > CircuitParams::NOSKELETON) { // Valid connection actually exists
         Branch *b = new Branch(start_node, end_node, data);
 
         /**
@@ -540,13 +540,13 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
     }
     // Floating branch (> 1 px size)
     else if (data.rspk_ids.size() > 1) {
-        Branch *b = new Branch(NodeHandler::NOSKELETON, end_node, data);
+        Branch *b = new Branch(CircuitParams::NOSKELETON, end_node, data);
         floating_branches[end_node].push_back(b);
         branch_cache.push_back(b);
     }
     // 1 px floating branch may be part of node, reset
     else if (!immutable_node_map[YX(y, x)]) {
-        node_skeleton_map[YX(y, x)] = NodeHandler::SKELETON;
+        node_skeleton_map[YX(y, x)] = CircuitParams::SKELETON;
     }
 }
 
@@ -558,7 +558,7 @@ void Circuit::add_branches(const coord_vec &skeleton) {
     for (auto &pos : skeleton) {
         int x = pos.x, y = pos.y;
 
-        if (node_skeleton_map[YX(y, x)] > NodeHandler::SKELETON) {
+        if (node_skeleton_map[YX(y, x)] > CircuitParams::SKELETON) {
             sim->parts[ID(sim->photons[y][x])].tmp = node_skeleton_map[YX(y, x)];
 
             bool adjacent_node = false;
@@ -566,14 +566,14 @@ void Circuit::add_branches(const coord_vec &skeleton) {
             for (int ry : ADJACENT_PRIORITY_RY) {
                 // Since directly adjacent takes priority this check will run before the next
                 // else if statement
-                if ((rx == 0 || ry == 0) && node_skeleton_map[YX(y + ry, x + rx)] > NodeHandler::SKELETON)
+                if ((rx == 0 || ry == 0) && node_skeleton_map[YX(y + ry, x + rx)] > CircuitParams::SKELETON)
                     adjacent_node = true;
 
                 // Don't start branches on diagonally adjacent nodes if there's a directly adjacent
                 // node touching it
                 else if ((rx && ry) && !adjacent_node &&
-                        (node_skeleton_map[YX(y + ry, x)] > NodeHandler::SKELETON ||
-                         node_skeleton_map[YX(y, x + rx)] > NodeHandler::SKELETON))
+                        (node_skeleton_map[YX(y + ry, x)] > CircuitParams::SKELETON ||
+                         node_skeleton_map[YX(y, x + rx)] > CircuitParams::SKELETON))
                     continue;
 
                 // It's possible for more than 2 paths to share a pixel, so we iterate twice
@@ -615,7 +615,7 @@ void Circuit::generate() {
  * resolving the circuits for diodes / other special components)
  */
 void Circuit::solve(bool allow_recursion) {
-    size_t size = highest_node_id - NodeHandler::START_NODE_ID + 1;
+    size_t size = highest_node_id - CircuitParams::START_NODE_ID + 1;
     if (!connection_map.size())
         return;
 
@@ -649,7 +649,7 @@ void Circuit::solve(bool allow_recursion) {
 
     for (size_t row = 0; row < size; row++) {
         bool is_constrained;
-        auto node_id = connection_map.find(row + NodeHandler::START_NODE_ID);
+        auto node_id = connection_map.find(row + CircuitParams::START_NODE_ID);
         double * matrix_row = new double[size + 1];
         std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
 
@@ -692,12 +692,12 @@ void Circuit::solve(bool allow_recursion) {
                 /** Sum of all (N2 - N1) / R = 0 (Ignore resistances across voltage sources, dealt with
                  *  when solving supernodes) */
                 else if (b->resistance) {
-                    matrix_row[node_id->first - NodeHandler::START_NODE_ID] -= 1.0f / b->resistance;
-                    matrix_row[node_id->second[i] - NodeHandler::START_NODE_ID] += 1.0f / b->resistance;
+                    matrix_row[node_id->first - CircuitParams::START_NODE_ID] -= 1.0f / b->resistance;
+                    matrix_row[node_id->second[i] - CircuitParams::START_NODE_ID] += 1.0f / b->resistance;
                 }
             }
             else if (is_constrained) {
-                matrix_row[node_id->first - NodeHandler::START_NODE_ID] = 1;
+                matrix_row[node_id->first - CircuitParams::START_NODE_ID] = 1;
                 matrix_row[size] = constrained_nodes[node_id->first];
                 goto assign_row;
             }
@@ -713,8 +713,8 @@ void Circuit::solve(bool allow_recursion) {
 
     /* Handle supernodes */
     for (size_t j = 0; j < supernodes.size(); j++) {
-        int row1 = supernodes[j].node1 - NodeHandler::START_NODE_ID,
-            row2 = supernodes[j].node2 - NodeHandler::START_NODE_ID;
+        int row1 = supernodes[j].node1 - CircuitParams::START_NODE_ID,
+            row2 = supernodes[j].node2 - CircuitParams::START_NODE_ID;
 
         A.row(row1) += A.row(row2); // KCL over both end nodes
         for (size_t k = 0; k < size; k++) { // KVL equation
@@ -793,8 +793,8 @@ void Circuit::solve(bool allow_recursion) {
             non_ohmian_branches.clear();
             for (size_t i = 0; i < node_id->second.size(); i++) {
                 Branch * b = branch_map[node_id->first][i];
-                b->V1 = x[b->node1 - NodeHandler::START_NODE_ID];
-                b->V2 = x[b->node2 - NodeHandler::START_NODE_ID];
+                b->V1 = x[b->node1 - CircuitParams::START_NODE_ID];
+                b->V2 = x[b->node2 - CircuitParams::START_NODE_ID];
 
                 if (b->obeys_ohms_law() && b->resistance) {
                     b->current = (b->V1 - b->V2) / b->resistance;
@@ -814,7 +814,7 @@ void Circuit::solve(bool allow_recursion) {
             // Floating branches take voltage of connecting branches
             for (size_t i = 0; i < floating_branches[node_id->first].size(); i++)
                 floating_branches[node_id->first][i]->V2 =
-                    x[floating_branches[node_id->first][i]->node2 - NodeHandler::START_NODE_ID];
+                    x[floating_branches[node_id->first][i]->node2 - CircuitParams::START_NODE_ID];
         }
     }
 
@@ -832,18 +832,15 @@ void Circuit::solve(bool allow_recursion) {
     solution_computed = true;
 }
 
-void Circuit::update_sim()
-{
-    for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++)
-    {
+void Circuit::update_sim() {
+    for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
         // Normal branches
-        for (size_t i = 0; i < node_id->second.size(); i++)
-        {
+        for (size_t i = 0; i < node_id->second.size(); i++) {
             if (node_id->first > node_id->second[i])
                 continue;
 
             Branch *b = branch_map[node_id->first][i];
-            int prev_type = -1;
+            ElementType prev_type = -1;
             int x = (int)(0.5f + sim->parts[b->node1_id].x),
                 y = (int)(0.5f + sim->parts[b->node1_id].y),
                 r = sim->pmap[y][x];
@@ -855,16 +852,14 @@ void Circuit::update_sim()
             sim->parts[b->node2_id].pavg[0] = restrict_double_to_flt(b->V2);
             sim->parts[b->node2_id].pavg[1] = restrict_double_to_flt(b->current);
 
-            for (auto id : b->rspk_ids)
-            {
+            for (auto id : b->rspk_ids) {
                 x = (int)(0.5f + sim->parts[id].x);
                 y = (int)(0.5f + sim->parts[id].y);
                 r = sim->pmap[y][x];
 
                 // Circuit is invalid - just in case somehow the particle
                 // below the RSPK was deleted and the RSPK didn't register
-                if (!r)
-                {
+                if (!r) {
                     flag_recalc();
                     continue;
                 }
@@ -878,16 +873,15 @@ void Circuit::update_sim()
                 sim->parts[id].pavg[1] = restrict_double_to_flt(b->current);
 
                 // Post updates:
-                if (TYP(r) == PT_CAPR || TYP(r) == PT_INDC)
-                {
+                if (TYP(r) == PT_CAPR || TYP(r) == PT_INDC) {
                     double step;
                     // Assign voltages for capcaitor: i / C = dV / dt
-                    if (TYP(r) == PT_CAPR)
-                    {
+                    if (TYP(r) == PT_CAPR) {
                         step = INTEGRATION_TIMESTEP / sim->parts[ID(r)].pavg[0] * b->current;
                         if (fabs(sim->parts[ID(r)].pavg[1] - step) > fabs(b->SS_voltage) &&
-                            b->SS_voltage != 0 &&
-                            (b->SS_voltage != std::numeric_limits<double>::max() || b->SS_current != std::numeric_limits<double>::max()))
+                                b->SS_voltage != 0 &&
+                                (b->SS_voltage != std::numeric_limits<double>::max() ||
+                                 b->SS_current != std::numeric_limits<double>::max()))
                             sim->parts[ID(r)].pavg[1] = b->SS_voltage;
                         else if (fabs(sim->parts[ID(r)].pavg[1] - b->SS_voltage) < WITHIN_STEADY_STATE)
                             sim->parts[ID(r)].pavg[1] = b->SS_voltage;
@@ -895,12 +889,12 @@ void Circuit::update_sim()
                             sim->parts[ID(r)].pavg[1] -= step;
                     }
                     // Assign current for inductor: V / L =  dI/dt
-                    else if (TYP(r) == PT_INDC)
-                    {
+                    else if (TYP(r) == PT_INDC) {
                         step = (b->V2 - b->V1) / sim->parts[ID(r)].pavg[0] * INTEGRATION_TIMESTEP;
                         if (fabs(sim->parts[ID(r)].pavg[1] - step) > fabs(b->SS_current) &&
-                            b->SS_current != 0 &&
-                            (b->SS_voltage != std::numeric_limits<double>::max() || b->SS_current != std::numeric_limits<double>::max()))
+                                b->SS_current != 0 &&
+                                (b->SS_voltage != std::numeric_limits<double>::max() ||
+                                 b->SS_current != std::numeric_limits<double>::max()))
                             sim->parts[ID(r)].pavg[1] = b->SS_current;
                         else if (fabs(sim->parts[ID(r)].pavg[1] - b->SS_current) < WITHIN_STEADY_STATE)
                             sim->parts[ID(r)].pavg[1] = b->SS_current;
@@ -912,10 +906,8 @@ void Circuit::update_sim()
             }
         }
         // Floating branches
-        for (size_t i = 0; i < floating_branches[node_id->first].size(); i++)
-        {
-            for (size_t j = 0; j < floating_branches[node_id->first][i]->rspk_ids.size(); j++)
-            {
+        for (size_t i = 0; i < floating_branches[node_id->first].size(); i++) {
+            for (size_t j = 0; j < floating_branches[node_id->first][i]->rspk_ids.size(); j++) {
                 int id = floating_branches[node_id->first][i]->rspk_ids[j];
                 sim->parts[id].pavg[0] = restrict_double_to_flt(floating_branches[node_id->first][i]->V2);
                 sim->parts[id].pavg[1] = restrict_double_to_flt(0.0f);
@@ -926,7 +918,6 @@ void Circuit::update_sim()
     for (auto id : global_rspk_ids)
         sim->parts[id].life = BASE_RSPK_LIFE;
 }
-
 
 
 
@@ -967,7 +958,7 @@ void Circuit::reset() {
     contains_dynamic = false;
     solution_computed = false;
     computed_divergence = false;
-    highest_node_id = NodeHandler::NOSKELETON;
+    highest_node_id = CircuitParams::NOSKELETON;
 }
 
 Circuit::Circuit(int x, int y, Simulation *sim) {

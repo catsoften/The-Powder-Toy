@@ -642,8 +642,6 @@ optimize memory:
 
 
 - rename framework to someting reasonable
-- seperate file for Circuit class
-- consistent casing (uppercase) for ufnctions
 - rename nodehandler
 int length(not_null<Record*> p);
 
