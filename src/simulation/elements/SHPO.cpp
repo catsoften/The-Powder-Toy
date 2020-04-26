@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_SHPO PT_SHPO 242
-Element_SHPO::Element_SHPO() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_SHPO() {
 	Identifier = "DEFAULT_PT_SHPO";
 	Name = "SHPO";
 	Colour = PIXPACK(0xeab5ff);
@@ -41,12 +43,11 @@ Element_SHPO::Element_SHPO() {
 	HighTemperature = 373.15;
 	HighTemperatureTransition = PT_WTRV;
 
-	Update = &Element_SHPO::update;
-	Graphics = &Element_SHPO::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_SHPO static int update(UPDATE_FUNC_ARGS)
-int Element_SHPO::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * flags: number of empty spaces
@@ -92,8 +93,7 @@ int Element_SHPO::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_SHPO static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_SHPO::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 
 	// Bubbles
@@ -103,4 +103,5 @@ int Element_SHPO::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_SHPO::~Element_SHPO() {}
+
+

@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_SOIL PT_SOIL 224
-Element_SOIL::Element_SOIL()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_SOIL() {
 	Identifier = "DEFAULT_PT_SOIL";
 	Name = "SOIL";
 	Colour = PIXPACK(0x9F7616);
@@ -41,13 +43,12 @@ Element_SOIL::Element_SOIL()
 	HighTemperature = 273.15f + 60.0f;
 	HighTemperatureTransition = PT_CLST;
 
-	Update = &Element_SOIL::update;
-	Graphics = &Element_SOIL::graphics;
-	Create = &Element_CLST::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_CLST_create;
 }
 
-//#TPT-Directive ElementHeader Element_SOIL static int update(UPDATE_FUNC_ARGS)
-int Element_SOIL::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * If tmp2 = 1 is a tunnel, don't move
 	 * If tmp2 = 2 is a tunnel, allow particles
@@ -87,8 +88,7 @@ int Element_SOIL::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_SOIL static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_SOIL::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	int z = (cpart->tmp - 5) * 8;//speckles!
 	*colr += z;
 	*colg += z;
@@ -109,4 +109,5 @@ int Element_SOIL::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_SOIL::~Element_SOIL() {}
+
+

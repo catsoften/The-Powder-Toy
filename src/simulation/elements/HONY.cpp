@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_HONY PT_HONY 227
-Element_HONY::Element_HONY()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_HONY()
 {
 	Identifier = "DEFAULT_PT_HONY";
 	Name = "HONY";
@@ -43,12 +45,11 @@ Element_HONY::Element_HONY()
 	HighTemperature = 71.f + 273.15f;
 	HighTemperatureTransition = PT_SWTR;
 
-	Update = &Element_HONY::update;
-	Graphics = &Element_HONY::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_HONY static int update(UPDATE_FUNC_ARGS)
-int Element_HONY::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r, rt;
 	float stickx = 0.0f, sticky = 0.0f;
 
@@ -86,11 +87,11 @@ int Element_HONY::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_HONY static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_HONY::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->temp> 273.15f - 20.0f)
 		*pixel_mode |= PMODE_BLUR; // Looks like liquid if not cold
 	return 0;
 }
 
-Element_HONY::~Element_HONY() {}
+
+

@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_ASPK PT_ASPK 283
-Element_ASPK::Element_ASPK()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_ASPK()
 {
 	Identifier = "DEFAULT_PT_ASPK";
 	Name = "ASPK";
@@ -41,12 +43,11 @@ Element_ASPK::Element_ASPK()
 	HighTemperature = 1583.0f;
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_ASPK::update;
-	Graphics = &Element_ASPK::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_ASPK static int update(UPDATE_FUNC_ARGS)
-int Element_ASPK::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r;
 	float vx = 0.0f, vy = 0.0f;
 
@@ -72,9 +73,9 @@ int Element_ASPK::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_ASPK static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ASPK::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_ASPK::~Element_ASPK() {}
+
+

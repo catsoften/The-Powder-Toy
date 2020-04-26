@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_NICH PT_NICH 194
-Element_NICH::Element_NICH()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_NICH()
 {
 	Identifier = "DEFAULT_PT_NICH";
 	Name = "NICH";
@@ -41,14 +43,13 @@ Element_NICH::Element_NICH()
 	HighTemperature = 1273.0f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_NICH::update;
-	Graphics = &Element_NICH::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_NICH static int update(UPDATE_FUNC_ARGS)
-int Element_NICH::update(UPDATE_FUNC_ARGS) { return 1; }
+static int update(UPDATE_FUNC_ARGS) { return 1; }
 
-//#TPT-Directive ElementHeader Element_NICH static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_NICH::graphics(GRAPHICS_FUNC_ARGS) { return 1; }
+static int graphics(GRAPHICS_FUNC_ARGS) { return 1; }
 
-Element_NICH::~Element_NICH() {}
+
+

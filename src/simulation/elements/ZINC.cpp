@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_ZINC PT_ZINC 252
-Element_ZINC::Element_ZINC()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_ZINC()
 {
 	Identifier = "DEFAULT_PT_ZINC";
 	Name = "ZINC";
@@ -41,12 +43,11 @@ Element_ZINC::Element_ZINC()
 	HighTemperature = 419.5f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_ZINC::update;
-	Graphics = &Element_ZINC::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_ZINC static int update(UPDATE_FUNC_ARGS)
-int Element_ZINC::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// 5 pressure, + 1 for every 20 degrees above 0 C
 	if (sim->pv[y / CELL][x / CELL] > 5.0f + (parts[i].temp - 273.15f) / 20.0f && RNG::Ref().chance(1, 10)) {
 		sim->part_change_type(i, x, y, PT_BRMT);
@@ -56,8 +57,7 @@ int Element_ZINC::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_ZINC static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ZINC::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -65,4 +65,5 @@ int Element_ZINC::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_ZINC::~Element_ZINC() {}
+
+

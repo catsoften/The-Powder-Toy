@@ -1,7 +1,6 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_GRND PT_GRND 260
-Element_GRND::Element_GRND()
+void Element::Element_GRND()
 {
 	Identifier = "DEFAULT_PT_GRND";
 	Name = "GRND";
@@ -45,4 +44,5 @@ Element_GRND::Element_GRND()
 	Graphics = NULL;
 }
 
-Element_GRND::~Element_GRND() {}
+
+

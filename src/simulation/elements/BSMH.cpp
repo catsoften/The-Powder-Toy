@@ -1,5 +1,8 @@
 #include "simulation/ElementCommon.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 void create_crystal_at_point(Simulation *sim, int x, int y, int tmp2, float color) {
 	if (y < 0 || y >= YRES) return;
 	if (x < 0 || x >= XRES) return;
@@ -26,8 +29,7 @@ const std::vector<int> BSMH_COLORS({
 	0xe0f2bb
 });
 
-//#TPT-Directive ElementClass Element_BSMH PT_BSMH 276
-Element_BSMH::Element_BSMH()
+void Element::Element_BSMH()
 {
 	Identifier = "DEFAULT_PT_BSMH";
 	Name = "BSMH";
@@ -68,12 +70,11 @@ Element_BSMH::Element_BSMH()
 	HighTemperature = 544.7f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_BSMH::update;
-	Graphics = &Element_BSMH::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_BSMH static int update(UPDATE_FUNC_ARGS)
-int Element_BSMH::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * ctype = 1 is pure non-crystallized bismuth, otherwise crystal
@@ -126,8 +127,7 @@ int Element_BSMH::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BSMH static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BSMH::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->pavg[1]) {
 		*colr = PIXR((int)cpart->pavg[1]);
 		*colg = PIXG((int)cpart->pavg[1]);
@@ -141,4 +141,5 @@ int Element_BSMH::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_BSMH::~Element_BSMH() {}
+
+

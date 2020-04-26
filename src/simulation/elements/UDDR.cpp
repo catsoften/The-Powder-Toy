@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_UDDR PT_UDDR 290
-Element_UDDR::Element_UDDR()
-{
+static int update(UPDATE_FUNC_ARGS);
+int Element_FLSH_update(UPDATE_FUNC_ARGS);
+
+void Element::Element_UDDR() {
 	Identifier = "DEFAULT_PT_UDDR";
 	Name = "UDDR";
 	Colour = PIXPACK(0xffadad);
@@ -44,12 +45,10 @@ Element_UDDR::Element_UDDR()
 	HighTemperature = 200.0f + 273.15f;
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_UDDR::update;
-	Graphics = &Element_FLSH::graphics;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_UDDR static int update(UPDATE_FUNC_ARGS)
-int Element_UDDR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties
 	 * life:  Graphics
@@ -58,7 +57,7 @@ int Element_UDDR::update(UPDATE_FUNC_ARGS) {
 	 * pavg0: Highest temperature
 	 * pavg1: Type 0 = inside, 1 = skin, 2 = dead
 	 */
-	Element_FLSH::update(sim, i, x, y, surround_space, nt, parts, pmap);
+	Element_FLSH_update(sim, i, x, y, surround_space, nt, parts, pmap);
 	if (parts[i].pavg[1] == 1) // Override skin formation
 		parts[i].pavg[1] = 0;
 
@@ -80,4 +79,5 @@ int Element_UDDR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_UDDR::~Element_UDDR() {}
+
+

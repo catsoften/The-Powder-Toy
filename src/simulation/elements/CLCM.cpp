@@ -1,7 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_CLCM PT_CLCM 293
-Element_CLCM::Element_CLCM()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_CLCM()
 {
 	Identifier = "DEFAULT_PT_CLCM";
 	Name = "CLCM";
@@ -41,13 +44,12 @@ Element_CLCM::Element_CLCM()
 	HighTemperature = 842.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_CLCM::update;
-	Graphics = &Element_CLCM::graphics;
-	Create = &Element_CLST::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_CLST_create;
 }
 
-//#TPT-Directive ElementHeader Element_CLCM static int update(UPDATE_FUNC_ARGS)
-int Element_CLCM::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r, rt;
 	int other_ca_count = 0;
 
@@ -77,8 +79,7 @@ int Element_CLCM::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_CLCM static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CLCM::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	int z = (cpart->tmp - 5) * 8; // Speckles!
 	*colr += z;
 	*colg += z;
@@ -87,4 +88,5 @@ int Element_CLCM::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_CLCM::~Element_CLCM() {}
+
+

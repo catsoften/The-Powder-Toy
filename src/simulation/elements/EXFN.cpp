@@ -1,5 +1,8 @@
 #include "simulation/ElementCommon.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 namespace EXFN_DATA {
 	const int LEFT = 0;
 	const int TOP = 1;
@@ -36,8 +39,7 @@ namespace EXFN_DATA {
 	}
 }
 
-//#TPT-Directive ElementClass Element_EXFN PT_EXFN 189
-Element_EXFN::Element_EXFN()
+void Element::Element_EXFN()
 {
 	Identifier = "DEFAULT_PT_EXFN";
 	Name = "EXFN";
@@ -77,12 +79,11 @@ Element_EXFN::Element_EXFN()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-	Update = &Element_EXFN::update;
-	Graphics = &Element_EXFN::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_EXFN static void draw_glowy_pixel(Renderer *ren, int nx, int ny, int colr, int colg, int colb, int cola)
-void Element_EXFN::draw_glowy_pixel(Renderer *ren, int nx, int ny, int colr, int colg, int colb, int cola) {
+void Element_EXFN_draw_glowy_pixel(Renderer *ren, int nx, int ny, int colr, int colg, int colb, int cola) {
 		// Non-glowy render mode
 		if (ren->colour_mode & COLOUR_HEAT || !(ren->render_mode & PMODE_GLOW)) {
 			ren->addpixel(nx, ny, colr, colg, colb, cola);
@@ -114,8 +115,7 @@ void Element_EXFN::draw_glowy_pixel(Renderer *ren, int nx, int ny, int colr, int
 
 
 
-//#TPT-Directive ElementHeader Element_EXFN static int update(UPDATE_FUNC_ARGS)
-int Element_EXFN::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry, id;
 	int spawndx, spawndy, initx, inity, dir;
 	EXFN_DATA::set_directions(spawndx, spawndy, initx, inity, dir, parts[i].x, parts[i].y, parts[i].tmp);
@@ -230,8 +230,7 @@ int Element_EXFN::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_EXFN static int draw_beam(GRAPHICS_FUNC_ARGS)
-int Element_EXFN::draw_beam(GRAPHICS_FUNC_ARGS) {
+int Element_EXFN_draw_beam(GRAPHICS_FUNC_ARGS) {
 	// Color for the beam
 	int r, g, b;
 	if (cpart->tmp2 == 0) {
@@ -299,16 +298,16 @@ int Element_EXFN::draw_beam(GRAPHICS_FUNC_ARGS) {
 			}
 
 			if (EXFN_DATA::is_part_of_wave(cpart->flags, period, delta, direction_multiplier, ren->sim->timer, 0, cpart->pavg[0]))
-				Element_EXFN::draw_glowy_pixel(ren, initx, inity, r, g, b, 255);
+				Element_EXFN_draw_glowy_pixel(ren, initx, inity, r, g, b, 255);
 
 			// The portal 2 graphics have another 3rd wave offset
 			// about 1/3 of a period with a different color
 			if (EXFN_DATA::is_part_of_wave(cpart->flags, period, delta, direction_multiplier, ren->sim->timer, period / 3, cpart->pavg[0]))
-				Element_EXFN::draw_glowy_pixel(ren, initx, inity, r, g, b, 80);
+				Element_EXFN_draw_glowy_pixel(ren, initx, inity, r, g, b, 80);
 
 			// Scanning lines
 			if (EXFN_DATA::is_part_of_wave(cpart->flags, period, delta_reverse, direction_multiplier, ren->sim->timer, 0, cpart->pavg[0]))
-				Element_EXFN::draw_glowy_pixel(ren, initx, inity, r, g, b, 80);
+				Element_EXFN_draw_glowy_pixel(ren, initx, inity, r, g, b, 80);
 
 			initx += spawndx;
 			inity += spawndy;
@@ -317,16 +316,16 @@ int Element_EXFN::draw_beam(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_EXFN static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_EXFN::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->life > 0) { // Brighten color if powered
 		*colb *= 2;
 		*colg *= 2;
 		*colr *= 2;
 	}
 
-	Element_EXFN::draw_beam(ren, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
+	Element_EXFN_draw_beam(ren, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
 	return 0;
 }
 
-Element_EXFN::~Element_EXFN() {}
+
+

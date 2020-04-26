@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_NEON PT_NEON 219
-Element_NEON::Element_NEON()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_NEON()
 {
 	Identifier = "DEFAULT_PT_NEON";
 	Name = "NEON";
@@ -45,12 +47,11 @@ Element_NEON::Element_NEON()
 
 	DefaultProperties.dcolour = 0xFFFF0000;
 
-	Update = &Element_NEON::update;
-	Graphics = &Element_NEON::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_NEON static int update(UPDATE_FUNC_ARGS)
-int Element_NEON::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Fusion
 	if (sim->pv[y / CELL][x / CELL] > 220.0f && parts[i].temp > 9273.15f) {
 		sim->pv[y / CELL][x / CELL] += 30.0f;
@@ -60,8 +61,7 @@ int Element_NEON::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_NEON static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_NEON::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// Glow
 	if (cpart->life) {
@@ -76,4 +76,5 @@ int Element_NEON::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_NEON::~Element_NEON() {}
+
+

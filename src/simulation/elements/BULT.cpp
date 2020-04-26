@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_BULT PT_BULT 285
-Element_BULT::Element_BULT()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_BULT()
 {
 	Identifier = "DEFAULT_PT_BULT";
 	Name = "BULT";
@@ -41,12 +43,11 @@ Element_BULT::Element_BULT()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_BULT::update;
-	Graphics = &Element_BULT::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_BULT static int update(UPDATE_FUNC_ARGS)
-int Element_BULT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp:  target vx
@@ -96,8 +97,7 @@ int Element_BULT::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BULT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BULT::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -105,4 +105,5 @@ int Element_BULT::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_BULT::~Element_BULT() {}
+
+

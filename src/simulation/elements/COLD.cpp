@@ -1,7 +1,8 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_COLD PT_COLD 201
-Element_COLD::Element_COLD()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_COLD()
 {
 	Identifier = "DEFAULT_PT_COLD";
 	Name = "FREZ";
@@ -42,11 +43,10 @@ Element_COLD::Element_COLD()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_COLD::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_COLD static int update(UPDATE_FUNC_ARGS)
-int Element_COLD::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
 		for (ry = -1; ry < 2; ry++)
@@ -110,4 +110,5 @@ int Element_COLD::update(UPDATE_FUNC_ARGS) {
 }
 
 
-Element_COLD::~Element_COLD() {}
+
+

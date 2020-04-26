@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_ALGE PT_ALGE 300
-Element_ALGE::Element_ALGE()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_ALGE() {
 	Identifier = "DEFAULT_PT_ALGE";
 	Name = "ALGE";
 	Colour = PIXPACK(0x70e680);
@@ -43,13 +45,12 @@ Element_ALGE::Element_ALGE()
 	HighTemperature = 300.0f + 273.15f;
 	HighTemperatureTransition = PT_CRBN;
 
-	Update = &Element_ALGE::update;
-	Graphics = &Element_ALGE::graphics;
-	Create = &Element_CLST::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_CLST_create;
 }
 
-//#TPT-Directive ElementHeader Element_ALGE static int update(UPDATE_FUNC_ARGS)
-int Element_ALGE::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	for (int rx = -1; rx <= 1; ++rx)
 	for (int ry = -1; ry <= 1; ++ry)
 		if (BOUNDS_CHECK && (rx || ry)) {
@@ -77,13 +78,10 @@ int Element_ALGE::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_ALGE static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ALGE::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	int z = (cpart->tmp - 5) * 16; // Speckles!
 	*colr += z;
 	*colg += z;
 	*colb += z;
 	return 0;
 }
-
-Element_ALGE::~Element_ALGE() {}

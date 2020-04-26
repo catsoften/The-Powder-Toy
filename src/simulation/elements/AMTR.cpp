@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_AMTR PT_AMTR 72
-Element_AMTR::Element_AMTR()
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_AMTR()
 {
 	Identifier = "DEFAULT_PT_AMTR";
 	Name = "AMTR";
@@ -40,12 +43,11 @@ Element_AMTR::Element_AMTR()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_AMTR::update;
-	Graphics = &Element_AMTR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_AMTR static int update(UPDATE_FUNC_ARGS)
-int Element_AMTR::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, rt;
 	for (rx=-1; rx<2; rx++)
@@ -99,9 +101,7 @@ int Element_AMTR::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-
-//#TPT-Directive ElementHeader Element_AMTR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_AMTR::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->tmp2 == 1) {
 		*firer = *fireg = *fireb = 150;
 		*firea = 60;
@@ -110,5 +110,3 @@ int Element_AMTR::graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-Element_AMTR::~Element_AMTR() {}

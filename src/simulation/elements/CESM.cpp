@@ -1,10 +1,11 @@
 #include "simulation/ElementCommon.h"
 
+int Element_CESM_update(UPDATE_FUNC_ARGS);
+int Element_CESM_graphics(GRAPHICS_FUNC_ARGS);
+
 // See https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=21682
 
-//#TPT-Directive ElementClass Element_CESM PT_CESM 247
-Element_CESM::Element_CESM()
-{
+void Element::Element_CESM() {
 	Identifier = "DEFAULT_PT_CESM";
 	Name = "CESM";
 	Colour = PIXPACK(0xD1E765);
@@ -43,12 +44,11 @@ Element_CESM::Element_CESM()
 	HighTemperature = 273.15f + 28.0f;
 	HighTemperatureTransition = PT_LCSM;
 
-	Update = &Element_CESM::update;
-	Graphics = &Element_CESM::graphics;
+	Update = &Element_CESM_update;
+	Graphics = &Element_CESM_graphics;
 }
 
-//#TPT-Directive ElementHeader Element_CESM static int update(UPDATE_FUNC_ARGS)
-int Element_CESM::update(UPDATE_FUNC_ARGS) {
+int Element_CESM_update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp - Type
@@ -167,8 +167,7 @@ int Element_CESM::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_CESM static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CESM::graphics(GRAPHICS_FUNC_ARGS) {
+int Element_CESM_graphics(GRAPHICS_FUNC_ARGS) {
 	// Cesium oxide
 	if (cpart->tmp == 1) {
 		*colr *= 0.8f;
@@ -185,4 +184,5 @@ int Element_CESM::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_CESM::~Element_CESM() {}
+
+

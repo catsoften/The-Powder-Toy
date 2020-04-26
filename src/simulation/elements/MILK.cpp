@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_MILK PT_MILK 289
-Element_MILK::Element_MILK()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_MILK() {
 	Identifier = "DEFAULT_PT_MILK";
 	Name = "MILK";
 	Colour = PIXPACK(0xFFFFFF);
@@ -43,12 +44,11 @@ Element_MILK::Element_MILK()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_MILK::update;
-	Graphics = &Element_MILK::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_MILK static int update(UPDATE_FUNC_ARGS)
-int Element_MILK::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties
 	 * - tmp:  Has it been pasturized?
@@ -94,10 +94,10 @@ int Element_MILK::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_MILK static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_MILK::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 	return 1;
 }
 
-Element_MILK::~Element_MILK() {}
+
+

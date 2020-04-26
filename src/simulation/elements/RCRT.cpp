@@ -1,5 +1,8 @@
 #include "simulation/ElementCommon.h"
 #include <queue>
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
 #define MAX_RCRT_CONNECT 5
 
 // Floodfills connecting RCRT to tmp2 = 5, only does this for nearest 5
@@ -28,8 +31,7 @@ void floodfill_valid_connect(Simulation *sim, Particle *parts, int x, int y) {
 	}
 }
 
-//#TPT-Directive ElementClass Element_RCRT PT_RCRT 245
-Element_RCRT::Element_RCRT()
+void Element::Element_RCRT()
 {
 	Identifier = "DEFAULT_PT_RCRT";
 	Name = "RCRT";
@@ -68,12 +70,11 @@ Element_RCRT::Element_RCRT()
 	HighTemperature = 1223.0f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_RCRT::update;
-	Graphics = &Element_RCRT::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_RCRT static int update(UPDATE_FUNC_ARGS)
-int Element_RCRT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp  - How is it supported
@@ -133,9 +134,9 @@ int Element_RCRT::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_RCRT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_RCRT::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_RCRT::~Element_RCRT() {}
+
+

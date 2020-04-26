@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <vector>
 #include <set>
+#include <array>
 
 #include "Particle.h"
 #include "Stickman.h"
@@ -17,7 +18,7 @@
 
 #include "CoordStack.h"
 
-#include "elements/Element.h"
+#include "Element.h"
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 #define MAX_FARADAY_DIVISIONS 100
@@ -51,9 +52,9 @@ public:
 	Stasis * stasis;
 
 	std::vector<sign> signs;
-	Element elements[PT_NUM];
+	std::array<Element, PT_NUM> elements;
 	//Element * elements;
-	std::vector<SimTool*> tools;
+	std::vector<SimTool> tools;
 	std::vector<unsigned int> platent;
 	std::vector<wall_type> wtypes;
 	std::vector<gol_menu> gmenu;

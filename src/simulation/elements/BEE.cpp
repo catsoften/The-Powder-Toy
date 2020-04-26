@@ -1,5 +1,10 @@
 #include "simulation/ElementCommon.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+void Element_CYTK_get_target(Simulation *sim, Particle *parts, int &tarx, int &tary);
+
 #define BEE_SEARCH_RANGE 3
 #define MAX_BEE_BUILD_SPEED 1.0f
 #define MAX_BEE_SPEED 2.0f
@@ -8,8 +13,7 @@
 #define SWARM_RANGE 90
 #define PREFERED_TEMP 30.0f + 273.15f
 
-//#TPT-Directive ElementClass Element_BEE PT_BEE 226
-Element_BEE::Element_BEE() {
+void Element::Element_BEE() {
 	Identifier = "DEFAULT_PT_BEE";
 	Name = "BEE";
 	Colour = PIXPACK(0xffc414);
@@ -48,13 +52,12 @@ Element_BEE::Element_BEE() {
 	HighTemperature = 273.15f + 70.0f;
 	HighTemperatureTransition = PT_DUST;
 
-	Update = &Element_BEE::update;
-	Graphics = &Element_BEE::graphics;
-	Create = &Element_BEE::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_BEE static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_BEE::create(ELEMENT_CREATE_FUNC_ARGS) {
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].dcolour = RNG::Ref().between(0, 7);
 	sim->parts[i].tmp2 = RNG::Ref().chance(1, 2);
 
@@ -65,8 +68,7 @@ void Element_BEE::create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].pavg[1] = sim->parts[i].y;
 }
 
-//#TPT-Directive ElementHeader Element_BEE static int update(UPDATE_FUNC_ARGS)
-int Element_BEE::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp  - color variation (0 - 6 inclusive)
@@ -267,7 +269,7 @@ int Element_BEE::update(UPDATE_FUNC_ARGS) {
 	// Swarm the player
 	if (parts[i].flags == 0) {
 		int tarx = -1, tary = -1;
-		Element_CYTK::get_target(sim, parts, tarx, tary);
+		Element_CYTK_get_target(sim, parts, tarx, tary);
 
 		if (tarx >= 0 && tary >= 0 && abs(x - tarx) < SWARM_RANGE && abs(y - tary) < SWARM_RANGE) {
 			parts[i].vx -= (x - tarx) / 800.0f;
@@ -321,8 +323,7 @@ int Element_BEE::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BEE static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BEE::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= NO_DECO;
 	*colr *= ((float)cpart->dcolour + 1) / 6;
 	*colg *= ((float)cpart->dcolour + 1) / 6;
@@ -333,4 +334,5 @@ int Element_BEE::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_BEE::~Element_BEE() {}
+
+

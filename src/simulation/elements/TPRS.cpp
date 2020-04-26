@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_TPRS PT_TPRS 199
-Element_TPRS::Element_TPRS()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_TPRS()
 {
 	Identifier = "DEFAULT_PT_TPRS";
 	Name = "TPRS";
@@ -40,12 +42,11 @@ Element_TPRS::Element_TPRS()
 	HighTemperature = ITL;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_TPRS::update;
-	Graphics = &Element_TPRS::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_TPRS static int update(UPDATE_FUNC_ARGS)
-int Element_TPRS::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
@@ -65,10 +66,10 @@ int Element_TPRS::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_TPRS static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_TPRS::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	return 1;
 }
 
-Element_TPRS::~Element_TPRS() {}
+
+

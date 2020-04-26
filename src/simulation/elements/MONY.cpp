@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_MONY PT_MONY 248
-Element_MONY::Element_MONY()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_MONY() {
 	Identifier = "DEFAULT_PT_MONY";
 	Name = "MONY";
 	Colour = PIXPACK(0x0ba132);
@@ -42,12 +43,11 @@ Element_MONY::Element_MONY()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_MONY::update;
-	Graphics = &Element_MONY::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_MONY static int RuleTable[9][9]
-int Element_MONY::RuleTable[9][9] = {
+int Element_MONY_RuleTable[9][9] = {
 	{0,0,0,0,0,0,0,0,0},
 	{0,0,0,1,0,0,0,0,0},
 	{0,0,1,0,1,0,1,0,0},
@@ -59,11 +59,9 @@ int Element_MONY::RuleTable[9][9] = {
 	{0,0,0,0,0,0,0,0,0}
 };
 
-//#TPT-Directive ElementHeader Element_MONY static int mony[XRES/9][YRES/9];
-int Element_MONY::mony[XRES / 9][YRES / 9];
+int Element_MONY_mony[XRES / 9][YRES / 9];
 
-//#TPT-Directive ElementHeader Element_MONY static int update(UPDATE_FUNC_ARGS)
-int Element_MONY::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Attract
 	if (sim->player.spwn) {
 		float angle = atan2(parts[sim->player.stkmID].y - y, parts[sim->player.stkmID].x - x);
@@ -91,8 +89,7 @@ int Element_MONY::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_MONY static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_MONY::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= FIRE_ADD;
 	*firer = 255, *fireg = 255, *fireb = 255, *firea = 20;
 
@@ -102,4 +99,5 @@ int Element_MONY::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_MONY::~Element_MONY() {}
+
+

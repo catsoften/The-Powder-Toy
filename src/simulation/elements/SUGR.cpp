@@ -1,7 +1,8 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_SUGR PT_SUGR 188
-Element_SUGR::Element_SUGR()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_SUGR()
 {
 	Identifier = "DEFAULT_PT_SUGR";
 	Name = "SUGR";
@@ -37,11 +38,10 @@ Element_SUGR::Element_SUGR()
 	HighTemperature = 273.15f + 186.0f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_SUGR::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_SUGR static int update(UPDATE_FUNC_ARGS)
-int Element_SUGR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
@@ -73,4 +73,5 @@ int Element_SUGR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_SUGR::~Element_SUGR() {}
+
+

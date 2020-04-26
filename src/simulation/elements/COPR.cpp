@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_COPR PT_COPR 251
-Element_COPR::Element_COPR() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_COPR() {
 	Identifier = "DEFAULT_PT_COPR";
 	Name = "COPR";
 	Colour = PIXPACK(0xE39E59);
@@ -41,12 +43,11 @@ Element_COPR::Element_COPR() {
 	HighTemperature = 1085.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_COPR::update;
-	Graphics = &Element_COPR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_COPR static int update(UPDATE_FUNC_ARGS)
-int Element_COPR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp, 0 = not green, anything > 0 = green speckles
@@ -98,8 +99,7 @@ int Element_COPR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_COPR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_COPR::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Green
 	if (cpart->tmp > 0) {
 		int r = std::min(cpart->tmp, 10);
@@ -111,4 +111,5 @@ int Element_COPR::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_COPR::~Element_COPR() {}
+
+

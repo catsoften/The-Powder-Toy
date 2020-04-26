@@ -1,5 +1,11 @@
 #include "simulation/ElementCommon.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element_SPDR_intersect_line(Simulation *sim, int sx, int sy, float vx, float vy, int &x, int &y, int type=1, int type2=0);
+
 std::vector<std::pair<String, int> > quotes({
 	std::make_pair(String("No stealing saves"), 0xFFFFFF),
 	std::make_pair(String("CGI Detected!"), 0xFFFFFF),
@@ -11,9 +17,7 @@ std::vector<std::pair<String, int> > quotes({
 	std::make_pair(String("Download my mod!"), 0xFFFFFF)
 });
 
-//#TPT-Directive ElementClass Element_JCB1 PT_JCB1 238
-Element_JCB1::Element_JCB1()
-{
+void Element::Element_JCB1() {
 	Identifier = "DEFAULT_PT_JCB1";
 	Name = "JCB1";
 	Colour = PIXPACK(0x094867);
@@ -54,13 +58,12 @@ Element_JCB1::Element_JCB1()
 
 	DefaultProperties.life = 75;
 
-	Create = &Element_CLST::create;
-	Update = &Element_JCB1::update;
-	Graphics = &Element_JCB1::graphics;
+	Create = &Element_CLST_create;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_JCB1 static int update(UPDATE_FUNC_ARGS)
-int Element_JCB1::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties
 	 * tmp     - Quote to display
@@ -87,13 +90,13 @@ int Element_JCB1::update(UPDATE_FUNC_ARGS) {
 		if (count == 0) { // Laser 1
 			// Ease angle1 towards the FIGH
 			parts[i].pavg[0] += (atan2(ydiff, xdiff) - parts[i].pavg[0]) / 20.0f;
-			Element_SPDR::intersect_line(sim, x, y, cos(parts[i].pavg[0]), sin(parts[i].pavg[0]), tx, ty, 9);
+			Element_SPDR_intersect_line(sim, x, y, cos(parts[i].pavg[0]), sin(parts[i].pavg[0]), tx, ty, 9);
 			sim->CreateLine(x, y, tx, ty, PT_LASR);
 		}
 		else if (count == 0 || count == 1) { // Laser 2
 			// Ease angle2 towards the FIGH
 			parts[i].pavg[1] += (atan2(ydiff, xdiff) - parts[i].pavg[1]) / 20.0f;
-			Element_SPDR::intersect_line(sim, x, y, cos(parts[i].pavg[1]), sin(parts[i].pavg[1]), tx, ty, 9);
+			Element_SPDR_intersect_line(sim, x, y, cos(parts[i].pavg[1]), sin(parts[i].pavg[1]), tx, ty, 9);
 			sim->CreateLine(x, y, tx, ty, PT_LASR);
 		}
 		if (RNG::Ref().chance(1, 50)) { // Guided missile
@@ -124,8 +127,7 @@ int Element_JCB1::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_JCB1 static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_JCB1::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	ren->drawtext(cpart->x + 12, cpart->y - 7, quotes[cpart->tmp % quotes.size()].first,
 		PIXR(quotes[cpart->tmp % quotes.size()].second),
 		PIXG(quotes[cpart->tmp % quotes.size()].second),
@@ -175,4 +177,5 @@ int Element_JCB1::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_JCB1::~Element_JCB1() {}
+
+

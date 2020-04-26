@@ -38,9 +38,11 @@
 #include "simulation/SaveRenderer.h"
 #include "simulation/SimulationData.h"
 #include "simulation/ElementDefs.h"
+
 #include "simulation/quantum/def.h"
 #include "music/music.h"
-#include "ElementClasses.h"
+
+#include "simulation/ElementClasses.h"
 
 #include <ctime>
 #include <bitset>

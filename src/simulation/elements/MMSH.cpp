@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_MMSH PT_MMSH 254
-Element_MMSH::Element_MMSH()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_MMSH()
 {
 	Identifier = "DEFAULT_PT_MMSH";
 	Name = "MMSH";
@@ -41,12 +43,11 @@ Element_MMSH::Element_MMSH()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_MMSH::update;
-	Graphics = &Element_MMSH::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_MMSH static int update(UPDATE_FUNC_ARGS)
-int Element_MMSH::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Custom melting code
 	if (parts[i].temp > 1273.0f) {
 		sim->part_change_type(i, x, y, PT_LAVA);
@@ -71,8 +72,7 @@ int Element_MMSH::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_MMSH static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_MMSH::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if ((nx + ny) % 2 == 1) {
 		*colr *= 0.6f;
 		*colg *= 0.6f;
@@ -82,4 +82,5 @@ int Element_MMSH::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_MMSH::~Element_MMSH() {}
+
+

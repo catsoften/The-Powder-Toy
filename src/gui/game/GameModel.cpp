@@ -3,7 +3,7 @@
 #include "GameView.h"
 #include "GameController.h"
 
-#include "ToolClasses.h"
+#include "simulation/ToolClasses.h"
 #include "EllipseBrush.h"
 #include "TriangleBrush.h"
 #include "BitmapBrush.h"
@@ -28,7 +28,8 @@
 #include "simulation/magnetics/magnetics.h"
 #include "simulation/ElementGraphics.h"
 #include "simulation/stress/stress.h"
-#include "ElementClasses.h"
+
+#include "simulation/ElementClasses.h"
 
 #include "gui/game/DecorationTool.h"
 #include "gui/interface/Engine.h"
@@ -340,8 +341,15 @@ void GameModel::BuildMenus()
 	//Build menu for tools
 	for (size_t i = 0; i < sim->tools.size(); i++)
 	{
-		Tool * tempTool;
-		tempTool = new Tool(i, sim->tools[i]->Name, sim->tools[i]->Description, PIXR(sim->tools[i]->Colour), PIXG(sim->tools[i]->Colour), PIXB(sim->tools[i]->Colour), sim->tools[i]->Identifier);
+		Tool *tempTool = new Tool(
+			i,
+			sim->tools[i].Name,
+			sim->tools[i].Description,
+			PIXR(sim->tools[i].Colour),
+			PIXG(sim->tools[i].Colour),
+			PIXB(sim->tools[i].Colour),
+			sim->tools[i].Identifier
+		);
 		menuList[SC_TOOL]->AddTool(tempTool);
 	}
 	//Add special sign and prop tools

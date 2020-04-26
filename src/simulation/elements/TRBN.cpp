@@ -1,7 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_TRBN PT_TRBN 239
-Element_TRBN::Element_TRBN() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_TRBN() {
 	Identifier = "DEFAULT_PT_TRBN";
 	Name = "TRBN";
 	Colour = PIXPACK(0xDDDDDD);
@@ -39,19 +42,17 @@ Element_TRBN::Element_TRBN() {
 	HighTemperature = 273.15f + 2000.0f;
 	HighTemperatureTransition = PT_METL;
 
-	Update = &Element_TRBN::update;
-	Graphics = &Element_TRBN::graphics;
-	Create = &Element_TRBN::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_TRBN static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_TRBN::create(ELEMENT_CREATE_FUNC_ARGS) {
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].pavg[0] = 0.3f;
 	sim->parts[i].pavg[1] = 1.0f;
 }
 
-//#TPT-Directive ElementHeader Element_TRBN static int update(UPDATE_FUNC_ARGS)
-int Element_TRBN::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// tmp = Graphics iteration
 	float vx = sim->vx[y / CELL][x / CELL];
 	float vy = sim->vy[y / CELL][x / CELL];
@@ -91,8 +92,7 @@ int Element_TRBN::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_TRBN static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_TRBN::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	float m = ((cpart->tmp + nx + ny) % 6) / 5.0f;
 	m = 0.4f + 0.6f * m;
 	
@@ -103,4 +103,5 @@ int Element_TRBN::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_TRBN::~Element_TRBN() {}
+
+

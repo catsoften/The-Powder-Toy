@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_MUD PT_MUD 225
-Element_MUD::Element_MUD()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_MUD()
 {
 	Identifier = "DEFAULT_PT_MUD";
 	Name = "MUD";
@@ -42,12 +44,11 @@ Element_MUD::Element_MUD()
 	HighTemperature = 500.0f + 273.15f;
 	HighTemperatureTransition = PT_BRCK;
 
-	Update = &Element_MUD::update;
-	Graphics = &Element_MUD::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_MUD static int update(UPDATE_FUNC_ARGS)
-int Element_MUD::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// "Freeze" if cold or too hot
 	if (parts[i].temp < 273.15f || parts[i].temp > 100.0f + 273.15f)
 		parts[i].vx = parts[i].vy = 0;
@@ -56,8 +57,7 @@ int Element_MUD::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_MUD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_MUD::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->temp > 273.15f && cpart->temp < 373.15f)
 		*pixel_mode |= PMODE_BLUR;
 	
@@ -71,4 +71,5 @@ int Element_MUD::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_MUD::~Element_MUD() {}
+
+

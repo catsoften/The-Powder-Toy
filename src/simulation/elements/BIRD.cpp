@@ -1,6 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include <iostream>
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
 #define BIRD_SEARCH_RANGE 5
 #define BIRD_AVOID_RANGE 2
 #define MAX_VELOCITY 0.8f
@@ -10,8 +14,7 @@
 #define EDGE_RANGE 10
 #define EDGE_PUSH 200.0f
 
-//#TPT-Directive ElementClass Element_BIRD PT_BIRD 217
-Element_BIRD::Element_BIRD()
+void Element::Element_BIRD()
 {
 	Identifier = "DEFAULT_PT_BIRD";
 	Name = "BIRD";
@@ -52,13 +55,12 @@ Element_BIRD::Element_BIRD()
 	HighTemperature = 273.15f + 90.0f;
 	HighTemperatureTransition = PT_DUST;
 
-	Update = &Element_BIRD::update;
-	Graphics = &Element_BIRD::graphics;
-	Create = &Element_BIRD::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_BIRD static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_BIRD::create(ELEMENT_CREATE_FUNC_ARGS) {
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	// Randomize velocity
 	float angle = RNG::Ref().uniform01() * 2 * 3.141592f;
 	sim->parts[i].vx = cos(angle);
@@ -69,8 +71,7 @@ void Element_BIRD::create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].pavg[1] = sim->parts[i].y;
 }
 
-//#TPT-Directive ElementHeader Element_BIRD static int update(UPDATE_FUNC_ARGS)
-int Element_BIRD::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/** Properties:
 	 * tmp - is perching?
 	 * tmp2 - perch timer
@@ -264,10 +265,10 @@ int Element_BIRD::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BIRD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BIRD::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	return 1;
 }
 
-Element_BIRD::~Element_BIRD() {}
+
+

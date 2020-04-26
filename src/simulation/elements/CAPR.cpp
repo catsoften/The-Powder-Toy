@@ -2,8 +2,9 @@
 #include "simulation/circuits/circuits.h"
 #include "simulation/circuits/framework.h"
 
-//#TPT-Directive ElementClass Element_CAPR PT_CAPR 263
-Element_CAPR::Element_CAPR() {
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_CAPR() {
 	Identifier = "DEFAULT_PT_CAPR";
 	Name = "CPTR";
 	Colour = PIXPACK(0x82a5cf);
@@ -42,12 +43,11 @@ Element_CAPR::Element_CAPR() {
 	HighTemperature = 1273.0f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_CAPR::update;
+	Update = &update;
 	Graphics = NULL;
 }
 
-//#TPT-Directive ElementHeader Element_CAPR static int update(UPDATE_FUNC_ARGS)
-int Element_CAPR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Variables:
 	 * tmp   - SPRK stored
@@ -152,4 +152,4 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_CAPR::~Element_CAPR() {}
+

@@ -1,7 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_DFLM PT_DFLM 232
-Element_DFLM::Element_DFLM()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_FIRE_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_DFLM()
 {
 	Identifier = "DEFAULT_PT_DFLM";
 	Name = "DFLM";
@@ -41,13 +44,12 @@ Element_DFLM::Element_DFLM()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_DFLM::update;
-	Graphics = &Element_DFLM::graphics;
-	Create = &Element_FIRE::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_FIRE_create;
 }
 
-//#TPT-Directive ElementHeader Element_DFLM static int update(UPDATE_FUNC_ARGS)
-int Element_DFLM::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	if (parts[i].life <= 0) { // "Renew" life
 		if (parts[i].tmp) {   // No renew, just die
 			sim->kill_part(i);
@@ -92,8 +94,7 @@ int Element_DFLM::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_DFLM static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_DFLM::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	float m = cpart->life / 200.0f;
 	*firea = 95;
 	*firer = *colr * m;
@@ -105,4 +106,5 @@ int Element_DFLM::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_DFLM::~Element_DFLM() {}
+
+

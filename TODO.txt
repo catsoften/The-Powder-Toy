@@ -565,6 +565,8 @@ iczero
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
+horse middle isn't transparent
+
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17513&PageNum=0#Message=252721
 
 saving portals and wifi requires iterating everything - check if there IS wifi or portal before copying

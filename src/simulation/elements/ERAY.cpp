@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_ERAY PT_ERAY 268
-Element_ERAY::Element_ERAY()
-{
+static int update(UPDATE_FUNC_ARGS);
+
+void Element_SPDR_intersect_line(Simulation *sim, int sx, int sy, float vx, float vy, int &x, int &y, int type, int type2);
+
+void Element::Element_ERAY() {
 	Identifier = "DEFAULT_PT_ERAY";
 	Name = "ERAY";
 	Colour = PIXPACK(0x88d1ba);
@@ -41,12 +43,10 @@ Element_ERAY::Element_ERAY()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_ERAY::update;
-	Graphics = &Element_ERAY::graphics;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_ERAY static int update(UPDATE_FUNC_ARGS)
-int Element_ERAY::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * - Sparked with PSCN: add property
@@ -63,7 +63,7 @@ int Element_ERAY::update(UPDATE_FUNC_ARGS) {
 			
 			if (TYP(r) == PT_SPRK && parts[ID(r)].life == 3) {
 				int tx, ty;
-				Element_SPDR::intersect_line(sim, x, y, -rx, -ry, tx, ty, 1, PT_NONE);
+				Element_SPDR_intersect_line(sim, x, y, -rx, -ry, tx, ty, 1, PT_NONE);
 
 				int r2 = pmap[ty][tx];
 				if (!r2) r2 = sim->photons[ty][tx];
@@ -124,10 +124,3 @@ int Element_ERAY::update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-//#TPT-Directive ElementHeader Element_ERAY static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ERAY::graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-Element_ERAY::~Element_ERAY() {}

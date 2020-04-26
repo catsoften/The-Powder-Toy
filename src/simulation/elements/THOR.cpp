@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_THOR PT_THOR 311
-Element_THOR::Element_THOR()
+int Element_THOR_update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_THOR()
 {
 	Identifier = "DEFAULT_PT_THOR";
 	Name = "THOR";
@@ -41,12 +43,11 @@ Element_THOR::Element_THOR()
 	HighTemperature = 1200.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_THOR::update;
-	Graphics = &Element_THOR::graphics;
+	Update = &Element_THOR_update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_THOR static int update(UPDATE_FUNC_ARGS)
-int Element_THOR::update(UPDATE_FUNC_ARGS) {
+int Element_THOR_update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties
 	 * life - SPRK
@@ -101,8 +102,7 @@ int Element_THOR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_THOR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_THOR::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*firer = 200;
 	*fireg = *fireb = 255;
 	*firea = 20 * std::min(100, cpart->tmp) / 100;
@@ -111,4 +111,5 @@ int Element_THOR::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_THOR::~Element_THOR() {}
+
+

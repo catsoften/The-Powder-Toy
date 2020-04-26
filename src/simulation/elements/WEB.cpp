@@ -1,10 +1,12 @@
 #include "simulation/ElementCommon.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
 #define MAX_WEB_DISTANCE 15
 
-//#TPT-Directive ElementClass Element_WEB PT_WEB 233
-Element_WEB::Element_WEB()
-{
+void Element::Element_WEB() {
 	Identifier = "DEFAULT_PT_WEB";
 	Name = "WEB";
 	Colour = PIXPACK(0x333333);
@@ -45,21 +47,19 @@ Element_WEB::Element_WEB()
 	HighTemperature = 500.0f + 273.15f;
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_WEB::update;
-	Graphics = &Element_WEB::graphics;
-	Create = &Element_WEB::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_WEB static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_WEB::create(ELEMENT_CREATE_FUNC_ARGS) {
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	// Randomize color
 	sim->parts[i].tmp = RNG::Ref().between(1, 4);
 	if (RNG::Ref().chance(1, 300))
 		sim->parts[i].tmp = 100;
 }
 
-//#TPT-Directive ElementHeader Element_WEB static int update(UPDATE_FUNC_ARGS)
-int Element_WEB::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * - ctype: fake trapped particle
@@ -141,8 +141,7 @@ int Element_WEB::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_WEB static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_WEB::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Mimic ctype color
 	bool valid_ctype = cpart->ctype > 0 && cpart->ctype < PT_NUM && ren->sim->elements[cpart->ctype].Enabled;
 	if (valid_ctype) {
@@ -172,4 +171,5 @@ int Element_WEB::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_WEB::~Element_WEB() {}
+
+

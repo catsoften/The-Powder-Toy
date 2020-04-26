@@ -2,8 +2,18 @@
 #include "simulation/vehicles/vehicle.h"
 #include "simulation/vehicles/kv2.h"
 
-//#TPT-Directive ElementClass Element_TANK PT_TANK 213
-Element_TANK::Element_TANK() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS);
+
+int  Element_CYTK_create_part(Simulation *sim, int x, int y, int type, float theta, Particle *parts, int i);
+void Element_CYTK_get_player_command(Simulation *sim, Particle *parts, int i, int &cmd, int &cmd2);
+void Element_CYTK_initial_collision(Simulation *sim, Particle *parts, int i, const Vehicle &v, bool &has_collision);
+void Element_CYTK_get_target(Simulation *sim, Particle *parts, int &tarx, int &tary);
+void Element_CYTK_exit_vehicle(Simulation *sim, Particle *parts, int i, int x, int y);
+void Element_CYTK_update_vehicle(Simulation *sim, Particle *parts, int i, const Vehicle &v, float ovx, float ovy);
+
+void Element::Element_TANK() {
 	Identifier = "DEFAULT_PT_TANK";
 	Name = "TANK";
 	Colour = PIXPACK(0x52482E);
@@ -43,22 +53,21 @@ Element_TANK::Element_TANK() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_TANK::update;
-	Graphics = &Element_TANK::graphics;
-	ChangeType = &Element_TANK::changeType;
+	Update = &update;
+	Graphics = &graphics;
+	ChangeType = &changeType;
 }
 
-//#TPT-Directive ElementHeader Element_TANK static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
-void Element_TANK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	if (to == PT_NONE && sim->parts[i].life <= 0) {
 		// Die into a tank shaped pile of BRMT and BREC
 		int j, t;
 		for (auto px = KV2_PIXELS.begin(); px != KV2_PIXELS.end(); ++px) {
 			t = RNG::Ref().between(0, 100);
 			if (t < 70)
-				j = Element_CYTK::create_part(sim, px->x, px->y, PT_BRMT, sim->parts[i].pavg[0], sim->parts, i);
+				j = Element_CYTK_create_part(sim, px->x, px->y, PT_BRMT, sim->parts[i].pavg[0], sim->parts, i);
 			else
-				j = Element_CYTK::create_part(sim, px->x, px->y, PT_BREC, sim->parts[i].pavg[0], sim->parts, i);
+				j = Element_CYTK_create_part(sim, px->x, px->y, PT_BREC, sim->parts[i].pavg[0], sim->parts, i);
 			if (j > -1) {
 				sim->parts[j].dcolour = 0xCF000000 | PIXRGB(px->r, px->g, px->b);
 				sim->parts[j].vx = sim->parts[i].vx;
@@ -69,8 +78,7 @@ void Element_TANK::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	}
 }
 
-//#TPT-Directive ElementHeader Element_TANK static int update(UPDATE_FUNC_ARGS)
-int Element_TANK::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// NOTE: TANK UPDATES TWICE PER FRAME
 	/**
 	 * Properties:
@@ -87,7 +95,7 @@ int Element_TANK::update(UPDATE_FUNC_ARGS) {
 	 */
 	float ovx = parts[i].vx, ovy = parts[i].vy;
 	bool has_collision;
-	Element_CYTK::initial_collision(sim, parts, i, KV2, has_collision);
+	Element_CYTK_initial_collision(sim, parts, i, KV2, has_collision);
 
 	// Collision damage
 	if (has_collision && (fabs(ovx) > KV2.collision_speed || fabs(ovy) > KV2.collision_speed)) {
@@ -109,26 +117,26 @@ int Element_TANK::update(UPDATE_FUNC_ARGS) {
 	// If life <= 150 spawn sparks (EMBR)
 	if (parts[i].life <= 150) {
 		if (RNG::Ref().chance(1, 50))
-			Element_CYTK::create_part(sim, KV2.width * 0.4f, -KV2.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK_create_part(sim, KV2.width * 0.4f, -KV2.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 		if (RNG::Ref().chance(1, 50))
-			Element_CYTK::create_part(sim, -KV2.width * 0.4f, -KV2.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK_create_part(sim, -KV2.width * 0.4f, -KV2.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 		if (RNG::Ref().chance(1, 50))
-			Element_CYTK::create_part(sim, 0, -KV2.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
+			Element_CYTK_create_part(sim, 0, -KV2.height / 2, PT_EMBR, parts[i].pavg[0], parts, i);
 	}
 	// If life <= 300 spawn fire damage
 	if (parts[i].life <= 300 && RNG::Ref().chance(1, 30)) {
-		Element_CYTK::create_part(sim, -KV2.width * 0.4f, -KV2.height / 2, PT_FIRE, parts[i].pavg[0], parts, i);
+		Element_CYTK_create_part(sim, -KV2.width * 0.4f, -KV2.height / 2, PT_FIRE, parts[i].pavg[0], parts, i);
 	}
 
 	// Player controls
 	int cmd = NOCMD, cmd2 = NOCMD;
 	if (is_stkm(parts[i].tmp2))
-		Element_CYTK::get_player_command(sim, parts, i, cmd, cmd2);
+		Element_CYTK_get_player_command(sim, parts, i, cmd, cmd2);
 	// Fighter AI
 	else if (is_figh(parts[i].tmp2)) {
 		// Get target
 		int tarx = -1, tary = -1;
-		Element_CYTK::get_target(sim, parts, tarx, tary);
+		Element_CYTK_get_target(sim, parts, tarx, tary);
 		if (tarx > 0) {
 			if (parts[i].tmp == 2 || parts[i].tmp == 3) { // Flamethrower / bomb weapon
 				cmd2 = DOWN;
@@ -162,12 +170,12 @@ int Element_TANK::update(UPDATE_FUNC_ARGS) {
 			}
 		}
 		if (cmd2 == UP) { // Exit (up)
-			Element_CYTK::exit_vehicle(sim, parts, i, x, y);
+			Element_CYTK_exit_vehicle(sim, parts, i, x, y);
 			return 0;
 		}
 		else if (cmd2 == DOWN) { // Fly or shoot (down)
 			if (parts[i].tmp == 1 || parts[i].tmp == 2) { // Flamethrower
-				int j = Element_CYTK::create_part(sim, -KV2.width * 0.4f, -KV2.height / 2, PT_BCOL, parts[i].pavg[0], parts, i);
+				int j = Element_CYTK_create_part(sim, -KV2.width * 0.4f, -KV2.height / 2, PT_BCOL, parts[i].pavg[0], parts, i);
 				if (j > -1) {
 					parts[j].life = RNG::Ref().between(0, 100) + 50;
 					parts[j].vx = parts[i].pavg[1] ? 15 : -15;
@@ -179,7 +187,7 @@ int Element_TANK::update(UPDATE_FUNC_ARGS) {
 			}
 			else if ((parts[i].tmp == 3 || parts[i].tmp == 0)) { // BOMB
 				if (sim->timer % 50 == 0) {
-					int j1 = Element_CYTK::create_part(sim, -KV2.width * 0.4f, -KV2.height / 2,
+					int j1 = Element_CYTK_create_part(sim, -KV2.width * 0.4f, -KV2.height / 2,
 						parts[i].tmp == 3 ? PT_BOMB : PT_FSEP, parts[i].pavg[0], parts, i);
 					if (j1 > -1) {
 						parts[j1].life = 20;
@@ -191,22 +199,22 @@ int Element_TANK::update(UPDATE_FUNC_ARGS) {
 				}
 				// Turret flame when firing (Not with BOMB)
 				if (parts[i].tmp != 3) {
-					int j2 = Element_CYTK::create_part(sim, -KV2.width * 0.4f + 1, -KV2.height / 2, PT_BANG, parts[i].pavg[0], parts, i);
+					int j2 = Element_CYTK_create_part(sim, -KV2.width * 0.4f + 1, -KV2.height / 2, PT_BANG, parts[i].pavg[0], parts, i);
 					parts[j2].temp = 1500.0f;
 				}
 			}
 		}
 	}
 
-	Element_CYTK::update_vehicle(sim, parts, i, KV2, ovx, ovy);
+	Element_CYTK_update_vehicle(sim, parts, i, KV2, ovx, ovy);
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_TANK static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_TANK::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*cola = 0;
 	draw_kv2(ren, cpart, cpart->pavg[0]);
 	return 0;
 }
 
-Element_TANK::~Element_TANK() {}
+
+

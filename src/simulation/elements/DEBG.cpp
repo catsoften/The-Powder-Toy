@@ -8,6 +8,10 @@
 #include <unordered_map>
 #include <iostream>
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS);
+
 namespace DEBG_DATA {
 	const int MAX_CIRCUIT_DATA = 300;
 
@@ -21,8 +25,7 @@ namespace DEBG_DATA {
 	std::unordered_map<int, DebugData> data = {};
 };
 
-//#TPT-Directive ElementClass Element_DEBG PT_DEBG 272
-Element_DEBG::Element_DEBG() {
+void Element::Element_DEBG() {
 	Identifier = "DEFAULT_PT_DEBG";
 	Name = "DEBG";
 	Colour = PIXPACK(0xFF0000);
@@ -61,18 +64,16 @@ Element_DEBG::Element_DEBG() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_DEBG::update;
-	Graphics = &Element_DEBG::graphics;
-	ChangeType = &Element_DEBG::changeType;
+	Update = &update;
+	Graphics = &graphics;
+	ChangeType = &changeType;
 }
 
-//#TPT-Directive ElementHeader Element_DEBG static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
-void Element_DEBG::changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS) {
 	DEBG_DATA::data.erase(i);
 }
 
-//#TPT-Directive ElementHeader Element_DEBG static int update(UPDATE_FUNC_ARGS)
-int Element_DEBG::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Debug types:
 	 * 1 - Get faraday wall ID
@@ -105,8 +106,7 @@ int Element_DEBG::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_DEBG static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_DEBG::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->tmp == 1)
 		ren->drawtext(nx, ny - 5, String::Build("ID: ", ren->sim->faraday_map[ny / CELL][nx / CELL]), 255, 255, 255, 255);
 	else if (cpart->tmp == 2) {
@@ -140,5 +140,3 @@ int Element_DEBG::graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-Element_DEBG::~Element_DEBG() {}

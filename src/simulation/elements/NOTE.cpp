@@ -2,10 +2,12 @@
 #include "music/audio.h"
 #include "music/music.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 #include <iostream>
 
-//#TPT-Directive ElementClass Element_NOTE PT_NOTE 203
-Element_NOTE::Element_NOTE()
+void Element::Element_NOTE()
 {
 	Identifier = "DEFAULT_PT_NOTE";
 	Name = "NOTE";
@@ -36,12 +38,11 @@ Element_NOTE::Element_NOTE()
 	DefaultProperties.tmp = 49; // A
 	Properties = TYPE_SOLID;
 	
-	Update = &Element_NOTE::update;
-	Graphics = &Element_NOTE::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_NOTE static int update(UPDATE_FUNC_ARGS)
-int Element_NOTE::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, rt, r;
 	
 	NOTE::next_audio_device = NOTE::next_audio_device % NOTE::MAX_NOTES_AT_SAME_TIME;
@@ -73,11 +74,11 @@ int Element_NOTE::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_NOTE static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_NOTE::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->life > 0)
 		*colr = *colg = *colb = 255;
 	return 0;
 }
 
-Element_NOTE::~Element_NOTE() {}
+
+

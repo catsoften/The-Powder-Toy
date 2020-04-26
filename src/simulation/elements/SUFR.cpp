@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_SUFR PT_SUFR 294
-Element_SUFR::Element_SUFR()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_SUFR()
 {
 	Identifier = "DEFAULT_PT_SUFR";
 	Name = "SUFR";
@@ -40,12 +42,11 @@ Element_SUFR::Element_SUFR()
 	HighTemperature = 115.2f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_SUFR::update;
-	Graphics = &Element_SUFR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_SUFR static int update(UPDATE_FUNC_ARGS)
-int Element_SUFR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r, rt;
 
 	for (rx = -1; rx < 2; ++rx)
@@ -79,9 +80,9 @@ int Element_SUFR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_SUFR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_SUFR::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_SUFR::~Element_SUFR() {}
+
+

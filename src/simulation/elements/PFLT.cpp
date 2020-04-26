@@ -1,8 +1,11 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_PFLT PT_PFLT 284
-Element_PFLT::Element_PFLT()
-{
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+int Element_FILT_graphics(GRAPHICS_FUNC_ARGS);
+void Element_FILT_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_PFLT() {
 	Identifier = "DEFAULT_PT_PFLT";
 	Name = "PFLT";
 	Colour = PIXPACK(0x000056);
@@ -41,13 +44,12 @@ Element_PFLT::Element_PFLT()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_PFLT::update;
-	Graphics = &Element_PFLT::graphics;
-	Create = &Element_FILT::create;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &Element_FILT_create;
 }
 
-//#TPT-Directive ElementHeader Element_PFLT static int update(UPDATE_FUNC_ARGS)
-int Element_PFLT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	if (parts[i].tmp2 > 0)
 		parts[i].tmp2--;
 	if (parts[i].tmp2 < 0)
@@ -97,9 +99,8 @@ int Element_PFLT::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_PFLT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_PFLT::graphics(GRAPHICS_FUNC_ARGS) {
-	Element_FILT::graphics(ren, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
+static int graphics(GRAPHICS_FUNC_ARGS) {
+	Element_FILT_graphics(ren, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
 	if (cpart->life == 0) {
 		*colr *= 0.2f;
 		*colg *= 0.2f;
@@ -108,6 +109,3 @@ int Element_PFLT::graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-Element_PFLT::~Element_PFLT() {}

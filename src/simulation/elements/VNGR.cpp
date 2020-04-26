@@ -1,7 +1,8 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_VNGR PT_VNGR 308
-Element_VNGR::Element_VNGR()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_VNGR()
 {
 	Identifier = "DEFAULT_PT_VNGR";
 	Name = "VNGR";
@@ -42,11 +43,10 @@ Element_VNGR::Element_VNGR()
 	HighTemperature = 273.15f + 118.1f;
 	HighTemperatureTransition = PT_WTRV;
 
-	Update = &Element_VNGR::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_VNGR static int update(UPDATE_FUNC_ARGS)
-int Element_VNGR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r, rt;
 	for (rx = -1; rx <= 1; rx++)
 	for (ry = -1; ry <= 1; ry++)
@@ -69,4 +69,5 @@ int Element_VNGR::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_VNGR::~Element_VNGR() {}
+
+

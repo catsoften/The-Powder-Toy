@@ -1,14 +1,16 @@
 #include "simulation/ToolCommon.h"
 
-//#TPT-Directive ToolClass Tool_ACool TOOL_ACOL 14
-Tool_ACool::Tool_ACool() {
+static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength);
+
+void SimTool::Tool_ACOOL() {
     Identifier = "DEFAULT_TOOL_ACOL";
     Name = "ACOL";
     Colour = PIXPACK(0x00DDFF);
     Description = "Cools the local air (Ambient heat required).";
+    Perform = &perform;
 }
 
-int Tool_ACool::Perform(Simulation *sim, Particle *cpart, int x, int y, int brushX, int brushY, float strength) {
+static int perform(Simulation *sim, Particle *cpart, int x, int y, int brushX, int brushY, float strength) {
     if (!sim->aheat_enable)
         return 0;
 
@@ -19,5 +21,3 @@ int Tool_ACool::Perform(Simulation *sim, Particle *cpart, int x, int y, int brus
         sim->hv[y / CELL][x / CELL] = 0;
     return 1;
 }
-
-Tool_ACool::~Tool_ACool() {}

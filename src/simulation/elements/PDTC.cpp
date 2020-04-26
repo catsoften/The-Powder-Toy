@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_PDTC PT_PDTC 204
-Element_PDTC::Element_PDTC()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_PDTC()
 {
 	Identifier = "DEFAULT_PT_PDTC";
 	Name = "PDTC";
@@ -43,12 +45,11 @@ Element_PDTC::Element_PDTC()
 
 	DefaultProperties.temp = 273.15f + 1.0f;
 
-	Update = &Element_PDTC::update;
-	Graphics = &Element_PDTC::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_PDTC static int update(UPDATE_FUNC_ARGS)
-int Element_PDTC::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	/**
 	 * Props:
@@ -115,7 +116,7 @@ int Element_PDTC::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_PDTC static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_PDTC::graphics(GRAPHICS_FUNC_ARGS) { return 1; }
+static int graphics(GRAPHICS_FUNC_ARGS) { return 1; }
 
-Element_PDTC::~Element_PDTC() {}
+
+

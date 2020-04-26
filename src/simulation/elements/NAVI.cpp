@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_NAVI PT_NAVI 210
-Element_NAVI::Element_NAVI()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_NAVI()
 {
 	Identifier = "DEFAULT_PT_NAVI";
 	Name = "NAVI";
@@ -12,20 +14,18 @@ Element_NAVI::Element_NAVI()
 
 	// element properties here
 
-	Update = &Element_NAVI::update;
-	Graphics = &Element_NAVI::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_NAVI static int update(UPDATE_FUNC_ARGS)
-int Element_NAVI::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	// update code here
 
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_NAVI static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_NAVI::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -33,4 +33,5 @@ int Element_NAVI::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_NAVI::~Element_NAVI() {}
+
+

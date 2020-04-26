@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_IOSL PT_IOSL 255
-Element_IOSL::Element_IOSL()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_IOSL()
 {
 	Identifier = "DEFAULT_PT_IOSL";
 	Name = "IOSL";
@@ -42,23 +44,22 @@ Element_IOSL::Element_IOSL()
 	HighTemperature = 373.0f;
 	HighTemperatureTransition = PT_WTRV;
 
-	Update = &Element_IOSL::update;
-	Graphics = &Element_IOSL::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_IOSL static int update(UPDATE_FUNC_ARGS)
-int Element_IOSL::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// update code here
 
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_IOSL static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_IOSL::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// graphics code here
 	// return 1 if nothing dymanic happens here
 
 	return 0;
 }
 
-Element_IOSL::~Element_IOSL() {}
+
+

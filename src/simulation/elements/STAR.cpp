@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_STAR PT_STAR 197
-Element_STAR::Element_STAR()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_STAR()
 {
 	Identifier = "DEFAULT_PT_STAR";
 	Name = "STAR";
@@ -47,12 +49,11 @@ Element_STAR::Element_STAR()
 	DefaultProperties.tmp = 9;
 	DefaultProperties.life = 1150;
 
-	Update = &Element_STAR::update;
-	Graphics = &Element_STAR::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_STAR static int update(UPDATE_FUNC_ARGS)
-int Element_STAR::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	/**
 	 * Properties:
@@ -103,8 +104,7 @@ int Element_STAR::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_STAR static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_STAR::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// Is edge check
 	int rx, ry, r;
@@ -141,4 +141,5 @@ int Element_STAR::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_STAR::~Element_STAR() {}
+
+

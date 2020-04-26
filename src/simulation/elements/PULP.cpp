@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_PULP PT_PULP 273
-Element_PULP::Element_PULP()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_PULP()
 {
 	Identifier = "DEFAULT_PT_PULP";
 	Name = "PULP";
@@ -43,12 +45,11 @@ Element_PULP::Element_PULP()
 	HighTemperature = 232.8f + 273.15f; // 451 F
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_PULP::update;
-	Graphics = &Element_PULP::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_PULP static int update(UPDATE_FUNC_ARGS)
-int Element_PULP::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	if (parts[i].life <= 0) {
 		sim->part_change_type(i, x, y, PT_PAPR);
 		parts[i].life = 0;
@@ -74,10 +75,10 @@ int Element_PULP::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_PULP static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_PULP::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 	return 1;
 }
 
-Element_PULP::~Element_PULP() {}
+
+

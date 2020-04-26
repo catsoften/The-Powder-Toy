@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include <vector>
 
-//#TPT-Directive ElementClass Element_SFLD PT_SFLD 230
-Element_SFLD::Element_SFLD()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_SFLD()
 {
 	Identifier = "DEFAULT_PT_SFLD";
 	Name = "SFLD";
@@ -43,12 +45,11 @@ Element_SFLD::Element_SFLD()
 	HighTemperature = 27.102f;
 	HighTemperatureTransition = PT_NEON;
 
-	Update = &Element_SFLD::update;
-	Graphics = &Element_SFLD::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_SFLD static int update(UPDATE_FUNC_ARGS)
-int Element_SFLD::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r;
 	std::pair<int, int> newv;
 	int max_solids_near = 0;
@@ -85,10 +86,10 @@ int Element_SFLD::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_SFLD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_SFLD::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 	return 1;
 }
 
-Element_SFLD::~Element_SFLD() {}
+
+

@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_POSI PT_POSI 303
-Element_POSI::Element_POSI()
-{
+static int update(UPDATE_FUNC_ARGS);
+int  Element_ELEC_graphics(GRAPHICS_FUNC_ARGS);
+void Element_ELEC_create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_POSI() {
 	Identifier = "DEFAULT_PT_POSI";
 	Name = "POSI";
 	Colour = PIXPACK(0xFFEFDF);
@@ -42,13 +44,12 @@ Element_POSI::Element_POSI()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_POSI::update;
-	Graphics = &Element_ELEC::graphics;
-	Create = &Element_ELEC::create;
+	Update = &update;
+	Graphics = &Element_ELEC_graphics;
+	Create = &Element_ELEC_create;
 }
 
-//#TPT-Directive ElementHeader Element_POSI static int update(UPDATE_FUNC_ARGS)
-int Element_POSI::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int r, rt, rx, ry, nb, rrx, rry, ni;
 	float total_e, vx, vy, angle;
 
@@ -147,4 +148,5 @@ int Element_POSI::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_POSI::~Element_POSI() {}
+
+

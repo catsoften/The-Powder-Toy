@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_PINV PT_PINV 313
-Element_PINV::Element_PINV()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_PINV()
 {
 	Identifier = "DEFAULT_PT_PINV";
 	Name = "PINV";
@@ -41,12 +43,11 @@ Element_PINV::Element_PINV()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_PINV::update;
-	Graphics = &Element_PINV::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_PINV static int update(UPDATE_FUNC_ARGS)
-int Element_PINV::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r;
 	for (rx = -1; rx <= 1; rx++)
 	for (ry = -1; ry <= 1; ry++)
@@ -71,8 +72,7 @@ int Element_PINV::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_PINV static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_PINV::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->life == 0) {
 		*colr *= 0.3f;
 		*colg *= 0.3f;
@@ -82,4 +82,5 @@ int Element_PINV::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_PINV::~Element_PINV() {}
+
+

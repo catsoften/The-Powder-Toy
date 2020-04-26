@@ -1,5 +1,8 @@
 #include "simulation/ElementCommon.h"
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 #define DETONATE sim->create_part(-1, x + 1, y + 1, PT_BMTL); \
 				 sim->create_part(-1, x + 1, y - 1, PT_BMTL); \
 				 sim->create_part(-1, x - 1, y + 1, PT_BMTL); \
@@ -9,8 +12,7 @@
 				 sim->create_part(-1, x - 1, y, PT_BMTL); \
 				 sim->create_part(-1, x + 1, y, PT_BMTL);
 
-//#TPT-Directive ElementClass Element_MSSL PT_MSSL 237
-Element_MSSL::Element_MSSL()
+void Element::Element_MSSL()
 {
 	Identifier = "DEFAULT_PT_MSSL";
 	Name = "MSSL";
@@ -51,12 +53,11 @@ Element_MSSL::Element_MSSL()
 	HighTemperature = 2887.15f;
 	HighTemperatureTransition = PT_BMTL;
 
-	Update = &Element_MSSL::update;
-	Graphics = &Element_MSSL::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_MSSL static int update(UPDATE_FUNC_ARGS)
-int Element_MSSL::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	if (parts[i].life > 0) { // Not primed yet
 		parts[i].life--;
 		return 0;
@@ -118,9 +119,9 @@ int Element_MSSL::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_MSSL static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_MSSL::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	return 1;
 }
 
-Element_MSSL::~Element_MSSL() {}
+
+

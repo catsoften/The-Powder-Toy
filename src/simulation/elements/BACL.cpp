@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_BACL PT_BACL 302
-Element_BACL::Element_BACL()
-{
+int Element_ACOL_update(UPDATE_FUNC_ARGS);
+int Element_ACOL_graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_BACL() {
 	Identifier = "DEFAULT_PT_BACL";
 	Name = "BACL";
 	Colour = PIXPACK(0x333333);
@@ -44,8 +45,6 @@ Element_BACL::Element_BACL()
 
 	DefaultProperties.life = 110;
 
-	Update = &Element_ACOL::update;
-	Graphics = &Element_ACOL::graphics;
+	Update = &Element_ACOL_update;
+	Graphics = &Element_ACOL_graphics;
 }
-
-Element_BACL::~Element_BACL() {}

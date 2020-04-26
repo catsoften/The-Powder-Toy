@@ -1,7 +1,8 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_BAKS PT_BAKS 309
-Element_BAKS::Element_BAKS()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_BAKS()
 {
 	Identifier = "DEFAULT_PT_BAKS";
 	Name = "BAKS";
@@ -40,11 +41,10 @@ Element_BAKS::Element_BAKS()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_BAKS::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_BAKS static int update(UPDATE_FUNC_ARGS)
-int Element_BAKS::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Decompose
 	if (parts[i].temp > 80.0f + 273.15f) {
 		if (RNG::Ref().chance(1, 2))
@@ -84,4 +84,5 @@ int Element_BAKS::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_BAKS::~Element_BAKS() {}
+
+

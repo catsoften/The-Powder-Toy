@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_BJEL PT_BJEL 229
-Element_BJEL::Element_BJEL()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_BJEL()
 {
 	Identifier = "DEFAULT_PT_BJEL";
 	Name = "BJEL";
@@ -41,13 +43,12 @@ Element_BJEL::Element_BJEL()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_BJEL::update;
-	Graphics = &Element_BJEL::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
 
-//#TPT-Directive ElementHeader Element_BJEL static int update(UPDATE_FUNC_ARGS)
-int Element_BJEL::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	// Record max pressure magnitude
 	float max = fabs(sim->pv[y / CELL][x / CELL]);
 	if (parts[i].pavg[0] < max)
@@ -55,8 +56,7 @@ int Element_BJEL::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_BJEL static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_BJEL::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Brighten under high pressure
 	float multi = 1.0f + (cpart->pavg[0] / 256.0f) * 1.3f;
 	*colr *= multi;
@@ -65,4 +65,5 @@ int Element_BJEL::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_BJEL::~Element_BJEL() {}
+
+

@@ -1,9 +1,12 @@
 #include "simulation/ElementCommon.h"
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+void Element_RDND_create(ELEMENT_CREATE_FUNC_ARGS);
+
 #define CELL_SIZE 30
 
-//#TPT-Directive ElementClass Element_RDND PT_RDND 218
-Element_RDND::Element_RDND()
-{
+void Element::Element_RDND() {
 	Identifier = "DEFAULT_PT_RDND";
 	Name = "RDMD";
 	Colour = PIXPACK(0xd9fbff);
@@ -40,13 +43,12 @@ Element_RDND::Element_RDND()
 	HighTemperature = 4027.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Create = &Element_RDND::create;
-	Update = &Element_RDND::update;
-	Graphics = &Element_RDND::graphics;
+	Create = &Element_RDND_create;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_RDND static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_RDND::create(ELEMENT_CREATE_FUNC_ARGS) {
+void Element_RDND_create(ELEMENT_CREATE_FUNC_ARGS) {
 	int x1 = (int)sim->parts[i].x;
 	int y1 = (int)sim->parts[i].y;
 	int t1 = sqrt(x1 / CELL_SIZE * x1 / CELL_SIZE + y1 / CELL_SIZE * y1 / CELL_SIZE); // "Seed the x y"
@@ -68,8 +70,7 @@ void Element_RDND::create(ELEMENT_CREATE_FUNC_ARGS) {
 }
 
 
-//#TPT-Directive ElementHeader Element_RDND static int update(UPDATE_FUNC_ARGS)
-int Element_RDND::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	/**
 	 * Props: pavg[0]: diamond graphics multiplier
@@ -112,8 +113,7 @@ int Element_RDND::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_RDND static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_RDND::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*colr *= 0.8 + 0.2 * cpart->pavg[0];
 	*colg *= 0.8 + 0.2 * cpart->pavg[0];
 	*colb *= 0.9 + 0.1 * cpart->pavg[0];
@@ -121,4 +121,5 @@ int Element_RDND::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_RDND::~Element_RDND() {}
+
+

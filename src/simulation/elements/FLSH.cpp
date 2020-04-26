@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_FLSH PT_FLSH 291
-Element_FLSH::Element_FLSH()
-{
+int Element_FLSH_update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_FLSH() {
 	Identifier = "DEFAULT_PT_FLSH";
 	Name = "FLSH";
 	Colour = PIXPACK(0xf05b5b);
@@ -44,13 +46,12 @@ Element_FLSH::Element_FLSH()
 	HighTemperature = 600.0f + 273.15f;
 	HighTemperatureTransition = PT_FIRE;
 
-	Update = &Element_FLSH::update;
-	Graphics = &Element_FLSH::graphics;
-	Create = &Element_FLSH::create;
+	Update = &Element_FLSH_update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_FLSH static void create(ELEMENT_CREATE_FUNC_ARGS)
-void Element_FLSH::create(ELEMENT_CREATE_FUNC_ARGS) {
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	int gx = x / 50 * 50;
 	int gy = y / 50 * 50;
 	float theta = x + y;
@@ -65,8 +66,7 @@ void Element_FLSH::create(ELEMENT_CREATE_FUNC_ARGS) {
 	}
 }
 
-//#TPT-Directive ElementHeader Element_FLSH static int update(UPDATE_FUNC_ARGS)
-int Element_FLSH::update(UPDATE_FUNC_ARGS) {
+int Element_FLSH_update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties
 	 * life:  Graphics
@@ -167,8 +167,7 @@ int Element_FLSH::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_FLSH static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FLSH::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (cpart->pavg[1] == 1) { // Skin
 		*colr = 255;
 		*colg = 226;
@@ -216,5 +215,3 @@ int Element_FLSH::graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-Element_FLSH::~Element_FLSH() {}

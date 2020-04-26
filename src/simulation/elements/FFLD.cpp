@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/Air.h"
 
-//#TPT-Directive ElementClass Element_FFLD PT_FFLD 206
-Element_FFLD::Element_FFLD()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_FFLD()
 {
 	Identifier = "DEFAULT_PT_FFLD";
 	Name = "FFLD";
@@ -45,12 +47,11 @@ Element_FFLD::Element_FFLD()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_FFLD::update;
-	Graphics = &Element_FFLD::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_FFLD static int update(UPDATE_FUNC_ARGS)
-int Element_FFLD::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	/**
 	 * ctype: type to affect
@@ -124,8 +125,7 @@ int Element_FFLD::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_FFLD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_FFLD::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	// Force fields are a random blue-white glow
 	int value = RNG::Ref().between(0, 100) + 90;
@@ -144,4 +144,5 @@ int Element_FFLD::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_FFLD::~Element_FFLD() {}
+
+

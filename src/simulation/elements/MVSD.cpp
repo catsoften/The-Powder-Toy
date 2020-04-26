@@ -2,6 +2,9 @@
 #include "simulation/mvsd/movingsolids.h"
 #include <iostream>
 
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 namespace MVSD {
 	void reset(int x, int y, Particle *parts, int pmap[YRES][XRES], int state_id) {
 		if (x < 0 || y < 0 || x > XRES || y > YRES)
@@ -18,8 +21,7 @@ namespace MVSD {
 	}
 }
 
-//#TPT-Directive ElementClass Element_MVSD PT_MVSD 196
-Element_MVSD::Element_MVSD() {
+void Element::Element_MVSD() {
 	Identifier = "DEFAULT_PT_MVSD";
 	Name = "MVSD";
 	Colour = PIXPACK(0xDB3030);
@@ -33,12 +35,11 @@ Element_MVSD::Element_MVSD() {
 
 	Properties = TYPE_SOLID;
 
-	Update = &Element_MVSD::update;
-	Graphics = &Element_MVSD::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_MVSD static int update(UPDATE_FUNC_ARGS)
-int Element_MVSD::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Moving solid setup: moving solids are grouped by their ID, which is defined by tmp2
 	 * If tmp2 is 0 the particle will automatically begin a floodfill to detect other MVSD that
@@ -260,8 +261,7 @@ int Element_MVSD::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_MVSD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_MVSD::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Mimic ctype color
 	bool valid_ctype = cpart->ctype > 0 && cpart->ctype < PT_NUM && ren->sim->elements[cpart->ctype].Enabled;
 	if (valid_ctype) {
@@ -282,4 +282,5 @@ int Element_MVSD::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_MVSD::~Element_MVSD() {}
+
+

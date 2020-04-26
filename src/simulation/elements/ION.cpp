@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/quantum/quantum.h"
 
-//#TPT-Directive ElementClass Element_ION PT_ION 193
-Element_ION::Element_ION()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_ION()
 {
 	Identifier = "DEFAULT_PT_ION";
 	Name = "ION";
@@ -19,12 +21,11 @@ Element_ION::Element_ION()
 	HeatConduct = 251;
 	Description = "Supercooled ion, can be used for quantum computing. Decoheres with heat and interactions.";
 
-	Update = &Element_ION::update;
-	Graphics = &Element_ION::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_ION static int update(UPDATE_FUNC_ARGS)
-int Element_ION::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * ION stores a state id, which is the quantum state its linked to, inside
 	 * of its tmp2 variable. Most ION interactions occur in QLOG
@@ -84,8 +85,7 @@ int Element_ION::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_ION static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ION::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*firea = 30;
 	*firer = *colr;
 	*fireg = *colg;
@@ -99,4 +99,5 @@ int Element_ION::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_ION::~Element_ION() {}
+
+
