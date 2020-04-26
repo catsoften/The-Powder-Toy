@@ -3,8 +3,7 @@
 int Element_THOR_update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_THOR()
-{
+void Element::Element_THOR() {
 	Identifier = "DEFAULT_PT_THOR";
 	Name = "THOR";
 	Colour = PIXPACK(0x8F8276);

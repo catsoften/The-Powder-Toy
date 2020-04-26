@@ -167,6 +167,12 @@ int Element_FIRE_update(UPDATE_FUNC_ARGS)
 							parts[ID(r)].ctype = PT_HEAC;
 						}
 					}
+					else if (rt == PT_TMRM && parts[i].ctype == PT_TMRM) {
+						if (parts[ID(r)].temp > sim->elements[PT_TMRM].HighTemperature) {
+							sim->part_change_type(ID(r), x+rx, y+ry, PT_LAVA);
+							parts[ID(r)].ctype = PT_TMRM;
+						}
+					}
 					// Molten THOR still is radioactive
 					else if (parts[i].ctype == PT_THOR) {
 						Element_THOR_update(sim, i, x, y, surround_space, nt, parts, pmap);

@@ -567,6 +567,14 @@ IOVD - sorts particles
 
 horse middle isn't transparent
 
+REFACTOR:
+- delete the py convertor thing
+- empty spaces 
+- conssitent { at end of elements
+- rename tools
+- color uppr
+
+
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17513&PageNum=0#Message=252721
 
 saving portals and wifi requires iterating everything - check if there IS wifi or portal before copying
@@ -595,8 +603,6 @@ test IWALL with RSPK
 power sign, resistance sign
 INWR different tmp conductivity?
 
-unmeltable wire
-
 thermoresistor unmeltable too
 
 voltage indicator use metric prefix, ie 2 mA
@@ -607,15 +613,19 @@ make group filling a bit better maybe?
 
 TRFR : transformer
 
-circuits-refactor:
-- define types
-- conversions for - 2 and other node ID
-- get branch by node helper
-- make some checks like IS_GRND valuated at evaltime
-
 RSPRK SPRK converter
 
 https://en.wikipedia.org/wiki/Iron%E2%80%93hydrogen_resistor
+    The idea of a iron-in-hydrogen resistor is, that
+    around 700 °C the resistance increases sharply.
+    With a little more current, the part of the wire which
+    glows dull red grows and the cooler part decreases.
+    This results in stabilization of current over a wide
+    range of voltage. This resistors could be used for
+    DC as well as for AC.
+    Bad thing was, that the iron wires in the hydrogen
+    were extremly brittle and sensitive to magnetic fields.
+    So, they always were used with some magnetic shield.
 
 - 2nd node trimming
     A - B - C -> A - C
@@ -634,6 +644,7 @@ retally resistances every second or so?
 - molten circuits tend to resolidify into large messes of nodes
     - entropy grid somehow and limit max number of nodes in a grid if entropy is high
     - count deviations from a straight line
+    - alternative: rate limit based on size of circuit - large circuit can only refloodfill every so often
 
 deal with numer of nodes overflowing
 
@@ -642,9 +653,7 @@ optimize memory:
 - undo redo don't save circuit, recompute while paused
 
 
-- rename framework to someting reasonable
-
-updating resistor values should trigger resolve
+updating resistor values should trigger re-solve
 
 check normal SPRK stuff 
 - like electrolysis
