@@ -1,4 +1,5 @@
-#include "simulation/circuits/format_circuits.h"
+#include "format_circuits.h"
+#include "common/String.h"
 #include <cmath>
 
 String format_value(double value, const String &unit) {

@@ -554,7 +554,7 @@ if GetOption('no-install-prompt'):
 	env.Append(CPPDEFINES=['NO_INSTALL_CHECK'])
 
 #Generate list of sources to compile
-sources = Glob("src/*.cpp") + Glob("src/*/*.cpp") + Glob("src/*/*/*.cpp") + Glob("generated/*.cpp") + Glob("data/*.cpp")
+sources = Glob("src/*.cpp") + Glob("src/*/*.cpp") + Glob("src/*/*/*.cpp") + Glob("src/*/*/*/*.cpp") + Glob("generated/*.cpp") + Glob("data/*.cpp")
 if not GetOption('nolua') and not GetOption('renderer') and not GetOption('font'):
 	sources += Glob("src/lua/socket/*.c") + Glob("src/lua/LuaCompat.c")
 

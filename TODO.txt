@@ -472,6 +472,8 @@ local gravity mode
 superfluids:
 - super high heat conductivity
 
+windows sometimes crashes loading saves (bad alloc)
+- rendering saves on vs build id:2532322
 
 debug element, stuff like a compass or clock dsplay
 
@@ -481,17 +483,25 @@ curved line tool
 
 brush size indicator
 
+options:
+- frame limiter
+- screenshot
+- record
+
 Add more reactions to existing elements:
 
 realistic gardening
 
 rope
 
-standardize code for fields
+standardize code for fields (refactor)
  - consistent casing (uppercase) for ufnctions
 - reduce circuit constructor size
 - standardize fields (caps and shit)
 - fix { or \n{
+- std::array
+- don't use vectors of vectors
+int length(not_null<Record*> p);
 
 generate wiki page py
 
@@ -531,6 +541,11 @@ one way wall arrow graphics
 
 hollow brush triggers on windows
 
+carbon -> make hydro carbons
+
+touhou in TPT
+    tpt.touhou()
+
 fiber optics affect bray?
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=24086 - keybind reset AHEAT
@@ -550,10 +565,9 @@ iczero
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
-saving portals and wifi requires iterating everything - check if there IS wifi or portal before copying
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17513&PageNum=0#Message=252721
 
-faster renderer
-- experiment with multithreading the renderer
+saving portals and wifi requires iterating everything - check if there IS wifi or portal before copying
 
 BWBellairs element
 - ACU
@@ -579,6 +593,10 @@ test IWALL with RSPK
 power sign, resistance sign
 INWR different tmp conductivity?
 
+unmeltable wire
+
+thermoresistor unmeltable too
+
 voltage indicator use metric prefix, ie 2 mA
 voltage indicator on the top too long with aheat enabled?
 
@@ -586,6 +604,45 @@ make group filling a bit better maybe?
 - handle correct votlages and shit somehow
 
 TRFR : transformer
+
+circuits-refactor:
+- define types
+- conversions for - 2 and other node ID
+- get branch by node helper
+- make some checks like IS_GRND valuated at evaltime
+
+RSPRK SPRK converter
+
+https://en.wikipedia.org/wiki/Iron%E2%80%93hydrogen_resistor
+
+- 2nd node trimming
+    A - B - C -> A - C
+    - trim nodes in chips until there's only 1 (trim branches that are chip-chip)
+- Add node method
+- ReID() nodes method at end that rids of unused nodes
+
+coputeDynamicVoltages polarity check?
+
+floating branch by capacitor makes capcitor not work
+
+retally resistances every second or so?
+
+- better adding method, ie severe lag when molten circuit resolidifies (large circuit)
+    - 
+- molten circuits tend to resolidify into large messes of nodes
+    - entropy grid somehow and limit max number of nodes in a grid if entropy is high
+    - count deviations from a straight line
+
+deal with numer of nodes overflowing
+
+limit number of nodes in a circuit anyways? no need to use short, maybe a byte will do
+optimize memory:
+- undo redo don't save circuit, recompute while paused
+
+
+- rename framework to someting reasonable
+
+updating resistor values should trigger resolve
 
 check normal SPRK stuff 
 - like electrolysis
@@ -600,6 +657,7 @@ possible 2nd node trimming:
 use sparsematrix solver somehow?
 
 portals maybe
+- portalsa re just buffer chips maybe
 
 no parallel plate capacitance - capacitance would be so low instantly goes to steady state which is empty
 no diode like transistors - sepretate element for polarity
@@ -614,6 +672,7 @@ else 0.7 V drop
 
 NPN: do opposite
 
+RSPRK removes circuit when deleted - move that to kill_part
 
 - magnetic field induces inductor current
 
@@ -622,6 +681,10 @@ realistic batteries
 op amp maybe
 
 pnp, npn transistors
+
+multi-node group:
+- are "dynamic"
+- constrain voltages at nodes
 
 photoresistor, potetiometer (user controlled?)
 LOGC - logic gate
