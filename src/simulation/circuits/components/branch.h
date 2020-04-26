@@ -43,15 +43,17 @@ public:
      *   NODE1 ----- PSCN NSCN ------ NODE2
      */
 
-    const int node1, node2;
-    const std::vector<int> ids;
-    const std::vector<int> rspk_ids;
-    const std::vector<int> switches;
-    const std::vector<int> dynamic_resistors;
-    double resistance, voltage_gain, current_gain, base_resistance, current=0.0;
+    const NodeId node1, node2;
+    const std::vector<ParticleId> ids;
+    const std::vector<ParticleId> rspk_ids;
+    const std::vector<ParticleId> switches;
+    const std::vector<ParticleId> dynamic_resistors;
+    const ParticleId node1_id, node2_id;
     const int diode; // 0 = no diode, 1 = positive, -1 = negative
-    const int node1_id, node2_id;
-    double V1, V2;
+
+    double resistance, voltage_gain,
+        current_gain, base_resistance,
+        current=0.0, V1, V2;
     bool recompute_switches = true;
     
     // Divergence checks
@@ -59,31 +61,32 @@ public:
 
     Branch(NodeId node1, NodeId node2, BranchConstructionData data) :
         node1(node1), node2(node2), ids(data.ids), rspk_ids(data.rspk_ids), switches(data.switches),
-        dynamic_resistors(data.dynamic_resistors), resistance(data.total_resistance), voltage_gain(data.voltage_gain),
-        current_gain(data.current_gain), base_resistance(data.total_resistance), diode(data.diode_type),
-        node1_id(data.node1_id), node2_id(data.node2_id) {}
+        dynamic_resistors(data.dynamic_resistors), node1_id(data.node1_id), node2_id(data.node2_id),
+        diode(data.diode_type), resistance(data.total_resistance), voltage_gain(data.voltage_gain),
+        current_gain(data.current_gain), base_resistance(data.total_resistance) {}
     
-    void setSpecialType(bool isCapacitor, bool isInductor, bool isChip);
-    void print();
-    void setToSteadyState();
+    void set_special_type(bool is_capacitor, bool is_inductor, bool is_chip);
+    void set_to_steady_state();
 
-    void computeDynamicResistances(Simulation * sim, Circuit * c);
-    void computeDynamicVoltages(Simulation * sim, Circuit * c);
-    void computeDynamicCurrents(Simulation * sim, Circuit * c);
+    void compute_dynamic_resistances(Simulation * sim, Circuit * c);
+    void compute_dynamic_voltages(Simulation * sim, Circuit * c);
+    void compute_dynamic_currents(Simulation * sim, Circuit * c);
 
-    bool obeysOhmsLaw()    { return obeys_ohms_law; };
-    bool isVoltageSource() { return voltage_gain; }
-
-    bool isInductor()      { return branch_type == INDUCTOR; }
-    bool isCapacitor()     { return branch_type == CAPACITOR; }
-    bool isChip()          { return branch_type == CHIP; }
-    bool isDiode()         { return branch_type == DIODE; }
+    bool obeys_ohms_law()    { return obeys_ohms_law_; };
+    bool is_voltage_source() { return voltage_gain; }
     bool requires_numeric_integration(Simulation * sim) {
         return ids.size() && is_integration_particle(sim->parts[ids[0]].type); }
+
+    bool is_inductor()  { return branch_type == INDUCTOR; }
+    bool is_capacitor() { return branch_type == CAPACITOR; }
+    bool is_chip()      { return branch_type == CHIP; }
+    bool is_diode()     { return branch_type == DIODE; }
+
+    void print();
 private:
-    bool obeys_ohms_law = true;
-    bool switches_on = false;
-    bool switchesOn(Simulation * sim);
+    bool obeys_ohms_law_ = true;
+    bool switches_on_ = false;
+    bool switches_on(Simulation * sim);
 
     enum TYPE { RESISTOR, CAPACITOR, INDUCTOR, CHIP, DIODE, VOLTAGE_SOURCE };
     TYPE branch_type = RESISTOR;    

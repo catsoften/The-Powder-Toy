@@ -527,7 +527,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
         }
 
         // ids does not include end nodes, so branches of length 2 have 0 id size
-        b->setSpecialType(b->ids.size() && sim->parts[b->ids[0]].type == PT_CAPR,
+        b->set_special_type(b->ids.size() && sim->parts[b->ids[0]].type == PT_CAPR,
                           b->ids.size() && sim->parts[b->ids[0]].type == PT_INDC,
                           b->ids.size() && is_chip(sim->parts[b->ids[0]].type));
 
@@ -666,27 +666,27 @@ void Circuit::solve(bool allow_recursion) {
             Branch * b = branch_map[node_id->first][i];
 
             // Verify diodes and switches
-            if (b->isDiode())
+            if (b->is_diode())
                 diode_branches.push_back(NodeAndIndex{node_id->first, i});
 
-            b->computeDynamicResistances(sim, this);
-            b->computeDynamicCurrents(sim, this);
-            b->computeDynamicVoltages(sim, this);
+            b->compute_dynamic_resistances(sim, this);
+            b->compute_dynamic_currents(sim, this);
+            b->compute_dynamic_voltages(sim, this);
 
             if (check_divergence && b->requires_numeric_integration(sim)) {
                 numeric_integration.push_back(NodeAndIndex{node_id->first, i});
-                copy->branch_map[node_id->first][i]->setToSteadyState();
+                copy->branch_map[node_id->first][i]->set_to_steady_state();
             }
 
             if (!is_constrained) {
                 /* Deal with supernodes later */
-                if (b->isVoltageSource()) {
+                if (b->is_voltage_source()) {
                     if (node_id->first < node_id->second[i]) // Avoid duplicate supernodes, only take 1 of them
                         supernodes.push_back(SuperNode{node_id->first, node_id->second[i], b->voltage_gain});
                 }
                 /* Instead of doing I = (V2 - V1) / R if a branch has a current source
                  * add / subtract current value from end */
-                else if (b->isInductor()) {
+                else if (b->is_inductor()) {
                     matrix_row[size] = b->current_gain * (node_id->first < node_id->second[i] ? 1 : -1);
                 }
                 /** Sum of all (N2 - N1) / R = 0 (Ignore resistances across voltage sources, dealt with
@@ -796,12 +796,12 @@ void Circuit::solve(bool allow_recursion) {
                 b->V1 = x[b->node1 - NodeHandler::START_NODE_ID];
                 b->V2 = x[b->node2 - NodeHandler::START_NODE_ID];
 
-                if (b->obeysOhmsLaw() && b->resistance) {
+                if (b->obeys_ohms_law() && b->resistance) {
                     b->current = (b->V1 - b->V2) / b->resistance;
                     current_of_adjacent = b->current;
                     node1_of_adjacent = b->node1;
                 }
-                else if (!b->obeysOhmsLaw())
+                else if (!b->obeys_ohms_law())
                     non_ohmian_branches.push_back(b);
             }
             // Branches that do not obey ohms law take current of adjacent branches
@@ -871,7 +871,7 @@ void Circuit::update_sim()
 
                 // Consecutive SWCH - don't add resistance otherwise there will be voltage drops
                 // (We wish voltage to be uniform across SWCH)
-                if (b->obeysOhmsLaw() && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
+                if (b->obeys_ohms_law() && !(prev_type == PT_SWCH && TYP(r) == PT_SWCH))
                     voltage_drop += get_effective_resistance(TYP(r), sim->parts, ID(r), sim) * b->current;
 
                 sim->parts[id].pavg[0] = restrict_double_to_flt(b->V1 - voltage_drop);

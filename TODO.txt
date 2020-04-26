@@ -644,11 +644,7 @@ optimize memory:
 - rename framework to someting reasonable
 - seperate file for Circuit class
 - consistent casing (uppercase) for ufnctions
-- reduce circuit constructor size
-- standardize fields (caps and shit)
-- fix { or \n{
-- std::array
-- don't use vectors of vectors
+- rename nodehandler
 int length(not_null<Record*> p);
 
 updating resistor values should trigger resolve
