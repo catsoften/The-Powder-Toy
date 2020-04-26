@@ -319,7 +319,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
         px = sx, py = sy, ox = x, oy = y;
 
     BranchConstructionData data;
-    NodeId end_node = -1;
+    NodeId end_node = NodeHandler::NOSKELETON;
 
     double current_voltage = 0.0;
     int source_count = 0;
@@ -506,7 +506,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
     if (node_skeleton_map[YX(oy, ox)] == NodeHandler::NOSKELETON)
         node_skeleton_map[YX(oy, ox)] = NodeHandler::SKELETON;
 
-    if (start_node > -1) { // Valid connection actually exists
+    if (start_node > NodeHandler::NOSKELETON) { // Valid connection actually exists
         Branch *b = new Branch(start_node, end_node, data);
 
         /**
@@ -540,7 +540,7 @@ void Circuit::add_branch_from_skeleton(const coord_vec &skeleton, Pos start_node
     }
     // Floating branch (> 1 px size)
     else if (data.rspk_ids.size() > 1) {
-        Branch *b = new Branch(-1, end_node, data);
+        Branch *b = new Branch(NodeHandler::NOSKELETON, end_node, data);
         floating_branches[end_node].push_back(b);
         branch_cache.push_back(b);
     }
@@ -607,33 +607,32 @@ void Circuit::generate() {
 
 
 
-
-
-
-
-
-
-
 /**
  * Solve the circuit using nodal analysis
+ * 
+ * Note that this should always be called with the default argument
+ * allow_recursion=true (allow_recursion is used to not infinitely solve() when
+ * resolving the circuits for diodes / other special components)
  */
-void Circuit::solve(bool allow_recursion)
-{
+void Circuit::solve(bool allow_recursion) {
     size_t size = highest_node_id - NodeHandler::START_NODE_ID + 1;
     if (!connection_map.size())
         return;
 
     // Don't need to solve: circuit is non-dynamic and we already solved it
-    // Force recalc in case something changes like a console command
-    if (!contains_dynamic && solution_computed && allow_recursion && sim->timer % FORCE_RECALC_EVERY_N_FRAMES != 0)
+    // Force recalc is for when something changes that doesn't delete / add particles,
+    // (like a console command)
+    if (!contains_dynamic && solution_computed && allow_recursion &&
+            sim->timer % FORCE_RECALC_EVERY_N_FRAMES != 0)
         return;
 
+    // Components that do numeric integration like inductors / capacitors will need a copy
+    // of the Circuit, but with capacitors replaced with open circuits and inductors with shorts
+    // to simulate steady state conditions
     bool check_divergence = requires_divergence_checking &&
-                            (!computed_divergence || sim->timer % INTEGRATION_RECALC_EVERY_N_FRAMES == 0);
-    if (check_divergence)
-    {
-        if (copy)
-            delete copy;
+        (!computed_divergence || sim->timer % INTEGRATION_RECALC_EVERY_N_FRAMES == 0);
+    if (check_divergence) {
+        if (copy) delete copy;
         copy = new Circuit(*this);
         copy->requires_divergence_checking = false;
     }
@@ -648,64 +647,56 @@ void Circuit::solve(bool allow_recursion)
     Eigen::VectorXd b(size), x(size);
     int j = 0;
 
-    for (size_t row = 0; row < size; row++)
-    {
-        auto node_id = connection_map.find(row + 2);
+    for (size_t row = 0; row < size; row++) {
         bool is_constrained;
-        double *matrix_row = new double[size + 1];
+        auto node_id = connection_map.find(row + 2);
+        double * matrix_row = new double[size + 1];
         std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
 
         // Due to limitations of node finding sometimes false nodes appear, nodes that don't connect
         // to any other nodes at all. We just assign them to ground since they don't do anything
-        if (node_id == connection_map.end())
-        {
+        if (node_id == connection_map.end()) {
             matrix_row[row] = 1;
             goto assign_row;
         }
 
         is_constrained = constrained_nodes.count(node_id->first);
 
-        for (size_t i = 0; i < node_id->second.size(); i++)
-        {
-            Branch *b = branch_map[node_id->first][i];
+        for (size_t i = 0; i < node_id->second.size(); i++) {
+            Branch * b = branch_map[node_id->first][i];
 
             // Verify diodes and switches
             if (b->isDiode())
                 diode_branches.push_back(std::make_pair(node_id->first, i));
+
             b->computeDynamicResistances(sim, this);
             b->computeDynamicCurrents(sim, this);
             b->computeDynamicVoltages(sim, this);
 
-            if (check_divergence && (b->isInductor() || b->isCapacitor()))
-            {
+            if (check_divergence && (b->isInductor() || b->isCapacitor())) {
                 numeric_integration.push_back(std::make_pair(node_id->first, i));
                 copy->branch_map[node_id->first][i]->setToSteadyState();
             }
 
-            if (!is_constrained)
-            {
+            if (!is_constrained) {
                 /* Deal with supernodes later */
-                if (b->isVoltageSource())
-                {
+                if (b->isVoltageSource()) {
                     if (node_id->first < node_id->second[i]) // Avoid duplicate supernodes
                         supernodes.push_back(std::make_tuple(node_id->first, node_id->second[i], b->voltage_gain));
                 }
                 /* Instead of doing I = (V2 - V1) / R if a branch has a current source
                  * add / subtract current value from end */
-                else if (b->isInductor())
-                {
+                else if (b->isInductor()) {
                     matrix_row[size] = b->current_gain * (node_id->first < node_id->second[i] ? 1 : -1);
                 }
                 /** Sum of all (N2 - N1) / R = 0 (Ignore resistances across voltage sources, dealt with
                  *  when solving supernodes) */
-                else if (b->resistance)
-                {
+                else if (b->resistance) {
                     matrix_row[node_id->first - 2] -= 1.0f / b->resistance;
                     matrix_row[node_id->second[i] - 2] += 1.0f / b->resistance;
                 }
             }
-            if (is_constrained)
-            {
+            else if (is_constrained) {
                 matrix_row[node_id->first - 2] = 1;
                 matrix_row[size] = constrained_nodes[node_id->first];
             }

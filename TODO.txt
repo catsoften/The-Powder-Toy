@@ -541,6 +541,9 @@ one way wall arrow graphics
 
 hollow brush triggers on windows
 
+touhou in TPT
+    tpt.touhou()
+
 fiber optics affect bray?
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=24086 - keybind reset AHEAT
@@ -615,9 +618,16 @@ https://en.wikipedia.org/wiki/Iron%E2%80%93hydrogen_resistor
     - trim nodes in chips until there's only 1 (trim branches that are chip-chip)
 - Add node method
 - ReID() nodes method at end that rids of unused nodes
-- don't use -1 to represent no node in branch finding, make it 0 for signed
 
 coputeDynamicVoltages polarity check?
+
+floating branch by capacitor makes capcitor not work
+
+retally resistances every second or so?
+
+replace tuples and pairs with classes in solve()
+
+solve(): isInductor() || isCapcitoR() replace with b->requiresNumericIntegration that uses the framework one
 
 - better adding method, ie severe lag when molten circuit resolidifies (large circuit)
     - 
@@ -625,7 +635,7 @@ coputeDynamicVoltages polarity check?
     - entropy grid somehow and limit max number of nodes in a grid if entropy is high
     - count deviations from a straight line
 
-replace nodeId == 1 with a fancy #define
+deal with numer of nodes overflowing
 
 limit number of nodes in a circuit anyways? no need to use short, maybe a byte will do
 optimize memory:

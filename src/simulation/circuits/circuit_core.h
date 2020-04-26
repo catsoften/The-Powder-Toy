@@ -5,7 +5,7 @@
 #include <exception>
 
 /* Defines for variable types to be less ambigious in code */
-typedef short NodeId; // Must be signed type as some code uses -1 as invalid placeholder
+typedef unsigned short NodeId;
 typedef int ElementType;
 typedef int ParticleId;
 
