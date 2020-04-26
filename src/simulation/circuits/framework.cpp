@@ -1,6 +1,7 @@
 #include "simulation/circuits/framework.h"
 #include "simulation/circuits/resistance.h"
 #include "simulation/CoordStack.h"
+
 #include <vector>
 #include <iostream>
 
@@ -10,6 +11,7 @@ bool can_be_skeleton(int i, Simulation * sim) {
     return sim->elements[typ].Properties & TYPE_SOLID ||
         (fabs(sim->parts[i].vx) < 1.0f && fabs(sim->parts[i].vy) < 1.0f);
 }
+
 bool can_be_node(int i, Simulation * sim) {
     int typ = sim->parts[i].type;
     return sim->elements[typ].Properties & TYPE_SOLID || (typ == PT_CRBN && sim->parts[i].tmp2);
@@ -23,8 +25,10 @@ bool allow_conduction(int totype, int fromtype) {
     // SWCH cannot conduct to NSCN / PSCN or SPRK can't toggle it
     if (fromtype == PT_SWCH && (totype == PT_NSCN || totype == PT_PSCN)) return false;
     // INWR can only conduct to negative terminal, or recieve from positive
-    if (fromtype == PT_INWR && totype != PT_INWR && !is_negative_terminal(totype) && totype != GROUND_TYPE) return false;
-    if (totype == PT_INWR && fromtype != PT_INWR && !is_positive_terminal(fromtype) && fromtype != GROUND_TYPE) return false;
+    if (fromtype == PT_INWR && totype != PT_INWR && !is_negative_terminal(totype) && totype != PT_GRND)
+        return false;
+    if (totype == PT_INWR && fromtype != PT_INWR && !is_positive_terminal(fromtype) && fromtype != PT_GRND)
+        return false;
     return true;
 }
 
@@ -40,7 +44,7 @@ coord_vec floodfill(Simulation *sim, int x, int y) {
     coord_vec output;
     int crx, cry; // Temp rx and ry from offsets for junctions
 
-    char visited[YRES][XRES];
+    bool visited[YRES][XRES];
     std::fill(&visited[0][0], &visited[YRES][0], 0);
  
     coords.push(x, y);
@@ -56,7 +60,7 @@ coord_vec floodfill(Simulation *sim, int x, int y) {
         }
 
         if (TYP(sim->pmap[y][x]) != PT_JUNC)
-            visited[y][x] = 1;
+            visited[y][x] = true;
         output.push_back(Pos(x, y));
 
 		// Floodfill
@@ -64,8 +68,8 @@ coord_vec floodfill(Simulation *sim, int x, int y) {
 		for (int ry = -1; ry <= 1; ++ry)
 		if ((rx || ry)) {
 			// Floodfill if valid spot.
-			int fromtype = TYP(sim->pmap[y][x]);
-			int totype = TYP(sim->pmap[y + ry][x + rx]);
+			ElementType fromtype = TYP(sim->pmap[y][x]);
+			ElementType totype = TYP(sim->pmap[y + ry][x + rx]);
 
             if (totype == PT_JUNC && rx && ry)
                 continue;
@@ -76,7 +80,7 @@ coord_vec floodfill(Simulation *sim, int x, int y) {
 				coords.push(x + rx, y + ry);
                 offsets.push(rx, ry);
                 if (totype != PT_JUNC)
-                    visited[y + ry][x + rx] = 1;
+                    visited[y + ry][x + rx] = true;
             }
 		}
 	}

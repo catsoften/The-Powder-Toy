@@ -11,6 +11,8 @@
 #include "eigen/Dense"
 #include "eigen/SparseCholesky"
 
+#include <iostream>
+
 #define YX(y, x) ((y) * XRES + (x))
 
 void Circuit::add_immutable_node(NodeId node_id, Pos position, bool is_diagonal_connection) {

@@ -1,9 +1,5 @@
 #include "simulation/circuits/circuits.h"
-#include "gui/game/GameModel.h"
 #include "simulation/ElementCommon.h"
-#include "simulation/circuits/resistance.h"
-#include "simulation/circuits/util.h"
-
 
 #include <iomanip>
 #include <iostream>
@@ -12,7 +8,7 @@ Circuit * circuit_map[NPART];
 std::vector<Circuit *> all_circuits;
 
 // Functions
-void CIRCUITS::addCircuit(int x, int y, Simulation * sim) {
+void CIRCUITS::add_circuit(int x, int y, Simulation * sim) {
     int r = sim->photons[y][x];
     if (circuit_map[ID(r)])
         return; // Already part of a circuit
@@ -25,7 +21,7 @@ void CIRCUITS::addCircuit(int x, int y, Simulation * sim) {
     all_circuits.push_back(c);
 }
 
-void CIRCUITS::deleteCircuit(int i) {
+void CIRCUITS::delete_circuit(int i) {
     // Why don't we put this in the destructor?
     // Doing so causes extreme lag as invalid circuits are deleted
     // but by reseting circuit_map this causes the invalid circuit to
@@ -36,7 +32,7 @@ void CIRCUITS::deleteCircuit(int i) {
     all_circuits.erase(all_circuits.begin() + i);
 }
 
-void CIRCUITS::updateAllCircuits() {
+void CIRCUITS::update_all_circuits() {
     for (int i = all_circuits.size() - 1; i >= 0; i--) {
         Circuit * c = all_circuits[i];
         if (c->should_recalc()) {
@@ -44,7 +40,7 @@ void CIRCUITS::updateAllCircuits() {
             c->generate();
         }
         if (!c->branch_cache_size()) {
-            deleteCircuit(i);
+            delete_circuit(i);
             continue;
         }
         c->reset_effective_resistances();
@@ -53,12 +49,9 @@ void CIRCUITS::updateAllCircuits() {
     }
 }
 
-void CIRCUITS::clearCircuits() {
+void CIRCUITS::clear_circuits() {
     for (auto c : all_circuits)
         delete c;
     all_circuits.clear();
     std::fill(&circuit_map[0], &circuit_map[NPART], nullptr);
 }
-
-// Classes
-

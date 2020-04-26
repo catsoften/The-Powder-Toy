@@ -58,7 +58,7 @@ int Element_LOGC::update(UPDATE_FUNC_ARGS) {
 	 * pavg0 - Output voltage
 	 * pavg1 - Effective output voltage
 	 */
-	CIRCUITS::addCircuit(x, y, sim);
+	CIRCUITS::add_circuit(x, y, sim);
 	
 	int output_id = -1, ox, oy;
 	for (int rx = -1; rx <= 1; rx++)

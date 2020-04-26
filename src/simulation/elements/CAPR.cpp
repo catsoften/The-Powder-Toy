@@ -59,7 +59,7 @@ int Element_CAPR::update(UPDATE_FUNC_ARGS) {
 
 	// CAPR can create circuit if not currently part of one
 	if (parts[i].pavg[1])
-		CIRCUITS::addCircuit(x, y, sim);
+		CIRCUITS::add_circuit(x, y, sim);
 
 	// Capacitance must be positive
 	parts[i].pavg[0] = fabs(parts[i].pavg[0]);

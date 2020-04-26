@@ -50,7 +50,7 @@ Element_VOLT::Element_VOLT() {
 
 //#TPT-Directive ElementHeader Element_VOLT static int update(UPDATE_FUNC_ARGS)
 int Element_VOLT::update(UPDATE_FUNC_ARGS) {
-	CIRCUITS::addCircuit(x, y, sim);
+	CIRCUITS::add_circuit(x, y, sim);
 	return 0;
 }
 

@@ -605,12 +605,12 @@ void Simulation::Restore(const Snapshot & snap)
 	faraday_updated = false;
 	RecalculateFaraday();
 
-	CIRCUITS::clearCircuits();
+	CIRCUITS::clear_circuits();
 	for (auto circuit : snap.circuits) {
 		all_circuits.push_back(new Circuit(circuit));
 		all_circuits.back()->flag_recalc();
 	}
-	CIRCUITS::updateAllCircuits();
+	CIRCUITS::update_all_circuits();
 }
 
 void Simulation::clear_area(int area_x, int area_y, int area_w, int area_h)
@@ -2399,7 +2399,7 @@ void Simulation::clear_sim(void)
 	emfield->Clear();
 	QUANTUM::quantum_states.clear();
 	MOVINGSOLID::solids.clear();
-	CIRCUITS::clearCircuits();
+	CIRCUITS::clear_circuits();
 }
 
 bool Simulation::IsWallBlocking(int x, int y, int type)
@@ -3769,7 +3769,7 @@ void Simulation::UpdateParticles(int start, int end)
 	stressField->Clear();
 
 	// Recalc Circuits
-	CIRCUITS::updateAllCircuits();
+	CIRCUITS::update_all_circuits();
 
 	//the main particle loop function, goes over all particles.
 	unsigned char update_count;

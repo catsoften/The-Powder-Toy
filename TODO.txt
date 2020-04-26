@@ -640,10 +640,7 @@ optimize memory:
 - undo redo don't save circuit, recompute while paused
 
 
-
 - rename framework to someting reasonable
-- rename nodehandler
-int length(not_null<Record*> p);
 
 updating resistor values should trigger resolve
 
@@ -660,6 +657,7 @@ possible 2nd node trimming:
 use sparsematrix solver somehow?
 
 portals maybe
+- portalsa re just buffer chips maybe
 
 no parallel plate capacitance - capacitance would be so low instantly goes to steady state which is empty
 no diode like transistors - sepretate element for polarity

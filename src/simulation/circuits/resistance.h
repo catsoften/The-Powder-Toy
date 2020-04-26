@@ -3,12 +3,9 @@
 
 #include "simulation/ElementCommon.h"
 #include "circuit_core.h"
-#include <unordered_map>
 
-extern std::unordered_map<ElementType, Ohms> resistances;
-
-bool valid_conductor(int typ, Simulation *sim, int i);
-double get_resistance(int type, Particle *parts, int i, Simulation *sim);
-double get_effective_resistance(int type, Particle *parts, int i, Simulation *sim);
+bool valid_conductor(ElementType typ, Simulation *sim, ParticleId i);
+Ohms get_resistance(ElementType type, Particle *parts, ParticleId i, Simulation *sim);
+Ohms get_effective_resistance(ElementType type, Particle *parts, ParticleId i, Simulation *sim);
 
 #endif
