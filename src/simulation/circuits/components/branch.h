@@ -3,10 +3,12 @@
 
 #include "simulation/ElementCommon.h"
 #include "simulation/circuits/circuit_core.h"
+#include "simulation/circuits/framework.h"
 
 #include <vector>
 
 class Circuit;
+class Simulation;
 
 struct BranchConstructionData {
     std::vector<int> ids,
@@ -55,13 +57,6 @@ public:
     // Divergence checks
     double SS_voltage = std::numeric_limits<double>::max(), SS_current = std::numeric_limits<double>::max();
 
-    Branch(int node1, int node2, const std::vector<int> &ids, 
-            const std::vector<int> &rspk_ids, const std::vector<int> &switch_ids, const std::vector<int> &dynamic_resistors,
-            double resistance, double voltage_gain, double current_gain, int diode, int id1, int id2) :
-        node1(node1), node2(node2), ids(ids), rspk_ids(rspk_ids), switches(switch_ids), dynamic_resistors(dynamic_resistors),
-        resistance(resistance), voltage_gain(voltage_gain), current_gain(current_gain), base_resistance(resistance), diode(diode),
-        node1_id(id1), node2_id(id2) {}
-
     Branch(NodeId node1, NodeId node2, BranchConstructionData data) :
         node1(node1), node2(node2), ids(data.ids), rspk_ids(data.rspk_ids), switches(data.switches),
         dynamic_resistors(data.dynamic_resistors), resistance(data.total_resistance), voltage_gain(data.voltage_gain),
@@ -83,6 +78,8 @@ public:
     bool isCapacitor()     { return branch_type == CAPACITOR; }
     bool isChip()          { return branch_type == CHIP; }
     bool isDiode()         { return branch_type == DIODE; }
+    bool requires_numeric_integration(Simulation * sim) {
+        return ids.size() && is_integration_particle(sim->parts[ids[0]].type); }
 private:
     bool obeys_ohms_law = true;
     bool switches_on = false;

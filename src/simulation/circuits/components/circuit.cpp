@@ -638,9 +638,9 @@ void Circuit::solve(bool allow_recursion) {
     }
 
     // Additional special case solvers
-    std::vector<std::pair<int, int>> diode_branches;      // Node1 index
-    std::vector<std::tuple<int, int, double>> supernodes; // Node 1 Node 2 Voltage
-    std::vector<std::pair<int, int>> numeric_integration; // Node 1 index
+    std::vector<NodeAndIndex> diode_branches;
+    std::vector<NodeAndIndex> numeric_integration;
+    std::vector<SuperNode> supernodes;
 
     // Solve Ax = b
     Eigen::MatrixXd A(size, size);
@@ -649,7 +649,7 @@ void Circuit::solve(bool allow_recursion) {
 
     for (size_t row = 0; row < size; row++) {
         bool is_constrained;
-        auto node_id = connection_map.find(row + 2);
+        auto node_id = connection_map.find(row + NodeHandler::START_NODE_ID);
         double * matrix_row = new double[size + 1];
         std::fill(&matrix_row[0], &matrix_row[size + 1], 0);
 
@@ -667,22 +667,22 @@ void Circuit::solve(bool allow_recursion) {
 
             // Verify diodes and switches
             if (b->isDiode())
-                diode_branches.push_back(std::make_pair(node_id->first, i));
+                diode_branches.push_back(NodeAndIndex{node_id->first, i});
 
             b->computeDynamicResistances(sim, this);
             b->computeDynamicCurrents(sim, this);
             b->computeDynamicVoltages(sim, this);
 
-            if (check_divergence && (b->isInductor() || b->isCapacitor())) {
-                numeric_integration.push_back(std::make_pair(node_id->first, i));
+            if (check_divergence && b->requires_numeric_integration(sim)) {
+                numeric_integration.push_back(NodeAndIndex{node_id->first, i});
                 copy->branch_map[node_id->first][i]->setToSteadyState();
             }
 
             if (!is_constrained) {
                 /* Deal with supernodes later */
                 if (b->isVoltageSource()) {
-                    if (node_id->first < node_id->second[i]) // Avoid duplicate supernodes
-                        supernodes.push_back(std::make_tuple(node_id->first, node_id->second[i], b->voltage_gain));
+                    if (node_id->first < node_id->second[i]) // Avoid duplicate supernodes, only take 1 of them
+                        supernodes.push_back(SuperNode{node_id->first, node_id->second[i], b->voltage_gain});
                 }
                 /* Instead of doing I = (V2 - V1) / R if a branch has a current source
                  * add / subtract current value from end */
@@ -692,17 +692,18 @@ void Circuit::solve(bool allow_recursion) {
                 /** Sum of all (N2 - N1) / R = 0 (Ignore resistances across voltage sources, dealt with
                  *  when solving supernodes) */
                 else if (b->resistance) {
-                    matrix_row[node_id->first - 2] -= 1.0f / b->resistance;
-                    matrix_row[node_id->second[i] - 2] += 1.0f / b->resistance;
+                    matrix_row[node_id->first - NodeHandler::START_NODE_ID] -= 1.0f / b->resistance;
+                    matrix_row[node_id->second[i] - NodeHandler::START_NODE_ID] += 1.0f / b->resistance;
                 }
             }
             else if (is_constrained) {
-                matrix_row[node_id->first - 2] = 1;
+                matrix_row[node_id->first - NodeHandler::START_NODE_ID] = 1;
                 matrix_row[size] = constrained_nodes[node_id->first];
+                goto assign_row;
             }
         }
 
-    assign_row:;
+        assign_row:;
         for (size_t i = 0; i < size; i++)
             A(j, i) = matrix_row[i];
         b[j] = matrix_row[size];
@@ -710,15 +711,13 @@ void Circuit::solve(bool allow_recursion) {
         j++;
     }
 
-    /** Handle supernodes */
-    for (size_t j = 0; j < supernodes.size(); j++)
-    {
-        int row1 = std::get<0>(supernodes[j]) - 2,
-            row2 = std::get<1>(supernodes[j]) - 2;
+    /* Handle supernodes */
+    for (size_t j = 0; j < supernodes.size(); j++) {
+        int row1 = supernodes[j].node1 - NodeHandler::START_NODE_ID,
+            row2 = supernodes[j].node2 - NodeHandler::START_NODE_ID;
 
         A.row(row1) += A.row(row2); // KCL over both end nodes
-        for (size_t k = 0; k < size; k++)
-        { // KVL equation
+        for (size_t k = 0; k < size; k++) { // KVL equation
             if ((int)k == row1)
                 A(row2, k) = -1;
             else if ((int)k == row2)
@@ -726,7 +725,7 @@ void Circuit::solve(bool allow_recursion) {
             else
                 A(row2, k) = 0;
         }
-        b[row2] = std::get<2>(supernodes[j]);
+        b[row2] = supernodes[j].voltage;
     }
 
     x = A.colPivHouseholderQr().solve(b);
@@ -739,22 +738,20 @@ void Circuit::solve(bool allow_recursion) {
     // Diode branches may involve re-solving if diode blocks current or voltage drop is insufficent
     // Same goes for transistors, which can be detected as 2 diodes sharing a node
     bool re_solve = false;
-    if (allow_recursion)
-    {
+    if (allow_recursion) {
         re_solve = diode_branches.size() > 0; // Diodes force resolve
 
         // Increase resistance of invalid diodes
-        for (size_t i = 0; i < diode_branches.size(); i++)
-        {
-            int node1 = diode_branches[i].first;
-            int index = diode_branches[i].second;
-            int node2 = connection_map[node1][index];
+        for (size_t i = 0; i < diode_branches.size(); i++) {
+            int index = diode_branches[i].index;
+            NodeId node1 = diode_branches[i].node;
+            NodeId node2 = connection_map[node1][index];
             double deltaV = x[node2 - 2] - x[node1 - 2];
 
             if (node1 > node2)
                 deltaV *= -1; // Maintain polarity: node1 -> node2 is positive
 
-            Branch *b = branch_map[node1][index];
+            Branch * b = branch_map[node1][index];
 
             // Fail on the following conditions:
             // 1. Current is flowing right way, but does not meet threshold voltage
@@ -764,12 +761,10 @@ void Circuit::solve(bool allow_recursion) {
                 (deltaV > 0 && b->diode > 0 && fabs(deltaV) < DIODE_V_BREAKDOWN) || // Wrong dir
                 (deltaV > 0 && b->diode < 0 && fabs(deltaV) < DIODE_V_THRESHOLD) || // Correct dir
                 (deltaV < 0 && b->diode < 0 && fabs(deltaV) < DIODE_V_BREAKDOWN)    // Wrong dir
-            )
-            {
+            ) {
                 b->resistance += REALLY_BIG_RESISTANCE;
             }
-            else if (fabs(deltaV) > DIODE_V_THRESHOLD)
-            {
+            else if (fabs(deltaV) > DIODE_V_THRESHOLD) {
                 // Voltage drop across diodes :D
                 b->voltage_gain = -DIODE_V_THRESHOLD;
             }
@@ -779,8 +774,7 @@ void Circuit::solve(bool allow_recursion) {
     }
 
     // If we don't need to resolve everything, assign currents to each branch
-    if (!re_solve)
-    {
+    if (!re_solve) {
         // Used to track current of adjacent branches for branches
         // that do not obey ohms law. We take the current of the ohmian
         // branch going into the node (should only be 1)
@@ -794,18 +788,15 @@ void Circuit::solve(bool allow_recursion) {
         double current_of_adjacent = 0.0;
         int node1_of_adjacent = 1;
 
-        for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++)
-        {
+        for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
             // Normal branches
             non_ohmian_branches.clear();
-            for (size_t i = 0; i < node_id->second.size(); i++)
-            {
-                Branch *b = branch_map[node_id->first][i];
-                b->V1 = x[b->node1 - 2];
-                b->V2 = x[b->node2 - 2];
+            for (size_t i = 0; i < node_id->second.size(); i++) {
+                Branch * b = branch_map[node_id->first][i];
+                b->V1 = x[b->node1 - NodeHandler::START_NODE_ID];
+                b->V2 = x[b->node2 - NodeHandler::START_NODE_ID];
 
-                if (b->obeysOhmsLaw() && b->resistance)
-                {
+                if (b->obeysOhmsLaw() && b->resistance) {
                     b->current = (b->V1 - b->V2) / b->resistance;
                     current_of_adjacent = b->current;
                     node1_of_adjacent = b->node1;
@@ -814,27 +805,25 @@ void Circuit::solve(bool allow_recursion) {
                     non_ohmian_branches.push_back(b);
             }
             // Branches that do not obey ohms law take current of adjacent branches
-            for (auto &b : non_ohmian_branches)
-            {
+            for (auto &b : non_ohmian_branches) {
                 b->current = current_of_adjacent;
                 if (node1_of_adjacent == b->node1) // Keep alignment of currents correct
                     b->current *= -1;
             }
 
-            // Floating branches
+            // Floating branches take voltage of connecting branches
             for (size_t i = 0; i < floating_branches[node_id->first].size(); i++)
-                floating_branches[node_id->first][i]->V2 = x[floating_branches[node_id->first][i]->node2 - 2];
+                floating_branches[node_id->first][i]->V2 =
+                    x[floating_branches[node_id->first][i]->node2 - NodeHandler::START_NODE_ID];
         }
     }
 
     // Divergence check complete, set steady state current and voltage
-    if (check_divergence)
-    {
+    if (check_divergence) {
         copy->solve();
-        for (auto &p : numeric_integration)
-        {
-            Branch *b1 = branch_map[p.first][p.second];
-            Branch *b2 = copy->branch_map[p.first][p.second];
+        for (auto &p : numeric_integration)  {
+            Branch * b1 = branch_map[p.node][p.index];
+            Branch * b2 = copy->branch_map[p.node][p.index];
             b1->SS_voltage = b2->V2 - b2->V1;
             b1->SS_current = b2->current;
         }
@@ -938,20 +927,19 @@ void Circuit::update_sim()
         sim->parts[id].life = BASE_RSPK_LIFE;
 }
 
-void Circuit::reset_effective_resistances()
-{
-    for (auto b : branch_cache)
-    {
+
+
+
+void Circuit::reset_effective_resistances() {
+    for (auto b : branch_cache) {
         b->recompute_switches = true;
         b->resistance = b->base_resistance;
     }
 }
 
-void Circuit::debug()
-{
+void Circuit::debug() {
     std::cout << "Circuit connections:\n";
-    for (auto itr = connection_map.begin(); itr != connection_map.end(); itr++)
-    {
+    for (auto itr = connection_map.begin(); itr != connection_map.end(); itr++) {
         std::cout << itr->first << " : ";
         for (auto itr2 = itr->second.begin(); itr2 != itr->second.end(); itr2++)
             std::cout << *itr2 << " ";
@@ -961,21 +949,18 @@ void Circuit::debug()
         b->print();
 }
 
-void Circuit::reset()
-{
-    // This is done in generate(), don't need to do it
-    // std::fill(&node_skeleton_map[YX(0, 0)], &node_skeleton_map[YX(YRES, 0)], 0);
-    // std::fill(&immutable_node_map[YX(0, 0)], &immutable_node_map[YX(YRES, 0)], 0);
+void Circuit::reset() {
     for (auto id : global_rspk_ids)
         circuit_map[id] = nullptr;
+    for (auto b : branch_cache)
+        delete b;
+
     recalc_next_frame = false;
     global_rspk_ids.clear();
     constrained_nodes.clear();
     branch_map.clear();
     floating_branches.clear();
     connection_map.clear();
-    for (auto b : branch_cache)
-        delete b;
     branch_cache.clear();
 
     requires_divergence_checking = false;
@@ -994,19 +979,12 @@ Circuit::Circuit(int x, int y, Simulation *sim) {
     update_sim();
 
 #ifdef DEBUG
-    debug();
+    // debug();
 #endif
 }
 
-Circuit::Circuit(const Circuit &other)
-{
+Circuit::Circuit(const Circuit &other) {
     sim = other.sim;
-    // if (other.node_skeleton_map)
-    //     std::copy(other.node_skeleton_map, other.node_skeleton_map + XRES * YRES, node_skeleton_map);
-    // else delete[] node_skeleton_map;
-    // if (other.immutable_node_map)
-    //     std::copy(other.immutable_node_map, other.immutable_node_map + XRES * YRES, immutable_node_map);
-    // else delete[] immutable_node_map;
     delete_maps();
 
     connection_map = other.connection_map;
@@ -1017,26 +995,22 @@ Circuit::Circuit(const Circuit &other)
     requires_divergence_checking = other.requires_divergence_checking;
     highest_node_id = other.highest_node_id;
 
-    for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++)
-    {
-        for (size_t i = 0; i < node_id->second.size(); i++)
-        {
-            Branch *new_b;
-            if ((size_t)node_id->first >= branch_map[node_id->second[i]].size() || !branch_map[node_id->second[i]][node_id->first])
-            {
+    for (auto node_id = connection_map.begin(); node_id != connection_map.end(); node_id++) {
+        for (size_t i = 0; i < node_id->second.size(); i++) {
+            Branch * new_b;
+            if ((size_t)node_id->first >= branch_map[node_id->second[i]].size() ||
+                    !branch_map[node_id->second[i]][node_id->first]) {
                 new_b = new Branch(*(other.branch_map.at(node_id->first)[i]));
                 branch_cache.push_back(new_b);
             }
-            else
-            {
+            else {
                 new_b = branch_map[node_id->second[i]][node_id->first];
             }
             branch_map[node_id->first].push_back(new_b);
         }
         // Floating branches
-        for (size_t i = 0; i < floating_branches[node_id->first].size(); i++)
-        {
-            Branch *new_b = new Branch(*(other.floating_branches.at(node_id->first)[i]));
+        for (size_t i = 0; i < floating_branches[node_id->first].size(); i++) {
+            Branch * new_b = new Branch(*(other.floating_branches.at(node_id->first)[i]));
             floating_branches[node_id->first].push_back(new_b);
             branch_cache.push_back(new_b);
         }
