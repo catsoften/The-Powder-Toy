@@ -6,7 +6,7 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 void Element::Element_SHPO() {
 	Identifier = "DEFAULT_PT_SHPO";
 	Name = "SHPO";
-	Colour = PIXPACK(0xeab5ff);
+	Colour = PIXPACK(0xEAB5FF);
 	MenuVisible = 1;
 	MenuSection = SC_CRACKER2;
 	Enabled = 1;
@@ -102,6 +102,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	}
 	return 0;
 }
-
-
-

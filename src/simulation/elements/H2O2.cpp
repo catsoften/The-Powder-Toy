@@ -1,12 +1,11 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
 void Element::Element_H2O2() {
 	Identifier = "DEFAULT_PT_H2O2";
 	Name = "H2O2";
-	Colour = PIXPACK(0x2738e6);
+	Colour = PIXPACK(0x2738E6);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
 	Enabled = 1;
@@ -44,7 +43,6 @@ void Element::Element_H2O2() {
 	HighTemperatureTransition = PT_WTRV;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -84,11 +82,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	*pixel_mode |= PMODE_BLUR;
-	return 1;
-}
-
-
-

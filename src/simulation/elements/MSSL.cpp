@@ -1,7 +1,6 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
 #define DETONATE sim->create_part(-1, x + 1, y + 1, PT_BMTL); \
 				 sim->create_part(-1, x + 1, y - 1, PT_BMTL); \
@@ -12,11 +11,10 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 				 sim->create_part(-1, x - 1, y, PT_BMTL); \
 				 sim->create_part(-1, x + 1, y, PT_BMTL);
 
-void Element::Element_MSSL()
-{
+void Element::Element_MSSL() {
 	Identifier = "DEFAULT_PT_MSSL";
 	Name = "MSSL";
-	Colour = PIXPACK(0xFFFFFF);
+	Colour = PIXPACK(0x877A6D);
 	MenuVisible = 0;
 	MenuSection = SC_SPECIAL;
 	Enabled = 1;
@@ -54,7 +52,6 @@ void Element::Element_MSSL()
 	HighTemperatureTransition = PT_BMTL;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -118,10 +115,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

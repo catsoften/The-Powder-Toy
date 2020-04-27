@@ -1,13 +1,11 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_HOLY()
-{
+void Element::Element_HOLY() {
 	Identifier = "DEFAULT_PT_HOLY";
 	Name = "HOLY";
-	Colour = PIXPACK(0x5c91ff);
+	Colour = PIXPACK(0x5C91FF);
 	MenuVisible = 1;
 	MenuSection = SC_CRACKER2;
 	Enabled = 1;
@@ -45,7 +43,6 @@ void Element::Element_HOLY()
 	HighTemperatureTransition = NT;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -85,11 +82,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	*pixel_mode |= PMODE_BLUR;
-	return 0;
-}
-
-
-

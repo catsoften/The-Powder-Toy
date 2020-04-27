@@ -7,7 +7,7 @@ static void create(ELEMENT_CREATE_FUNC_ARGS);
 void Element::Element_FLSH() {
 	Identifier = "DEFAULT_PT_FLSH";
 	Name = "FLSH";
-	Colour = PIXPACK(0xf05b5b);
+	Colour = PIXPACK(0xF05B5B);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;

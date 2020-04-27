@@ -1,10 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-void Element::Element_GRND()
-{
+void Element::Element_GRND() {
 	Identifier = "DEFAULT_PT_GRND";
 	Name = "GRND";
-	Colour = PIXPACK(0x8f3535);
+	Colour = PIXPACK(0x8F3535);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
 	Enabled = 1;
@@ -39,10 +38,4 @@ void Element::Element_GRND()
 	LowTemperatureTransition = NT;
 	HighTemperature = 3000.0f;
 	HighTemperatureTransition = PT_LAVA;
-
-	Update = NULL;
-	Graphics = NULL;
 }
-
-
-

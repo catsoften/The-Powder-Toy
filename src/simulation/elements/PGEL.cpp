@@ -2,10 +2,8 @@
 #include "simulation/mvsd/movingsolids.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_PGEL()
-{
+void Element::Element_PGEL() {
 	Identifier = "DEFAULT_PT_PGEL";
 	Name = "RGEL";
 	Colour = PIXPACK(0x00A0FF);
@@ -47,11 +45,9 @@ void Element::Element_PGEL()
 	HighTemperatureTransition = NT;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
-static int update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, rt, r;
 	for (rx = -2; rx < 3; rx++)
 		for (ry = -2; ry < 3; ry++)
@@ -136,12 +132,3 @@ static int update(UPDATE_FUNC_ARGS)
 		
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
-	*pixel_mode |= PMODE_BLUR;
-	return 0;
-}
-
-
-

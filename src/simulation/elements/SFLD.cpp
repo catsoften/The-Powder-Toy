@@ -1,14 +1,11 @@
 #include "simulation/ElementCommon.h"
-#include <vector>
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_SFLD()
-{
+void Element::Element_SFLD() {
 	Identifier = "DEFAULT_PT_SFLD";
 	Name = "SFLD";
-	Colour = PIXPACK(0x8ec6ed);
+	Colour = PIXPACK(0x8EC6ED);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
 	Enabled = 1;
@@ -46,7 +43,6 @@ void Element::Element_SFLD()
 	HighTemperatureTransition = PT_NEON;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -85,11 +81,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	*pixel_mode |= PMODE_BLUR;
-	return 1;
-}
-
-
-

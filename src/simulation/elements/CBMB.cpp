@@ -6,7 +6,7 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 void Element::Element_CBMB() {
 	Identifier = "DEFAULT_PT_CBMB";
 	Name = "CBMB";
-	Colour = PIXPACK(0x4ad998);
+	Colour = PIXPACK(0x4AD998);
 	MenuVisible = 1;
 	MenuSection = SC_FORCE;
 	Enabled = 1;
@@ -156,6 +156,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_ADD;
 	return 0;
 }
-
-
-

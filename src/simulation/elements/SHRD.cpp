@@ -3,11 +3,10 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_SHRD()
-{
+void Element::Element_SHRD() {
 	Identifier = "DEFAULT_PT_SHRD";
 	Name = "SHRD";
-	Colour = PIXPACK(0x4a443d);
+	Colour = PIXPACK(0x4A443D);
 	MenuVisible = 1;
 	MenuSection = SC_POWERED;
 	Enabled = 1;
@@ -197,6 +196,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

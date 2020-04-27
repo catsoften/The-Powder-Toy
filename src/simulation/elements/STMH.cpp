@@ -7,7 +7,7 @@ int Element_FLSH_update(UPDATE_FUNC_ARGS);
 void Element::Element_STMH() {
 	Identifier = "DEFAULT_PT_STMH";
 	Name = "STMH";
-	Colour = PIXPACK(0xc4ae95);
+	Colour = PIXPACK(0xc4AE95);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;

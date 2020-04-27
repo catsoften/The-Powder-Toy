@@ -1,13 +1,11 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_C6()
-{
+void Element::Element_C6() {
 	Identifier = "DEFAULT_PT_C6";
 	Name = "C-6";
-	Colour = PIXPACK(0xff40b6);
+	Colour = PIXPACK(0xFF40B6);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;
 	Enabled = 1;
@@ -44,7 +42,6 @@ void Element::Element_C6()
 	HighTemperatureTransition = NT;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -91,10 +88,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

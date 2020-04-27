@@ -1,10 +1,6 @@
 #include "simulation/ElementCommon.h"
 
-static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
-
-void Element::Element_FILL()
-{
+void Element::Element_FILL() {
 	Identifier = "DEFAULT_PT_FILL";
 	Name = "FILL";
 	Colour = PIXPACK(0x172642);
@@ -42,18 +38,4 @@ void Element::Element_FILL()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = &update;
-	Graphics = &graphics;
 }
-
-static int update(UPDATE_FUNC_ARGS) {
-	return 1;
-}
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

@@ -1,10 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-void Element::Element_VACC()
-{
+void Element::Element_VACC() {
 	Identifier = "DEFAULT_PT_VACC";
 	Name = "VACC";
-	Colour = PIXPACK(0xd645af);
+	Colour = PIXPACK(0xD645AF);
 	MenuVisible = 1;
 	MenuSection = SC_CRACKER2;
 	Enabled = 1;
@@ -40,9 +39,4 @@ void Element::Element_VACC()
 	LowTemperatureTransition = PT_ICEI;
 	HighTemperature = 373.0f;
 	HighTemperatureTransition = PT_WTRV;
-
-	Update = NULL;
 }
-
-
-

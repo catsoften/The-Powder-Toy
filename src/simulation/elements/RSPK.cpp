@@ -135,12 +135,7 @@ static int update(UPDATE_FUNC_ARGS) {
 			break;
 	}
  
-	
-	
-
 	float res = 1.0f; // get_resistance(parts[i].ctype, parts, ID(pmap[y][x]), sim);
-
-
 
 	// Set ctype and temp to whats under it
 	parts[i].ctype = TYP(pmap[y][x]);
@@ -297,6 +292,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	}
 	return 0;
 }
-
-
-

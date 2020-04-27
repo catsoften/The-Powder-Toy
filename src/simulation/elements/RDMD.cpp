@@ -2,14 +2,14 @@
 
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
-void Element_RDND_create(ELEMENT_CREATE_FUNC_ARGS);
+void Element_RDMD_create(ELEMENT_CREATE_FUNC_ARGS);
 
 #define CELL_SIZE 30
 
-void Element::Element_RDND() {
-	Identifier = "DEFAULT_PT_RDND";
+void Element::Element_RDMD() {
+	Identifier = "DEFAULT_PT_RDMD";
 	Name = "RDMD";
-	Colour = PIXPACK(0xd9fbff);
+	Colour = PIXPACK(0xD9FBFF);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
 	Enabled = 1;
@@ -43,12 +43,12 @@ void Element::Element_RDND() {
 	HighTemperature = 4027.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Create = &Element_RDND_create;
+	Create = &Element_RDMD_create;
 	Update = &update;
 	Graphics = &graphics;
 }
 
-void Element_RDND_create(ELEMENT_CREATE_FUNC_ARGS) {
+void Element_RDMD_create(ELEMENT_CREATE_FUNC_ARGS) {
 	int x1 = (int)sim->parts[i].x;
 	int y1 = (int)sim->parts[i].y;
 	int t1 = sqrt(x1 / CELL_SIZE * x1 / CELL_SIZE + y1 / CELL_SIZE * y1 / CELL_SIZE); // "Seed the x y"
@@ -69,9 +69,7 @@ void Element_RDND_create(ELEMENT_CREATE_FUNC_ARGS) {
 	sim->parts[i].pavg[0] = (t1 * 55) % 255 / 255.0f;
 }
 
-
-static int update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Props: pavg[0]: diamond graphics multiplier
 	 * Life: on fire if > 0, dies if life == 1
@@ -120,6 +118,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

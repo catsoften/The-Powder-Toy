@@ -1,13 +1,11 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_FISH()
-{
+void Element::Element_FISH() {
 	Identifier = "DEFAULT_PT_FISH";
 	Name = "FISH";
-	Colour = PIXPACK(0x8dafba);
+	Colour = PIXPACK(0x8DAFBA);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -45,7 +43,6 @@ void Element::Element_FISH()
 	HighTemperatureTransition = PT_DUST;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -129,11 +126,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
-	return 1;
-}
-
-
-

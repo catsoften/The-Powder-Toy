@@ -4,11 +4,10 @@ static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 void Element_PROT_create(ELEMENT_CREATE_FUNC_ARGS);
 
-void Element::Element_APRT()
-{
+void Element::Element_APRT() {
 	Identifier = "DEFAULT_PT_APRT";
 	Name = "APRT";
-	Colour = PIXPACK(0x7a14ff);
+	Colour = PIXPACK(0x7A14FF);
 	MenuVisible = 1;
 	MenuSection = SC_NUCLEAR;
 	Enabled = 1;

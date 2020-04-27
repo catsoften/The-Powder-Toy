@@ -6,7 +6,7 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 void Element::Element_009() {
 	Identifier = "DEFAULT_PT_009";
 	Name = "009";
-	Colour = PIXPACK(0xf04848);
+	Colour = PIXPACK(0xF04848);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
 	Enabled = 1;

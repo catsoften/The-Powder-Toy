@@ -79,6 +79,5 @@ int Element_ACOL_graphics(GRAPHICS_FUNC_ARGS) {
 		*colg += 273.15f - cpart->temp;
 		*colb += 273.15f - cpart->temp;
 	}
-
 	return 0;
 }

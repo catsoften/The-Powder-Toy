@@ -42,7 +42,6 @@ void Element::Element_RSTR() {
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = NULL;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -51,6 +50,3 @@ static int update(UPDATE_FUNC_ARGS) {
 		parts[i].pavg[0] = 1.0f;
 	return 0;
 }
-
-
-

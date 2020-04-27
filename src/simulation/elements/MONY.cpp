@@ -6,7 +6,7 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 void Element::Element_MONY() {
 	Identifier = "DEFAULT_PT_MONY";
 	Name = "MONY";
-	Colour = PIXPACK(0x0ba132);
+	Colour = PIXPACK(0x0BA132);
 	MenuVisible = 1;
 	MenuSection = SC_CRACKER2;
 	Enabled = 1;
@@ -98,6 +98,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 		*colg = *colr = *colb = 255;
 	return 0;
 }
-
-
-

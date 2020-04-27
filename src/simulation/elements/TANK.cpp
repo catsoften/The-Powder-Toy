@@ -215,6 +215,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	draw_kv2(ren, cpart, cpart->pavg[0]);
 	return 0;
 }
-
-
-

@@ -2,10 +2,8 @@
 #include "simulation/Air.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_ALMN()
-{
+void Element::Element_ALMN() {
 	Identifier = "DEFAULT_PT_ALMN";
 	Name = "ALMN";
 	Colour = PIXPACK(0xC0C0C0);
@@ -44,7 +42,6 @@ void Element::Element_ALMN()
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -92,10 +89,3 @@ static int update(UPDATE_FUNC_ARGS) {
 		}
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

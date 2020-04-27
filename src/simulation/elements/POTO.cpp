@@ -7,7 +7,7 @@ void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
 void Element::Element_POTO() {
 	Identifier = "DEFAULT_PT_POTO";
 	Name = "POTO";
-	Colour = PIXPACK(0xb08464);
+	Colour = PIXPACK(0xB08464);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -85,6 +85,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

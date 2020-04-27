@@ -1,13 +1,11 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_ASPK()
-{
+void Element::Element_ASPK() {
 	Identifier = "DEFAULT_PT_ASPK";
 	Name = "ASPK";
-	Colour = PIXPACK(0x45a9c4);
+	Colour = PIXPACK(0x45A9C4);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;
 	Enabled = 1;
@@ -44,7 +42,6 @@ void Element::Element_ASPK()
 	HighTemperatureTransition = PT_FIRE;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -72,10 +69,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

@@ -4,11 +4,10 @@ static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 void Element_FIRE_create(ELEMENT_CREATE_FUNC_ARGS);
 
-void Element::Element_DFLM()
-{
+void Element::Element_DFLM() {
 	Identifier = "DEFAULT_PT_DFLM";
 	Name = "DFLM";
-	Colour = PIXPACK(0x3c115e);
+	Colour = PIXPACK(0x3C115E);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;
 	Enabled = 1;
@@ -105,6 +104,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= FIRE_ADD;
 	return 0;
 }
-
-
-

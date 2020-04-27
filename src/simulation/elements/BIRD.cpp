@@ -2,7 +2,6 @@
 #include <iostream>
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 static void create(ELEMENT_CREATE_FUNC_ARGS);
 
 #define BIRD_SEARCH_RANGE 5
@@ -14,11 +13,10 @@ static void create(ELEMENT_CREATE_FUNC_ARGS);
 #define EDGE_RANGE 10
 #define EDGE_PUSH 200.0f
 
-void Element::Element_BIRD()
-{
+void Element::Element_BIRD() {
 	Identifier = "DEFAULT_PT_BIRD";
 	Name = "BIRD";
-	Colour = PIXPACK(0xb8a174);
+	Colour = PIXPACK(0xB8A174);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -56,7 +54,6 @@ void Element::Element_BIRD()
 	HighTemperatureTransition = PT_DUST;
 
 	Update = &update;
-	Graphics = &graphics;
 	Create = &create;
 }
 
@@ -264,11 +261,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
-	return 1;
-}
-
-
-

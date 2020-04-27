@@ -7,7 +7,7 @@ void Element_NEUT_create(ELEMENT_CREATE_FUNC_ARGS);
 void Element::Element_NTRI() {
 	Identifier = "DEFAULT_PT_NTRI";
 	Name = "NTRI";
-	Colour = PIXPACK(0xeb34c3);
+	Colour = PIXPACK(0xEB34C3);
 	MenuVisible = 1;
 	MenuSection = SC_NUCLEAR;
 	Enabled = 1;
@@ -84,6 +84,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

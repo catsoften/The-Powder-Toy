@@ -1,10 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-void Element::Element_INDI()
-{
+void Element::Element_INDI() {
 	Identifier = "DEFAULT_PT_INDI";
 	Name = "INDI";
-	Colour = PIXPACK(0x8497b0);
+	Colour = PIXPACK(0x8497B0);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;
 	Enabled = 1;
@@ -42,6 +41,3 @@ void Element::Element_INDI()
 
 	Update = NULL;
 }
-
-
-

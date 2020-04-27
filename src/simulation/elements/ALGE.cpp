@@ -7,7 +7,7 @@ void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
 void Element::Element_ALGE() {
 	Identifier = "DEFAULT_PT_ALGE";
 	Name = "ALGE";
-	Colour = PIXPACK(0x70e680);
+	Colour = PIXPACK(0x70E680);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;

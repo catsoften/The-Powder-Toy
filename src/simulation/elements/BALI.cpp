@@ -71,8 +71,7 @@ namespace BALI_DATA {
 	}
 }
 
-void Element::Element_BALI()
-{
+void Element::Element_BALI() {
 	Identifier = "DEFAULT_PT_BALI";
 	Name = "BALI";
 	Colour = PIXPACK(0xDFEFFF);
@@ -243,6 +242,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	if (*cola != 0) *colr = *colg = *colb = 255;
 	return 0;
 }
-
-
-

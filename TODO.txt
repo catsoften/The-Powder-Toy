@@ -463,8 +463,6 @@ spark keys - press key on keyboard, spark
 
 ferrofluid
 
-remove graphics = 1 and shit for all elements
-
 aircraft carrier
 
 local gravity mode
@@ -565,14 +563,10 @@ iczero
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
-horse middle isn't transparent
 
-REFACTOR:
-- delete the py convertor thing
-- empty spaces 
-- conssitent { at end of elements
-- rename tools
-- color uppr
+FREZ more uses
+- defuse VIBR
+- make part of exotic chemistry
 
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17513&PageNum=0#Message=252721
@@ -614,6 +608,9 @@ make group filling a bit better maybe?
 TRFR : transformer
 
 RSPRK SPRK converter
+
+https://www.hydrogenics.com/technology-resources/hydrogen-technology/fuel-cells/
+platnium ^
 
 https://en.wikipedia.org/wiki/Iron%E2%80%93hydrogen_resistor
     The idea of a iron-in-hydrogen resistor is, that

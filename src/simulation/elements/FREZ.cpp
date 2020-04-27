@@ -2,9 +2,8 @@
 
 static int update(UPDATE_FUNC_ARGS);
 
-void Element::Element_COLD()
-{
-	Identifier = "DEFAULT_PT_COLD";
+void Element::Element_FREZ() {
+	Identifier = "DEFAULT_PT_FREZ";
 	Name = "FREZ";
 	Colour = PIXPACK(0xDEF9FC);
 	MenuVisible = 1;
@@ -30,7 +29,7 @@ void Element::Element_COLD()
 
 	DefaultProperties.temp = 0.0f;
 	HeatConduct = 0;
-	Description = "Frezon. (OP Feron) Super cold gas, does not gain heat energy";
+	Description = "Frezon. (OP Feron) Super FREZ gas, does not gain heat energy";
 
 	Properties = TYPE_GAS;
 
@@ -55,7 +54,7 @@ static int update(UPDATE_FUNC_ARGS) {
 			if (!r) r = sim->photons[y + ry][x + rx];
 			if (!r) continue;
 
-			if (TYP(r) != PT_COLD && TYP(r) != PT_TPRS)
+			if (TYP(r) != PT_FREZ && TYP(r) != PT_TPRS)
 				parts[ID(r)].temp -= 25.0f;
 
 			// Put out fires
@@ -75,7 +74,7 @@ static int update(UPDATE_FUNC_ARGS) {
 			}
 		}
 		
-	// Cold fusion. Occurs at high pressures
+	// FREZ fusion. Occurs at high pressures
 	if (parts[i].temp < 100.0f && sim->pv[y / CELL][x / CELL] > 200.0f) {
 		if (!(RNG::Ref().gen() % 5)) {
 			int j;
@@ -108,7 +107,3 @@ static int update(UPDATE_FUNC_ARGS) {
 	}
 	return 0;
 }
-
-
-
-

@@ -1,10 +1,8 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_SICN()
-{
+void Element::Element_SICN() {
 	Identifier = "DEFAULT_PT_SICN";
 	Name = "SLCN";
 	Colour = PIXPACK(0x628099);
@@ -44,7 +42,6 @@ void Element::Element_SICN()
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -92,13 +89,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	// graphics code here
-	// return 1 if nothing dymanic happens here
-
-	return 0;
-}
-
-
-

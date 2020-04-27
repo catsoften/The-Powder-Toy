@@ -41,6 +41,3 @@ void Element::Element_TRST() {
 	HighTemperature = 3000.0f + 273.15f;
 	HighTemperatureTransition = PT_LAVA;
 }
-
-
-

@@ -7,8 +7,7 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 
 #include <iostream>
 
-void Element::Element_NOTE()
-{
+void Element::Element_NOTE() {
 	Identifier = "DEFAULT_PT_NOTE";
 	Name = "NOTE";
 	Colour = PIXPACK(0xDDDDDD);
@@ -79,6 +78,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 		*colr = *colg = *colb = 255;
 	return 0;
 }
-
-
-

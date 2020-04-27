@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_PINV()
-{
+void Element::Element_PINV() {
 	Identifier = "DEFAULT_PT_PINV";
 	Name = "PINV";
 	Colour = PIXPACK(0x00CCCC);
@@ -78,9 +77,5 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 		*colg *= 0.3f;
 		*colb *= 0.3f;
 	}
-
 	return 0;
 }
-
-
-

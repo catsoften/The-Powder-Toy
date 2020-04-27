@@ -19,7 +19,7 @@ void Element_SPDR_intersect_line(Simulation *sim, int sx, int sy, float vx, floa
 void Element::Element_GNSH() {
 	Identifier = "DEFAULT_PT_GNSH";
 	Name = "GNSH";
-	Colour = PIXPACK(0x8fa7b3);
+	Colour = PIXPACK(0x8FA7B3);
 	MenuVisible = 1;
 	MenuSection = SC_CRACKER2;
 	Enabled = 1;
@@ -229,6 +229,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	draw_gunship(ren, cpart, cpart->vx, cpart->vy);
 	return 0;
 }
-
-
-

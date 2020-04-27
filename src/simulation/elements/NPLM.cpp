@@ -2,8 +2,7 @@
 
 static int update(UPDATE_FUNC_ARGS);
 
-void Element::Element_NPLM()
-{
+void Element::Element_NPLM() {
 	Identifier = "DEFAULT_PT_NPLM";
 	Name = "NPLM";
 	Colour = PIXPACK(0xB00000);  // Get it BOOOO
@@ -46,11 +45,9 @@ void Element::Element_NPLM()
 	HighTemperatureTransition = PT_H2;
 	
 	Update = &update;
-	
 }
 
-static int update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	if (parts[i].tmp > 0 && sim->timer % 10 == 0) {
 		int j = sim->create_part(-1, parts[i].x - 1, parts[i].y - 1, PT_FIRE);
 		if (j > 0) parts[j].life = RNG::Ref().between(0, 200);
@@ -99,5 +96,3 @@ static int update(UPDATE_FUNC_ARGS)
 	}
 	return 0;
 }
-
-

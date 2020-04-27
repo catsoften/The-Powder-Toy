@@ -1,10 +1,8 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_GLUE()
-{
+void Element::Element_GLUE() {
 	Identifier = "DEFAULT_PT_GLUE";
 	Name = "GLUE";
 	Colour = PIXPACK(0xFAF3DC);
@@ -45,11 +43,9 @@ void Element::Element_GLUE()
 	HighTemperatureTransition = PT_CRMC;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
-static int update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry, rt;
 	for (rx=-2; rx<3; rx++)
 		for (ry=-2; ry<3; ry++)
@@ -100,11 +96,3 @@ static int update(UPDATE_FUNC_ARGS)
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
-	return 1;
-}
-
-
-

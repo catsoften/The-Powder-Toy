@@ -1,10 +1,8 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_PDTC()
-{
+void Element::Element_PDTC() {
 	Identifier = "DEFAULT_PT_PDTC";
 	Name = "PDTC";
 	Colour = PIXPACK(0xFDA118);
@@ -46,11 +44,9 @@ void Element::Element_PDTC()
 	DefaultProperties.temp = 273.15f + 1.0f;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
-static int update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Props:
 	 * tmp:
@@ -115,8 +111,3 @@ static int update(UPDATE_FUNC_ARGS)
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) { return 1; }
-
-
-

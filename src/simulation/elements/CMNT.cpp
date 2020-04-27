@@ -9,7 +9,7 @@ void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
 void Element::Element_CMNT() {
 	Identifier = "DEFAULT_PT_CMNT";
 	Name = "CMNT";
-	Colour = PIXPACK(0xb8b8b8);
+	Colour = PIXPACK(0xB8B8B8);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
 	Enabled = 1;

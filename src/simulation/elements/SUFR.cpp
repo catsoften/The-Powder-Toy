@@ -1,13 +1,11 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_SUFR()
-{
+void Element::Element_SUFR() {
 	Identifier = "DEFAULT_PT_SUFR";
 	Name = "SUFR";
-	Colour = PIXPACK(0xdbd032);
+	Colour = PIXPACK(0xDBD032);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;
 	Enabled = 1;
@@ -43,7 +41,6 @@ void Element::Element_SUFR()
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -79,10 +76,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

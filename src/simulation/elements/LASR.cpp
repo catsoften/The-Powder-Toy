@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_LASR()
-{
+void Element::Element_LASR() {
 	Identifier = "DEFAULT_PT_LASR";
 	Name = "LASR";
 	Colour = PIXPACK(0xFF0000);
@@ -96,6 +95,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	}
 	return 0;
 }
-
-
-

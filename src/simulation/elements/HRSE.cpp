@@ -258,7 +258,7 @@ static int update(UPDATE_FUNC_ARGS) {
 }
 
 static int graphics(GRAPHICS_FUNC_ARGS) {
-	*cola = 0;
+	*colr = *colg = *colb = 255;
 	draw_horse(ren, cpart, cpart->vx, cpart->vy);
 	return 0;
 }

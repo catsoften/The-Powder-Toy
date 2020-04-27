@@ -221,6 +221,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	}
 	return 0;
 }
-
-
-

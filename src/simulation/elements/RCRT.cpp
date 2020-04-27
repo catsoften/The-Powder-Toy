@@ -2,7 +2,7 @@
 #include <queue>
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
+
 #define MAX_RCRT_CONNECT 5
 
 // Floodfills connecting RCRT to tmp2 = 5, only does this for nearest 5
@@ -31,11 +31,10 @@ void floodfill_valid_connect(Simulation *sim, Particle *parts, int x, int y) {
 	}
 }
 
-void Element::Element_RCRT()
-{
+void Element::Element_RCRT() {
 	Identifier = "DEFAULT_PT_RCRT";
 	Name = "RCRT";
-	Colour = PIXPACK(0xa8a8a8);
+	Colour = PIXPACK(0xA8A8A8);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;
 	Enabled = 1;
@@ -71,7 +70,6 @@ void Element::Element_RCRT()
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -133,10 +131,3 @@ static int update(UPDATE_FUNC_ARGS) {
 	}
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

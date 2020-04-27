@@ -1,14 +1,13 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
 #define PIXA(x) (((x)>>24)&0xFF)
 
 void Element::Element_CSNS() {
 	Identifier = "DEFAULT_PT_CSNS";
 	Name = "CSNS";
-	Colour = PIXPACK(0xc242f5);
+	Colour = PIXPACK(0xC242F5);
 	MenuVisible = 1;
 	MenuSection = SC_SENSOR;
 	Enabled = 1;
@@ -48,7 +47,6 @@ void Element::Element_CSNS() {
 	HighTemperatureTransition = NT;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -139,10 +137,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

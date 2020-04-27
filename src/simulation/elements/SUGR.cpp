@@ -2,8 +2,7 @@
 
 static int update(UPDATE_FUNC_ARGS);
 
-void Element::Element_SUGR()
-{
+void Element::Element_SUGR() {
 	Identifier = "DEFAULT_PT_SUGR";
 	Name = "SUGR";
 	Colour = PIXPACK(0xFFFFFF);
@@ -72,6 +71,3 @@ static int update(UPDATE_FUNC_ARGS) {
 			} 
 	return 0;
 }
-
-
-

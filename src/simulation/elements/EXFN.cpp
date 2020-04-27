@@ -39,8 +39,7 @@ namespace EXFN_DATA {
 	}
 }
 
-void Element::Element_EXFN()
-{
+void Element::Element_EXFN() {
 	Identifier = "DEFAULT_PT_EXFN";
 	Name = "EXFN";
 	Colour = PIXPACK(0x645E8A);
@@ -326,6 +325,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	Element_EXFN_draw_beam(ren, cpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
 	return 0;
 }
-
-
-

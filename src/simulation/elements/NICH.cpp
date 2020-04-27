@@ -1,10 +1,6 @@
 #include "simulation/ElementCommon.h"
 
-static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
-
-void Element::Element_NICH()
-{
+void Element::Element_NICH() {
 	Identifier = "DEFAULT_PT_NICH";
 	Name = "NICH";
 	Colour = PIXPACK(0xD0D0DA);
@@ -42,14 +38,4 @@ void Element::Element_NICH()
 	LowTemperatureTransition = NT;
 	HighTemperature = 1273.0f;
 	HighTemperatureTransition = PT_LAVA;
-
-	Update = &update;
-	Graphics = &graphics;
 }
-
-static int update(UPDATE_FUNC_ARGS) { return 1; }
-
-static int graphics(GRAPHICS_FUNC_ARGS) { return 1; }
-
-
-

@@ -1,13 +1,11 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_BRAS()
-{
+void Element::Element_BRAS() {
 	Identifier = "DEFAULT_PT_BRAS";
 	Name = "BRAS";
-	Colour = PIXPACK(0xe3c359);
+	Colour = PIXPACK(0xE3C359);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
 	Enabled = 1;
@@ -45,7 +43,6 @@ void Element::Element_BRAS()
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -54,10 +51,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

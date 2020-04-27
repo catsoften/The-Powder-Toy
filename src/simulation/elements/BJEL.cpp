@@ -3,11 +3,10 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_BJEL()
-{
+void Element::Element_BJEL() {
 	Identifier = "DEFAULT_PT_BJEL";
 	Name = "BJEL";
-	Colour = PIXPACK(0xbdb47d);
+	Colour = PIXPACK(0xBDB47D);
 	MenuVisible = 1;
 	MenuSection = SC_SENSOR;
 	Enabled = 1;
@@ -47,7 +46,6 @@ void Element::Element_BJEL()
 	Graphics = &graphics;
 }
 
-
 static int update(UPDATE_FUNC_ARGS) {
 	// Record max pressure magnitude
 	float max = fabs(sim->pv[y / CELL][x / CELL]);
@@ -64,6 +62,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	*colb *= multi;
 	return 0;
 }
-
-
-

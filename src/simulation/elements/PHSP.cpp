@@ -3,11 +3,10 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_PHSP()
-{
+void Element::Element_PHSP() {
 	Identifier = "DEFAULT_PT_PHSP";
 	Name = "PHSP";
-	Colour = PIXPACK(0xedd5d3);
+	Colour = PIXPACK(0xEDD5D3);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;
 	Enabled = 1;
@@ -108,9 +107,5 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 		*firer = *fireg = *fireb = 255;
 		*pixel_mode |= FIRE_ADD;
 	}
-
 	return 0;
 }
-
-
-

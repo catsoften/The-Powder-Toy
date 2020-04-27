@@ -2,11 +2,10 @@
 
 static int update(UPDATE_FUNC_ARGS);
 
-void Element::Element_VNGR()
-{
+void Element::Element_VNGR() {
 	Identifier = "DEFAULT_PT_VNGR";
 	Name = "VNGR";
-	Colour = PIXPACK(0xdbb797);
+	Colour = PIXPACK(0xDBB797);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
 	Enabled = 1;
@@ -68,6 +67,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

@@ -7,7 +7,7 @@ static int update(UPDATE_FUNC_ARGS);
 void Element::Element_CAPR() {
 	Identifier = "DEFAULT_PT_CAPR";
 	Name = "CPTR";
-	Colour = PIXPACK(0x82a5cf);
+	Colour = PIXPACK(0x82A5CF);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
 	Enabled = 1;
@@ -148,8 +148,5 @@ static int update(UPDATE_FUNC_ARGS) {
 				}
 			}
 	}
-
 	return 0;
 }
-
-

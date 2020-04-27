@@ -5,11 +5,10 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 
 void Element_CBMB_time_dilation(Simulation *sim, int x, int y, int radius, int val);
 
-void Element::Element_TIME()
-{
+void Element::Element_TIME() {
 	Identifier = "DEFAULT_PT_TIME";
 	Name = "TIME";
-	Colour = PIXPACK(0x3a695a);
+	Colour = PIXPACK(0x3A695A);
 	MenuVisible = 1;
 	MenuSection = SC_POWERED;
 	Enabled = 1;
@@ -130,6 +129,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	}
 	return 0;
 }
-
-
-

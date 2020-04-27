@@ -2,7 +2,6 @@
 #include <iostream>
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
 #define HEAD_RADIUS 12
 #define PLAYER_LINK_CHECK(player, newtmp) if (player.spwn) { \
@@ -14,11 +13,10 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 			} \
 		}
 
-void Element::Element_HAIR()
-{
+void Element::Element_HAIR() {
 	Identifier = "DEFAULT_PT_HAIR";
 	Name = "HAIR";
-	Colour = PIXPACK(0x33302c);
+	Colour = PIXPACK(0x33302C);
 	MenuVisible = 1;
 	MenuSection = SC_CRACKER2;
 	Enabled = 1;
@@ -54,7 +52,6 @@ void Element::Element_HAIR()
 	HighTemperatureTransition = PT_FIRE;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -174,10 +171,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

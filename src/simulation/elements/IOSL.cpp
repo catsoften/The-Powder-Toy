@@ -1,13 +1,11 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_IOSL()
-{
+void Element::Element_IOSL() {
 	Identifier = "DEFAULT_PT_IOSL";
 	Name = "IOSL";
-	Colour = PIXPACK(0x4150e8);
+	Colour = PIXPACK(0x4150E8);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
 	Enabled = 1;
@@ -45,7 +43,6 @@ void Element::Element_IOSL()
 	HighTemperatureTransition = PT_WTRV;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -53,13 +50,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	// graphics code here
-	// return 1 if nothing dymanic happens here
-
-	return 0;
-}
-
-
-

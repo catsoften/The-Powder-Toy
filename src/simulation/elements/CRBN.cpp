@@ -4,10 +4,9 @@ static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
 void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
-void Element_RDND_create(ELEMENT_CREATE_FUNC_ARGS);
+void Element_RDMD_create(ELEMENT_CREATE_FUNC_ARGS);
 
-void Element::Element_CRBN()
-{
+void Element::Element_CRBN() {
 	Identifier = "DEFAULT_PT_CRBN";
 	Name = "CRBN";
 	Colour = PIXPACK(0x444444);
@@ -59,8 +58,8 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	// Solidify into realistic diamond
 	if (parts[i].temp > 273.15f + 2500.0f && sim->pv[y/CELL][x/CELL] > 100.0f && RNG::Ref().chance(1, 20)) {
-		sim->part_change_type(i, parts[i].x, parts[i].y, PT_RDND);
-		Element_RDND_create(sim, i, x, y, PT_RDND, -1);
+		sim->part_change_type(i, parts[i].x, parts[i].y, PT_RDMD);
+		Element_RDMD_create(sim, i, x, y, PT_RDMD, -1);
 		return 0;
 	}
 

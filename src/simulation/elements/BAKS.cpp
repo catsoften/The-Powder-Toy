@@ -2,11 +2,10 @@
 
 static int update(UPDATE_FUNC_ARGS);
 
-void Element::Element_BAKS()
-{
+void Element::Element_BAKS() {
 	Identifier = "DEFAULT_PT_BAKS";
 	Name = "BAKS";
-	Colour = PIXPACK(0xf0f0f0);
+	Colour = PIXPACK(0xF0F0F0);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;
 	Enabled = 1;
@@ -83,6 +82,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

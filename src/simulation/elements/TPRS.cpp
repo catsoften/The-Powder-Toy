@@ -1,10 +1,8 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_TPRS()
-{
+void Element::Element_TPRS() {
 	Identifier = "DEFAULT_PT_TPRS";
 	Name = "TPRS";
 	Colour = PIXPACK(0xBA002B);
@@ -43,11 +41,9 @@ void Element::Element_TPRS()
 	HighTemperatureTransition = NT;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
-static int update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
 		for (ry = -1; ry < 2; ry++)
@@ -65,11 +61,3 @@ static int update(UPDATE_FUNC_ARGS)
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
-	return 1;
-}
-
-
-

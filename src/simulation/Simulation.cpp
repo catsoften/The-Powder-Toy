@@ -2563,7 +2563,7 @@ void Simulation::init_can_move()
 		 || destinationType == PT_GLOW || elements[destinationType].Properties & PROP_WATER
 		 || destinationType == PT_ISOZ || destinationType == PT_ISZS || destinationType == PT_QRTZ || destinationType == PT_PQRT
 		 || destinationType == PT_H2   || destinationType == PT_BGLA || destinationType == PT_C5   || destinationType == PT_FILL
-		 || destinationType == PT_RDND || destinationType == PT_FIBR || destinationType == PT_H2O2
+		 || destinationType == PT_RDMD || destinationType == PT_FIBR || destinationType == PT_H2O2
 		 || destinationType == PT_AERO || destinationType == PT_ANH2)
 			can_move[PT_PHOT][destinationType] = 2;
 		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTI && destinationType != PT_PRTO && destinationType != PT_INDI)
@@ -3207,7 +3207,7 @@ int Simulation::is_blocking(int t, int x, int y)
 	if (t & REFRACT) {
 		if (x<0 || y<0 || x>=XRES || y>=YRES)
 			return 0;
-		if (TYP(pmap[y][x]) == PT_GLAS || TYP(pmap[y][x]) == PT_BGLA || TYP(pmap[y][x]) == PT_RDND)
+		if (TYP(pmap[y][x]) == PT_GLAS || TYP(pmap[y][x]) == PT_BGLA || TYP(pmap[y][x]) == PT_RDMD)
 			return 1;
 		return 0;
 	}
@@ -4660,8 +4660,8 @@ killed:
 					{
 						int rt = TYP(pmap[fin_y][fin_x]);
 						int lt = TYP(pmap[y][x]);
-						int rt_glas = (rt == PT_RDND) || (rt == PT_GLAS) || (rt == PT_BGLA);
-						int lt_glas = (rt == PT_RDND) || (lt == PT_GLAS) || (lt == PT_BGLA);
+						int rt_glas = (rt == PT_RDMD) || (rt == PT_GLAS) || (rt == PT_BGLA);
+						int lt_glas = (rt == PT_RDMD) || (lt == PT_GLAS) || (lt == PT_BGLA);
 						if ((rt_glas && !lt_glas) || (lt_glas && !rt_glas))
 						{
 							if (!get_normal_interp(REFRACT|t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry)) {

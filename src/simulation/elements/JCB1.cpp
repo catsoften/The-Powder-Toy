@@ -176,6 +176,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	ren->addpixel(cpart->x + 1, cpart->y + 6, 3, 126, 187, 255);
 	return 0;
 }
-
-
-

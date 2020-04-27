@@ -2,10 +2,8 @@
 #include "simulation/Air.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_LEAD()
-{
+void Element::Element_LEAD() {
 	Identifier = "DEFAULT_PT_LEAD";
 	Name = "LEAD";
 	Colour = PIXPACK(0xD6D6FF);
@@ -45,7 +43,6 @@ void Element::Element_LEAD()
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -65,10 +62,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

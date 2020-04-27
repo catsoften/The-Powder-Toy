@@ -6,7 +6,7 @@ static int update(UPDATE_FUNC_ARGS);
 void Element::Element_009S() {
 	Identifier = "DEFAULT_PT_009S";
 	Name = "009S";
-	Colour = PIXPACK(0xff3636);
+	Colour = PIXPACK(0xFF3636);
 	MenuVisible = 0;
 	MenuSection = SC_SOLIDS;
 	Enabled = 1;

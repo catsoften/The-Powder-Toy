@@ -2,8 +2,7 @@
 
 static int update(UPDATE_FUNC_ARGS);
 
-void Element::Element_INDC()
-{
+void Element::Element_INDC() {
 	Identifier = "DEFAULT_PT_INDC";
 	Name = "INDC";
 	Colour = PIXPACK(0xDF6742);
@@ -45,7 +44,6 @@ void Element::Element_INDC()
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = NULL;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -57,5 +55,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-

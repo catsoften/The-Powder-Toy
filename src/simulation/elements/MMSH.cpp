@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_MMSH()
-{
+void Element::Element_MMSH() {
 	Identifier = "DEFAULT_PT_MMSH";
 	Name = "MMSH";
 	Colour = PIXPACK(0x91A8B5);
@@ -81,6 +80,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

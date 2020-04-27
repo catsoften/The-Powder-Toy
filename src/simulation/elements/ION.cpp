@@ -4,8 +4,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_ION()
-{
+void Element::Element_ION() {
 	Identifier = "DEFAULT_PT_ION";
 	Name = "ION";
 	Colour = PIXPACK(0x80DBFF);
@@ -98,6 +97,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

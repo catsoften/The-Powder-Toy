@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_HONY()
-{
+void Element::Element_HONY() {
 	Identifier = "DEFAULT_PT_HONY";
 	Name = "HONY";
 	Colour = PIXPACK(0xFF9900);
@@ -92,6 +91,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 		*pixel_mode |= PMODE_BLUR; // Looks like liquid if not cold
 	return 0;
 }
-
-
-

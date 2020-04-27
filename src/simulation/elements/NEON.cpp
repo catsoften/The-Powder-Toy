@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_NEON()
-{
+void Element::Element_NEON() {
 	Identifier = "DEFAULT_PT_NEON";
 	Name = "NEON";
 	Colour = PIXPACK(0x031140);
@@ -61,8 +60,7 @@ static int update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Glow
 	if (cpart->life) {
 		*pixel_mode |= PMODE_GLOW | PMODE_BLUR;	
@@ -75,6 +73,3 @@ static int graphics(GRAPHICS_FUNC_ARGS)
 	}
 	return 0;
 }
-
-
-

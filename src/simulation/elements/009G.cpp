@@ -6,7 +6,7 @@ static int update(UPDATE_FUNC_ARGS);
 void Element::Element_009G() {
 	Identifier = "DEFAULT_PT_009G";
 	Name = "009G";
-	Colour = PIXPACK(0xff3636);
+	Colour = PIXPACK(0xFF3636);
 	MenuVisible = 0;
 	MenuSection = SC_GAS;
 	Enabled = 1;

@@ -1,10 +1,8 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_ZINC()
-{
+void Element::Element_ZINC() {
 	Identifier = "DEFAULT_PT_ZINC";
 	Name = "ZINC";
 	Colour = PIXPACK(0xBADEE3);
@@ -44,7 +42,6 @@ void Element::Element_ZINC()
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -53,17 +50,5 @@ static int update(UPDATE_FUNC_ARGS) {
 		sim->part_change_type(i, x, y, PT_BRMT);
 		return 1;
 	}
-
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
-	// graphics code here
-	// return 1 if nothing dymanic happens here
-
-	return 0;
-}
-
-
-

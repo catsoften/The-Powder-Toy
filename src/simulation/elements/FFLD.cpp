@@ -4,8 +4,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_FFLD()
-{
+void Element::Element_FFLD() {
 	Identifier = "DEFAULT_PT_FFLD";
 	Name = "FFLD";
 	Colour = PIXPACK(0xDFEEF5);
@@ -51,8 +50,7 @@ void Element::Element_FFLD()
 	Graphics = &graphics;
 }
 
-static int update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * ctype: type to affect
 	 * tmp2: type
@@ -125,8 +123,7 @@ static int update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Force fields are a random blue-white glow
 	int value = RNG::Ref().between(0, 100) + 90;
 	*colr = value;
@@ -143,6 +140,3 @@ static int graphics(GRAPHICS_FUNC_ARGS)
 
 	return 0;
 }
-
-
-

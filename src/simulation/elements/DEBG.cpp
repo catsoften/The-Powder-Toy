@@ -137,6 +137,5 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 			sy2 = cy2;
 		}
 	}
-
 	return 0;
 }

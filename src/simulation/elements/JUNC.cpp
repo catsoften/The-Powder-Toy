@@ -1,10 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-void Element::Element_JUNC()
-{
+void Element::Element_JUNC() {
 	Identifier = "DEFAULT_PT_JUNC";
 	Name = "JUNC";
-	Colour = PIXPACK(0x358f36);
+	Colour = PIXPACK(0x358F36);
 	MenuVisible = 1;
 	MenuSection = SC_ELECTROMAG;
 	Enabled = 1;
@@ -39,10 +38,4 @@ void Element::Element_JUNC()
 	LowTemperatureTransition = NT;
 	HighTemperature = 3000.0f;
 	HighTemperatureTransition = PT_LAVA;
-
-	Update = NULL;
-	Graphics = NULL;
 }
-
-
-

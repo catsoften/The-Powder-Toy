@@ -16,7 +16,7 @@ void Element_CYTK_get_target(Simulation *sim, Particle *parts, int &tarx, int &t
 void Element::Element_BEE() {
 	Identifier = "DEFAULT_PT_BEE";
 	Name = "BEE";
-	Colour = PIXPACK(0xffc414);
+	Colour = PIXPACK(0xFFC414);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -333,6 +333,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 		ren->drawrect(cpart->x + 1, cpart->y, 1, 1, *colr, *colg, *colb, 255);
 	return 0;
 }
-
-
-

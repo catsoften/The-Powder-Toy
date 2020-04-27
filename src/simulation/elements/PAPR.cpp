@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_PAPR()
-{
+void Element::Element_PAPR() {
 	Identifier = "DEFAULT_PT_PAPR";
 	Name = "PAPR";
 	Colour = PIXPACK(0xFAFAFA);
@@ -135,6 +134,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

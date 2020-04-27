@@ -183,6 +183,3 @@ int Element_CESM_graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

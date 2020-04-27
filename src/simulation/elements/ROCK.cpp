@@ -4,8 +4,7 @@ static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 static void create(ELEMENT_CREATE_FUNC_ARGS);
 
-void Element::Element_ROCK()
-{
+void Element::Element_ROCK() {
 	Identifier = "DEFAULT_PT_ROCK";
 	Name = "ROCK";
 	Colour = PIXPACK(0x938F80);
@@ -54,7 +53,7 @@ static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	// COAL, IRON, TTAN, GOLD, RDMD, URAN, PLUT, TUNG, STNE
 	int ore = RNG::Ref().between(0, 100);
 	if (ore < 2) // Diamond ore
-		sim->parts[i].ctype = PT_RDND;
+		sim->parts[i].ctype = PT_RDMD;
 	else if (ore < 4)
 		sim->parts[i].ctype = PT_PLUT;
 	else if (ore < 6)
@@ -89,7 +88,7 @@ static int update(UPDATE_FUNC_ARGS) {
 		int change_to = 0;
 		if (parts[i].ctype == PT_COAL)
 			change_to = PT_BCOL;
-		else if (parts[i].ctype == PT_RDND)
+		else if (parts[i].ctype == PT_RDMD)
 			change_to = PT_PQRT;
 		else if (parts[i].ctype == PT_TUNG)
 			change_to = PT_BRMT;
@@ -170,6 +169,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

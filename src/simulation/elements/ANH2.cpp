@@ -2,11 +2,10 @@
 
 static int update(UPDATE_FUNC_ARGS);
 
-void Element::Element_ANH2()
-{
+void Element::Element_ANH2() {
 	Identifier = "DEFAULT_PT_ANH2";
 	Name = "ANH2";
-	Colour = PIXPACK(0xbd3335);
+	Colour = PIXPACK(0xBD3335);
 	MenuVisible = 1;
 	MenuSection = SC_GAS;
 	Enabled = 1;
@@ -148,6 +147,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

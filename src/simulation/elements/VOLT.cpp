@@ -46,13 +46,9 @@ void Element::Element_VOLT() {
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
-	Graphics = NULL;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
 	CIRCUITS::add_circuit(x, y, sim);
 	return 0;
 }
-
-
-

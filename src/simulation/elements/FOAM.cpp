@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_FOAM()
-{
+void Element::Element_FOAM() {
 	Identifier = "DEFAULT_PT_FOAM";
 	Name = "FOAM";
 	Colour = PIXPACK(0xFFFFFF);
@@ -94,6 +93,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

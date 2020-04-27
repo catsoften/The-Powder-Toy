@@ -29,11 +29,10 @@ const std::vector<int> BSMH_COLORS({
 	0xe0f2bb
 });
 
-void Element::Element_BSMH()
-{
+void Element::Element_BSMH() {
 	Identifier = "DEFAULT_PT_BSMH";
 	Name = "BSMH";
-	Colour = PIXPACK(0xd0dbdb);
+	Colour = PIXPACK(0xD0DBDB);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
 	Enabled = 1;
@@ -140,6 +139,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	}
 	return 0;
 }
-
-
-

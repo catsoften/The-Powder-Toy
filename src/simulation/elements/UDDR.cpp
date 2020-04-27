@@ -6,7 +6,7 @@ int Element_FLSH_update(UPDATE_FUNC_ARGS);
 void Element::Element_UDDR() {
 	Identifier = "DEFAULT_PT_UDDR";
 	Name = "UDDR";
-	Colour = PIXPACK(0xffadad);
+	Colour = PIXPACK(0xFFADAD);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -78,6 +78,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

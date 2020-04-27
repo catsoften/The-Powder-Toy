@@ -4,8 +4,7 @@ static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 void Element_CLST_create(ELEMENT_CREATE_FUNC_ARGS);
 
-void Element::Element_CLCM()
-{
+void Element::Element_CLCM() {
 	Identifier = "DEFAULT_PT_CLCM";
 	Name = "CLCM";
 	Colour = PIXPACK(0xE7E7E7);
@@ -87,6 +86,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

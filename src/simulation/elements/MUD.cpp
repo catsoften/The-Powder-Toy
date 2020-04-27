@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_MUD()
-{
+void Element::Element_MUD() {
 	Identifier = "DEFAULT_PT_MUD";
 	Name = "MUD";
 	Colour = PIXPACK(0x493804);
@@ -70,6 +69,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 	}
 	return 0;
 }
-
-
-

@@ -142,8 +142,7 @@ Multiplier for speed of growth
 Bacteria requires less sugar to grow as time goes on or if it has enough food
  */
 
-void Element::Element_BCTR()
-{
+void Element::Element_BCTR() {
 	Identifier = "DEFAULT_PT_BCTR";
 	Name = "BCTR";
 	Colour = PIXPACK(0xDCF781);
@@ -395,8 +394,7 @@ static int update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	*pixel_mode |= PMODE_BLUR;
 
 	// Dead
@@ -431,6 +429,3 @@ static int graphics(GRAPHICS_FUNC_ARGS)
 
 	return 0;
 }
-
-
-

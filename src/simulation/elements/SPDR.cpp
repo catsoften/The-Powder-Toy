@@ -298,6 +298,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

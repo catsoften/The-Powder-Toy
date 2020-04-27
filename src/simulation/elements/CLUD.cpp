@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_CLUD()
-{
+void Element::Element_CLUD() {
 	Identifier = "DEFAULT_PT_CLUD";
 	Name = "CLUD";
 	Colour = PIXPACK(0xCCCCCC);
@@ -131,6 +130,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

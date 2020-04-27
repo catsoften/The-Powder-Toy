@@ -2,12 +2,10 @@
 #include <vector>
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
 const int MAX_PHOT_SPEED = 30;
 
-void Element::Element_FIBR()
-{
+void Element::Element_FIBR() {
 	Identifier = "DEFAULT_PT_FIBR";
 	Name = "FIBR";
 	Colour = PIXPACK(0xA9C8AB);
@@ -48,7 +46,6 @@ void Element::Element_FIBR()
 	HighTemperatureTransition = NT;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -80,10 +77,3 @@ static int update(UPDATE_FUNC_ARGS) {
 	parts[ID(r)].life++; // Keep phot alive
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

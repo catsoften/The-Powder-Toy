@@ -3,11 +3,10 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_CRNM()
-{
+void Element::Element_CRNM() {
 	Identifier = "DEFAULT_PT_CRNM";
 	Name = "CRNM";
-	Colour = PIXPACK(0x7aaad6);
+	Colour = PIXPACK(0x7AAAD6);
 	MenuVisible = 1;
 	MenuSection = SC_NUCLEAR;
 	Enabled = 1;
@@ -100,6 +99,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

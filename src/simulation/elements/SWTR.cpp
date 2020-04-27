@@ -2,11 +2,10 @@
 
 static int update(UPDATE_FUNC_ARGS);
 
-void Element::Element_SWTR()
-{
+void Element::Element_SWTR() {
 	Identifier = "DEFAULT_PT_SWTR";
 	Name = "SWTR";
-	Colour = PIXPACK(0x5362f5);
+	Colour = PIXPACK(0x5362F5);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -90,6 +89,3 @@ static int update(UPDATE_FUNC_ARGS) {
 			}
 	return 0;
 }
-
-
-

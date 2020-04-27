@@ -5,11 +5,10 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 
 #define CLOT 180
 
-void Element::Element_BLOD()
-{
+void Element::Element_BLOD() {
 	Identifier = "DEFAULT_PT_BLOD";
 	Name = "BLOD";
-	Colour = PIXPACK(0xeb1515);
+	Colour = PIXPACK(0xEB1515);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -168,6 +167,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

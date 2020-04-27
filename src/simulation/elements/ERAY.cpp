@@ -7,7 +7,7 @@ void Element_SPDR_intersect_line(Simulation *sim, int sx, int sy, float vx, floa
 void Element::Element_ERAY() {
 	Identifier = "DEFAULT_PT_ERAY";
 	Name = "ERAY";
-	Colour = PIXPACK(0x88d1ba);
+	Colour = PIXPACK(0x88D1BA);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;
 	Enabled = 1;

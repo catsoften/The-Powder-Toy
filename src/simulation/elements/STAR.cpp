@@ -3,8 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_STAR()
-{
+void Element::Element_STAR() {
 	Identifier = "DEFAULT_PT_STAR";
 	Name = "STAR";
 	Colour = PIXPACK(0xFFFF00);
@@ -53,8 +52,7 @@ void Element::Element_STAR()
 	Graphics = &graphics;
 }
 
-static int update(UPDATE_FUNC_ARGS)
-{
+static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * Properties:
 	 * tmp: star type
@@ -104,8 +102,7 @@ static int update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
+static int graphics(GRAPHICS_FUNC_ARGS) {
 	// Is edge check
 	int rx, ry, r;
 	bool is_edge = false;
@@ -140,6 +137,3 @@ static int graphics(GRAPHICS_FUNC_ARGS)
 
 	return 0;
 }
-
-
-

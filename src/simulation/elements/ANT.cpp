@@ -1,13 +1,11 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_ANT()
-{
+void Element::Element_ANT() {
 	Identifier = "DEFAULT_PT_ANT";
 	Name = "ANT";
-	Colour = PIXPACK(0xd4c4ba);
+	Colour = PIXPACK(0xD4C4BA);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -44,7 +42,6 @@ void Element::Element_ANT()
 	HighTemperatureTransition = PT_DUST;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -154,10 +151,3 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	return 1;
-}
-
-
-

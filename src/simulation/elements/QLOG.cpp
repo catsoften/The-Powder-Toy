@@ -9,8 +9,7 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 
 #include <iostream>
 
-void Element::Element_QLOG()
-{
+void Element::Element_QLOG() {
 	Identifier = "DEFAULT_PT_QLOG";
 	Name = "QLOG";
 	Colour = PIXPACK(0xCF3A3A);
@@ -319,6 +318,3 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 
 	return 0;
 }
-
-
-

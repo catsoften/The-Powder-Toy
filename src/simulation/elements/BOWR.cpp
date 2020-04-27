@@ -1,10 +1,8 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
 
-void Element::Element_BOWR()
-{
+void Element::Element_BOWR() {
 	Identifier = "DEFAULT_PT_BOWR";
 	Name = "BOWR";
 	Colour = PIXPACK(0xF5B400);
@@ -45,7 +43,6 @@ void Element::Element_BOWR()
 	HighTemperatureTransition = NT;
 
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -71,16 +68,6 @@ static int update(UPDATE_FUNC_ARGS) {
 					r = pmap[y + ry][x + rx];
 					c++;
 				}
-				
-				// if (RNG::Ref().chance(1, 20))
 			}
 	return 0;
 }
-
-static int graphics(GRAPHICS_FUNC_ARGS)
-{
-	return 1;
-}
-
-
-
