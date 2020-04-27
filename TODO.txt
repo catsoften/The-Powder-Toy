@@ -563,13 +563,55 @@ iczero
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18658
+
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13097
+
+https://powdertoy.co.uk/Browse/View.html?ID=469849
+
+Hover over upvote / downvote to see vote count
+https://powdertoy.co.uk/Browse/View.html?ID=1338366
+
+Make gold shine 
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16681
+
+Command blocks
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=19518
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18035
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16968 platinium
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18293 Quanton
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=15188
+
+LITHium
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17107&PageNum=0#Message=247469
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18828
+
+NMTR
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18086
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18508
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17981
 
 FREZ more uses
 - defuse VIBR
 - make part of exotic chemistry
 
+CRBN uses:
+- make CRBN solid?
+- rename CRBN to charcoal or something
+    - only charcoal has water cleansing properties
+    - charcoal removes OIL, GAS, MERC and takes ctype of absorbed
+CRBN Makes alloys
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17154
+CRBN nanotubes when tensile strengh is impelemnted?
 
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17513&PageNum=0#Message=252721
 
 saving portals and wifi requires iterating everything - check if there IS wifi or portal before copying
 
