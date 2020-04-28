@@ -138,6 +138,9 @@ void OptionsController::SetDrawingFrequencyLimit(int limit) {
 void OptionsController::SetFasterRenderer(bool enabled) {
 	model->SetFasterRenderer(enabled);
 }
+void OptionsController::SetSoundEnabled(bool enabled) {
+	model->SetSoundEnabled(enabled);
+}
 
 void OptionsController::Exit()
 {

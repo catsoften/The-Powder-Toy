@@ -109,6 +109,7 @@ GameModel::GameModel():
 	sim->pretty_powder = Client::Ref().GetPrefInteger("Simulation.PrettyPowder", 0);
 	dimGlowMode = Client::Ref().GetPrefBool("Renderer.DimGlow", false);
 	fasterRenderer = Client::Ref().GetPrefBool("Renderer.Fast", true);
+	SetSoundEnabled(Client::Ref().GetPrefBool("SoundEnabled", true));
 
 	Favorite::Ref().LoadFavoritesFromPrefs();
 
@@ -1487,4 +1488,11 @@ void GameModel::SetHollowBrushes(bool t) {
 		hollowBrushes = t;
 		BuildBrushList();
 	}
+}
+
+void GameModel::SetSoundEnabled(bool t) {
+	soundEnabled = t;
+	NOTE::enabled = t;
+	if (NOTE::sound_handler)
+		!t ? NOTE::sound_handler->play() : NOTE::sound_handler->stop();
 }

@@ -22,6 +22,7 @@ class ModOptionsView: public OptionsView {
 	ui::Checkbox * dimGlowMode;
 	ui::DropDown * drawingFrqLimit;
 	ui::Checkbox * fasterRenderer;
+	ui::Checkbox * soundEnabled;
 
 	ui::ScrollPanel * scrollPanel;
 public:

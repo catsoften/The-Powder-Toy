@@ -67,6 +67,8 @@ public:
 	void SetDrawingFrequencyLimit(int limit);
 	bool GetFasterRenderer();
 	void SetFasterRenderer(bool enabled);
+	bool GetSoundEnabled();
+	void SetSoundEnabled(bool enabled);
 	virtual ~OptionsModel();
 };
 

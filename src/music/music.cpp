@@ -5,6 +5,7 @@
 #include <cmath>
 
 namespace NOTE {
+	bool enabled = true;
 	const std::unordered_map<int, float> key_map({
 		{ 108, 7902.133f },
 		{ 107, 7458.620f },

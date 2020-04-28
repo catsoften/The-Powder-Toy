@@ -194,6 +194,23 @@ ModOptionsView::ModOptionsView() { // Originally 320, 340
 	scrollPanel->AddChild(tempLabel);
     scrollPanel->AddChild(fasterRenderer);
 
+	// ------------------
+	currentY += 20;
+	soundEnabled = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Sound", "");
+	autowidth(soundEnabled);
+	soundEnabled->SetActionCallback({[this] { c->SetSoundEnabled(soundEnabled->GetChecked()); }});
+
+	currentY += 12;
+    tempLabel = new ui::Label(ui::Point(soundEnabled->Position.X + 12, currentY), ui::Point(1, 16),
+		"- Enable sound (such as NOTE and lua scripts).");
+    tempLabel->SetTextColour(CHECKBOX_SUBTEXT_COLOR);
+
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+    scrollPanel->AddChild(soundEnabled);
+
     // ------------------
 
 	ui::Button * tempButton = new ui::Button(ui::Point(0, Size.Y-16), ui::Point(Size.X, 16), "OK");
@@ -214,6 +231,7 @@ void ModOptionsView::NotifySettingsChanged(OptionsModel * sender) {
     dimGlowMode->SetChecked(sender->GetDimGlowMode());
 	drawingFrqLimit->SetOption(sender->GetDrawingFrequencyLimit());
 	fasterRenderer->SetChecked(sender->GetFasterRenderer());
+	soundEnabled->SetChecked(sender->GetSoundEnabled());
 }
 
 ModOptionsView::~ModOptionsView() {}

@@ -84,6 +84,7 @@ private:
 	bool autoHideHUD = false;
 	bool dimGlowMode = false;
 	bool fasterRenderer = true;
+	bool soundEnabled = true;
 
 	size_t activeColourPreset;
 	std::vector<ui::Colour> colourPresets;
@@ -186,6 +187,8 @@ public:
 	void SetDimGlowMode(bool t) { dimGlowMode = t; }
 	bool GetFasterRenderer() { return fasterRenderer; }
 	void SetFasterRenderer(bool t) { fasterRenderer = t; }
+	bool GetSoundEnabled() { return soundEnabled; }
+	void SetSoundEnabled(bool t);
 	
 	std::vector<Tool*> GetToolList();
 	std::vector<Tool*> GetUnlistedTools();

@@ -50,6 +50,7 @@ SoundHandler::~SoundHandler() {
 }
 
 void SoundHandler::play() {
+    if (!NOTE::enabled) return;
     SDL_PauseAudioDevice(m_device, 0);
 }
 
@@ -59,6 +60,7 @@ void SoundHandler::stop() {
 }
 
 void SoundHandler::add_sound(float freq, int length, InstrumentType instrument) {
+    if (!NOTE::enabled) return;
     if (length <= NOTE::MIN_LENGTH)
         length = NOTE::MIN_LENGTH;
     if (length >= NOTE::MAX_LENGTH)

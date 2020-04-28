@@ -553,8 +553,7 @@ realistic ore processing
 anti-hydrogen is weak af
 
 better music
-- sound toggle
-
+- lua for sound :D :D: D
 
 moony - ignore pause button, run to unpause the game (MOON)
 - sad when games paused

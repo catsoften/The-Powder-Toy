@@ -43,6 +43,7 @@ public:
 	void SetDimGlowMode(bool enabled);
 	void SetDrawingFrequencyLimit(int limit);
 	void SetFasterRenderer(bool enabled);
+	void SetSoundEnabled(bool enabled);
 
 	void Exit();
 	OptionsView * GetView();

@@ -306,6 +306,16 @@ void OptionsModel::SetFasterRenderer(bool enabled) {
 	notifySettingsChanged();
 }
 
+bool OptionsModel::GetSoundEnabled() {
+	return Client::Ref().GetPrefBool("SoundEnabled", true);
+}
+
+void OptionsModel::SetSoundEnabled(bool enabled) {
+	Client::Ref().SetPref("SoundEnabled", enabled);
+	gModel->SetSoundEnabled(enabled);
+	notifySettingsChanged();
+}
+
 void OptionsModel::notifySettingsChanged()
 {
 	for (size_t i = 0; i < observers.size(); i++)

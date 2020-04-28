@@ -10,6 +10,8 @@ class SoundHandler;
 
 namespace NOTE {
 	// music.cpp
+	extern bool enabled;
+
 	// Map of piano key note: frequency
 	extern const std::unordered_map<int, float> key_map;
 
