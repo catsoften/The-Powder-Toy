@@ -1095,7 +1095,7 @@ void GameModel::SetNewtonianGravity(bool newtonainGravity)
     UpdateQuickOptions();
 }
 
-bool GameModel::GetNewtonianGrvity()
+bool GameModel::GetNewtonianGravity()
 {
     return sim->grav->IsEnabled();
 }

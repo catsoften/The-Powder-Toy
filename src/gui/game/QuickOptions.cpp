@@ -60,11 +60,11 @@ QuickOption("N", "Newtonian Gravity \bg(n)", m, Toggle)
 }
 bool NGravityOption::GetToggle()
 {
-	return m->GetNewtonianGrvity();
+	return m->GetNewtonianGravity();
 }
 void NGravityOption::perform()
 {
-	m->SetNewtonianGravity(!m->GetNewtonianGrvity());
+	m->SetNewtonianGravity(!m->GetNewtonianGravity());
 }
 
 
