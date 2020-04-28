@@ -82,7 +82,7 @@ static int update(UPDATE_FUNC_ARGS) {
 
 					if (output_wifi) {
 						int channel = parts[ID(r)].ctype % 101 + 1;
-						sim->wireless[channel][1] = 1;
+						sim->wireless[sim->faraday_map[y / CELL][x / CELL]][channel] |= 1;
 						sim->ISWIRE = 2;
 					}
 

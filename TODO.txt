@@ -553,6 +553,8 @@ realistic ore processing
 anti-hydrogen is weak af
 
 better music
+- sound toggle
+
 
 moony - ignore pause button, run to unpause the game (MOON)
 - sad when games paused
@@ -564,7 +566,6 @@ MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18658
-
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13097
 
@@ -578,8 +579,6 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16681
 
 Command blocks
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=19518
-
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18035
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16968 platinium
 

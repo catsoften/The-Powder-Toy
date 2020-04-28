@@ -4,29 +4,45 @@
 #include <SDL.h>
 #include <SDL_audio.h>
 #include <SDL2/SDL.h>
+#include <list>
+#include <vector>
 
-const int SOUND_CALLBACKS_TO_STOP = 100;
+// Imagine trying to figure out why int won't convert to enum
+// yeah me neither
+typedef int InstrumentType;
+const int SQUARE = 0;
+const int TRIANGLE = 1;
+const int SAW = 2;
+const int SINE = 3;
+const int VIOLIN = 4;
 
-class Sound {
+class Note {
 public:
-    Sound(double freq=440.0f);
-    ~Sound();
+    unsigned int start, end;
+    float freq;
+    InstrumentType type;
+    int count = 0;
+    Note(int start, int end, float freq, InstrumentType instrument_type) :
+        start(start), end(end), freq(freq), type(instrument_type) {}
+};
+
+class SoundHandler {
+public:
+    SoundHandler();
+    ~SoundHandler();
+
+    void add_sound(float freq, int length, InstrumentType instrument);
     void play();
     void stop();
-
-    double m_sineFreq;
-    double m_sampleFreq;
-    double m_samplesPerSine;
-    uint32_t m_samplePos;
-    int callbacks = 0;
-    
-    void set_freq(double f) {
-        m_sineFreq = f;
-        callbacks = 0;
-    }
 private:
     static void SDLAudioCallback(void *data, Uint8 *buffer, int length);
+
     SDL_AudioDeviceID m_device;
+    SDL_AudioSpec wantSpec, haveSpec;
+
+    double m_sampleFreq;
+    unsigned int callbacks = 0;
+    std::vector<Note *> frequencies;
 };
 
 #endif

@@ -1028,11 +1028,8 @@ void GameModel::SetPaused(bool pauseState)
 		sim->debug_currentParticle = 0;
 		Log(logmessage, false);
 	}
-
-	for (auto i = NOTE::sounds.begin(); i != NOTE::sounds.end(); ++i) {
-		if ((*i) && (*i)->callbacks < SOUND_CALLBACKS_TO_STOP)
-			pauseState ? (*i)->stop() : (*i)->play();
-	}
+	if (NOTE::sound_handler)
+		pauseState ? NOTE::sound_handler->stop() : NOTE::sound_handler->play();
 
 	sim->sys_pause = pauseState?1:0;
 	notifyPausedChanged();

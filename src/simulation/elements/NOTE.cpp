@@ -3,9 +3,6 @@
 #include "music/music.h"
 
 static int update(UPDATE_FUNC_ARGS);
-static int graphics(GRAPHICS_FUNC_ARGS);
-
-#include <iostream>
 
 void Element::Element_NOTE() {
 	Identifier = "DEFAULT_PT_NOTE";
@@ -32,49 +29,32 @@ void Element::Element_NOTE() {
 
 	Weight = 100;
 	HeatConduct = 0;
-	Description = "Plays a note when sparked, tmp corresponds to piano key. (Earrape warning)";
+	Description = "Plays a note when sparked, life = length, tmp corresponds to piano key, tmp2 = instrument (0 to 4). (Earrape warning)";
 
 	DefaultProperties.tmp = 49; // A
+	DefaultProperties.life = 30; // Default length
 	Properties = TYPE_SOLID;
 	
 	Update = &update;
-	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, rt, r;
-	
-	NOTE::next_audio_device = NOTE::next_audio_device % NOTE::MAX_NOTES_AT_SAME_TIME;
-	int index = NOTE::next_audio_device;
-	int freq = NOTE::get_frequency_from_key(parts[i].tmp);
+	float freq = NOTE::get_frequency_from_key(parts[i].tmp);
 
-	for (rx = -1; rx < 2; rx++)
-		for (ry = -1; ry < 2; ry++)
-			if (BOUNDS_CHECK) {
-				r = pmap[y + ry][x + rx];
-				if (!r) continue;
-				rt = TYP(r);
+	for (rx = -1; rx <= 1; rx++)
+	for (ry = -1; ry <= 1; ry++)
+		if (BOUNDS_CHECK) {
+			r = pmap[y + ry][x + rx];
+			if (!r) continue;
+			rt = TYP(r);
 
-				// Sparked, play note!
-				if (rt == PT_SPRK || ((rx == 0 || ry == 0) && rt == PT_BRAY)) {
-					parts[i].life = NOTE::LIFE_CHUNK;
-					NOTE::next_audio_device++;
-					
-					if (NOTE::sounds[index]) {
-						NOTE::sounds[index]->set_freq(freq);
-					} else {
-						NOTE::sounds[index] = new Sound(freq);
-						NOTE::sounds[index]->play();
-					}
-					return 0;
-				}
+			// Sparked, play note!
+			if (rt == PT_SPRK || ((rx == 0 || ry == 0) && rt == PT_BRAY)) {
+				NOTE::get_sound()->add_sound(freq, parts[i].life, parts[i].tmp2);
+				return 0;
 			}
+		}
 
-	return 0;
-}
-
-static int graphics(GRAPHICS_FUNC_ARGS) {
-	if (cpart->life > 0)
-		*colr = *colg = *colb = 255;
 	return 0;
 }

@@ -1,22 +1,33 @@
 #include "music/audio.h"
 #include "music/music.h"
+#include "music/synth/violin.h"
 
 #include <cmath>
 #include <SDL.h>
 #include <SDL_audio.h>
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <algorithm> // VS is retarded and can't find this shit
 
-// See https://stackoverflow.com/questions/10110905/simple-sound-wave-generator-with-sdl-in-c
+float interpolate(float a, float b, float i) {
+    return  (a * i + b * (1 - i)) / 2;
+}
 
-Sound::Sound(double freq)
-    : m_sineFreq(freq),
-      m_sampleFreq(44100),
-      m_samplesPerSine(m_sampleFreq / m_sineFreq),
-      m_samplePos(0)
-{
-    SDL_AudioSpec wantSpec, haveSpec;
+namespace NOTE {
+    SoundHandler * sound_handler = nullptr;
 
+    // We can't assign sound_handler now because SDL audio isn't
+    // initialized yet, so we only create it when it's needed (by then
+    // the sim will be up and audio will be initialized)
+    SoundHandler * get_sound() {
+        if (!sound_handler)
+            sound_handler = new SoundHandler();
+        return sound_handler;
+    }
+}
+
+SoundHandler::SoundHandler()
+    : m_sampleFreq(44100) {
     SDL_zero(wantSpec);
     wantSpec.freq = m_sampleFreq;
     wantSpec.format = AUDIO_U8;
@@ -26,70 +37,94 @@ Sound::Sound(double freq)
     wantSpec.userdata = this;
 
     m_device = SDL_OpenAudioDevice(NULL, 0, &wantSpec, &haveSpec, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
-    if (m_device == 0 || m_device > 3) {
-        auto i = NOTE::sounds.begin();
-        while (i != NOTE::sounds.end()) {
-            (*i)->stop();
-            delete *i;
-            i = NOTE::sounds.erase(i);
-        }
-        if (m_device == 0)
-            m_device = SDL_OpenAudioDevice(NULL, 0, &wantSpec, &haveSpec, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
-    }
+    if (m_device == 0)
+        m_device = SDL_OpenAudioDevice(NULL, 0, &wantSpec, &haveSpec, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
     if (m_device == 0)
         std::cout << "Failed to open audio: " << SDL_GetError() << std::endl;
-}
-
-Sound::~Sound() {
-    if (!this) return;
-    stop();
-    SDL_CloseAudioDevice(m_device);
-}
-
-void Sound::play() {
-    if(!this) return;
     SDL_PauseAudioDevice(m_device, 0);
 }
 
-void Sound::stop() {
-    if (!this) return;
+SoundHandler::~SoundHandler() {
+    this->stop();
+    SDL_CloseAudioDevice(m_device);
+}
+
+void SoundHandler::play() {
+    SDL_PauseAudioDevice(m_device, 0);
+}
+
+void SoundHandler::stop() {
+    this->callbacks = 0;
     SDL_PauseAudioDevice(m_device, 1);
 }
 
-void Sound::SDLAudioCallback(void *data, Uint8 *buffer, int length) {
-    Sound *sound = reinterpret_cast<Sound*>(data);
-    sound->m_samplesPerSine = sound->m_sampleFreq / sound->m_sineFreq;
-    float multi = 1;
-    float tone1, tone2, tone3;
+void SoundHandler::add_sound(float freq, int length, InstrumentType instrument) {
+    if (length <= NOTE::MIN_LENGTH)
+        length = NOTE::MIN_LENGTH;
+    if (length >= NOTE::MAX_LENGTH)
+        length = NOTE::MAX_LENGTH;
+        
+    this->play();
+    for (size_t i = 0; i < frequencies.size(); i++)
+        if (frequencies[i]->freq == freq && frequencies[i]->type == instrument) {
+            frequencies[i]->end = this->callbacks + length;
+            return;
+        }
+    frequencies.push_back(new Note(this->callbacks, this->callbacks + length, freq, instrument));
+}
 
-    for(int i = 0; i < length; ++i) {
-        int cback = sound->callbacks;
+void SoundHandler::SDLAudioCallback(void *data, Uint8 *buffer, int length) {
+    SoundHandler * sound = reinterpret_cast<SoundHandler*>(data);
+    std::fill(&buffer[0], &buffer[length], 0);
 
-        // Electric synth (Causes static and popping noises during quick notes)
-        multi = 1;
-        if (cback > SOUND_CALLBACKS_TO_STOP) // Cut off sound after a certain amount of time
-            multi = 0;
-        // if (cback < 10)       // 0 - 10 is attack
-        //     multi = cback / 10.0f;
-        // else if (cback < 25)  // 10 - 25 = decay
-        //     multi = 0.5f + 1.25f * cback / 25.0f;
-        // else if (cback < 50)  // 25 - 50 = hold
-        //     multi = 0.5;
-        // else if (cback < 200) // 50 - 200 = release
-        //     multi = 2.5f * (200 - cback) / 1000.0f;
-        // else                  // Note over
-        //     multi = 0;
-
-        if (multi > 1) multi = 1;
-        if (multi < 0) multi = 0;
-
-        tone1 = multi * (std::sin(sound->m_samplePos / sound->m_samplesPerSine * M_PI * 2) + 1) * 127.4;
-        tone2 = 0.50 * multi * (std::sin(sound->m_samplePos / sound->m_samplesPerSine * M_PI * 2 + M_PI / 2) + 1) * 127.4;
-        tone3 = 0.25 * multi * (std::sin(sound->m_samplePos / sound->m_samplesPerSine * M_PI * 2 + M_PI / 4) + 1) * 127.4;
-
-        buffer[i] = (0.7 * tone1 +  0.2 * tone2 + 0.3 * tone3);
-        ++sound->m_samplePos;
+    for (int i = sound->frequencies.size() - 1; i >= 0; i--) {
+        if (sound->frequencies[i]->end <= sound->callbacks) {
+            delete sound->frequencies[i];
+            sound->frequencies.erase(sound->frequencies.begin() + i);
+        }
+    }
+    if (sound->frequencies.size() == 0) {
+        sound->stop();
+        return;
     }
 
-    ++sound->callbacks;
+    for (int i = 0; i < length; ++i) {
+        float tone = 0.0f;
+        for (size_t j = 0; j < std::min(NOTE::MAX_NOTES_AT_SAME_TIME, sound->frequencies.size()); j++) {
+            Note * note = sound->frequencies[j];
+            float freq = note->freq;
+            float samples_per_sine = sound->m_sampleFreq / freq;
+
+            switch (note->type) {
+                case VIOLIN: {
+                    float scaled = note->count * freq / 440.0f;
+                    tone += interpolate(
+                        violin_buffer[(int)scaled % violin_size],
+                        violin_buffer[((int)scaled + 1) % violin_size], 
+                        scaled - (int)scaled);
+                    break;
+                }
+                case SAW:
+                    tone += note->count / samples_per_sine - floor(note->count / samples_per_sine) * 127.4;
+                    break;
+                case SQUARE:
+                    tone += note->count % (int)samples_per_sine < samples_per_sine / 2 ? 127.4 : 0.0;
+                    break;
+                case TRIANGLE: {
+                    float saw = note->count / samples_per_sine - floor(note->count / samples_per_sine);
+                    // Double cast is needed because VS and g++ don't agree on type for fabs
+                    tone += std::min((double)fabs(saw - 0.5) * 2, 1.0) * 127.4;
+                    break;
+                }
+                case SINE:
+                default:
+                    tone += (std::sin(note->count / samples_per_sine * M_PI * 2) + 1) * 127.4 / 2;
+                    break;
+            }
+            note->count++;
+        }
+        if (tone > 235) tone = 235;
+        buffer[i] = tone;
+    }
+    sound->callbacks++;
 }
