@@ -205,16 +205,18 @@ public:
 	void SetSaveFile(SaveFile * newSave, bool invertIncludePressure);
 	void AddObserver(GameView * observer);
 
-	bool GetPaused();
 	void SetPaused(bool pauseState);
-	bool GetDecoration();
+	bool GetPaused();
 	void SetDecoration(bool decorationState);
-	bool GetAHeatEnable();
+	bool GetDecoration();
 	void SetAHeatEnable(bool aHeat);
-	bool GetNewtonianGrvity();
+	bool GetAHeatEnable();
+	void ResetAHeat();
 	void SetNewtonianGravity(bool newtonainGravity);
-	bool GetGravityGrid();
+	bool GetNewtonianGrvity();
 	void ShowGravityGrid(bool showGrid);
+	bool GetGravityGrid();
+
 	void ShowTimeDilation(bool show);
 	bool GetTimeDilation();
 	void SetEMEnabled(bool enabled);
