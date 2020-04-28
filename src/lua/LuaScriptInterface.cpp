@@ -213,6 +213,7 @@ LuaScriptInterface::LuaScriptInterface(GameController * c, GameModel * m):
 		{"get_clipboard", &platform_clipboardCopy},
 		{"set_clipboard", &platform_clipboardPaste},
 		{"setdrawfreq", &luatpt_setdrawcap},
+		{"play_sound",&luatpt_play_sound},
 		{NULL,NULL}
 	};
 

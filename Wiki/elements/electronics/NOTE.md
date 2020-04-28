@@ -29,3 +29,8 @@ SAW = 2;       Saw wave
 SINE = 3;      Sine wave
 VIOLIN = 4;    Stolen violin sample
 ```
+
+There is also a lua api to play sounds:
+```
+tpt.play_sound(note_id or frequency, length=30, instrument=0, interpret as node_id=0)
+```

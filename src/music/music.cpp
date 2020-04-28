@@ -121,7 +121,7 @@ namespace NOTE {
 	// From https://en.wikipedia.org/wiki/Piano_key_frequencies
 	float get_frequency_from_key(int key) {
 		if (key_map.count(key) == 0)
-			return 440.0f; // A is default in case we screw up since it's default ID, DO NOT RETURN 0 will cause divide by 0 error
+			return -1;
 		return key_map.at(key);
 	}
 

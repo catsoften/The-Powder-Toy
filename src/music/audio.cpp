@@ -107,7 +107,7 @@ void SoundHandler::SDLAudioCallback(void *data, Uint8 *buffer, int length) {
                     break;
                 }
                 case SAW:
-                    tone += note->count / samples_per_sine - floor(note->count / samples_per_sine) * 127.4;
+                    tone += note->count * 2 / samples_per_sine - floor(note->count * 2 / samples_per_sine) * 127.4;
                     break;
                 case SQUARE:
                     tone += note->count % (int)samples_per_sine < samples_per_sine / 2 ? 127.4 : 0.0;

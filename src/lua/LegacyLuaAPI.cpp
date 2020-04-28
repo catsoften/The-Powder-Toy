@@ -28,6 +28,8 @@
 #include "simulation/SimulationData.h"
 #include "simulation/ElementCommon.h"
 
+#include "music/music.h"
+
 #include "graphics/Graphics.h"
 #include "graphics/Renderer.h"
 
@@ -1511,6 +1513,28 @@ int luatpt_record(lua_State* l)
 	int recordingFolder = luacon_controller->Record(record);
 	lua_pushinteger(l, recordingFolder);
 	return 1;
+}
+
+int luatpt_play_sound(lua_State* l) {
+	bool enabled = luacon_model->GetSoundEnabled();
+	if (enabled) {
+		int note = luaL_checkint(l, 1);
+		int length = luaL_optint(l, 2, 30);
+		int instrument = luaL_optint(l, 3, 0);
+		int interpret = luaL_optint(l, 4, 0);
+
+		if (interpret > 0)
+			note = NOTE::get_frequency_from_key(note);
+		if (note < 0)
+			return luaL_error(l, "Note index invalid");
+		if (length < 1)
+			return luaL_error(l, "Length of note too small (must > 0)");
+		if (instrument < 0 || instrument > 4)
+			return luaL_error(l, "Invalid instrument (must be 0-4)");
+
+		NOTE::get_sound()->add_sound(note, length, instrument);
+	}
+	return enabled;
 }
 
 #endif

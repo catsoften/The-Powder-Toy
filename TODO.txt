@@ -552,8 +552,6 @@ realistic ore processing
 
 anti-hydrogen is weak af
 
-better music
-- lua for sound :D :D: D
 
 moony - ignore pause button, run to unpause the game (MOON)
 - sad when games paused
@@ -894,6 +892,7 @@ Add credits:
 
 add wiki for lua commands added:
 tpt.setdrawfreq(freq)
+tpt.play_sound(note_id or frequency, length=30, instrument=0, interpret as node_id=0)
 
 
 fancy black holes

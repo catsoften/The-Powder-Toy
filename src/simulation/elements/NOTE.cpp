@@ -41,6 +41,7 @@ void Element::Element_NOTE() {
 static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, rt, r;
 	float freq = NOTE::get_frequency_from_key(parts[i].tmp);
+	if (freq < 0) freq = 440.0f; // Not a valid note, default to A
 
 	for (rx = -1; rx <= 1; rx++)
 	for (ry = -1; ry <= 1; ry++)

@@ -9,6 +9,9 @@
 
 // Imagine trying to figure out why int won't convert to enum
 // yeah me neither
+
+// Instrument type checking is done in luatpt_play_sound in lua/LegacyLuaAPI.cpp
+// If this list changes update there too
 typedef int InstrumentType;
 const int SQUARE = 0;
 const int TRIANGLE = 1;
