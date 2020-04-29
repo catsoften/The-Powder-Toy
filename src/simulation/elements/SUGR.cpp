@@ -5,7 +5,7 @@ static int update(UPDATE_FUNC_ARGS);
 void Element::Element_SUGR() {
 	Identifier = "DEFAULT_PT_SUGR";
 	Name = "SUGR";
-	Colour = PIXPACK(0xFFFFFF);
+	Colour = PIXPACK(0xFFF9F2);
 	MenuVisible = 1;
 	MenuSection = SC_ORGANIC;
 	Enabled = 1;
@@ -26,7 +26,7 @@ void Element::Element_SUGR() {
 	Hardness = 2;
 	Description = "Sugar. Great food for bacteria.";
 
-	Properties = TYPE_PART;
+	Properties = TYPE_PART | PROP_NEUTPASS;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -42,10 +42,21 @@ void Element::Element_SUGR() {
 
 static int update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
+
+	r = sim->photons[y][x];
+	
+	// React with NEUT to make SALT
+	if (TYP(r) == PT_NEUT && RNG::Ref().chance(1, 20)) {
+		sim->kill_part(ID(r));
+		sim->part_change_type(i, x, y, PT_SALT);
+		return 0;
+	}
+
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry)) {
 				r = pmap[y+ry][x+rx];
+				if (!r) continue;
 
 				// Dissolve
 				if (TYP(r) == PT_WATR || TYP(r) == PT_DSTW) {
@@ -63,7 +74,9 @@ static int update(UPDATE_FUNC_ARGS) {
 
 				// React with acid to form carbon
 				else if (TYP(r) == PT_ACID || TYP(r) == PT_CAUS) {
-					sim->part_change_type(ID(r), parts[ID(r)].x, parts[ID(r)].y, PT_CRBN);
+					parts[i].temp += 120.0f;
+					sim->part_change_type(ID(r), parts[ID(r)].x, parts[ID(r)].y,
+						RNG::Ref().chance(1, 2) ? PT_CRBN : PT_WTRV);
 					if (RNG::Ref().chance(1, 2))
 						sim->kill_part(i);
 					return 0;

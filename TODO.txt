@@ -539,19 +539,17 @@ one way wall arrow graphics
 
 hollow brush triggers on windows
 
-carbon -> make hydro carbons
 
 touhou in TPT
     tpt.touhou()
 
 fiber optics affect bray?
 
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=24086 - keybind reset AHEAT
-
 realistic ore processing
 
 anti-hydrogen is weak af
 
+transform doesn't work on layered particles :(
 
 moony - ignore pause button, run to unpause the game (MOON)
 - sad when games paused
@@ -561,6 +559,8 @@ iczero
 - corrupts particle states
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
+
+YEST + SWTR = ALCHOHOL
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18658
 
@@ -578,6 +578,7 @@ Command blocks
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=19518
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16968 platinium
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17025&PageNum=0#Message=245937 - aqua regia
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18293 Quanton
 
@@ -595,6 +596,30 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18508
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17981
 
+maybe sub menus for variants like
+- hover over NBLE - all NBLE gas types like NEON and shit?
+
+THOR + oxygen reaction
+
+
+joke element - astatine - instantly decays
+
+Radon is a radioactive gas. It will release neutrons at a rate of 2 NEUT every 3 frames until its tmp reaches 150, 
+of which it then decays into POLO. It is also heavier than most gases and only can be corroded by HFSB.
+also https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17872
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16365
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16901
+realistic plant
+- refine into SUGR
+
+Flourine - burns everything
+
+move natihydrogen to radioactive
+
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=14
+elements
+
 FREZ more uses
 - defuse VIBR
 - make part of exotic chemistry
@@ -604,6 +629,8 @@ CRBN uses:
 - rename CRBN to charcoal or something
     - only charcoal has water cleansing properties
     - charcoal removes OIL, GAS, MERC and takes ctype of absorbed
+    - charcoal should be solid CRBN maybe?
+ - or add tool to make solid CRBN since that owrks anyways shrug
 CRBN Makes alloys
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17154
 CRBN nanotubes when tensile strengh is impelemnted?
