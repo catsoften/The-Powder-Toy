@@ -235,6 +235,7 @@ move shred to another func
 VSNS - seralize and range settings 
 
 offset element ids for newer versions somehow
+- save version in mod save somehow?
 
 literally any solid checking - rock isn't a solid :|
 
@@ -615,6 +616,7 @@ realistic plant
 - refine into SUGR
 
 Flourine - burns everything
+- turns into ACID
 
 move natihydrogen to radioactive
 
