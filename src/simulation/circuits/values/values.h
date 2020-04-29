@@ -40,6 +40,7 @@ const std::unordered_map<ElementType, CircuitData> circuit_data({
     { PT_QRTZ, CircuitData( 0, DYNAMIC_RESISTANCE )},
     { PT_MERC, CircuitData( 0, DYNAMIC_RESISTANCE )},
     { PT_CRBN, CircuitData( 0, DYNAMIC_RESISTANCE )},
+    { PT_TIN,  CircuitData( 0, DYNAMIC_RESISTANCE )},
 
     { PT_SWCH, CircuitData( 1e-8, DYNAMIC_PARTICLE )},
     // Is a really big resistor at steady state

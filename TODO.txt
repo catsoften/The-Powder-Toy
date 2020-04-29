@@ -601,6 +601,9 @@ maybe sub menus for variants like
 
 THOR + oxygen reaction
 
+BRZE (bronze) or something idk COPR + TIN
+
+NEUT splits SUGR instead of turning it int oSALT
 
 joke element - astatine - instantly decays
 

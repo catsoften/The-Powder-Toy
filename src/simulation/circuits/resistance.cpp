@@ -74,6 +74,8 @@ double get_effective_resistance(ElementType type, Particle *parts, ParticleId i,
             return parts[i].temp < 4 ? SUPERCONDUCTING_RESISTANCE : 9.6e-7;
         case PT_CRBN: // Unrealistic critical temp, but matches behavior for SPRK
             return parts[i].temp < 100 ? SUPERCONDUCTING_RESISTANCE : 1e-5;
+        case PT_TIN:
+            return parts[i].temp < 3.72f ? SUPERCONDUCTING_RESISTANCE : 1.1e-7;
             
         // Semiconductors
         case PT_PTCT: // Resistance goes to 1e-7 above 100 C
