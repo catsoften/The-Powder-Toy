@@ -600,6 +600,8 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17981
 maybe sub menus for variants like
 - hover over NBLE - all NBLE gas types like NEON and shit?
 
+sulfur hexafluoride - instulating gas in transformers?
+
 THOR + oxygen reaction
 
 BRZE (bronze) or something idk COPR + TIN
@@ -614,8 +616,6 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16365
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16901
 realistic plant
 - refine into SUGR
-
-move natihydrogen to radioactive
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=14
 elements
@@ -635,6 +635,8 @@ CRBN Makes alloys
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17154
 CRBN nanotubes when tensile strengh is impelemnted?
 
+broken state/ liquid state / gas state / solid state update for everything :D
+- seperate update func
 
 saving portals and wifi requires iterating everything - check if there IS wifi or portal before copying
 

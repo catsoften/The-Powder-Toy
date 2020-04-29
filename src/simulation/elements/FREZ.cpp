@@ -29,7 +29,7 @@ void Element::Element_FREZ() {
 
 	DefaultProperties.temp = 0.0f;
 	HeatConduct = 0;
-	Description = "Frezon. (OP Feron) Super FREZ gas, does not gain heat energy";
+	Description = "Frezon. (OP Feron) Super cold gas, does not gain heat energy";
 
 	Properties = TYPE_GAS;
 
