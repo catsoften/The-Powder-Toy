@@ -7,7 +7,7 @@ void Element::Element_ANH2() {
 	Name = "ANH2";
 	Colour = PIXPACK(0xBD3335);
 	MenuVisible = 1;
-	MenuSection = SC_GAS;
+	MenuSection = SC_NUCLEAR;
 	Enabled = 1;
 
 	Advection = 2.0f;
