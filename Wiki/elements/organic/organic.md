@@ -1,7 +1,6 @@
 
 ## SUGR
-Sugar, melts at 186 C, provides food for bacteria. Flammable. Reacts with ACID and CAUS to form CRBN, dissolves in water to form SWTR. YEST 
-grows in SUGR. Grows slowly in sugar water.
+Sugar, melts at 186 C, provides food for bacteria. Flammable. Reacts with ACID and CAUS to form CRBN and water vapor, dissolves in water to form SWTR. YEST grows in SUGR. Grows slowly in sugar water. Split by NEUT into carbon, oxygen and hydrogen.
 
 ## SWTR (Sugar water)
 Water that has sugar dissolved in it. Grows YEST, basically SLTW but with SUGR instead of SALT. Grows PLNT slowly.

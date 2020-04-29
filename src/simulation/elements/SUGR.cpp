@@ -45,10 +45,13 @@ static int update(UPDATE_FUNC_ARGS) {
 
 	r = sim->photons[y][x];
 	
-	// React with NEUT to make SALT
+	// React with NEUT to make carbon, hydrogen, oxygen
 	if (TYP(r) == PT_NEUT && RNG::Ref().chance(1, 20)) {
 		sim->kill_part(ID(r));
-		sim->part_change_type(i, x, y, PT_SALT);
+		if (RNG::Ref().chance(1, 3))
+			sim->part_change_type(i, x, y, PT_CRBN);
+		else
+			sim->part_change_type(i, x, y, RNG::Ref().chance(1, 2) ? PT_O2 : PT_H2);
 		return 0;
 	}
 

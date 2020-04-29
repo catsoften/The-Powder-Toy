@@ -603,8 +603,6 @@ THOR + oxygen reaction
 
 BRZE (bronze) or something idk COPR + TIN
 
-NEUT splits SUGR instead of turning it int oSALT
-
 joke element - astatine - instantly decays
 
 Radon is a radioactive gas. It will release neutrons at a rate of 2 NEUT every 3 frames until its tmp reaches 150, 
