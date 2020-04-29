@@ -107,3 +107,10 @@ it turns into CO2 and WATR. Reacts with VNGR to make FOAM.
 
 ## PINV (Powered invisible)
 Allows particles when powered. Unlike regular INVIS, does not allow energy particles when off (not even PROT or NTRI), nor does it modify any energy particles like INVIS does (ie, PROT -> NEUT).
+
+## FLRN (Flourine)
+Flourine will burn almost anything, other than CLNE types, VOID types, indestructible materials, noble gases, holy water,
+fire types, FREZ and FRZZ. Flourine can be safely stored in a non-flammable container below 200 C. Flourine produces ACID
+when mixed with water types.
+
+When burning flourine can dissolve almost anything, even ACID proof materials.
