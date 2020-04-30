@@ -200,6 +200,21 @@ static int update(UPDATE_FUNC_ARGS)
 				}
 			}
 		break;
+	case PT_IRDM:
+		// Produce sparks (embr) and FIRE
+		for (rx = -1; rx <= 1; rx++)
+		for (ry = -1; ry <= 1; ry++)
+			if (BOUNDS_CHECK && (rx || ry)) {
+				r = pmap[y + ry][x + rx];
+				if (!r) {
+					int j = sim->create_part(-1, x + ry, y + ry, RNG::Ref().chance(1, 2) ? PT_EMBR : PT_FIRE);
+					if (j >= 0) {
+						parts[j].life = RNG::Ref().between(10, 100);
+						parts[j].temp = parts[i].temp;
+					}
+				}
+			}
+		break;
 	default:
 		break;
 	}
@@ -347,6 +362,10 @@ static int update(UPDATE_FUNC_ARGS)
 					continue;
 				case PT_JUNC: // Only conduct of opposite direction has a SPRK, no diagonals
 					if (TYP(pmap[y - ry][x - rx]) != PT_SPRK || !(rx == 0 || ry == 0) || abs(rx) > 1 || abs(ry) > 1)
+						continue;
+					break;
+				case PT_IRDM: // Don't conduct to PSCN
+					if (receiver == PT_PSCN)
 						continue;
 					break;
 				default:

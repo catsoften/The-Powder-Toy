@@ -495,7 +495,6 @@ rope
 
 standardize code for fields (refactor)
  - consistent casing (uppercase) for ufnctions
-- reduce circuit constructor size
 - standardize fields (caps and shit)
 - fix { or \n{
 - std::array
@@ -532,8 +531,6 @@ https://en.wikipedia.org/wiki/Galvanization
 floodfill spark
 
 
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=13562 - irdium
-
 bigger fp like in jacob1s mod
 
 one way wall arrow graphics
@@ -551,6 +548,10 @@ realistic ore processing
 anti-hydrogen is weak af
 
 transform doesn't work on layered particles :(
+
+U328 - creates FUSN when realistic hydrogen is nearby? (which can surpass temp limit), more radiation and shit
+- harder to fission
+- steal from cygens toy
 
 moony - ignore pause button, run to unpause the game (MOON)
 - sad when games paused
@@ -597,6 +598,9 @@ https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18508
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17981
 
+magnetics - check paramagnetism for existing metals like
+- iridium
+
 maybe sub menus for variants like
 - hover over NBLE - all NBLE gas types like NEON and shit?
 
@@ -607,6 +611,8 @@ THOR + oxygen reaction
 BRZE (bronze) or something idk COPR + TIN
 
 joke element - astatine - instantly decays
+
+teflon - carbn + flourine
 
 Radon is a radioactive gas. It will release neutrons at a rate of 2 NEUT every 3 frames until its tmp reaches 150, 
 of which it then decays into POLO. It is also heavier than most gases and only can be corroded by HFSB.
