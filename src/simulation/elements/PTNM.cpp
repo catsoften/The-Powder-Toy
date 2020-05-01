@@ -133,6 +133,12 @@ static int update(UPDATE_FUNC_ARGS) {
 					case PT_SMKE:
 						sim->part_change_type(ID(r), x + rx, y + ry, PT_CO2);
 						break;
+					// COAL / BCOL + > 5 pressure -> SUFR
+					case PT_COAL:
+					case PT_BCOL:
+						if (sim->pv[y / CELL][x / CELL] > 5.0f && RNG::Ref().chance(1, 100))
+							sim->part_change_type(ID(r), x + rx, y + ry, PT_SUFR);
+						break;
 				}
 			}
 		}

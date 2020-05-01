@@ -29,7 +29,7 @@ void Element::Element_SUFR() {
 	HeatConduct = 150;
 	Description = "Sulfur. Burns quickly into a blue flame.";
 
-	Properties = TYPE_PART;
+	Properties = TYPE_PART | PROP_DEADLY;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -55,7 +55,7 @@ static int update(UPDATE_FUNC_ARGS) {
 
 			// Blue fire
 			if (rt == PT_FIRE) {
-				parts[ID(r)].dcolour = 0xff80dfff;
+				parts[ID(r)].dcolour = 0xFF007BFF;
 				parts[ID(r)].tmp2 = 1;
 				parts[ID(r)].temp += 500.0f;
 				sim->part_change_type(i, x, y, PT_CAUS);
@@ -72,6 +72,10 @@ static int update(UPDATE_FUNC_ARGS) {
 				sim->part_change_type(i, x, y, PT_GUNP);
 				return 1;
 			}
+
+			// Kill ANT
+			else if (rt == PT_ANT && RNG::Ref().chance(1, 200))
+				sim->part_change_type(ID(r), x + rx, y + ry, PT_DUST);
 		}
 
 	return 0;

@@ -14,6 +14,7 @@ Many reactions:
 - HYGN + DESL -> OIL + WATR
 - HYGN + OXYG -> DSTW + SPRK + Heat
 - 2 HYGN > 500 C small chance -> cold fusion
+- COAL / BCOL + > 5 pressure -> SUFR
 
 Note that cold hydrogen fusion is vastly less effective than regular fusion, as the temperature and pressure increase 
 is significantly lower, and the plasma from the noble is likely to ignite remaining hydrogen.

@@ -296,9 +296,9 @@ static int graphics(GRAPHICS_FUNC_ARGS)
 		*fireb = *colb;
 	}
 	else {
-		*firer = (1 * *colr + PIXR(cpart->dcolour)) / 2;
-		*fireg = (1 * *colg + PIXG(cpart->dcolour)) / 2;
-		*fireb = (1 * *colb + PIXB(cpart->dcolour)) / 2;
+		*firer = (0.3 * *colr + PIXR(cpart->dcolour));
+		*fireg = (0.3 * *colg + PIXG(cpart->dcolour));
+		*fireb = (0.3 * *colb + PIXB(cpart->dcolour));
 	}
 
 	*pixel_mode = PMODE_NONE; //Clear default, don't draw pixel

@@ -81,7 +81,7 @@ Heals STKM, slowly spoils. Can slow down spoiling by keeping it cold (< 5 C) or 
 
 ## SUFR (Sulfur)
 Burns quickly into a blue flame. Melts at 115.2 C. Turns into CAUS when near fire, turns into ACID when mixed with GLOW and turns 
-into GUN when mixed with BCOL.
+into GUN when mixed with BCOL. Kills ANT and BCTR. SUFR + NEUT -> PHSP
 
 ## H2O2 (Hydrogen Peroxide)
 Explosive fuel. Kills BCTR and VIRS (Deletes it completely). Deadly to STKM. Freezes at -0.4 C and boils at 150.2 C. Mix with 
