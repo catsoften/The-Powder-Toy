@@ -35,7 +35,7 @@ void Element::Element_QLOG() {
 	Weight = 100;
 
 	HeatConduct = 0;
-	Description = "Quantum Logic Gate. Fires a beam that alters ION like ARAY. Ctype determines logic gate type, see github wiki.";
+	Description = "Quantum Logic Gate. Fires a beam that alters ION like ARAY. Ctype determines logic gate type.";
 
 	Properties = TYPE_SOLID;
 

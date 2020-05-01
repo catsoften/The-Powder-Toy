@@ -577,14 +577,8 @@ FREZ more uses
 molten sugar
 - actually transition to caramel (not lava)
 
-DONE:
-- molten sulfur graphics
-- molten lead graphics
-- molten ZINC + TIN
-
 add way to make silicon from sand
 
-remove see wiki from QLOG
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18658
 
