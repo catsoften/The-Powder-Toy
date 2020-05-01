@@ -2554,9 +2554,11 @@ void Simulation::init_can_move()
 	// TODO: replace with property
 	for (destinationType = 0; destinationType < PT_NUM; destinationType++)
 	{
-		can_move[PT_JCB1][destinationType] = 2; // JCB1 can go through anything
 		can_move[PT_RSPK][destinationType] = 2;
-		can_move[PT_NTRI][destinationType] = 2;
+		if (destinationType != PT_VOID && destinationType != PT_PVOD) {
+			can_move[PT_JCB1][destinationType] = 2;
+			can_move[PT_NTRI][destinationType] = 2;
+		}
 
 		if (destinationType == PT_GLAS || destinationType == PT_PHOT || destinationType == PT_FILT || destinationType == PT_INVIS
 		 || destinationType == PT_CLNE || destinationType == PT_PCLN || destinationType == PT_BCLN || destinationType == PT_PBCN
@@ -2564,7 +2566,7 @@ void Simulation::init_can_move()
 		 || destinationType == PT_ISOZ || destinationType == PT_ISZS || destinationType == PT_QRTZ || destinationType == PT_PQRT
 		 || destinationType == PT_H2   || destinationType == PT_BGLA || destinationType == PT_C5   || destinationType == PT_FILL
 		 || destinationType == PT_RDMD || destinationType == PT_FIBR || destinationType == PT_H2O2
-		 || destinationType == PT_AERO || destinationType == PT_ANH2)
+		 || destinationType == PT_AERO || destinationType == PT_ANH2 || destinationType == PT_CRNM)
 			can_move[PT_PHOT][destinationType] = 2;
 		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTI && destinationType != PT_PRTO && destinationType != PT_INDI)
 		{

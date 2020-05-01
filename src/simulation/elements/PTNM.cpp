@@ -64,7 +64,7 @@ static int update(UPDATE_FUNC_ARGS) {
 	static int checkCoordsY[] = { 0, 0, -4, 4 };
 
 	if (!parts[i].life) {
-		for (int j = 0; j < 4; j++){
+		for (int j = 0; j < 4; j++) {
 			int rx = checkCoordsX[j];
 			int ry = checkCoordsY[j];
 			int r = pmap[y + ry][x + rx];

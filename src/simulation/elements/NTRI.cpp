@@ -3,6 +3,7 @@
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
 void Element_NEUT_create(ELEMENT_CREATE_FUNC_ARGS);
+static int DeutExplosion(Simulation *sim, int n, int x, int y, float temp, int t);
 
 void Element::Element_NTRI() {
 	Identifier = "DEFAULT_PT_NTRI";
@@ -50,24 +51,40 @@ void Element::Element_NTRI() {
 }
 
 static int update(UPDATE_FUNC_ARGS) {
-	int rx, ry, r;
-	for (rx = -1; rx <= 1; ++rx)
-	for (ry = -1; ry <= 1; ++ry)
-		if (BOUNDS_CHECK && (rx || ry)) {
-			r = sim->photons[y][x];
-			if (!r) continue;
-
-			// NEUT -> ELEC + PHOT
-			// ELEC -> PHOT
-			if (TYP(r) == PT_NEUT) {
-				sim->part_change_type(ID(r), x + rx, y + ry, PT_ELEC);
-				int ni = sim->create_part(-3, x + rx, y + ry, PT_PHOT);
-				if (ni > -1) parts[ni].temp = parts[i].temp;
-			}
-			else if (TYP(r) == PT_ELEC) {
-				sim->part_change_type(ID(r), x + rx, y + ry, PT_PHOT);
+	int r = pmap[y][x];
+	if (r) {
+		int rt = TYP(r);
+		
+		// Send heat to HEAC
+		if (rt == PT_HEAC)
+			parts[ID(r)].temp = parts[i].temp;
+		// Detonate DEUT
+		else if (rt == PT_DEUT) {
+			unsigned int pressureFactor = 3 + (int)sim->pv[y / CELL][x / CELL];
+			if (RNG::Ref().chance(pressureFactor + 1 + (parts[ID(r)].life / 100), 1000)) {
+				DeutExplosion(sim, parts[ID(r)].life, x, y,
+					restrict_flt(parts[ID(r)].temp + parts[ID(r)].life * 500.0f, MIN_TEMP, MAX_TEMP), PT_NTRI);
+				sim->kill_part(ID(r));
 			}
 		}
+		// Copy heat from anything else
+		else
+			parts[i].temp = parts[ID(r)].temp;
+	}
+
+	r = sim->photons[y][x];
+	if (r) {
+		// NEUT -> ELEC + PHOT
+		// ELEC -> PHOT
+		if (TYP(r) == PT_NEUT) {
+			sim->part_change_type(ID(r), x, y, PT_ELEC);
+			int ni = sim->create_part(-3, x, y, PT_PHOT);
+			if (ni > -1) parts[ni].temp = parts[i].temp;
+		}
+		else if (TYP(r) == PT_ELEC) {
+			sim->part_change_type(ID(r), x, y, PT_PHOT);
+		}
+	}
 
 	return 0;
 }
@@ -81,6 +98,24 @@ static int graphics(GRAPHICS_FUNC_ARGS) {
 		*firea = 255;
 		*pixel_mode |= FIRE_ADD;
 	}
+	return 0;
+}
 
+static int DeutExplosion(Simulation * sim, int n, int x, int y, float temp, int t) {
+	n = n / 50;
+	if (n < 1)
+		n = 1;
+	else if (n > 340)
+		n = 340;
+
+	for (int c = 0; c < n; c++) {
+		int i = sim->create_part(-3, x, y, t);
+		if (i >= 0)
+			sim->parts[i].temp = temp;
+		else if (sim->pfree < 0)
+			break;
+	}
+	sim->pv[y / CELL][x / CELL] += (6.0f * CFDS) * n;
+	sim->gravmap[(y / CELL) * (XRES / CELL) + (x / CELL)] = 20.0f;
 	return 0;
 }

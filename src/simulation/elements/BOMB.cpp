@@ -60,7 +60,9 @@ static int update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = TYP(r);
-				if (!(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) && rt!=PT_BOMB && rt!=PT_EMBR && rt!=PT_CLNE && rt!=PT_PCLN && rt!=PT_BCLN && rt!=PT_VIBR)
+				if ((!(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) && 
+					rt!=PT_BOMB && rt!=PT_EMBR && rt!=PT_CLNE && rt!=PT_PCLN && rt!=PT_BCLN && rt!=PT_VIBR) ||
+					TYP(sim->photons[y + ry][x + rx]) == PT_NTRI)
 				{
 					int rad = 8, nt;
 					int nxi, nxj;

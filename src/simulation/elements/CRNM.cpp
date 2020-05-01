@@ -50,6 +50,11 @@ void Element::Element_CRNM() {
 static int update(UPDATE_FUNC_ARGS) {
 	int rx, ry, r;
 
+	// PHOT -> NTRI
+	r = sim->photons[y][x];
+	if (TYP(r) == PT_PHOT)
+		sim->part_change_type(ID(r), x, y, PT_NTRI);
+
 	if (parts[i].life > 0 && sim->timer % 10 == 0) {
 		sim->pv[y / CELL][x / CELL] += 20.0f;
 		for (int rx = -1; rx <= 1; ++rx)

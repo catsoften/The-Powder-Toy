@@ -10,6 +10,8 @@ Melts into LAVA at a temperature of 4000 C. LAVA does not ignite CRNM.
 
 CRNM is not to be underestimated, as it releases nearly-invisible DFLM, a slow burning VIRS like flame that burns through almost all materials. CRNM's color reduces in brightness to near black as detonation stages progress.
 
+Photons can pass through CRNM, being converted into NTRI in the process.
+
 ## Technical
 #### Properties
 **life:** Current detonation stage. Ends at 10, if greater than 0 will detonate. At life = 9 will ignite nearby CRNM that's not already detonated.

@@ -71,7 +71,10 @@ the broken SAWD with water.
 Light powder, sticks to conductors within 2px and prevents them from conducting spark. Auto-ignites at 1583 K, otherwise does not burn. Poor heat conductor. Also absorbs electrons, anti-protons. THDR will be absorbed without exploding. Blocks LIGH.
 
 ## NTRI (Neutrino)
-Glows when inside of another element, turns NEUT -> ELEC + PHOT and ELEC -> PHOT. Goes through everything (even DMND), doesn't conduct heat.
+Glows when inside of another element, turns NEUT -> ELEC + PHOT and ELEC -> PHOT. Goes through everything (even DMND).
+
+Will "copy" temp of particles that are not HEAC, and set HEAC's temp to its own when it passes through it. NTRI will trigger BOMB, 
+but not DEST. NTRI causes DEUT to explode with newtonian gravity and pressure.
 
 ## MILK
 Heals STKM, slowly spoils. Can slow down spoiling by keeping it cold (< 5 C) or pasturizing it (heating it to around 70 C for a while. Putting it near SOIL, MUD, BCOL, COAL or BCTR will increase the rate it spoils. Turns into BCTR when spoiled. Evaporates into calcium and water.
