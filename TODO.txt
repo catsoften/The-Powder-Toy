@@ -476,7 +476,6 @@ windows sometimes crashes loading saves (bad alloc)
 
 debug element, stuff like a compass or clock dsplay
 
-mercury shatters ALMN
 
 curved line tool
 
@@ -564,20 +563,26 @@ IOVD - sorts particles
 
 YEST + SWTR = ALCHOHOL
 
-- better https://en.wikipedia.org/wiki/Phosphorus
 
 fix boring elements:
 - alge
+    - fertilizer
+    - process into bio fuel
+        - generic BIO FUEL, also SEED can be processed
+        - brew different "concentrations", dilute w/ alchol, etc...
 - baking soda + vinegar
-- phsp
+    - defer to cooking
 FREZ more uses
 - defuse VIBR
 - make part of exotic chemistry
+mercury shatters ALMN
 
 molten sugar
 - actually transition to caramel (not lava)
 
 add way to make silicon from sand
+- burn with magnesium
+- platnium + coal/bcol + molten sand
 
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18658

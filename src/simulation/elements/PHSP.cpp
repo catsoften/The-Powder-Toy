@@ -51,6 +51,7 @@ static int update(UPDATE_FUNC_ARGS) {
 	/**
 	 * life: Fire burn
 	 * tmp:  Phot absorb timer
+	 * tmp2: Is red variant
 	 */
 	if (parts[i].life == 1) {
 		sim->kill_part(i);
@@ -61,11 +62,23 @@ static int update(UPDATE_FUNC_ARGS) {
 	if (parts[i].tmp > 0)
 		parts[i].tmp--;
 
+	// Change to red PHSP if hot
+	if (parts[i].temp > 70.0f + 273.15f && RNG::Ref().chance(1, 2000))
+		parts[i].tmp2 = 1;
+
 	int rx, ry, r;
 	for (rx = -1; rx <= 1; ++rx)
 	for (ry = -1; ry <= 1; ++ry)
 		if (BOUNDS_CHECK && (rx || ry)) {
 			r = pmap[y + ry][x + rx];
+
+			// White PHSP random combustion
+			if (!r && parts[i].tmp2 == 0 && RNG::Ref().chance(1, 1000000)) {
+				sim->part_change_type(i, x, y, PT_FIRE);
+				parts[i].life = 100;
+				parts[i].temp += 200.0f;
+				return 1;
+			}
 
 			// Ignite
 			if (TYP(r) == PT_FIRE || TYP(r) == PT_PLSM || TYP(r) == PT_LAVA) {
@@ -79,7 +92,7 @@ static int update(UPDATE_FUNC_ARGS) {
 					parts[ni].vx = rx;
 					parts[ni].vy = ry;
 					parts[ni].temp = parts[i].temp + 1500.0f;
-					parts[ni].dcolour = 0xffffb37d;
+					parts[ni].dcolour = 0xFFFFB37D;
 					parts[ni].tmp2 = 1;
 				}
 			}
@@ -89,12 +102,17 @@ static int update(UPDATE_FUNC_ARGS) {
 				sim->kill_part(i);
 				return 1;
 			}
+			// Glow when touching WTRV
+			if (TYP(r) == PT_WTRV)
+				parts[i].tmp++;
 
 			// Absorb PHOT
 			r = sim->photons[y + ry][x + rx];
-			if (TYP(r) == PT_PHOT) {
+			if (TYP(r) == PT_PHOT && parts[i].tmp2 == 0) {
 				sim->kill_part(ID(r));
 				parts[i].tmp += 30;
+				if (RNG::Ref().chance(1, 10))
+					parts[i].tmp2 = 1;
 			}
 		}
 
@@ -102,10 +120,14 @@ static int update(UPDATE_FUNC_ARGS) {
 }
 
 static int graphics(GRAPHICS_FUNC_ARGS) {
-	if (cpart->tmp > 0) {
+	if (cpart->tmp2 == 0 && cpart->tmp > 0) {
 		*firea = 150;
 		*firer = *fireg = *fireb = 255;
 		*pixel_mode |= FIRE_ADD;
+	}
+	else if (cpart->tmp2) {
+		// Red variant
+		*colr = 194, *colg = 51, *colb = 19;
 	}
 	return 0;
 }
