@@ -54,6 +54,7 @@ public:
 
 	int (*Update) (UPDATE_FUNC_ARGS);
 	int (*Graphics) (GRAPHICS_FUNC_ARGS);
+	int (*MoltenGraphics) (GRAPHICS_FUNC_ARGS);
 
 	void (*Create)(ELEMENT_CREATE_FUNC_ARGS) = nullptr;
 	bool (*CreateAllowed)(ELEMENT_CREATE_ALLOWED_FUNC_ARGS) = nullptr;

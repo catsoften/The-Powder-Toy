@@ -1,6 +1,7 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
+static int molten_graphics(GRAPHICS_FUNC_ARGS);
 
 void Element::Element_TIN() {
 	Identifier = "DEFAULT_PT_TIN";
@@ -43,6 +44,7 @@ void Element::Element_TIN() {
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
+	MoltenGraphics = &molten_graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -86,5 +88,32 @@ static int update(UPDATE_FUNC_ARGS) {
 				sim->FloodINST(x, y, PT_TIN);
 		}
 
+	return 0;
+}
+
+static int molten_graphics(GRAPHICS_FUNC_ARGS) {
+	*pixel_mode |= PMODE_BLUR;
+
+	float blending = std::min(cpart->temp / (1000.0f + 273.15f), 1.0f);
+	blending = pow(blending, 5.0f);
+	int fr = (cpart->life - 100) * 2 + 0xE0;
+	int fg = (cpart->life - 100) * 1 + 0x50;
+	int fb = (cpart->life - 100) / 2 + 0x10;
+
+	if (fb > 255) fr = 255;
+	if (fg > 192) fg = 192;
+	if (fb > 128) fb = 128;
+
+	*colr = 0xFF         * (1 - blending) + blending * fr;
+	*colg = 0xFA * 1.05f * (1 - blending) + blending * fg;
+	*colb = 0xEB * 1.05f * (1 - blending) + blending * fb;
+
+	if (blending > 0.9f) {
+		*firea = cpart->temp > 3000.0f ? 40 : 20;
+		*firer = *colr;
+		*fireg = *colg;
+		*fireb = *colb;
+		*pixel_mode |= FIRE_ADD;
+	}
 	return 0;
 }

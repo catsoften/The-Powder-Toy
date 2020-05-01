@@ -570,10 +570,17 @@ fix boring elements:
 - alge
 - baking soda + vinegar
 - phsp
+FREZ more uses
+- defuse VIBR
+- make part of exotic chemistry
 
-
-more realistic colors for some ctypes, like molten sulfur, molten lead, etc..
 molten sugar
+- actually transition to caramel (not lava)
+
+DONE:
+- molten sulfur graphics
+- molten lead graphics
+- molten ZINC + TIN
 
 add way to make silicon from sand
 
@@ -649,9 +656,7 @@ realistic plant
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=14
 elements
 
-FREZ more uses
-- defuse VIBR
-- make part of exotic chemistry
+
 
 CRBN uses:
 - make CRBN solid?

@@ -1,6 +1,7 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
+static int molten_graphics(GRAPHICS_FUNC_ARGS);
 
 void Element::Element_SUFR() {
 	Identifier = "DEFAULT_PT_SUFR";
@@ -41,6 +42,7 @@ void Element::Element_SUFR() {
 	HighTemperatureTransition = PT_LAVA;
 
 	Update = &update;
+	MoltenGraphics = &molten_graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -78,5 +80,31 @@ static int update(UPDATE_FUNC_ARGS) {
 				sim->part_change_type(ID(r), x + rx, y + ry, PT_DUST);
 		}
 
+	return 0;
+}
+
+static int molten_graphics(GRAPHICS_FUNC_ARGS) {
+	*pixel_mode |= PMODE_BLUR;
+	cpart->dcolour = 0x0;
+
+	if (cpart->temp < 200.0f + 273.15f) {
+		*colr = 156;
+		*colg = *colb = 0;
+	}
+	else {
+		*colr = cpart->life * 2 + 0xE0;
+		*colg = cpart->life * 1 + 0x50;
+		*colb = cpart->life / 2 + 0x10;
+
+		if (*colr > 255) *colr = 255;
+		if (*colg > 192) *colg = 192;
+		if (*colb > 128) *colb = 128;
+
+		*firea = std::min(cpart->temp / (273.15f + 700.0f), 1.0f) * 40;
+		*firer = *colr;
+		*fireg = *colg;
+		*fireb = *colb;
+		*pixel_mode |= FIRE_ADD;
+	}
 	return 0;
 }
