@@ -622,8 +622,6 @@ add random NEUT reactions for elements
 fusion:
 https://science.howstuffworks.com/fusion-reactor2.htm
 
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17025&PageNum=0#Message=245937 - aqua regia
-
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18293 Quanton
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=15188
@@ -653,15 +651,8 @@ THOR + oxygen reaction
 BRZE (bronze) or something idk COPR + TIN
 
 Nitrogen+Acid=Aqua Regia.
-- dissolve coper, bRNZ, etc... too
-- dilute with water
-- acid, dissolves most normal stuff
-- slowly breaks down into CAUS
-Freshly prepared aqua regia is colorless, but it turns orange within seconds
 
-DONE:
-- BKSD - neturalize acids like AQUA REGIA
-
+better h2o2 dissolving
 
 joke element - astatine - instantly decays
 

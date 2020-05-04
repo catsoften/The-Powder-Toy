@@ -30,7 +30,7 @@ void Element::Element_N2() {
 	HeatConduct = 34;
 	Description = "DESCRIPTION";
 
-	Properties = TYPE_LIQUID;
+	Properties = TYPE_GAS;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
