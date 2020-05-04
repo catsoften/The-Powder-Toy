@@ -564,6 +564,8 @@ IOVD - sorts particles
 YEST + SWTR = ALCHOHOL
 
 
+
+
 fix boring elements:
 - alge
     - fertilizer
@@ -577,6 +579,8 @@ FREZ more uses
 - make part of exotic chemistry
 mercury shatters ALMN
 
+atom-atom bonding
+
 molten sugar
 - actually transition to caramel (not lava)
 
@@ -584,14 +588,23 @@ add way to make silicon from sand
 - burn with magnesium
 - platnium + coal/bcol + molten sand
 
+magnesium:
+- https://powdertoy.co.uk/Browse/View.html?ID=918177
+- https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18122
+- https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23748
 
+
+ethanol:
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18658
+
 
 magnets
 - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17650
 
 https://powdertoy.co.uk/Browse/View.html?ID=469849
 - RUBR, CORK, CLTH, BRNZ, MRBL, SLVR, INK, PLSC 
+
+glitch - corrupts ur graphics buffer :D
 
 Hover over upvote / downvote to see vote count
 https://powdertoy.co.uk/Browse/View.html?ID=1338366
@@ -639,6 +652,17 @@ THOR + oxygen reaction
 
 BRZE (bronze) or something idk COPR + TIN
 
+Nitrogen+Acid=Aqua Regia.
+- dissolve coper, bRNZ, etc... too
+- dilute with water
+- acid, dissolves most normal stuff
+- slowly breaks down into CAUS
+Freshly prepared aqua regia is colorless, but it turns orange within seconds
+
+DONE:
+- BKSD - neturalize acids like AQUA REGIA
+
+
 joke element - astatine - instantly decays
 
 teflon - carbn + flourine
@@ -655,7 +679,21 @@ realistic plant
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=14
 elements
 
+cloth sim
+- http://web.archive.org/web/20070610223835/http://www.teknikus.dk/tj/gdc2001.htm
 
+
+
+light field: https://benedikt-bitterli.me/tantalum/
+
+https://github.com/ctrlcctrlv/wxsand/blob/master/fsg-mods/Not_Just_Another_Spaceship_Mod.html
+https://github.com/ctrlcctrlv/wxsand/blob/master/fsg-mods/wxFood.html
+
+https://www.reddit.com/r/proceduralgeneration/comments/f05px9/real_time_fire_animation/
+https://github.com/AdrianMargel/procedural-ink/blob/master/procedural_ink/procedural_ink.pde
+https://gamedev.stackexchange.com/questions/147193/imitate-a-textured-sphere-in-2d#answer-147216
+
+variable size hollow brush?
 
 CRBN uses:
 - make CRBN solid?
