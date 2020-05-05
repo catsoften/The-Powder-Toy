@@ -58,10 +58,10 @@ int Element_THOR_update(UPDATE_FUNC_ARGS) {
 	if (parts[i].temp < 37.0f + 273.15f && parts[i].tmp)
 		parts[i].temp += 0.002f;
 
-	// Depelted, slowly turn into STNE
+	// Depelted, slowly turn into RADN
 	// Type check == PT_THOR since update is called in PT_FIRE for LAVA
 	if (!parts[i].tmp && parts[i].type == PT_THOR && RNG::Ref().chance(1, 200)) {
-		sim->part_change_type(i, x, y, PT_STNE);
+		sim->part_change_type(i, x, y, PT_RADN);
 		return 1;
 	}
 
