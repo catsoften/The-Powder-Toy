@@ -646,8 +646,6 @@ maybe sub menus for variants like
 
 sulfur hexafluoride - instulating gas in transformers?
 
-THOR + oxygen reaction
-
 BRZE (bronze) or something idk COPR + TIN
 
 Nitrogen+Acid=Aqua Regia.
@@ -656,10 +654,6 @@ joke element - astatine - instantly decays
 
 teflon - carbn + flourine
 
-Radon is a radioactive gas. It will release neutrons at a rate of 2 NEUT every 3 frames until its tmp reaches 150, 
-of which it then decays into POLO. It is also heavier than most gases and only can be corroded by HFSB.
-also https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17872
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16365
 
 https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=16901
 realistic plant
@@ -697,6 +691,8 @@ CRBN nanotubes when tensile strengh is impelemnted?
 
 broken state/ liquid state / gas state / solid state update for everything :D
 - seperate update func
+
+- radiation field
 
 saving portals and wifi requires iterating everything - check if there IS wifi or portal before copying
 
@@ -775,7 +771,6 @@ deal with numer of nodes overflowing
 limit number of nodes in a circuit anyways? no need to use short, maybe a byte will do
 optimize memory:
 - undo redo don't save circuit, recompute while paused
-
 
 updating resistor values should trigger re-solve
 
