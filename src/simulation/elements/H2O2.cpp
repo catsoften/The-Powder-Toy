@@ -73,7 +73,7 @@ static int update(UPDATE_FUNC_ARGS) {
 			}
 
 			else if (sim->elements[rt].Hardness && RNG::Ref().between(1, 100) > sim->elements[rt].Hardness &&
-					RNG::Ref().chance(1, 500)) {
+					RNG::Ref().chance(1, 500) && !(sim->elements[rt].Properties & TYPE_LIQUID)) {
 				sim->kill_part(ID(r));
 				sim->kill_part(i);
 				return 1;
