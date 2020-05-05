@@ -85,7 +85,8 @@ static int update(UPDATE_FUNC_ARGS) {
 				rt2 = parts[ID(r)].ctype;
 			if (rt2 < 0 || rt2 > PT_NUM)
 				rt2 = 0;
-			bool rt_is_noble_metl = rt2 == PT_TIN || rt2 == PT_COPR || rt2 == PT_BRNZ || rt2 == PT_BRAS || rt2 == PT_PTNM || rt2 == PT_GOLD;
+			bool rt_is_noble_metl = rt2 == PT_TIN || rt2 == PT_COPR || rt2 == PT_BRNZ ||
+								 	rt2 == PT_BRAS || rt2 == PT_PTNM || rt2 == PT_GOLD;
 
 			// Base / acid neutralizes
 			if (rt == PT_BAKS || rt == PT_SOAP || rt == PT_WATR || rt == PT_DSTW) {
@@ -106,7 +107,7 @@ static int update(UPDATE_FUNC_ARGS) {
 			// Dissolve
 			else if (rt != PT_CLNE && rt != PT_PCLN && rt != PT_ACID && rt != PT_AQRG &&
 					rt != PT_CAUS && parts[i].life >= 20 && !parts[i].ctype &&
-					(RNG::Ref().chance(sim->elements[rt].Hardness, 1000.0) || rt_is_noble_metl)) {
+					(RNG::Ref().chance(sim->elements[rt2].Hardness, 1000.0) || rt_is_noble_metl)) {
 				if (sim->parts_avg(i, ID(r), PT_GLAS) != PT_GLAS) { // GLAS protects stuff from acid
 					float newtemp = 2.0f;
 					if (newtemp < 0)
