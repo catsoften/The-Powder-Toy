@@ -1,6 +1,7 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
 
 void Element::Element_ICEI()
 {
@@ -46,6 +47,7 @@ void Element::Element_ICEI()
 	DefaultProperties.ctype = PT_WATR;
 
 	Update = &update;
+	Graphics = &graphics;
 }
 
 static int update(UPDATE_FUNC_ARGS)
@@ -77,5 +79,14 @@ static int update(UPDATE_FUNC_ARGS)
 					parts[ID(r)].ctype = PT_FRZW;
 				}
 			}
+	return 0;
+}
+
+static int graphics(GRAPHICS_FUNC_ARGS) {
+	// Element has custom frozen graphics function
+	if (cpart->ctype > 0 && cpart->ctype < PT_NUM && ren->sim->elements[cpart->ctype].FrozenGraphics) {
+		return ren->sim->elements[cpart->ctype].FrozenGraphics(ren, cpart, nx, ny, pixel_mode,
+			cola, colr, colg, colb, firea, firer, fireg, fireb);
+	}
 	return 0;
 }
