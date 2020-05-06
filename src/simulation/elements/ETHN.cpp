@@ -8,7 +8,7 @@ void Element::Element_ETHN() {
 	Name = "ETHN";
 	Colour = PIXPACK(0xFFFFFF);
 	MenuVisible = 1;
-	MenuSection = SC_LIQUID;
+	MenuSection = SC_SPECIAL;
 	Enabled = 1;
 
 	Advection = 0.6f;

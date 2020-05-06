@@ -11,6 +11,8 @@ The sign tool is the same, but we added some new signs:
 
 Realistic circuit specific signs: (RSPK only)
 ```
-{volt} or {v}     - Voltage of the pixel below
-{current} or {i}  - Current of pixel below
+{volt} or {v}          - Voltage of the pixel below
+{current} or {i}       - Current of pixel below
+{resistance} or {res}  - Resistance of pixel below
+{pow} or {power}       - Power dissipated by the pixel below
 ```

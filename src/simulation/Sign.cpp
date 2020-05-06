@@ -3,7 +3,9 @@
 #include "graphics/Graphics.h"
 #include "simulation/ElementCommon.h"
 #include "simulation/Simulation.h"
+
 #include "simulation/circuits/format_circuits.h"
+#include "simulation/circuits/resistance.h"
 
 sign::sign(String text_, int x_, int y_, Justification justification_):
 	x(x_),
@@ -135,6 +137,18 @@ String sign::getDisplayText(Simulation *sim, int &x0, int &y0, int &w, int &h, b
 							formatted_text << format_value(part->pavg[1], "A");
 						else
 							formatted_text << "0.0 A";
+					}
+					else if (between_curlies == "res" || between_curlies == "resistance") {
+						formatted_text <<
+							format_value(get_effective_resistance(TYP(sim->pmap[y][x]), sim->parts, ID(sim->pmap[y][x]), sim), "ohms");
+					}
+					else if (between_curlies == "pow" || between_curlies == "power") {
+						if (part && part->type == PT_RSPK) {
+							double res = get_effective_resistance(TYP(sim->pmap[y][x]), sim->parts, ID(sim->pmap[y][x]), sim);
+							formatted_text << format_value(part->pavg[1] * part->pavg[1] * res, "W");
+						}
+						else
+							formatted_text << "0.0 W";
 					}
 					else
 					{

@@ -595,7 +595,7 @@ magnets
 - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=17650
 
 https://powdertoy.co.uk/Browse/View.html?ID=469849
-- RUBR, CORK, CLTH, BRNZ, MRBL, SLVR, INK, PLSC 
+- RUBR, CORK, CLTH,  MRBL, SLVR, INK, PLSC 
 
 glitch - corrupts ur graphics buffer :D
 
@@ -638,15 +638,6 @@ maybe sub menus for variants like
 - hover over NBLE - all NBLE gas types like NEON and shit?
 
 sulfur hexafluoride - instulating gas in transformers?
-
-
-- wiki
-
-DONE:
-- decelerates air
-- oxidizes but only surface
-- corrodes like COPR
-- AMNA corrode COPR and BRNZ
 
 move sim: stressField->ComputeStress(parts[i].x + 0.5f, parts[i].y + 0.5f);
 
@@ -729,7 +720,6 @@ some kind of circut skeleton viewer thing
 
 test IWALL with RSPK
 
-power sign, resistance sign
 INWR different tmp conductivity?
 
 thermoresistor unmeltable too
@@ -743,6 +733,8 @@ make group filling a bit better maybe?
 TRFR : transformer
 
 RSPRK SPRK converter
+
+insulator conductor
 
 https://www.hydrogenics.com/technology-resources/hydrogen-technology/fuel-cells/
 platnium ^
