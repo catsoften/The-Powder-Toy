@@ -1,5 +1,7 @@
 #include "simulation/ElementCommon.h"
 
+static int graphics(GRAPHICS_FUNC_ARGS);
+
 void Element::Element_AERO() {
 	Identifier = "DEFAULT_PT_AERO";
 	Name = "AERO";
@@ -38,4 +40,11 @@ void Element::Element_AERO() {
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
+
+	Graphics = &graphics;
+}
+
+static int graphics(GRAPHICS_FUNC_ARGS) {
+	*pixel_mode |= PMODE_BLUR;
+	return 1;
 }

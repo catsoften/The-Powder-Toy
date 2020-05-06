@@ -648,8 +648,6 @@ generic liquid state for
 - RADN
 - FLRN
 
-better aerogel graphics - like actual air
-
 
 ethanol
 - kill BCTR
