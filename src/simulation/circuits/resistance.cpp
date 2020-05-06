@@ -31,7 +31,7 @@ bool valid_conductor(ElementType typ, Simulation *sim, ParticleId i) {
  */
 
 double get_resistance(ElementType type, Particle *parts, ParticleId i, Simulation *sim) {
-    if (type <= 0 || type > PT_NUM) // Should never happen, the throw below is just in case you need to debug
+    if (type < 0 || type >= PT_NUM) // Should never happen, the throw below is just in case you need to debug
         throw "Error: Invalid particle type found in get_resistance in circuit simulation";
 
     // Insulators or ideal chips, set to really high value

@@ -40,6 +40,7 @@
 #include "simulation/ElementDefs.h"
 
 #include "simulation/quantum/def.h"
+#include "simulation/circuits/format_circuits.h"
 #include "music/music.h"
 
 #include "simulation/ElementClasses.h"
@@ -2351,6 +2352,11 @@ void GameView::OnDraw()
 				sampleInfo3 << ", VY: " << Format::Fixed(sample.particle.vy);
 				sampleInfo3 << ", Temp: " << Format::Fixed(sample.particle.temp) << " K";
 				// sampleInfo3 << ", Temp: " << Format::Fixed(5) << (sample.particle.temp - 273.15f) * 9.0f / 5.0f + 32.0 << " F";
+
+				if (c->GetAHeatEnable())
+					sampleInfo3 << ", AHeat: " << sample.AirTemperature - 273.15f << " C";
+				if (sample.stressEnabled)
+					sampleInfo3 << ", Stress: " << sample.Stress;
 			}
 		}
 
@@ -2447,28 +2453,12 @@ void GameView::OnDraw()
 
 			// Voltage
 			else if (type == PT_RSPK) {
-				sampleInfo << Format::Precision(2);
-				sampleInfo << "I = ";
-				sample.particle.dcolour == 0 ?
-					sampleInfo << "INF A,  " :
-					sampleInfo << (sample.particle.pavg[1] / sample.particle.dcolour * 10000.0f) << " A,  ";
-				
-				if (sample.particle.ctype == PT_CAPR) {
-					if (sample.particle.dcolour / 100.0f <= 0.001f) // Empty
-						sampleInfo << "Empty,  ";
-					else if (sample.particle.dcolour / 100.0f >= 10000000.0f) // Full
-						sampleInfo << "Full,  ";
-					else
-						sampleInfo << "Charge changing,  ";
-				}
-				else if (sample.particle.ctype == PT_INDC) {
-					// Do nothing because idk what to put for inductor
-				}
-				else if (sample.particle.ctype != PT_VOLT)
-					sampleInfo << "R = " << sample.particle.dcolour / 100.0f << "e-8 ohms,  ";
-				sampleInfo << Format::Precision(3);
-				sampleInfo << "" << sample.particle.pavg[0] << " V (" << sample.particle.pavg[1] << " V drop)";
-				sampleInfo << "   ";
+				sampleInfo << format_value(sample.particle.pavg[1], "A", 3) << ", ";
+				sampleInfo << format_value(sample.Resistance, "ohm", 3) << ", ";
+
+				// if (sample.particle.ctype != PT_VOLT)
+				// 	sampleInfo << "R = " << sample.particle.dcolour / 100.0f << "e-8 ohms,  ";
+				sampleInfo << format_value(sample.particle.pavg[0], "V", 3) << "   ";
 			}
 
 			sampleInfo << Format::Precision(2);
@@ -2480,11 +2470,6 @@ void GameView::OnDraw()
 
 			if (sample.Gravity)
 				sampleInfo << ", GX: " << sample.GravityVelocityX << " GY: " << sample.GravityVelocityY;
-
-			if (c->GetAHeatEnable())
-				sampleInfo << ", AHeat: " << sample.AirTemperature - 273.15f << " C";
-			if (sample.stressEnabled)
-				sampleInfo << ", Stress: " << sample.Stress;
 
 			textWidth = Graphics::textwidth(sampleInfo.Build());
 			g->fillrect(XRES-20-textWidth, 27, textWidth+8, 14, 0, 0, 0, alpha*0.5f);

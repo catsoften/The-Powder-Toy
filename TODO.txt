@@ -724,8 +724,6 @@ INWR different tmp conductivity?
 
 thermoresistor unmeltable too
 
-voltage indicator use metric prefix, ie 2 mA
-voltage indicator on the top too long with aheat enabled?
 
 make group filling a bit better maybe?
 - handle correct votlages and shit somehow

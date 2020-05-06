@@ -36,8 +36,11 @@
 #include "simulation/mvsd/movingsolids.h"
 #include "simulation/magnetics/magnetics.h"
 #include "simulation/stress/stress.h"
+
 #include "simulation/circuits/circuits.h"
 #include "simulation/circuits/components/circuit.h"
+#include "simulation/circuits/resistance.h"
+
 #include "gui/game/GameModel.h"
 
 #include "client/Client.h"
@@ -786,6 +789,7 @@ SimulationSample Simulation::GetSample(int x, int y)
 		sample.AirVelocityY = vy[y/CELL][x/CELL];
 		sample.oneWayDir = oneWayDir[y/CELL][x/CELL];
 		sample.Stress = stressField->stress_map[y][x];
+		sample.Resistance = get_effective_resistance(TYP(pmap[y][x]), parts, sample.ParticleID, this);
 
 		if(grav->IsEnabled())
 		{
