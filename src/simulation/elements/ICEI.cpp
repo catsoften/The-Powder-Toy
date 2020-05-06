@@ -53,6 +53,16 @@ void Element::Element_ICEI()
 static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
+
+	// Fix for liquid melting, also update in SNOW
+	if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM) {
+		if (sim->elements[parts[i].ctype].LowTemperatureTransition == PT_LQUD &&
+			parts[i].temp > sim->elements[parts[i].ctype].MeltingPoint) {
+			sim->part_change_type(i, x, y, PT_LQUD);
+			return 1;
+		}
+	}
+
 	if (parts[i].ctype==PT_FRZW)//get colder if it is from FRZW
 	{
 		parts[i].temp = restrict_flt(parts[i].temp-1.0f, MIN_TEMP, MAX_TEMP);

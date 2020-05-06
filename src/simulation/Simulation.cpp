@@ -3917,8 +3917,8 @@ void Simulation::UpdateParticles(int start, int end)
 			}
 
 			// JCB1, and vehicles cannot be set as a ctype of CLNE
-			if ((t==PT_CLNE || t==PT_PCLN || t==PT_BCLN || t==PT_PBCN || t==PT_SNOW || t==PT_LAVA || t==PT_ICEI
-				|| t==PT_VIRS || t==PT_VRSS || t==PT_VRSG) &&
+			if ((t==PT_CLNE || t==PT_PCLN || t==PT_BCLN || t==PT_PBCN || t==PT_SNOW || t==PT_LAVA || t==PT_ICEI ||
+				 t==PT_BRKN || t==PT_LQUD || t==PT_VIRS || t==PT_VRSS || t==PT_VRSG) &&
 				(parts[i].ctype == PT_JCB1 ||
 					(parts[i].ctype > 0 && parts[i].ctype < PT_NUM && elements[parts[i].ctype].Properties & PROP_VEHICLE))) {
 				parts[i].ctype = PT_NONE;
@@ -4091,13 +4091,15 @@ void Simulation::UpdateParticles(int start, int end)
 						if (elements[t].HighTemperatureTransition != PT_NUM)
 							t = elements[t].HighTemperatureTransition;
 #endif
-						else if (t == PT_ICEI || t == PT_SNOW)
+						else if (t == PT_ICEI || t == PT_SNOW || t == PT_LQUD)
 						{
 							if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM && parts[i].ctype != t)
 							{
-								if (elements[parts[i].ctype].LowTemperatureTransition==PT_ICEI || elements[parts[i].ctype].LowTemperatureTransition==PT_SNOW)
+								if (elements[parts[i].ctype].LowTemperatureTransition==PT_ICEI ||
+									elements[parts[i].ctype].LowTemperatureTransition==PT_SNOW ||
+									elements[parts[i].ctype].LowTemperatureTransition==PT_LQUD)
 								{
-									if (pt<elements[parts[i].ctype].LowTemperature)
+									if (pt < elements[parts[i].ctype].LowTemperature)
 										s = 0;
 								}
 								else if (pt<273.15f)
@@ -4276,7 +4278,7 @@ void Simulation::UpdateParticles(int start, int end)
 #endif
 					if (s) // particle type change occurred
 					{
-						if (t==PT_ICEI || t==PT_LAVA || t==PT_SNOW)
+						if (t==PT_ICEI || t==PT_LAVA || t==PT_SNOW || t==PT_BRKN || t==PT_LQUD)
 							parts[i].ctype = parts[i].type;
 						if (!(t==PT_ICEI && parts[i].ctype==PT_FRZW))
 							parts[i].life = 0;
@@ -4431,8 +4433,7 @@ void Simulation::UpdateParticles(int start, int end)
 			// particle type change occurred
 			if (s)
 			{
-				if (t == PT_NONE)
-				{
+				if (t == PT_NONE) {
 					kill_part(i);
 					goto killed;
 				}

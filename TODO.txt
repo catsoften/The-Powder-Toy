@@ -561,9 +561,6 @@ iczero
 MOON and ICZR fight each other over the pause button
 IOVD - sorts particles 
 
-YEST + SWTR = ALCHOHOL
-
-
 
 
 fix boring elements:
@@ -592,10 +589,6 @@ magnesium:
 - https://powdertoy.co.uk/Browse/View.html?ID=918177
 - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18122
 - https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=23748
-
-
-ethanol:
-https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18658
 
 
 magnets
@@ -648,7 +641,26 @@ sulfur hexafluoride - instulating gas in transformers?
 
 BRZE (bronze) or something idk COPR + TIN
 
-Nitrogen+Acid=Aqua Regia.
+
+move sim: stressField->ComputeStress(parts[i].x + 0.5f, parts[i].y + 0.5f);
+
+generic liquid state for
+- RADN
+- FLRN
+
+better aerogel graphics - like actual air
+
+
+ethanol
+- kill BCTR
+- make STKM drunk
+- flash point and realistic freezing shit calculation
+- distillation
+- blue fire
+ethanol:
+https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=18658
+YEST + SWTR = ALCHOHOL
+
 
 joke element - astatine - instantly decays
 

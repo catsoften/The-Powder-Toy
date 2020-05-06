@@ -2216,16 +2216,19 @@ void GameView::OnDraw()
 				else if (type == PT_BRKN && c->IsValidElement(ctype)) {
 					sampleInfo << "Broken " << c->ElementResolve(ctype, -1);
 				}
+				else if (type == PT_LQUD && c->IsValidElement(ctype)) {
+					sampleInfo << "Liquid " << c->ElementResolve(ctype, -1);
+				}
 				else if ((type == PT_PIPE || type == PT_PPIP) && c->IsValidElement(ctype))
 				{
 					if (ctype == PT_LAVA && c->IsValidElement((int)sample.particle.pavg[1]))
-					{
 						sampleInfo << c->ElementResolve(type, -1) << " with molten " << c->ElementResolve((int)sample.particle.pavg[1], -1);
-					}
+					else if (ctype == PT_BRKN && c->IsValidElement((int)sample.particle.pavg[1]))
+						sampleInfo << c->ElementResolve(type, -1) << " with broken " << c->ElementResolve((int)sample.particle.pavg[1], -1);
+					else if (ctype == PT_LQUD && c->IsValidElement((int)sample.particle.pavg[1]))
+						sampleInfo << c->ElementResolve(type, -1) << " with liquid " << c->ElementResolve((int)sample.particle.pavg[1], -1);
 					else
-					{
 						sampleInfo << c->ElementResolve(type, -1) << " with " << c->ElementResolve(ctype, (int)sample.particle.pavg[1]);
-					}
 				}
 				else if (type == PT_LIFE)
 				{
