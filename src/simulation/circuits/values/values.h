@@ -84,7 +84,8 @@ const std::unordered_map<ElementType, CircuitData> circuit_data({
     { PT_PHSP, CircuitData( 1e-7 )},
     { PT_TMRM, CircuitData( 1e-7 )},
     { PT_IRDM, CircuitData( 4.71e-8 )},
-    { PT_PTNM, CircuitData( 10.6e-8 )}
+    { PT_PTNM, CircuitData( 10.6e-8 )},
+    { PT_BRNZ, CircuitData( 2.58e-7 )}
 });
 
 inline int get_flags(int type) {

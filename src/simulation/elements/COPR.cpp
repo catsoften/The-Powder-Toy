@@ -68,13 +68,14 @@ static int update(UPDATE_FUNC_ARGS) {
 			if (RNG::Ref().chance(1, 100)) {
 				if (TYP(r) == PT_ACID || TYP(r) == PT_CAUS ||
 					sim->elements[TYP(r)].Properties & PROP_WATER || TYP(r) == PT_O2 ||
-					TYP(r) == PT_WTRV) {
+					TYP(r) == PT_WTRV || TYP(r) == PT_AMNA) {
 					if (parts[i].tmp == 0)
 						parts[i].tmp = RNG::Ref().between(1, 7);
 				}
 
-				// Corrode randomly depending on self ID if touching corroded COPR
-				if (parts[i].tmp == 0 && TYP(r) == PT_COPR && parts[ID(r)].tmp > 0 && ((i + ID(r)*(i- ID(r)))) % 5 == 0)
+				// Corrode randomly depending on self ID if touching corroded COPR / BRNZ
+				if (parts[i].tmp == 0 && (TYP(r) == PT_BRNZ || TYP(r) == PT_COPR) &&
+						parts[ID(r)].tmp > 0 && ((i + ID(r)*(i- ID(r)))) % 5 == 0)
 					parts[i].tmp = RNG::Ref().between(1, 7);
 			}
 		}

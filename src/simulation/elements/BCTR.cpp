@@ -386,7 +386,7 @@ static int update(UPDATE_FUNC_ARGS) {
 					parts[i].ctype = BCTR::mutate(parts[i].ctype);
 
 				// Dies when touching LEAD or BRAS or SUFR
-				else if (rt == PT_LEAD || rt == PT_BRAS || rt == PT_SUFR)
+				else if (rt == PT_LEAD || rt == PT_BRAS || rt == PT_SUFR || rt == PT_BRNZ)
 					DIE()
 			}
 		}

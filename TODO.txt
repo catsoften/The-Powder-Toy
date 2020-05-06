@@ -639,8 +639,14 @@ maybe sub menus for variants like
 
 sulfur hexafluoride - instulating gas in transformers?
 
-BRZE (bronze) or something idk COPR + TIN
 
+- wiki
+
+DONE:
+- decelerates air
+- oxidizes but only surface
+- corrodes like COPR
+- AMNA corrode COPR and BRNZ
 
 move sim: stressField->ComputeStress(parts[i].x + 0.5f, parts[i].y + 0.5f);
 

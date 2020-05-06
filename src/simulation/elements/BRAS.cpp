@@ -48,6 +48,5 @@ void Element::Element_BRAS() {
 static int update(UPDATE_FUNC_ARGS) {
 	sim->vx[y / CELL][x / CELL] *= 1.002f;
 	sim->vy[y / CELL][x / CELL] *= 1.002f;
-
 	return 0;
 }

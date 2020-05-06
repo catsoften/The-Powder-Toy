@@ -153,6 +153,11 @@ int Element_FIRE_update(UPDATE_FUNC_ARGS)
 						parts[i].ctype = PT_BRAS;
 						parts[ID(r)].ctype = PT_BRAS;
 					}
+					// LAVA(TIN) + LAVA(COPR) = LAVA(BRNZ)
+					else if (parts[i].ctype == PT_TIN && rt == PT_LAVA && parts[ID(r)].ctype == PT_COPR) {
+						parts[i].ctype = PT_BRNZ;
+						parts[ID(r)].ctype = PT_BRNZ;
+					}
 					// LAVA(BSMH) resets tmp and tmp2 and pavg0
 					else if (parts[i].ctype == PT_BSMH) {
 						parts[i].tmp = 0;
