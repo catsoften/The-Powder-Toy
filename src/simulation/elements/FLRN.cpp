@@ -1,6 +1,7 @@
 #include "simulation/ElementCommon.h"
 
 static int update(UPDATE_FUNC_ARGS);
+static int frozen_graphics(GRAPHICS_FUNC_ARGS);
 
 void Element::Element_FLRN() {
 	Identifier = "DEFAULT_PT_FLRN";
@@ -36,12 +37,16 @@ void Element::Element_FLRN() {
 	LowPressureTransition = NT;
 	HighPressure = IPH;
 	HighPressureTransition = NT;
-	LowTemperature = ITL;
-	LowTemperatureTransition = NT;
+	LowTemperature = 273.15f - 188.1f;
+	LowTemperatureTransition = PT_LQUD;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
 	Update = &update;
+	FrozenGraphics = &frozen_graphics;
+
+	MeltingPoint = 273.15f - 219.6f;
+	BoilingPoint = 273.15f - 188.1f;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -62,7 +67,7 @@ static int update(UPDATE_FUNC_ARGS) {
 			int rt = TYP(r);
 
 			// Doesn't react with noble gases
-			if (rt == PT_NEON || rt == PT_HELM || rt == PT_NBLE)
+			if (rt == PT_NEON || rt == PT_HELM || rt == PT_NBLE || rt == PT_RADN)
 				continue;
 			// Ignore indestructible elements
 			if (sim->elements[rt].Properties & PROP_INDESTRUCTIBLE)
@@ -104,4 +109,11 @@ static int update(UPDATE_FUNC_ARGS) {
 		}
 
 	return 0;
+}
+
+static int frozen_graphics(GRAPHICS_FUNC_ARGS) {
+	*colr = 0xE0;
+	*colg = 0xC7;
+	*colb = 0x8B;
+	return 1;
 }

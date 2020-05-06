@@ -644,10 +644,6 @@ BRZE (bronze) or something idk COPR + TIN
 
 move sim: stressField->ComputeStress(parts[i].x + 0.5f, parts[i].y + 0.5f);
 
-generic liquid state for
-- RADN
-- FLRN
-
 
 ethanol
 - kill BCTR

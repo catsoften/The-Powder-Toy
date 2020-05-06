@@ -2,6 +2,7 @@
 
 static int update(UPDATE_FUNC_ARGS);
 static int graphics(GRAPHICS_FUNC_ARGS);
+static int liquid_graphics(GRAPHICS_FUNC_ARGS);
 static int frozen_graphics(GRAPHICS_FUNC_ARGS);
 static void create(ELEMENT_CREATE_FUNC_ARGS);
 
@@ -39,8 +40,8 @@ void Element::Element_RADN() {
 	LowPressureTransition = NT;
 	HighPressure = IPH;
 	HighPressureTransition = NT;
-	LowTemperature = 273.15f - 71.0f; // Technically there's a liquid state but fuck that
-	LowTemperatureTransition = PT_ICEI;
+	LowTemperature = 273.15f - 61.7f;
+	LowTemperatureTransition = PT_LQUD;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
@@ -48,8 +49,12 @@ void Element::Element_RADN() {
 
 	Update = &update;
 	Graphics = &graphics;
+	LiquidGraphics = &liquid_graphics;
 	FrozenGraphics = &frozen_graphics;
 	Create = &create;
+
+	MeltingPoint = 273.15f - 71.0f;
+	BoilingPoint = 273.15f - 61.7f;
 }
 
 static int update(UPDATE_FUNC_ARGS) {
@@ -114,8 +119,17 @@ static int frozen_graphics(GRAPHICS_FUNC_ARGS) {
 		*fireg = *colg / 1.5f;
 		*fireb = *colb / 1.5f;
 		*firea = 20;
-		*pixel_mode |= FIRE_BLEND;
+		*pixel_mode |= FIRE_ADD;
 	}
+	return 1;
+}
+
+static int liquid_graphics(GRAPHICS_FUNC_ARGS) {
+	// Orange-yellow
+	*colr = 0xFF;
+	*colg = 0xB3;
+	*colb = 0x0;
+	*pixel_mode |= PMODE_BLUR;
 	return 1;
 }
 
