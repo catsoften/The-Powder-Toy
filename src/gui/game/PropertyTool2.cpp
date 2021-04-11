@@ -60,8 +60,8 @@ public:
     int autocomplete_index = 0;
     bool first_tab = true;
 
-    const ui::Colour WHITE = ui::Colour(255, 255, 255);
-    const ui::Colour ERROR = ui::Colour(255, 50, 0);
+    const ui::Colour COLOR_WHITE = ui::Colour(255, 255, 255);
+    const ui::Colour COLOR_ERROR = ui::Colour(255, 50, 0);
 
 	PropertyWindow2(PropertyTool2 *tool_, Simulation *sim);
     void OkErrorCheck();
@@ -179,7 +179,7 @@ void PropertyWindow2::SetProperty() {
 	if (textField->GetText().length() > 0) {
         tool->props.clear();
         error_lines.clear();
-        textField->SetTextColour(WHITE);
+        textField->SetTextColour(COLOR_WHITE);
         lines = textField->GetText().PartitionBy('\n', true);
 
         String new_autocomplete_text = "";
@@ -354,14 +354,14 @@ void PropertyWindow2::SetProperty() {
             if (!autocomplete_property.size())
                 new_autocomplete_text = String::Build(new_autocomplete_text, '\n');
             if (line_contains_error)
-                textField->SetTextColour(ERROR);
+                textField->SetTextColour(COLOR_ERROR);
             index++;
         }
 
         autocompleteLabel->SetText(new_autocomplete_text);
     }
     else {
-        textField->SetTextColour(WHITE);
+        textField->SetTextColour(COLOR_WHITE);
         autocompleteLabel->SetText("");
         error_lines.clear();
     }

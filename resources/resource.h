@@ -3,4 +3,6 @@
 #define IDI_ICON 101
 #define IDI_DOC_ICON 102
 
-
+#define IDI_TPTMP 120
+#define IDI_SCRIPTMANAGER 121
+#define IDI_EVENTCOMPAT 122
