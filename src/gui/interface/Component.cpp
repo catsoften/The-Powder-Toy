@@ -20,7 +20,11 @@ Component::Component(Window* parent_state):
 	Size(Point(0,0)),
 	Enabled(true),
 	Visible(true),
+<<<<<<< HEAD
 	MouseCurrentlyInside(false)
+=======
+	DoesTextInput(false)
+>>>>>>> upstream/master
 {
 
 }
@@ -36,7 +40,8 @@ Component::Component(Point position, Point size):
 	Position(position),
 	Size(size),
 	Enabled(true),
-	Visible(true)
+	Visible(true),
+	DoesTextInput(false)
 {
 
 }
@@ -52,7 +57,8 @@ Component::Component():
 	Position(Point(0,0)),
 	Size(Point(0,0)),
 	Enabled(true),
-	Visible(true)
+	Visible(true),
+	DoesTextInput(false)
 {
 
 }
@@ -199,6 +205,10 @@ void Component::OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ct
 }
 
 void Component::OnTextInput(String text)
+{
+}
+
+void Component::OnTextEditing(String text)
 {
 }
 

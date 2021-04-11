@@ -1,5 +1,6 @@
 #ifndef GAMEMODEL_H
 #define GAMEMODEL_H
+#include "Config.h"
 
 #include <vector>
 #include <deque>
@@ -267,6 +268,11 @@ public:
 	std::vector<Notification*> GetNotifications();
 	void AddNotification(Notification * notification);
 	void RemoveNotification(Notification * notification);
+
+	void RemoveCustomGOLType(const ByteString &identifier);
+
+	ByteString SelectNextIdentifier;
+	int SelectNextTool;
 };
 
 #endif // GAMEMODEL_H

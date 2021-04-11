@@ -25,6 +25,7 @@ namespace ui
 		void ShowWindow(Window * window);
 		int CloseWindow();
 
+		void initialMouse(int x, int y);
 		void onMouseMove(int x, int y);
 		void onMouseClick(int x, int y, unsigned button);
 		void onMouseUnclick(int x, int y, unsigned button);
@@ -32,6 +33,7 @@ namespace ui
 		void onKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
 		void onKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
 		void onTextInput(String text);
+		void onTextEditing(String text, int start);
 		void onResize(int newWidth, int newHeight);
 		void onClose();
 		void onFileDrop(ByteString filename);
@@ -46,10 +48,15 @@ namespace ui
 		void Break();
 		void UnBreak();
 
+<<<<<<< HEAD
 		void SetDrawingFrequencyLimit(int limit) { drawingFrequencyLimit = limit; }
 		inline int GetDrawingFrequencyLimit() { return drawingFrequencyLimit; }
 		void SetMaxDrawingFrequencyLimit(int limit) { maxDrawingFrequencyLimit = limit; }
 		inline int GetMaxDrawingFrequencyLimit() { return maxDrawingFrequencyLimit; }
+=======
+		void SetDrawingFrequencyLimit(int limit) {drawingFrequencyLimit = limit;}
+		inline int GetDrawingFrequencyLimit() {return drawingFrequencyLimit;}
+>>>>>>> upstream/master
 		void SetFullscreen(bool fullscreen) { Fullscreen = fullscreen; }
 		inline bool GetFullscreen() { return Fullscreen; }
 		void SetAltFullscreen(bool altFullscreen) { this->altFullscreen = altFullscreen; }
@@ -81,10 +88,15 @@ namespace ui
 
 		inline void SetSize(int width, int height);
 
+		void StartTextInput();
+		void StopTextInput();
+		void TextInputRect(Point position, Point size);
+
 		//void SetState(Window* state);
 		//inline State* GetState() { return state_; }
 		inline Window* GetWindow() { return state_; }
 		float FpsLimit;
+		int drawingFrequencyLimit;
 		Graphics * g;
 		int Scale;
 		bool Fullscreen;
@@ -94,6 +106,8 @@ namespace ui
 		bool altFullscreen;
 		bool forceIntegerScaling = true;
 		bool resizable;
+
+		bool textInput = false;
 
 		float dt;
 		float fps;
@@ -124,6 +138,21 @@ namespace ui
 
 		int maxWidth;
 		int maxHeight;
+
+		bool momentumScroll;
+
+		String textEditingBuf;
+
+	public:
+		inline void SetMomentumScroll(bool newMomentumScroll)
+		{
+			momentumScroll = newMomentumScroll;
+		}
+
+		inline bool GetMomentumScroll() const
+		{
+			return momentumScroll;
+		}
 	};
 
 }

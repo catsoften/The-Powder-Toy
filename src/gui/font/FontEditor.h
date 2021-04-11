@@ -5,8 +5,7 @@
 #include <array>
 #include <map>
 
-#include "font.h"
-
+#include "graphics/FontReader.h"
 #include "gui/interface/Window.h"
 
 namespace ui
@@ -25,7 +24,7 @@ private:
 	std::map<String::value_type, std::array<std::array<char, MAX_WIDTH>, FONT_H> > fontPixels;
 
 	std::vector<unsigned char> fontData;
-	std::vector<unsigned short> fontPtrs;
+	std::vector<unsigned int> fontPtrs;
 	std::vector<std::array<unsigned int, 2> > fontRanges;
 
 	ByteString beforeFontData;
@@ -33,19 +32,24 @@ private:
 	ByteString afterFontPtrs;
 	ByteString afterFontRanges;
 
+<<<<<<< HEAD
 	void ReadHeader(ByteString header);
 	void WriteHeader(ByteString header, std::vector<unsigned char> const &fontData, std::vector<unsigned short> const &fontPtrs, std::vector<std::array<unsigned int, 2> > const &fontRanges);
+=======
+	void ReadDataFile(ByteString dataFile);
+	void WriteDataFile(ByteString dataFile, std::vector<unsigned char> const &fontData, std::vector<unsigned int> const &fontPtrs, std::vector<std::array<unsigned int, 2> > const &fontRanges);
+>>>>>>> upstream/master
 	static void PackData(
 			std::map<String::value_type, unsigned char> const &fontWidths,
 			std::map<String::value_type, std::array<std::array<char, MAX_WIDTH>, FONT_H> > const &fontPixels,
 			std::vector<unsigned char> &fontData,
-			std::vector<unsigned short> &fontPtrs,
+			std::vector<unsigned int> &fontPtrs,
 			std::vector<std::array<unsigned int, 2> > &fontRanges);
 	static void UnpackData(
 			std::map<String::value_type, unsigned char> &fontWidths,
 			std::map<String::value_type, std::array<std::array<char, MAX_WIDTH>, FONT_H> > &fontPixels,
 			std::vector<unsigned char> const &fontData,
-			std::vector<unsigned short> const &fontPtrs,
+			std::vector<unsigned int> const &fontPtrs,
 			std::vector<std::array<unsigned int, 2> > const &fontRanges);
 
 	ui::Textbox *currentCharTextbox;

@@ -45,9 +45,13 @@
 
 #include "simulation/ElementClasses.h"
 
+<<<<<<< HEAD
 #include <ctime>
 #include <bitset>
 #include <algorithm>
+=======
+#include <cstring>
+>>>>>>> upstream/master
 
 #ifdef GetUserName
 # undef GetUserName // dammit windows
@@ -181,6 +185,7 @@ GameView::GameView():
 	ctrlBehaviour(false),
 	altBehaviour(false),
 	showHud(true),
+	showBrush(true),
 	showDebug(false),
 	delayedActiveMenu(-1),
 	wallBrush(false),
@@ -518,6 +523,16 @@ bool GameView::GetHudEnable()
 	return showHud;
 }
 
+void GameView::SetBrushEnable(bool brushState)
+{
+	showBrush = brushState;
+}
+
+bool GameView::GetBrushEnable()
+{
+	return showBrush;
+}
+
 void GameView::SetDebugHUD(bool mode)
 {
 	showDebug = mode;
@@ -547,37 +562,27 @@ bool GameView::GetPlacingZoom()
 
 void GameView::NotifyActiveToolsChanged(GameModel * sender)
 {
-	decoBrush = false;
 	for (size_t i = 0; i < toolButtons.size(); i++)
 	{
 		auto *tool = toolButtons[i]->tool;
-		if(sender->GetActiveTool(0) == tool)
-		{
-			toolButtons[i]->SetSelectionState(0);	//Primary
-			windTool = tool->GetIdentifier() == "DEFAULT_UI_WIND";
-
-			if (sender->GetActiveTool(0)->GetIdentifier().BeginsWith("DEFAULT_DECOR_"))
-				decoBrush = true;
-		}
-		else if(sender->GetActiveTool(1) == tool)
-		{
-			toolButtons[i]->SetSelectionState(1);	//Secondary
-			if (sender->GetActiveTool(1)->GetIdentifier().BeginsWith("DEFAULT_DECOR_"))
-				decoBrush = true;
-		}
-		else if(sender->GetActiveTool(2) == tool)
-		{
-			toolButtons[i]->SetSelectionState(2);	//Tertiary
-		}
-		else if(sender->GetActiveTool(3) == tool)
-		{
-			toolButtons[i]->SetSelectionState(3);	//Replace Mode
-		}
+		// Primary
+		if (sender->GetActiveTool(0) == tool)
+			toolButtons[i]->SetSelectionState(0);
+		// Secondary
+		else if (sender->GetActiveTool(1) == tool)
+			toolButtons[i]->SetSelectionState(1);
+		// Tertiary
+		else if (sender->GetActiveTool(2) == tool)
+			toolButtons[i]->SetSelectionState(2);
+		// Replace Mode
+		else if (sender->GetActiveTool(3) == tool)
+			toolButtons[i]->SetSelectionState(3);
+		// Not selected at all
 		else
-		{
 			toolButtons[i]->SetSelectionState(-1);
-		}
 	}
+
+	decoBrush = sender->GetActiveTool(0)->GetIdentifier().BeginsWith("DEFAULT_DECOR_");
 
 	if (sender->GetRenderer()->findingElement)
 	{
@@ -673,8 +678,19 @@ void GameView::NotifyToolListChanged(GameModel * sender)
 				}
 				else if (tempButton->GetSelectionState() == 1)
 				{
-					Favorite::Ref().RemoveFavorite(tool->GetIdentifier());
-					c->RebuildFavoritesMenu();
+					auto identifier = tool->GetIdentifier();
+					if (Favorite::Ref().IsFavorite(identifier))
+					{
+						Favorite::Ref().RemoveFavorite(identifier);
+						c->RebuildFavoritesMenu();
+					}
+					else if (identifier.BeginsWith("DEFAULT_PT_LIFECUST_"))
+					{
+						if (ConfirmPrompt::Blocking("Remove custom GOL type", "Are you sure you want to remove " + identifier.Substr(20).FromUtf8() + "?"))
+						{
+							c->RemoveCustomGOLType(identifier);
+						}
+					}
 				}
 			}
 			else
@@ -1004,9 +1020,9 @@ void GameView::updateToolButtonScroll()
 
 			scrollBar->Position.X = (int)(((float)mouseX/((float)XRES))*(float)(XRES-scrollSize));
 
-			float overflow = totalWidth-(XRES-BARSIZE), mouseLocation = float(XRES-3)/float((XRES-2)-mouseX); //mouseLocation adjusted slightly in case you have 200 elements in one menu
+			float overflow = float(totalWidth-(XRES-BARSIZE)), mouseLocation = float(XRES-3)/float((XRES-2)-mouseX); //mouseLocation adjusted slightly in case you have 200 elements in one menu
 
-			newInitialX += overflow/mouseLocation;
+			newInitialX += int(overflow/mouseLocation);
 		}
 		else
 		{
@@ -1116,6 +1132,9 @@ void GameView::OnMouseDown(int x, int y, unsigned button)
 				return;
 			Tool *lastTool = c->GetActiveTool(toolIndex);
 			c->SetLastTool(lastTool);
+			windTool = lastTool->GetIdentifier() == "DEFAULT_UI_WIND";
+			decoBrush = lastTool->GetIdentifier().BeginsWith("DEFAULT_DECOR_");
+
 			UpdateDrawMode();
 
 			isMouseDown = true;
@@ -1345,8 +1364,6 @@ void GameView::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl,
 	switch(scan)
 	{
 	case SDL_SCANCODE_GRAVE:
-		SDL_StopTextInput();
-		SDL_StartTextInput();
 		c->ShowConsole();
 		break;
 	case SDL_SCANCODE_SPACE: //Space
@@ -1688,7 +1705,7 @@ void GameView::OnTick(float dt)
 
 	if(introText)
 	{
-		introText -= int(dt)>0?((int)dt < 5? dt:5):1;
+		introText -= int(dt)>0?(int(dt) < 5? int(dt):5):1;
 		if(introText < 0)
 			introText  = 0;
 	}
@@ -1764,6 +1781,12 @@ void GameView::DoTextInput(String text)
 {
 	if (c->TextInput(text))
 		Window::DoTextInput(text);
+}
+
+void GameView::DoTextEditing(String text)
+{
+	if (c->TextEditing(text))
+		Window::DoTextEditing(text);
 }
 
 void GameView::DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
@@ -2018,7 +2041,7 @@ void GameView::OnDraw()
 		ren->clearScreen(1.0f);
 		ren->RenderBegin();
 		ren->SetSample(c->PointTranslate(currentMouse).X, c->PointTranslate(currentMouse).Y);
-		if (selectMode == SelectNone && (!zoomEnabled || zoomCursorFixed) && activeBrush && (isMouseDown || (currentMouse.X >= 0 && currentMouse.X < XRES && currentMouse.Y >= 0 && currentMouse.Y < YRES)))
+		if (showBrush && selectMode == SelectNone && (!zoomEnabled || zoomCursorFixed) && activeBrush && (isMouseDown || (currentMouse.X >= 0 && currentMouse.X < XRES && currentMouse.Y >= 0 && currentMouse.Y < YRES)))
 		{
 			ui::Point finalCurrentMouse = c->PointTranslate(currentMouse);
 			ui::Point initialDrawPoint = drawPoint1;
@@ -2185,7 +2208,7 @@ void GameView::OnDraw()
 		String sampleInfo = String::Build("#", screenshotIndex, " ", String(0xE00E), " REC");
 
 		int textWidth = Graphics::textwidth(sampleInfo);
-		g->fillrect(XRES-20-textWidth, 12, textWidth+8, 15, 0, 0, 0, 255*0.5);
+		g->fillrect(XRES-20-textWidth, 12, textWidth+8, 15, 0, 0, 0, 127);
 		g->drawtext(XRES-16-textWidth, 16, sampleInfo, 255, 50, 20, 255);
 	}
 	else if(showHud)
@@ -2262,10 +2285,12 @@ void GameView::OnDraw()
 					// Some elements store extra LIFE info in upper bits of ctype, instead of tmp/tmp2
 					else if (type == PT_CRAY || type == PT_DRAY || type == PT_CONV)
 						sampleInfo << " (" << c->ElementResolve(TYP(ctype), ID(ctype)) << ")";
+					else if (type == PT_CLNE || type == PT_BCLN || type == PT_PCLN || type == PT_PBCN)
+						sampleInfo << " (" << c->ElementResolve(ctype, sample.particle.tmp) << ")";
 					else if (c->IsValidElement(ctype))
 						sampleInfo << " (" << c->ElementResolve(ctype, -1) << ")";
-					else
-						sampleInfo << " ()";
+					else if (ctype)
+						sampleInfo << " (" << ctype << ")";
 				}
 				sampleInfo << ", Temp: " << (sample.particle.temp - 273.15f) << " C";
 				sampleInfo << ", Life: " << sample.particle.life;
@@ -2320,8 +2345,8 @@ void GameView::OnDraw()
 		}
 
 		int textWidth = Graphics::textwidth(sampleInfo.Build());
-		g->fillrect(XRES-20-textWidth, 12, textWidth+8, 15, 0, 0, 0, alpha*0.5f);
-		g->drawtext(XRES-16-textWidth, 16, sampleInfo.Build(), 255, 255, 255, alpha*0.75f);
+		g->fillrect(XRES-20-textWidth, 12, textWidth+8, 15, 0, 0, 0, int(alpha*0.5f));
+		g->drawtext(XRES-16-textWidth, 16, sampleInfo.Build(), 255, 255, 255, int(alpha*0.75f));
 
 		// 3rd line where it displays the life and stuff (Yeah it's out of order)
 		StringBuilder sampleInfo2;
@@ -2472,8 +2497,8 @@ void GameView::OnDraw()
 				sampleInfo << ", GX: " << sample.GravityVelocityX << " GY: " << sample.GravityVelocityY;
 
 			textWidth = Graphics::textwidth(sampleInfo.Build());
-			g->fillrect(XRES-20-textWidth, 27, textWidth+8, 14, 0, 0, 0, alpha*0.5f);
-			g->drawtext(XRES-16-textWidth, 30, sampleInfo.Build(), 255, 255, 255, alpha*0.75f);
+			g->fillrect(XRES-20-textWidth, 27, textWidth+8, 14, 0, 0, 0, int(alpha*0.5f));
+			g->drawtext(XRES-16-textWidth, 30, sampleInfo.Build(), 255, 255, 255, int(alpha*0.75f));
 		}
 	}
 
@@ -2492,6 +2517,7 @@ void GameView::OnDraw()
 
 		int textWidth = Graphics::textwidth(fpsInfo.Build());
 		int alpha = 255-introText*5;
+<<<<<<< HEAD
 		if (shouldHideHUD)
 			alpha = std::min(alpha, c->PointTranslate(currentMouse).Y * 2);
 		g->fillrect(12, 11, textWidth+8, 15, 0, 0, 0, alpha*0.5);
@@ -2584,6 +2610,10 @@ void GameView::OnDraw()
 		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding, "Target FPS", 255, 0, 0, 255);
 		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding + 12, "Actual FPS", 255, 255, 0, 255);
 		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding + 24, "Particles", 0, 100, 255, 255);
+=======
+		g->fillrect(12, 12, textWidth+8, 15, 0, 0, 0, int(alpha*0.5));
+		g->drawtext(16, 16, fpsInfo.Build(), 32, 216, 255, int(alpha*0.75));
+>>>>>>> upstream/master
 	}
 
 	// Clear menu areas, to ensure particle graphics don't overlap
@@ -2615,7 +2645,7 @@ void GameView::OnDraw()
 	}
 
 	//Introduction text
-	if(introText)
+	if(introText && showHud)
 	{
 		g->fillrect(0, 0, WINDOWW, WINDOWH, 0, 0, 0, introText>51?102:introText*2);
 		g->drawtext(16, 20, introTextMessage, 255, 255, 255, introText>51?255:introText*5);

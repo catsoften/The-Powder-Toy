@@ -1,6 +1,6 @@
-#ifndef RENDERER
-
+#include "Config.h"
 #include "common/tpt-minmax.h"
+
 #include <map>
 #include <ctime>
 #include <climits>
@@ -25,12 +25,16 @@
 #include <stdexcept>
 
 #ifndef WIN
-#include <unistd.h>
+# include <unistd.h>
 #endif
 #ifdef MACOSX
-#include <CoreServices/CoreServices.h>
-#include <sys/stat.h>
+# ifdef DEBUG
+#  undef DEBUG
+#  define DEBUG 1
+# endif
+# include <CoreServices/CoreServices.h>
 #endif
+#include <sys/stat.h>
 
 #include "Format.h"
 #include "Misc.h"
@@ -44,7 +48,6 @@
 
 #include "gui/game/GameController.h"
 #include "gui/game/GameView.h"
-#include "gui/font/FontEditor.h"
 #include "gui/dialogues/ErrorMessage.h"
 #include "gui/dialogues/ConfirmPrompt.h"
 #include "gui/interface/Keys.h"
@@ -64,7 +67,27 @@ bool fullscreen = false;
 bool altFullscreen = false;
 bool forceIntegerScaling = true;
 bool resizable = false;
+bool momentumScroll = true;
 
+void StartTextInput()
+{
+	SDL_StartTextInput();
+}
+
+void StopTextInput()
+{
+	SDL_StopTextInput();
+}
+
+void SetTextInputRect(int x, int y, int w, int h)
+{
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
+	rect.w = w;
+	rect.h = h;
+	SDL_SetTextInputRect(&rect);
+}
 
 void ClipboardPush(ByteString text)
 {
@@ -153,16 +176,20 @@ void blit(pixel * vid)
 }
 #endif
 
-void RecreateWindow();
-int SDLOpen()
+bool RecreateWindow();
+void SDLOpen()
 {
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
 	{
-		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
-		return 1;
+		fprintf(stderr, "Initializing SDL (video subsystem): %s\n", SDL_GetError());
+		exit(-1);
 	}
 
-	RecreateWindow();
+	if (!RecreateWindow())
+	{
+		fprintf(stderr, "Creating SDL window: %s\n", SDL_GetError());
+		exit(-1);
+	}
 
 	int displayIndex = SDL_GetWindowDisplayIndex(sdl_window);
 	if (displayIndex >= 0)
@@ -172,6 +199,14 @@ int SDLOpen()
 		{
 			desktopWidth = rect.w;
 			desktopHeight = rect.h;
+		}
+		if (Client::Ref().GetPrefBool("AutoDrawLimit", false))
+		{
+			SDL_DisplayMode displayMode;
+			if (!SDL_GetCurrentDisplayMode(displayIndex, &displayMode) && displayMode.refresh_rate >= 60)
+			{
+				ui::Engine::Ref().SetDrawingFrequencyLimit(displayMode.refresh_rate);
+			}
 		}
 	}
 
@@ -206,9 +241,6 @@ int SDLOpen()
 	SDL_SetWindowIcon(sdl_window, icon);
 	SDL_FreeSurface(icon);
 #endif
-	atexit(SDL_Quit);
-
-	return 0;
 }
 
 void SDLSetScreen(int scale_, bool resizable_, bool fullscreen_, bool altFullscreen_, bool forceIntegerScaling_)
@@ -243,7 +275,7 @@ void SDLSetScreen(int scale_, bool resizable_, bool fullscreen_, bool altFullscr
 	SDL_SetWindowResizable(sdl_window, resizable ? SDL_TRUE : SDL_FALSE);
 }
 
-void RecreateWindow()
+bool RecreateWindow()
 {
 	unsigned int flags = 0;
 	if (fullscreen)
@@ -264,6 +296,18 @@ void RecreateWindow()
 	sdl_window = SDL_CreateWindow("The Powder Toy Ultimata", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOWW * scale, WINDOWH * scale,
 								  flags);
 	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
+	if (!sdl_renderer)
+	{
+		fprintf(stderr, "SDL_CreateRenderer failed; available renderers:\n");
+		int num = SDL_GetNumRenderDrivers();
+		for (int i = 0; i < num; ++i)
+		{
+			SDL_RendererInfo info;
+			SDL_GetRenderDriverInfo(i, &info);
+			fprintf(stderr, " - %s\n", info.name);
+		}
+		return false;
+	}
 	SDL_RenderSetLogicalSize(sdl_renderer, WINDOWW, WINDOWH);
 	if (forceIntegerScaling && fullscreen)
 		SDL_RenderSetIntegerScale(sdl_renderer, SDL_TRUE);
@@ -275,6 +319,8 @@ void RecreateWindow()
 
 	if (!Client::Ref().IsFirstRun())
 		LoadWindowPosition();
+
+	return true;
 }
 
 unsigned int GetTicks()
@@ -297,12 +343,17 @@ std::map<ByteString, ByteString> readArguments(int argc, char * argv[])
 	arguments["open"] = "";
 	arguments["ddir"] = "";
 	arguments["ptsave"] = "";
+	arguments["font"] = "";
 
 	for (int i=1; i<argc; i++)
 	{
 		if (!strncmp(argv[i], "scale:", 6) && argv[i]+6)
 		{
 			arguments["scale"] = argv[i]+6;
+		}
+		if (!strncmp(argv[i], "font:", 5) && argv[i]+5)
+		{
+			arguments["font"] = argv[i]+5;
 		}
 		else if (!strncmp(argv[i], "proxy:", 6))
 		{
@@ -379,16 +430,35 @@ void EventProcess(SDL_Event event)
 			engine->Exit();
 		break;
 	case SDL_KEYDOWN:
+		if (SDL_GetModState() & KMOD_GUI)
+		{
+			break;
+		}
 		if (!event.key.repeat && event.key.keysym.sym == 'q' && (event.key.keysym.mod&KMOD_CTRL))
 			engine->ConfirmExit();
 		else
 			engine->onKeyPress(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
 		break;
 	case SDL_KEYUP:
+		if (SDL_GetModState() & KMOD_GUI)
+		{
+			break;
+		}
 		engine->onKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
 		break;
 	case SDL_TEXTINPUT:
+		if (SDL_GetModState() & KMOD_GUI)
+		{
+			break;
+		}
 		engine->onTextInput(ByteString(event.text.text).FromUtf8());
+		break;
+	case SDL_TEXTEDITING:
+		if (SDL_GetModState() & KMOD_GUI)
+		{
+			break;
+		}
+		engine->onTextEditing(ByteString(event.edit.text).FromUtf8(), event.edit.start);
 		break;
 	case SDL_MOUSEWHEEL:
 	{
@@ -418,11 +488,11 @@ void EventProcess(SDL_Event event)
 		// if mouse hasn't moved yet, sdl will send 0,0. We don't want that
 		if (hasMouseMoved)
 		{
-			mousex = event.motion.x;
-			mousey = event.motion.y;
+			mousex = event.button.x;
+			mousey = event.button.y;
 		}
 		mouseButton = event.button.button;
-		engine->onMouseClick(event.motion.x, event.motion.y, mouseButton);
+		engine->onMouseClick(mousex, mousey, mouseButton);
 
 		mouseDown = true;
 #if !defined(NDEBUG) && !defined(DEBUG)
@@ -433,8 +503,8 @@ void EventProcess(SDL_Event event)
 		// if mouse hasn't moved yet, sdl will send 0,0. We don't want that
 		if (hasMouseMoved)
 		{
-			mousex = event.motion.x;
-			mousey = event.motion.y;
+			mousex = event.button.x;
+			mousey = event.button.y;
 		}
 		mouseButton = event.button.button;
 		engine->onMouseUnclick(mousex, mousey, mouseButton);
@@ -453,6 +523,7 @@ void EventProcess(SDL_Event event)
 			{
 				//initial mouse coords, sdl won't tell us this if mouse hasn't moved
 				CalculateMousePosition(&mousex, &mousey);
+				engine->initialMouse(mousex, mousey);
 				engine->onMouseMove(mousex, mousey);
 				calculatedInitialMouse = true;
 			}
@@ -508,13 +579,12 @@ void EngineProcess()
 	double frameTimeAvg = 0.0f, correctedFrameTimeAvg = 0.0f;
 	SDL_Event event;
 
-	float drawingTimer = 0;
-	int oldFrameStart = 0;
+	int drawingTimer = 0;
 	int frameStart = 0;
 
 	while(engine->Running())
 	{
-		oldFrameStart = frameStart;
+		int oldFrameStart = frameStart;
 		frameStart = SDL_GetTicks();
 		drawingTimer += frameStart - oldFrameStart;
 
@@ -528,7 +598,9 @@ void EngineProcess()
 		if(engine->Broken()) { engine->UnBreak(); break; }
 		engine->Tick();
 
-		if (drawingTimer > 1000 / ui::Engine::Ref().GetDrawingFrequencyLimit()) {
+		int drawcap = ui::Engine::Ref().GetDrawingFrequencyLimit();
+		if (!drawcap || drawingTimer > 1000.f/drawcap)
+		{
 			engine->Draw();
 			drawingTimer = 0;
 
@@ -537,24 +609,24 @@ void EngineProcess()
 					forceIntegerScaling != engine->GetForceIntegerScaling() || resizable != engine->GetResizable())
 			{
 				SDLSetScreen(engine->Scale, engine->GetResizable(), engine->Fullscreen, engine->GetAltFullscreen(),
-							engine->GetForceIntegerScaling());
+							 engine->GetForceIntegerScaling());
 			}
 
-	#ifdef OGLI
+#ifdef OGLI
 			blit();
-	#else
+#else
 			blit(engine->g->vid);
-	#endif
+#endif
 		}
 
 		int frameTime = SDL_GetTicks() - frameStart;
 		frameTimeAvg = frameTimeAvg * 0.8 + frameTime * 0.2;
-		int fpsLimit = ui::Engine::Ref().FpsLimit;
+		float fpsLimit = ui::Engine::Ref().FpsLimit;
 		if(fpsLimit > 2)
 		{
 			double offset = 1000.0 / fpsLimit - frameTimeAvg;
 			if(offset > 0)
-				SDL_Delay(offset + 0.5);
+				SDL_Delay(Uint32(offset + 0.5));
 		}
 		int correctedFrameTime = SDL_GetTicks() - frameStart;
 		correctedFrameTimeAvg = correctedFrameTimeAvg * 0.95 + correctedFrameTime * 0.05;
@@ -636,23 +708,6 @@ void SigHandler(int signal)
 	}
 }
 
-void ChdirToDataDirectory()
-{
-#ifdef MACOSX
-	FSRef ref;
-	OSType folderType = kApplicationSupportFolderType;
-	char path[PATH_MAX];
-
-	FSFindFolder( kUserDomain, folderType, kCreateFolder, &ref );
-
-	FSRefMakePath( &ref, (UInt8*)&path, PATH_MAX );
-
-	std::string tptPath = std::string(path) + "/The Powder Toy";
-	mkdir(tptPath.c_str(), 0755);
-	chdir(tptPath.c_str());
-#endif
-}
-
 constexpr int SCALE_MAXIMUM = 10;
 constexpr int SCALE_MARGIN = 30;
 
@@ -671,6 +726,10 @@ int GuessBestScale()
 	return guess;
 }
 
+#ifdef main
+# undef main // thank you sdl
+#endif
+
 int main(int argc, char * argv[])
 {
 #if defined(_DEBUG) && defined(_MSC_VER)
@@ -680,22 +739,60 @@ int main(int argc, char * argv[])
 	currentHeight = WINDOWH;
 
 
+	// https://bugzilla.libsdl.org/show_bug.cgi?id=3796
+	if (SDL_Init(0) < 0)
+	{
+		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
+		return 1;
+	}
+
 	std::map<ByteString, ByteString> arguments = readArguments(argc, argv);
 
 	if(arguments["ddir"].length())
+	{
 #ifdef WIN
-		_chdir(arguments["ddir"].c_str());
+		int failure = _chdir(arguments["ddir"].c_str());
 #else
-		chdir(arguments["ddir"].c_str());
+		int failure = chdir(arguments["ddir"].c_str());
 #endif
+		if (failure)
+		{
+			perror("failed to chdir to requested ddir");
+		}
+	}
 	else
-		ChdirToDataDirectory();
+	{
+#ifdef WIN
+		struct _stat s;
+		if(_stat("powder.pref", &s) != 0)
+#else
+		struct stat s;
+		if(stat("powder.pref", &s) != 0)
+#endif
+		{
+			char *ddir = SDL_GetPrefPath(NULL, "The Powder Toy");
+			if(ddir)
+			{
+#ifdef WIN
+				int failure = _chdir(ddir);
+#else
+				int failure = chdir(ddir);
+#endif
+				if (failure)
+				{
+					perror("failed to chdir to default ddir");
+				}
+				SDL_free(ddir);
+			}
+		}
+	}
 
 	scale = Client::Ref().GetPrefInteger("Scale", 1);
 	resizable = Client::Ref().GetPrefBool("Resizable", false);
 	fullscreen = Client::Ref().GetPrefBool("Fullscreen", false);
 	altFullscreen = Client::Ref().GetPrefBool("AltFullscreen", false);
 	forceIntegerScaling = Client::Ref().GetPrefBool("ForceIntegerScaling", true);
+	momentumScroll = Client::Ref().GetPrefBool("MomentumScroll", true);
 
 
 	if(arguments["kiosk"] == "true")
@@ -706,8 +803,12 @@ int main(int argc, char * argv[])
 
 	if(arguments["redirect"] == "true")
 	{
-		freopen("stdout.log", "w", stdout);
-		freopen("stderr.log", "w", stderr);
+		FILE *new_stdout = freopen("stdout.log", "w", stdout);
+		FILE *new_stderr = freopen("stderr.log", "w", stderr);
+		if (!new_stdout || !new_stderr)
+		{
+			exit(42);
+		}
 	}
 
 	if(arguments["scale"].length())
@@ -776,6 +877,7 @@ int main(int argc, char * argv[])
 	ui::Engine::Ref().Fullscreen = fullscreen;
 	ui::Engine::Ref().SetAltFullscreen(altFullscreen);
 	ui::Engine::Ref().SetForceIntegerScaling(forceIntegerScaling);
+	ui::Engine::Ref().SetMomentumScroll(momentumScroll);
 
 	engine = &ui::Engine::Ref();
 	engine->SetMaxSize(desktopWidth, desktopHeight);
@@ -802,7 +904,6 @@ int main(int argc, char * argv[])
 	try {
 #endif
 
-#ifndef FONTEDITOR
 		gameController = new GameController();
 		engine->ShowWindow(gameController->GetView());
 
@@ -890,28 +991,8 @@ int main(int argc, char * argv[])
 			}
 		}
 
-#else // FONTEDITOR
-		if(argc <= 1)
-			throw std::runtime_error("Usage: \n"
-				"    Edit the font:\n"
-				"        " + ByteString(argv[0]) + " ./data/font.cpp\n"
-				"    Copy characters from source to target:\n"
-				"        " + ByteString(argv[0]) + " <target/font.cpp> <source/font.cpp>\n");
-		if(argc <= 2)
-		{
-			engine->ShowWindow(new FontEditor(argv[1]));
-			EngineProcess();
-			SaveWindowPosition();
-		}
-		else
-		{
-			FontEditor(argv[1], argv[2]);
-		}
-#endif
-#ifndef FONTEDITOR
 		EngineProcess();
 		SaveWindowPosition();
-#endif
 
 #if !defined(DEBUG) && !defined(_DEBUG)
 	}
@@ -926,7 +1007,17 @@ int main(int argc, char * argv[])
 	delete gameController;
 	delete ui::Engine::Ref().g;
 	Client::Ref().Shutdown();
+	if (SDL_GetWindowFlags(sdl_window) & SDL_WINDOW_OPENGL)
+	{
+		// * nvidia-460 egl registers callbacks with x11 that end up being called
+		//   after egl is unloaded unless we grab it here and release it after
+		//   sdl closes the display. this is an nvidia driver weirdness but
+		//   technically an sdl bug. glfw has this fixed:
+		//   https://github.com/glfw/glfw/commit/9e6c0c747be838d1f3dc38c2924a47a42416c081
+		SDL_GL_LoadLibrary(NULL);
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+		SDL_GL_UnloadLibrary();
+	}
+	SDL_Quit();
 	return 0;
 }
-
-#endif

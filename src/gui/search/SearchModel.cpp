@@ -201,8 +201,24 @@ void SearchModel::SelectSave(int saveID)
 
 void SearchModel::SelectAllSaves()
 {
+<<<<<<< HEAD
 	for (size_t i = 0; i < saveList.size(); i++) {
 		SelectSave(saveList[i]->id);
+=======
+	if (selected.size() == saveList.size())
+	{
+		for (auto &save : saveList)
+		{
+			DeselectSave(save->id);
+		}
+	}
+	else
+	{
+		for (auto &save : saveList)
+		{
+			SelectSave(save->id);
+		}
+>>>>>>> upstream/master
 	}
 }
 

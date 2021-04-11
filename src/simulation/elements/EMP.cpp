@@ -169,7 +169,7 @@ void Element_EMP_Trigger(Simulation *sim, int triggerCount)
 								if (RNG::Ref().uniform01() < prob_randWIFI)
 								{
 									// Randomize channel
-									parts[n].temp = RNG::Ref().between(0, MAX_TEMP-1);
+									parts[n].temp = float(RNG::Ref().between(0, MAX_TEMP-1));
 								}
 								if (RNG::Ref().uniform01() < prob_breakWIFI)
 								{
@@ -214,8 +214,8 @@ static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	if(cpart->life)
 	{
-		*colr = cpart->life*1.5;
-		*colg = cpart->life*1.5;
+		*colr = int(cpart->life*1.5);
+		*colg = int(cpart->life*1.5);
 		*colb = 200-(cpart->life);
 	}
 	return 0;

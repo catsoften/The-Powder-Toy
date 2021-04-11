@@ -181,11 +181,19 @@ void SearchController::SelectAllSaves()
 {
 	if (!Client::Ref().GetAuthUser().UserID)
 		return;
+<<<<<<< HEAD
 	if (searchModel->GetShowOwn())
 		searchModel->SelectAllSaves();
 	else if (Client::Ref().GetAuthUser().UserElevation == User::ElevationModerator
 		|| Client::Ref().GetAuthUser().UserElevation == User::ElevationAdmin)
 		searchModel->SelectAllSaves();
+=======
+	if (searchModel->GetShowOwn() || 
+		Client::Ref().GetAuthUser().UserElevation == User::ElevationModerator || 
+		Client::Ref().GetAuthUser().UserElevation == User::ElevationAdmin)
+		searchModel->SelectAllSaves();
+
+>>>>>>> upstream/master
 }
 
 void SearchController::InstantOpen(bool instant)
@@ -259,7 +267,7 @@ void SearchController::removeSelectedC()
 					c->Refresh();
 					return false;
 				}
-				notifyProgress((float(i+1)/float(saves.size())*100));
+				notifyProgress((i + 1) * 100 / saves.size());
 			}
 			c->Refresh();
 			return true;
@@ -328,7 +336,7 @@ void SearchController::unpublishSelectedC(bool publish)
 					c->Refresh();
 					return false;
 				}
-				notifyProgress((float(i+1)/float(saves.size())*100));
+				notifyProgress((i + 1) * 100 / saves.size());
 			}
 			c->Refresh();
 			return true;
@@ -356,7 +364,7 @@ void SearchController::FavouriteSelected()
 					notifyError(String::Build("Failed to favourite [", saves[i], "]: " + Client::Ref().GetLastError()));
 					return false;
 				}
-				notifyProgress((float(i+1)/float(saves.size())*100));
+				notifyProgress((i + 1) * 100 / saves.size());
 			}
 			return true;
 		}
@@ -377,7 +385,7 @@ void SearchController::FavouriteSelected()
 					notifyError(String::Build("Failed to unfavourite [", saves[i], "]: " + Client::Ref().GetLastError()));
 					return false;
 				}
-				notifyProgress((float(i+1)/float(saves.size())*100));
+				notifyProgress((i + 1) * 100 / saves.size());
 			}
 			return true;
 		}

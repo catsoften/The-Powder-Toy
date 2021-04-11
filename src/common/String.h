@@ -1,5 +1,5 @@
-#ifndef TPT_STRING_H // Used to be #pragma once, but then VS shits itself
-#define TPT_STRING_H
+#pragma once
+#include "Config.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -8,6 +8,8 @@
 #include <limits>
 #include <locale>
 #include <ios>
+
+#include "tpt-minmax.h"
 
 /*
 	There are two "string" classes: ByteString and String. They have nearly

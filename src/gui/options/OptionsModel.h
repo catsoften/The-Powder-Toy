@@ -1,5 +1,6 @@
 #ifndef OPTIONSMODEL_H_
 #define OPTIONSMODEL_H_
+#include "Config.h"
 
 #include <vector>
 
@@ -51,6 +52,7 @@ public:
 	void SetIncludePressure(bool includePressure);
 	bool GetPerfectCircle();
 	void SetPerfectCircle(bool perfectCircle);
+<<<<<<< HEAD
 	bool GetAutoSelectOppositeTool();
 	void SetAutoSelectOppositeTool(bool oppositeTool);
 	bool GetSecretModShortcut();
@@ -69,6 +71,12 @@ public:
 	void SetFasterRenderer(bool enabled);
 	bool GetSoundEnabled();
 	void SetSoundEnabled(bool enabled);
+=======
+	bool GetMomentumScroll();
+	void SetMomentumScroll(bool momentumScroll);
+	bool GetAutoDrawLimit();
+	void SetAutoDrawLimit(bool autoDrawLimit);
+>>>>>>> upstream/master
 	virtual ~OptionsModel();
 };
 

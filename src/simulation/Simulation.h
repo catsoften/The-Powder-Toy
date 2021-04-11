@@ -1,5 +1,6 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
+#include "Config.h"
 
 #include <cstring>
 #include <cstddef>
@@ -12,7 +13,7 @@
 #include "WallType.h"
 #include "Sign.h"
 #include "ElementDefs.h"
-#include "GOLMenu.h"
+#include "BuiltinGOL.h"
 #include "MenuSection.h"
 #include "Stasis.h"
 
@@ -57,9 +58,6 @@ public:
 	std::vector<SimTool> tools;
 	std::vector<unsigned int> platent;
 	std::vector<wall_type> wtypes;
-	std::vector<gol_menu> gmenu;
-	std::vector<int> goltype;
-	std::vector<std::array<int, 10> > grule;
 	std::vector<menu_section> msections;
 
 	int currentTick;
@@ -104,8 +102,7 @@ public:
 	//Gol sim
 	int CGOL;
 	int GSPEED;
-	unsigned char gol[YRES][XRES];
-	unsigned short gol2[YRES][XRES][9];
+	unsigned int gol[YRES][XRES][5];
 	//Air sim
 	float (*vx)[XRES/CELL];
 	float (*vy)[XRES/CELL];
@@ -257,6 +254,25 @@ public:
 
 	String ElementResolve(int type, int ctype);
 	String BasicParticleInfo(Particle const &sample_part);
+
+
+	struct CustomGOLData
+	{
+		int rule, colour1, colour2;
+		String nameString, ruleString;
+
+		inline bool operator <(const CustomGOLData &other) const
+		{
+			return rule < other.rule;
+		}
+	};
+
+private:
+	std::vector<CustomGOLData> customGol;
+
+public:
+	const CustomGOLData *GetCustomGOLByRule(int rule) const;
+	void SetCustomGOL(std::vector<CustomGOLData> newCustomGol);
 
 private:
 	CoordStack& getCoordStackSingleton();

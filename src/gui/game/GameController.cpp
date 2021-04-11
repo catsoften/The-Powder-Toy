@@ -60,11 +60,11 @@
 #include "debug/ParticleDebug.h"
 
 #ifdef LUACONSOLE
-#include "lua/LuaScriptInterface.h"
+# include "lua/LuaScriptInterface.h"
+# include "lua/LuaEvents.h"
 #else
-#include "lua/TPTScriptInterface.h"
+# include "lua/TPTScriptInterface.h"
 #endif
-#include "lua/LuaEvents.h"
 
 #include "graphics/Renderer.h"
 
@@ -496,12 +496,12 @@ void GameController::LoadStamp(GameSave *stamp)
 
 void GameController::TranslateSave(ui::Point point)
 {
-	vector2d translate = v2d_new(point.X, point.Y);
+	vector2d translate = v2d_new(float(point.X), float(point.Y));
 	vector2d translated = gameModel->GetPlaceSave()->Translate(translate);
 	ui::Point currentPlaceSaveOffset = gameView->GetPlaceSaveOffset();
 	// resets placeSaveOffset to 0, which is why we back it up first
 	gameModel->SetPlaceSave(gameModel->GetPlaceSave());
-	gameView->SetPlaceSaveOffset(ui::Point(translated.x, translated.y) + currentPlaceSaveOffset);
+	gameView->SetPlaceSaveOffset(ui::Point(int(translated.x), int(translated.y)) + currentPlaceSaveOffset);
 }
 
 void GameController::TransformSave(matrix2d transform)
@@ -655,6 +655,12 @@ bool GameController::TextInput(String text)
 	return commandInterface->HandleEvent(LuaEvents::textinput, &ev);
 }
 
+bool GameController::TextEditing(String text)
+{
+	TextEditingEvent ev(text);
+	return commandInterface->HandleEvent(LuaEvents::textediting, &ev);
+}
+
 bool GameController::KeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	KeyEvent ev(key, scan, repeat, shift, ctrl, alt);
@@ -789,6 +795,12 @@ void GameController::Tick()
 		}
 #endif
 		firstTick = false;
+	}
+	if (gameModel->SelectNextIdentifier.length())
+	{
+		gameModel->BuildMenus();
+		gameModel->SetActiveTool(gameModel->SelectNextTool, gameModel->GetToolFromIdentifier(gameModel->SelectNextIdentifier));
+		gameModel->SelectNextIdentifier.clear();
 	}
 	for(std::vector<DebugInfo*>::iterator iter = debugInfo.begin(), end = debugInfo.end(); iter != end; iter++)
 	{
@@ -1050,6 +1062,16 @@ bool GameController::GetHudEnable()
 	return gameView->GetHudEnable();
 }
 
+void GameController::SetBrushEnable(bool brushState)
+{
+	gameView->SetBrushEnable(brushState);
+}
+
+bool GameController::GetBrushEnable()
+{
+	return gameView->GetBrushEnable();
+}
+
 void GameController::SetDebugHUD(bool hudState)
 {
 	gameView->SetDebugHUD(hudState);
@@ -1170,8 +1192,15 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 	}
 	if (tool->GetIdentifier() == "DEFAULT_UI_PROPERTY")
 		((PropertyTool *)tool)->OpenWindow(gameModel->GetSimulation());
+<<<<<<< HEAD
 	else if (tool->GetIdentifier() == "DEFAULT_UI_PROPERTY2")
 		((PropertyTool2 *)tool)->OpenWindow(gameModel->GetSimulation());
+=======
+	if(tool->GetIdentifier() == "DEFAULT_UI_ADDLIFE")
+	{
+		((GOLTool *)tool)->OpenWindow(gameModel->GetSimulation(), toolSelection);
+	}
+>>>>>>> upstream/master
 }
 
 void GameController::SetActiveTool(int toolSelection, ByteString identifier)
@@ -1358,8 +1387,13 @@ void GameController::OpenElementSearch()
 {
 	std::vector<Tool*> toolList;
 	std::vector<Menu*> menuList = gameModel->GetMenuList();
-	for(auto *mm : menuList)
+	for (auto i = 0U; i < menuList.size(); ++i)
 	{
+		if (i == SC_FAVORITES)
+		{
+			continue;
+		}
+		auto *mm = menuList[i];
 		if(!mm)
 			continue;
 		std::vector<Tool*> menuToolList = mm->GetToolList();
@@ -1732,4 +1766,9 @@ void GameController::RunUpdater()
 bool GameController::GetMouseClickRequired()
 {
 	return gameModel->GetMouseClickRequired();
+}
+
+void GameController::RemoveCustomGOLType(const ByteString &identifier)
+{
+	gameModel->RemoveCustomGOLType(identifier);
 }
