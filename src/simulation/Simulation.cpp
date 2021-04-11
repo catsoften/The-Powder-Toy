@@ -599,6 +599,7 @@ void Simulation::Restore(const Snapshot & snap)
 		parts[i].type = 0;
 	std::copy(snap.Particles.begin(), snap.Particles.end(), parts);
 	parts_lastActiveIndex = NPART-1;
+	air->RecalculateBlockAirMaps();
 	RecalcFreeParticles(false);
 
 	memset(portalp, 0, sizeof(portalp));
