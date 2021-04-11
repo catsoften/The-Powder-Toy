@@ -686,4 +686,3 @@ template<typename... Ts> String String::Build(Ts&&... args)
 }
 
 #include "common/Format.h"
-#endif

@@ -7,6 +7,14 @@ simulation_tool_ids = [
 	[ 'NGRV', 5 ],
 	[ 'MIX',  6 ],
 	[ 'CYCL', 7 ],
+	[ 'DECO', 8 ],
+	[ 'NORM', 9 ],
+	[ 'ERODE', 10 ],
+	[ 'RSET', 11 ],
+	[ 'SLOW', 12 ],
+	[ 'FAST', 13 ],
+	[ 'ACOL', 14 ],
+	[ 'AHET', 15 ]
 ]
 
 simulation_tool_src = []

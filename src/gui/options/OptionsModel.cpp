@@ -226,7 +226,6 @@ void OptionsModel::SetPerfectCircle(bool perfectCircle)
 	notifySettingsChanged();
 }
 
-<<<<<<< HEAD
 bool OptionsModel::GetAutoSelectOppositeTool() {
 	return Client::Ref().GetPrefBool("AutoOppositeTool", true);
 }
@@ -314,7 +313,8 @@ bool OptionsModel::GetSoundEnabled() {
 void OptionsModel::SetSoundEnabled(bool enabled) {
 	Client::Ref().SetPref("SoundEnabled", enabled);
 	gModel->SetSoundEnabled(enabled);
-=======
+}
+
 bool OptionsModel::GetMomentumScroll()
 {
 	return Client::Ref().GetPrefBool("MomentumScroll", true);
@@ -335,7 +335,6 @@ bool OptionsModel::GetAutoDrawLimit()
 void OptionsModel::SetAutoDrawLimit(bool state)
 {
 	Client::Ref().SetPref("AutoDrawLimit", state);
->>>>>>> upstream/master
 	notifySettingsChanged();
 }
 

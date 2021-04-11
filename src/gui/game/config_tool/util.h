@@ -9,6 +9,8 @@
 #include "gui/interface/Window.h"
 #include "simulation/ElementCommon.h"
 
+const int FONT_H = 10; // TODO: what was this
+
 // Collection of util for config tool
 /* Pre aligned elements:
  * make_left_textbox(same args as ui::Textbox constructor)

@@ -222,6 +222,7 @@ int Element_FIRE_update(UPDATE_FUNC_ARGS)
 						parts[i].tmp = 0;
 						parts[i].tmp2 = 0;
 						parts[i].pavg[0] = 0;
+					}
 					else if (rt == PT_O2 && parts[i].ctype == PT_SLCN)
 					{
 						switch (RNG::Ref().between(0, 2))

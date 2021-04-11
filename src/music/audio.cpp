@@ -3,8 +3,7 @@
 #include "music/synth/violin.h"
 
 #include <cmath>
-#include <SDL.h>
-#include <SDL_audio.h>
+#include <SDL2/SDL_audio.h>
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <algorithm> // VS is retarded and can't find this shit

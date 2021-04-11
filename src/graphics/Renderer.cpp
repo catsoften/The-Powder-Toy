@@ -135,11 +135,8 @@ void Renderer::RenderBegin()
 	draw_electric_field();
 	DrawWalls();
 	render_parts();
-<<<<<<< HEAD
 	draw_stress_field();
-=======
 	
->>>>>>> upstream/master
 	if(display_mode & DISPLAY_PERS)
 	{
 		int i,r,g,b;

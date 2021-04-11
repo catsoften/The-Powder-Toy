@@ -402,22 +402,17 @@ void GameModel::BuildMenus()
 		menuList[SC_TOOL]->AddTool(tempTool);
 	}
 	//Add special sign and prop tools
-	menuList[SC_TOOL]->AddTool(new TransformTool(this));
 	menuList[SC_TOOL]->AddTool(new WindTool(0, "WIND", "Creates air movement.", 64, 64, 64, "DEFAULT_UI_WIND"));
-<<<<<<< HEAD
-	menuList[SC_TOOL]->AddTool(new PropertyTool());
-	menuList[SC_TOOL]->AddTool(new PropertyTool2());
-	menuList[SC_TOOL]->AddTool(new ConfigTool(this));
 	menuList[SC_TOOL]->AddTool(new SignTool(this));
 	menuList[SC_TOOL]->AddTool(new SampleTool(this));
+	menuList[SC_TOOL]->AddTool(new PropertyTool(this));
+	menuList[SC_LIFE]->AddTool(new GOLTool(this));
+
+	menuList[SC_TOOL]->AddTool(new TransformTool(this));
+	menuList[SC_TOOL]->AddTool(new ConfigTool(this));
 	menuList[SC_TOOL]->AddTool(new TextTool(this));
 	menuList[SC_TOOL]->AddTool(new RulerTool(this));
-=======
-	menuList[SC_TOOL]->AddTool(new PropertyTool(this));
-	menuList[SC_TOOL]->AddTool(new SignTool(this));
-	menuList[SC_TOOL]->AddTool(new SampleTool(this));
-	menuList[SC_LIFE]->AddTool(new GOLTool(this));
->>>>>>> upstream/master
+	menuList[SC_TOOL]->AddTool(new PropertyTool2());
 
 	//Add decoration tools to menu
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_ADD, "ADD", "Colour blending: Add.", 0, 0, 0, "DEFAULT_DECOR_ADD"));
@@ -1536,7 +1531,6 @@ void GameModel::SetPerfectCircle(bool perfectCircle)
 	}
 }
 
-<<<<<<< HEAD
 void GameModel::SetCrosshairInBrush(bool t) {
 	if (t != crosshairInBrush) {
 		crosshairInBrush = t;
@@ -1557,7 +1551,7 @@ void GameModel::SetSoundEnabled(bool t) {
 	if (NOTE::sound_handler)
 		!t ? NOTE::sound_handler->play() : NOTE::sound_handler->stop();
 }
-=======
+
 void GameModel::RemoveCustomGOLType(const ByteString &identifier)
 {
 	auto customGOLTypes = Client::Ref().GetPrefByteStringArray("CustomGOL.Types");
@@ -1581,4 +1575,3 @@ void GameModel::RemoveCustomGOLType(const ByteString &identifier)
 	Client::Ref().SetPref("CustomGOL.Types", newCustomGOLTypes);
 	BuildMenus();
 }
->>>>>>> upstream/master

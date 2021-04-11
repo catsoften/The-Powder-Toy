@@ -76,22 +76,7 @@ void Textbox::SetText(String newText)
 
 	cursor = newText.length();
 
-<<<<<<< HEAD
-	if(cursor)
-	{
-		textWrapper.Index2Point(textWrapper.Clear2Index(cursor), cursorPositionX, cursorPositionY);
-		if (newText.EndsWith('\n')) { // Newline doesn't reset cursor to beginning until next char, this fixes that
-			cursorPositionX = 0;
-			cursorPositionY += FONT_H;
-		}
-	}
-	else
-	{
-		cursorPositionY = cursorPositionX = 0;
-	}
-=======
 	resetCursorPosition();
->>>>>>> upstream/master
 }
 
 Textbox::ValidInput Textbox::GetInputType()
@@ -498,22 +483,7 @@ void Textbox::AfterTextChange(bool changed)
 	updateSelection();
 	TextPosition(displayTextWrapper.WrappedText());
 
-<<<<<<< HEAD
-	if(cursor)
-	{
-		textWrapper.Index2Point(textWrapper.Clear2Index(cursor), cursorPositionX, cursorPositionY);
-		if (backingText.EndsWith('\n')) { // Newline doesn't reset cursor to beginning until next char, this fixes that
-			cursorPositionX = 0;
-			cursorPositionY += FONT_H;
-		}
-	}
-	else
-	{
-		cursorPositionY = cursorPositionX = 0;
-	}
-=======
 	resetCursorPosition();
->>>>>>> upstream/master
 	if (changed && actionCallback.change)
 		actionCallback.change();
 }

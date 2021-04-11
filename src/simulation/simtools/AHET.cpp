@@ -2,7 +2,7 @@
 
 static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength);
 
-void SimTool::Tool_AHEAT() {
+void SimTool::Tool_AHET() {
     Identifier = "DEFAULT_TOOL_AHET";
     Name = "AHET";
     Colour = PIXPACK(0xFFDD00);

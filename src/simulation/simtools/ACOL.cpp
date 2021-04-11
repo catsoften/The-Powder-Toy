@@ -2,7 +2,7 @@
 
 static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength);
 
-void SimTool::Tool_ACOOL() {
+void SimTool::Tool_ACOL() {
     Identifier = "DEFAULT_TOOL_ACOL";
     Name = "ACOL";
     Colour = PIXPACK(0x00DDFF);

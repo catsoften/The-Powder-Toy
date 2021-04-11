@@ -181,19 +181,10 @@ void SearchController::SelectAllSaves()
 {
 	if (!Client::Ref().GetAuthUser().UserID)
 		return;
-<<<<<<< HEAD
-	if (searchModel->GetShowOwn())
-		searchModel->SelectAllSaves();
-	else if (Client::Ref().GetAuthUser().UserElevation == User::ElevationModerator
-		|| Client::Ref().GetAuthUser().UserElevation == User::ElevationAdmin)
-		searchModel->SelectAllSaves();
-=======
 	if (searchModel->GetShowOwn() || 
 		Client::Ref().GetAuthUser().UserElevation == User::ElevationModerator || 
 		Client::Ref().GetAuthUser().UserElevation == User::ElevationAdmin)
 		searchModel->SelectAllSaves();
-
->>>>>>> upstream/master
 }
 
 void SearchController::InstantOpen(bool instant)

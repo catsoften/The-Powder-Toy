@@ -228,12 +228,9 @@ LuaScriptInterface::LuaScriptInterface(GameController * c, GameModel * m):
 		{"graphics_func",&luatpt_graphics_func},
 		{"get_clipboard", &platform_clipboardCopy},
 		{"set_clipboard", &platform_clipboardPaste},
-<<<<<<< HEAD
 		{"setdrawfreq", &luatpt_setdrawcap},
 		{"play_sound",&luatpt_play_sound},
-=======
 		{"setdrawcap", &luatpt_setdrawcap},
->>>>>>> upstream/master
 		{NULL,NULL}
 	};
 
@@ -383,16 +380,13 @@ tpt.partsdata = nil");
 	initLegacyProps();
 
 	ui::Engine::Ref().LastTick(Platform::GetTime());
-<<<<<<< HEAD
-	luaopen_eventcompat(l);
+
 	luaopen_scriptmanager(l);
 	luaopen_multiplayer(l);
-=======
 	if (luaL_loadbuffer(l, (const char *)eventcompat_lua, eventcompat_lua_size, "@[built-in eventcompat.lua]") || lua_pcall(l, 0, 0, 0))
 	{
 		throw std::runtime_error(ByteString("failed to load built-in eventcompat: ") + lua_tostring(l, -1));
 	}
->>>>>>> upstream/master
 }
 
 void LuaScriptInterface::Init()

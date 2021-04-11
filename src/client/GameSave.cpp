@@ -1339,7 +1339,6 @@ void GameSave::readOPS(char * data, int dataLength)
 							particles[newIndex].tmp = 0;
 						}
 						break;
-<<<<<<< HEAD
 					case PT_CLNE:
 					case PT_BCLN:
 					case PT_PCLN:
@@ -1347,7 +1346,6 @@ void GameSave::readOPS(char * data, int dataLength)
 						if (particles[newIndex].tmp >= OLD_NGOL && particles[newIndex].ctype == PT_LIFE && savedVersion < SAVE_VERSION)
 							particles[newIndex].tmp = NGOL;
 						break;
-=======
 					case PT_LIFE:
 						if (savedVersion < 96 && !fakeNewerVersion)
 						{
@@ -1358,7 +1356,6 @@ void GameSave::readOPS(char * data, int dataLength)
 								particles[newIndex].tmp = builtinGol[particles[newIndex].ctype].colour2;
 							}
 						}
->>>>>>> upstream/master
 					}
 					//note: PSv was used in version 77.0 and every version before, add something in PSv too if the element is that old
 					newIndex++;
@@ -1715,15 +1712,9 @@ void GameSave::readPSv(char * saveDataChar, int dataLength)
 					ttv |= (data[p++]);
 					particles[i-1].tmp = ttv;
 					if (ver<53 && !particles[i-1].tmp)
-<<<<<<< HEAD
-						for (q = 1; q<=(ver < SAVE_VERSION ? OLD_NGOL : NGOL); q++) {
-							if (particles[i-1].type==goltype[q-1] && grule[q][9]==2)
-								particles[i-1].tmp = grule[q][9]-1;
-=======
 						for (q = 0; q < NGOL; q++) {
 							if (particles[i-1].type==builtinGol[q].oldtype && (builtinGol[q].ruleset >> 17)==0)
 								particles[i-1].tmp = (builtinGol[q].ruleset >> 17)+1;
->>>>>>> upstream/master
 						}
 					if (ver>=51 && ver<53 && particles[i-1].type==PT_PBCN)
 					{
@@ -1906,37 +1897,22 @@ void GameSave::readPSv(char * saveDataChar, int dataLength)
 			if(ver<51 && ((ty>=78 && ty<=89) || (ty>=134 && ty<=146 && ty!=141))){
 				//Replace old GOL
 				particles[i-1].type = PT_LIFE;
-<<<<<<< HEAD
-				for (gnum = 0; gnum<(ver<SAVE_VERSION ? OLD_NGOL : NGOL); gnum++){
-					if (ty==goltype[gnum])
-=======
 				for (gnum = 0; gnum<NGOL; gnum++){
 					if (ty==builtinGol[gnum].oldtype)
->>>>>>> upstream/master
 						particles[i-1].ctype = gnum;
 				}
 				ty = PT_LIFE;
 			}
 			if(ver<52 && (ty==PT_CLNE || ty==PT_PCLN || ty==PT_BCLN)){
 				//Replace old GOL ctypes in clone
-<<<<<<< HEAD
-				for (gnum = 0; gnum<(ver<SAVE_VERSION ? OLD_NGOL : NGOL); gnum++){
-					if (particles[i-1].ctype==goltype[gnum])
-=======
 				for (gnum = 0; gnum<NGOL; gnum++){
 					if (particles[i-1].ctype==builtinGol[gnum].oldtype)
->>>>>>> upstream/master
 					{
 						particles[i-1].ctype = PT_LIFE;
 						particles[i-1].tmp = gnum;
 					}
 				}
 			}
-<<<<<<< HEAD
-			if (ver<SAVE_VERSION && (ty == PT_CLNE || ty == PT_PCLN || ty == PT_BCLN || ty == PT_BCLN))
-				if (particles[i - 1].ctype == PT_LIFE && particles[i - 1].tmp > OLD_NGOL)
-					particles[i - 1].tmp = NGOL;
-=======
 			if (particles[i-1].type == PT_LIFE)
 			{
 				particles[i-1].tmp2 = particles[i-1].tmp;
@@ -1947,7 +1923,6 @@ void GameSave::readPSv(char * saveDataChar, int dataLength)
 					particles[i-1].tmp = builtinGol[particles[i-1].ctype].colour2;
 				}
 			}
->>>>>>> upstream/master
 			if(ty==PT_LCRY){
 				if(ver<67)
 				{
@@ -2666,13 +2641,9 @@ char * GameSave::serialiseOPS(unsigned int & dataLength)
 	if (wallData && hasWallData)
 		bson_append_binary(&b, "wallMap", (char)BSON_BIN_USER, (const char *)wallData.get(), wallDataLen);
 	if (fanData && fanDataLen)
-<<<<<<< HEAD
 		bson_append_binary(&b, "fanMap", BSON_BIN_USER, (const char *)fanData.get(), fanDataLen);
 	if (oneWayData && oneWayDataLen)
 		bson_append_binary(&b, "oneWayMap", BSON_BIN_USER, (const char *)oneWayData.get(), oneWayDataLen);
-=======
-		bson_append_binary(&b, "fanMap", (char)BSON_BIN_USER, (const char *)fanData.get(), fanDataLen);
->>>>>>> upstream/master
 	if (pressData && hasPressure && pressDataLen)
 		bson_append_binary(&b, "pressMap", (char)BSON_BIN_USER, (const char*)pressData.get(), pressDataLen);
 	if (vxData && hasPressure && vxDataLen)

@@ -1,0 +1,1 @@
+powder_files += files('magnetics.cpp')

@@ -161,7 +161,6 @@ public:
 	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override;
 };
 
-<<<<<<< HEAD
 class PropertyTool2: public Tool {
 public:
 	PropertyTool2():
@@ -181,7 +180,7 @@ public:
 	void DrawRect(Simulation * sim, Brush * brush, ui::Point position1, ui::Point position2) override;
 	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override;
 };
-=======
+
 class GOLTool: public Tool
 {
 public:
@@ -201,7 +200,6 @@ public:
 	void DrawFill(Simulation * sim, Brush * brush, ui::Point position) override { };
 };
 
->>>>>>> upstream/master
 
 class ElementTool: public Tool
 {

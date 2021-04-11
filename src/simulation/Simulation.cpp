@@ -812,7 +812,7 @@ SimulationSample Simulation::GetSample(int x, int y)
 	return sample;
 }
 
-int Simulation::FloodINST(int x, int y)
+int Simulation::FloodINST(int x, int y, int cm, int co)
 {
 	int x1, x2;
 	int created_something = 0;
@@ -2390,7 +2390,6 @@ void Simulation::clear_sim(void)
 	memset(photons, 0, sizeof(photons));
 	memset(wireless, 0, sizeof(wireless));
 	memset(faraday_map, 0, sizeof(faraday_map));
-	memset(gol2, 0, sizeof(gol2));
 	memset(gol, 0, sizeof(gol));
 	memset(portalp, 0, sizeof(portalp));
 	memset(fighters, 0, sizeof(fighters));

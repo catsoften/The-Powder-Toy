@@ -14,29 +14,16 @@
 #include "gui/interface/Button.h"
 #include "gui/interface/Mouse.h"
 #include "gui/interface/Keys.h"
+#include "gui/interface/ScrollPanel.h"
 #include "graphics/Graphics.h"
 
 extern unsigned char *font_data;
 extern unsigned int *font_ptrs;
 extern unsigned int (*font_ranges)[2];
 
-void FontEditor::ReadHeader(ByteString header)
+void FontEditor::ReadDataFile(ByteString dataFile)
 {
 	std::fstream file;
-<<<<<<< HEAD
-	file.open(header, std::ios_base::in);
-	if(!file)
-		throw std::runtime_error("Could not open " + header);
-	file >> std::skipws;
-
-	ByteString word;
-
-	while(word != "font_data[]")
-		file >> word;
-	file >> word >> word;
-
-	size_t startFontData = file.tellg();
-=======
 	file.open(dataFile, std::ios_base::in | std::ios_base::binary);
 	if(!file)
 		throw std::runtime_error("Could not open " + dataFile);
@@ -45,7 +32,6 @@ void FontEditor::ReadHeader(ByteString header)
 	file.seekg(0);
 	file.read(&fileData[0], fileData.size());
 	file.close();
->>>>>>> upstream/master
 
 	std::vector<char> fontDataBuf;
 	std::vector<int> fontPtrsBuf;
@@ -120,19 +106,12 @@ void FontEditor::ReadHeader(ByteString header)
 	}
 }
 
-<<<<<<< HEAD
-void FontEditor::WriteHeader(ByteString header, std::vector<unsigned char> const &fontData, std::vector<unsigned short> const &fontPtrs, std::vector<std::array<unsigned int, 2> > const &fontRanges)
-{
-	std::fstream file;
-	file.open(header, std::ios_base::out | std::ios_base::trunc);
-=======
 void FontEditor::WriteDataFile(ByteString dataFile, std::vector<unsigned char> const &fontData, std::vector<unsigned int> const &fontPtrs, std::vector<std::array<unsigned int, 2> > const &fontRanges)
 {
 	std::fstream file;
 	file.open(dataFile, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
->>>>>>> upstream/master
 	if(!file)
-		throw std::runtime_error("Could not open " + header);
+		throw std::runtime_error("Could not open " + dataFile);
 
 	std::vector<char> uncompressed;
 	size_t pos = 0;
@@ -251,16 +230,36 @@ void FontEditor::PackData(
 	fontRanges.push_back({0, 0});
 }
 
+class StretchLabel: public ui::Label
+{
+	using Label::Label;
+public:
+	int WrappedLines() const
+	{
+		return displayTextWrapper.WrappedLines();
+	}
+};
+
+class StretchTextbox: public ui::Textbox
+{
+	using Textbox::Textbox;
+public:
+	int WrappedLines() const
+	{
+		return displayTextWrapper.WrappedLines();
+	}
+};
+
 #define FONT_SCALE 16
-FontEditor::FontEditor(ByteString _header):
+FontEditor::FontEditor(ByteString _dataFile):
 	ui::Window(ui::Point(0, 0), ui::Point(WINDOWW, WINDOWH)),
-	header(_header),
+	dataFile(_dataFile),
 	currentChar(0x80),
 	fgR(255), fgG(255), fgB(255), bgR(0), bgG(0), bgB(0),
 	grid(1),
 	rulers(1)
 {
-	ReadHeader(header);
+	ReadDataFile(dataFile);
 	UnpackData(fontWidths, fontPixels, fontData, fontPtrs, fontRanges);
 	font_data = fontData.data();
 	font_ptrs = fontPtrs.data();
@@ -336,8 +335,8 @@ FontEditor::FontEditor(ByteString _header):
 	currentX += 33;
 	showRulers->SetTogglable(true);
 	showRulers->SetToggleState(rulers);
-	showRulers->SetActionCallback({ [this, showGrid] {
-		rulers = showGrid->GetToggleState();
+	showRulers->SetActionCallback({ [this, showRulers] {
+		rulers = showRulers->GetToggleState();
 	} });
 	AddComponent(showRulers);
 
@@ -372,29 +371,41 @@ FontEditor::FontEditor(ByteString _header):
 
 	baseline += 18;
 	
-	outputPreview = new ui::Label(ui::Point(0, baseline + (Size.Y - baseline) * 3 / 5), ui::Point(Size.X, (Size.Y - baseline) * 2 / 5), "");
+	ui::ScrollPanel *outputPanel = new ui::ScrollPanel(ui::Point(Size.X / 2, baseline), ui::Point(Size.X / 2, Size.Y - baseline));
+	AddComponent(outputPanel);
+	StretchLabel *outputPreview = new StretchLabel(ui::Point(0, 0), ui::Point(Size.X / 2, 0), "");
 	outputPreview->SetMultiline(true);
 	outputPreview->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	outputPreview->Appearance.VerticalAlign = ui::Appearance::AlignTop;
-	AddComponent(outputPreview);
+	outputPanel->AddChild(outputPreview);
 	
-	ui::Textbox *inputPreview = new ui::Textbox(ui::Point(0, baseline), ui::Point(Size.X, (Size.Y - baseline) * 3 / 5));
+	ui::ScrollPanel *inputPanel = new ui::ScrollPanel(ui::Point(0, baseline), ui::Point(Size.X / 2, Size.Y - baseline));
+	AddComponent(inputPanel);
+	StretchTextbox *inputPreview = new StretchTextbox(ui::Point(0, 0), ui::Point(Size.X / 2, 0));
 	inputPreview->SetMultiline(true);
 	inputPreview->SetInputType(ui::Textbox::Multiline);
 	inputPreview->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	inputPreview->Appearance.VerticalAlign = ui::Appearance::AlignTop;
-	auto textChangedCallback = [this, inputPreview] {
+	auto textChangedCallback = [outputPreview, outputPanel, inputPreview, inputPanel] {
 		String str = inputPreview->GetText();
 		size_t at = 0;
 		StringBuilder text;
 		while(at < str.size())
 		{
-			unsigned int ch;
+			unsigned int ch1, ch2;
 			if(str[at] != ' ')
-				if(String::Split split = str.SplitNumber(ch, Format::Hex(), at))
+				if(String::Split split1 = str.SplitNumber(ch1, Format::Hex(), at))
 				{
-					text << String::value_type(ch);
-					at = split.PositionAfter();
+					if(str[split1.PositionAfter()] == ':')
+						if(String::Split split2 = str.SplitNumber(ch2, Format::Hex(), split1.PositionAfter() + 1))
+						{
+							for(unsigned int ch = ch1; ch <= ch2; ch++)
+								text << String::value_type(ch);
+							at = split2.PositionAfter();
+							continue;
+						}
+					text << String::value_type(ch1);
+					at = split1.PositionAfter();
 				}
 				else
 				{
@@ -404,24 +415,29 @@ FontEditor::FontEditor(ByteString _header):
 				at++;
 		}
 		outputPreview->SetText(text.Build());
+		outputPanel->InnerSize.Y = outputPreview->Size.Y = std::max(outputPreview->WrappedLines(), 1) * FONT_H + 2;
+		inputPanel->InnerSize.Y = inputPreview->Size.Y = std::max(inputPreview->WrappedLines(), 1) * FONT_H + 2;
 	};
 	inputPreview->SetActionCallback({ textChangedCallback });
+	inputPanel->AddChild(inputPreview);
 
 	StringBuilder input;
 	input << Format::Hex() << Format::Width(2);
-	for(unsigned int ch = 0x20; ch <= 0xFF; ch++)
-	{
-		if(!(ch & 0x3F))
-			input << 0x20 << " ";
-		input << ch << " ";
-	}
+	for(auto p : fontRanges)
+		if(p[1] >= 0x20)
+		{
+			if(p[0] < 0x20)
+				p[0] = 0x20;
+			if(p[0] == p[1])
+				input << p[0] << "\n";
+			else
+				input << p[0] << ":" << p[1] << "\n";
+		}
 	inputPreview->SetText(input.Build());
 	textChangedCallback();
 	AddComponent(inputPreview);
 }
 
-<<<<<<< HEAD
-=======
 FontEditor::FontEditor(ByteString target, ByteString source):
 	ui::Window(ui::Point(0, 0), ui::Point(WINDOWW, WINDOWH))
 {
@@ -455,7 +471,6 @@ FontEditor::FontEditor(ByteString target, ByteString source):
 	WriteDataFile(target, tmpFontData, tmpFontPtrs, tmpFontRanges);
 }
 
->>>>>>> upstream/master
 void FontEditor::OnDraw()
 {
 	Graphics *g = GetGraphics();
@@ -511,16 +526,44 @@ void FontEditor::OnMouseDown(int x, int y, unsigned button)
 	}
 }
 
+void FontEditor::Translate(std::array<std::array<char, MAX_WIDTH>, FONT_H> &pixels, int dx, int dy)
+{
+	std::array<std::array<char, MAX_WIDTH>, FONT_H> old = pixels;
+	for(int j = 0; j < FONT_H; j++)
+		for(int i = 0; i < MAX_WIDTH; i++)
+			if(i - dx >= 0 && i - dx + 1 < MAX_WIDTH && j - dy >= 0 && j - dy + 1 < FONT_H)
+				pixels[j][i] = old[j - dy][i - dx];
+			else
+				pixels[j][i] = 0;
+	savedButton->SetToggleState(false);
+}
+
 void FontEditor::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	if (IsFocused(NULL))
 	{
 		switch(scan)
 		{
+		case SDL_SCANCODE_UP:
+			if(shift)
+				Translate(fontPixels[currentChar], 0, -1);
+			break;
+		case SDL_SCANCODE_DOWN:
+			if(shift)
+				Translate(fontPixels[currentChar], 0, 1);
+			break;
 		case SDL_SCANCODE_LEFT:
-			PrevChar(); break;
+			if(shift)
+				Translate(fontPixels[currentChar], -1, 0);
+			else
+				PrevChar();
+			break;
 		case SDL_SCANCODE_RIGHT:
-			PrevChar(); break;
+			if(shift)
+				Translate(fontPixels[currentChar], 1, 0);
+			else
+				NextChar();
+			break;
 		case SDL_SCANCODE_ESCAPE:
 		case SDL_SCANCODE_Q:
 			if(savedButton->GetToggleState())
@@ -587,6 +630,6 @@ void FontEditor::Save()
 	std::vector<unsigned int> tmpFontPtrs;
 	std::vector<std::array<unsigned int, 2> > tmpFontRanges;
 	PackData(fontWidths, fontPixels, tmpFontData, tmpFontPtrs, tmpFontRanges);
-	WriteHeader(header, tmpFontData, tmpFontPtrs, tmpFontRanges);
+	WriteDataFile(dataFile, tmpFontData, tmpFontPtrs, tmpFontRanges);
 	savedButton->SetToggleState(true);
 }

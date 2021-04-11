@@ -43,7 +43,6 @@ public:
 	void ShowOwn(bool show);
 	void ShowFavourite(bool show);
 	void Selected(int saveID, bool selected);
-	void SelectAllSaves();
 	void InstantOpen(bool instant);
 	void SelectAllSaves();
 	void OpenSave(int saveID);

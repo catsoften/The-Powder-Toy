@@ -114,7 +114,6 @@ void OptionsController::SetPerfectCircle(bool perfectCircle)
 	model->SetPerfectCircle(perfectCircle);
 }
 
-<<<<<<< HEAD
 void OptionsController::SetOppositeToolEnabled(bool oppositeTool) {
 	model->SetAutoSelectOppositeTool(oppositeTool);
 }
@@ -141,7 +140,8 @@ void OptionsController::SetFasterRenderer(bool enabled) {
 }
 void OptionsController::SetSoundEnabled(bool enabled) {
 	model->SetSoundEnabled(enabled);
-=======
+}
+
 void OptionsController::SetMomentumScroll(bool momentumScroll)
 {
 	model->SetMomentumScroll(momentumScroll);
@@ -150,7 +150,6 @@ void OptionsController::SetMomentumScroll(bool momentumScroll)
 void OptionsController::SetAutoDrawLimit(bool autoDrawLimit)
 {
 	model->SetAutoDrawLimit(autoDrawLimit);
->>>>>>> upstream/master
 }
 
 void OptionsController::Exit()

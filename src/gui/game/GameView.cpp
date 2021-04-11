@@ -45,13 +45,10 @@
 
 #include "simulation/ElementClasses.h"
 
-<<<<<<< HEAD
 #include <ctime>
 #include <bitset>
 #include <algorithm>
-=======
 #include <cstring>
->>>>>>> upstream/master
 
 #ifdef GetUserName
 # undef GetUserName // dammit windows
@@ -465,6 +462,7 @@ void GameView::NotifyMenuListChanged(GameModel * sender) {
 		RemoveComponent(toolButtons[i]);
 		delete toolButtons[i];
 	}
+	toolButtons.clear();
 
 	// Main menus
 	std::vector<Menu*> menuList = sender->GetMenuList();
@@ -2517,7 +2515,6 @@ void GameView::OnDraw()
 
 		int textWidth = Graphics::textwidth(fpsInfo.Build());
 		int alpha = 255-introText*5;
-<<<<<<< HEAD
 		if (shouldHideHUD)
 			alpha = std::min(alpha, c->PointTranslate(currentMouse).Y * 2);
 		g->fillrect(12, 11, textWidth+8, 15, 0, 0, 0, alpha*0.5);
@@ -2610,10 +2607,6 @@ void GameView::OnDraw()
 		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding, "Target FPS", 255, 0, 0, 255);
 		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding + 12, "Actual FPS", 255, 255, 0, 255);
 		g->drawtext(fpsx + graph_padding, fpsy + graph_height + 2 * graph_padding + 24, "Particles", 0, 100, 255, 255);
-=======
-		g->fillrect(12, 12, textWidth+8, 15, 0, 0, 0, int(alpha*0.5));
-		g->drawtext(16, 16, fpsInfo.Build(), 32, 216, 255, int(alpha*0.75));
->>>>>>> upstream/master
 	}
 
 	// Clear menu areas, to ensure particle graphics don't overlap

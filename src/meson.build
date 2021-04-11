@@ -26,6 +26,7 @@ common_files = files(
 	'Probability.cpp',
 )
 
+subdir('music')
 subdir('bson')
 subdir('bzip2')
 subdir('client')
@@ -40,6 +41,7 @@ endif
 subdir('resampler')
 subdir('simulation')
 subdir('tasks')
+
 
 powder_files += common_files
 render_files += common_files

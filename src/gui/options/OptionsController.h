@@ -36,7 +36,6 @@ public:
 	void SetMouseClickrequired(bool mouseClickRequired);
 	void SetIncludePressure(bool includePressure);
 	void SetPerfectCircle(bool perfectCircle);
-<<<<<<< HEAD
 	void SetOppositeToolEnabled(bool oppositeTool);
 	void SetSecretModShortcut(bool enabled);
 	void SetCrosshairInBrush(bool enabled);
@@ -47,11 +46,9 @@ public:
 	void SetFasterRenderer(bool enabled);
 	void SetSoundEnabled(bool enabled);
 
-=======
 	void SetMomentumScroll(bool momentumScroll);
 	void SetAutoDrawLimit(bool autoDrawLimit);
 	
->>>>>>> upstream/master
 	void Exit();
 	OptionsView * GetView();
 	virtual ~OptionsController();

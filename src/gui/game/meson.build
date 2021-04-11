@@ -14,4 +14,11 @@ powder_files += files(
 	'SignTool.cpp',
 	'ToolButton.cpp',
 	'Tool.cpp',
+
+	'ConfigTool.cpp',
+	'PropertyTool2.cpp',
+	'TerrainTool.cpp',
+	'RulerTool.cpp',
+	'TextTool.cpp',
+	'TransformTool.cpp',
 )

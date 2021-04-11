@@ -1192,15 +1192,12 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 	}
 	if (tool->GetIdentifier() == "DEFAULT_UI_PROPERTY")
 		((PropertyTool *)tool)->OpenWindow(gameModel->GetSimulation());
-<<<<<<< HEAD
 	else if (tool->GetIdentifier() == "DEFAULT_UI_PROPERTY2")
 		((PropertyTool2 *)tool)->OpenWindow(gameModel->GetSimulation());
-=======
-	if(tool->GetIdentifier() == "DEFAULT_UI_ADDLIFE")
+	else if(tool->GetIdentifier() == "DEFAULT_UI_ADDLIFE")
 	{
 		((GOLTool *)tool)->OpenWindow(gameModel->GetSimulation(), toolSelection);
 	}
->>>>>>> upstream/master
 }
 
 void GameController::SetActiveTool(int toolSelection, ByteString identifier)

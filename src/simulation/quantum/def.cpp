@@ -1,6 +1,6 @@
 #include "simulation/quantum/def.h"
 #include "simulation/quantum/linalg.h"
-#include "common/string.h"
+#include "common/String.h"
 #include <string>
 
 using LINALG::matrix;

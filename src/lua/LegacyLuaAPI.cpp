@@ -1383,19 +1383,15 @@ int luatpt_setfpscap(lua_State* l)
 
 int luatpt_setdrawcap(lua_State* l)
 {
-<<<<<<< HEAD
 	int drawcap = luaL_checkint(l, 1);
-	if(drawcap < 1) 
-=======
 	int acount = lua_gettop(l);
 	if (acount == 0)
 	{
 		lua_pushinteger(l, ui::Engine::Ref().GetDrawingFrequencyLimit());
 		return 1;
 	}
-	int drawcap = luaL_checkint(l, 1);
+	drawcap = luaL_checkint(l, 1);
 	if(drawcap < 0)
->>>>>>> upstream/master
 		return luaL_error(l, "draw cap too small");
 	ui::Engine::Ref().SetDrawingFrequencyLimit(drawcap);
 	return 0;

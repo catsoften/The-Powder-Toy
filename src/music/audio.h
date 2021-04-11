@@ -1,8 +1,7 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include <SDL.h>
-#include <SDL_audio.h>
+#include <SDL2/SDL_audio.h>
 #include <SDL2/SDL.h>
 #include <list>
 #include <vector>

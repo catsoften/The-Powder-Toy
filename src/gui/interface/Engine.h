@@ -48,15 +48,10 @@ namespace ui
 		void Break();
 		void UnBreak();
 
-<<<<<<< HEAD
 		void SetDrawingFrequencyLimit(int limit) { drawingFrequencyLimit = limit; }
 		inline int GetDrawingFrequencyLimit() { return drawingFrequencyLimit; }
 		void SetMaxDrawingFrequencyLimit(int limit) { maxDrawingFrequencyLimit = limit; }
 		inline int GetMaxDrawingFrequencyLimit() { return maxDrawingFrequencyLimit; }
-=======
-		void SetDrawingFrequencyLimit(int limit) {drawingFrequencyLimit = limit;}
-		inline int GetDrawingFrequencyLimit() {return drawingFrequencyLimit;}
->>>>>>> upstream/master
 		void SetFullscreen(bool fullscreen) { Fullscreen = fullscreen; }
 		inline bool GetFullscreen() { return Fullscreen; }
 		void SetAltFullscreen(bool altFullscreen) { this->altFullscreen = altFullscreen; }
@@ -96,7 +91,6 @@ namespace ui
 		//inline State* GetState() { return state_; }
 		inline Window* GetWindow() { return state_; }
 		float FpsLimit;
-		int drawingFrequencyLimit;
 		Graphics * g;
 		int Scale;
 		bool Fullscreen;

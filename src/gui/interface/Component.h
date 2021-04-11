@@ -46,11 +46,8 @@ namespace ui
 		Point Size;
 		bool Enabled;
 		bool Visible;
-<<<<<<< HEAD
 		bool MouseCurrentlyInside;
-=======
 		bool DoesTextInput;
->>>>>>> upstream/master
 
 		ui::Appearance Appearance;
 		//virtual void SetAppearance(ui::Appearance);

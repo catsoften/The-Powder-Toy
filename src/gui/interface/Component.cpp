@@ -20,11 +20,8 @@ Component::Component(Window* parent_state):
 	Size(Point(0,0)),
 	Enabled(true),
 	Visible(true),
-<<<<<<< HEAD
-	MouseCurrentlyInside(false)
-=======
+	MouseCurrentlyInside(false),
 	DoesTextInput(false)
->>>>>>> upstream/master
 {
 
 }

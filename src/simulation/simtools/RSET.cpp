@@ -3,7 +3,7 @@
 
 static int perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength);
 
-void SimTool::Tool_RESET() {
+void SimTool::Tool_RSET() {
     Identifier = "DEFAULT_TOOL_RSET";
     Name = "RSET";
     Colour = PIXPACK(0xfad673);
