@@ -1,7 +1,6 @@
 
 Post port:
 - script manager doesnt work
-- auto hide hud is default true, but not enabled by default 
 
 
 Lanthanum-this ones exciting, for I could see this bridging the gap between solids and solid explosives.

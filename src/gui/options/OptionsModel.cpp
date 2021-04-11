@@ -267,7 +267,7 @@ void OptionsModel::SetHollowBrushes(bool enabled) {
 }
 
 bool OptionsModel::GetAutoHideHUD() {
-	return Client::Ref().GetPrefBool("autoHideHUD", true);
+	return Client::Ref().GetPrefBool("autoHideHUD", false);
 }
 
 void OptionsModel::SetAutoHideHUD(bool enabled) {
