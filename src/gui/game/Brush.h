@@ -12,8 +12,8 @@ protected:
 	unsigned char * bitmap;
 	ui::Point size;
 	ui::Point radius;
-	bool drawCrosshair;
-	bool isHollow;
+	bool drawCrosshair = false;
+	bool isHollow = false;
 	void updateOutline();
 public:
 	Brush(ui::Point size);

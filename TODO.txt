@@ -538,8 +538,6 @@ bigger fp like in jacob1s mod
 
 one way wall arrow graphics
 
-hollow brush triggers on windows
-
 
 touhou in TPT
     tpt.touhou()
