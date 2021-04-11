@@ -1,24 +1,13 @@
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
 
-local versionstring = "0.101"
+local version = 8
+local versionstring = "1.0.2"
 
---TODO's
---FIGH,STKM,STK2,LIGH need a few more creation adjustments
---Some more server functions
--------------------------------------------------------
-
---CHANGES:
---Lots of Fixes
---More colors!
---ESC key will unfocus, then minimize chat
---Changes from jacob, including: Support jacobsMod, keyrepeat
---Support replace mode
-
-if TPTMP then if TPTMP.version <= 4 then TPTMP.disableMultiplayer() else error("newer version already running") end end local get_name = tpt.get_name -- if script already running, replace it
-TPTMP = {["version"] = 4, ["versionStr"] = versionstring} -- script version sent on connect to ensure server protocol is the same
+if TPTMP then if TPTMP.version <= version then TPTMP.disableMultiplayer() else error("newer version already running") end end local get_name = tpt.get_name -- if script already running, replace it
+TPTMP = {["version"] = version, ["versionStr"] = versionstring} -- script version sent on connect to ensure server protocol is the same
 local issocket,socket = pcall(require,"socket")
-if not sim.clearRect then error"Tpt version not supported" end
+if not http then error"Tpt version not supported" end
 local using_manager = false
 local type = type -- people like to overwrite this function with a global a lot
 local _print = print
@@ -41,9 +30,14 @@ local jacobsmod = tpt.version.jacob1s_mod~=nil
 math.randomseed(os.time())
 local username = get_name()
 if username == "" then
-	username = "Guest"..math.random(10000,99999)
+	username = "Guest#"..math.random(10000,99999)
+end
+local authToken
+if using_manager then
+	authToken = MANAGER.getsetting("tptmp", "authtoken")
 end
 local chatwindow
+local lastchan = ''
 local con = {connected = false,
 		 socket = nil,
 		 members = nil,
@@ -59,6 +53,7 @@ local function disconnected(reason)
 	end
 	con.connected = false
 	con.members = {}
+	lastchan = ''
 end
 local function conSend(cmd,msg,endNull)
 	if not con.connected then return false,"Not connected" end
@@ -80,6 +75,39 @@ local function joinChannel(chan)
 	conSend(38,L.replacemode)
 	conSend(65,string.char(math.floor(L.dcolour/16777216),math.floor(L.dcolour/65536)%256,math.floor(L.dcolour/256)%256,L.dcolour%256))
 end
+local function authenticateGetUser()
+	local pref = io.open("powder.pref")
+	if not pref then
+		return false
+	end
+	local prefData = pref:read("*a")
+	pref:close()
+	local user = prefData:match([["User"%s*:%s*(%b{})]])
+	if not user then
+		return false
+	end
+	local uid = user:match([["ID"%s*:%s*(%d+)]])
+	local sess = user:match([["SessionID"%s*:%s*"([^"]+)"]])
+	if not uid or not sess then
+		return false
+	end
+	return uid, sess
+end
+local function authenticateGetToken(uid, sess)
+	local req = http.get("https://powdertoy.co.uk/ExternalAuth.api?Action=Get", { [ "X-Auth-User-Id" ] = uid, [ "X-Auth-Session-Key" ] = sess })
+	while req:status() == "running" do
+		socket.sleep(0.1)
+	end
+	local body, code = req:finish()
+	if code ~= 200 then
+		return nil, "Error code " .. code .. ": " .. body
+	end
+	local status = body:match([["Status":"([^"]+)"]])
+	if status ~= "OK" then
+		return nil, "Authentication failed, try logging out and back in and restarting TPT"
+	end
+	return body:match([["Token":"([^"]+)"]])
+end
 local function connectToServer(ip,port,nick)
 	if con.connected then return false,"Already connected" end
 	ip = ip or "tptmp.starcatcher.us"
@@ -88,16 +116,76 @@ local function connectToServer(ip,port,nick)
 	sock:settimeout(10)
 	local s,r = sock:connect(ip,port)
 	if not s then return false,r end
-	sock:settimeout(0)
+	sock:settimeout(0.1)
 	sock:setoption("keepalive",true)
 	sock:send(string.char(tpt.version.major)..string.char(tpt.version.minor)..string.char(TPTMP.version)..nick.."\0")
-	local c,r
-	while not c do
-	c,r = sock:receive(1)
-	if not c and r~="timeout" then break end
+	local c,r,zs
+	local function connectByte()
+		repeat
+			c,r = sock:receive(1)
+			if not c and r~="timeout" then break end
+		until c
+		return c
 	end
-	if not c and r~="timeout" then return false,r end
-
+	local function connectZString()
+		local buf = {}
+		while true do
+			if not connectByte() then
+				return false
+			end
+			if c == "\0" then
+				break
+			end
+			table.insert(buf, c)
+		end
+		zs = table.concat(buf)
+		return zs
+	end
+	if not connectByte() then
+		return false, r
+	end
+	for authAttempt = 1, 2 do
+		if c~="\3" then
+			break
+		end
+		local uid, sess = authenticateGetUser()
+		if uid then
+			if not authToken then
+				local err
+				authToken, err = authenticateGetToken(uid, sess)
+				if not authToken then
+					return false, err
+				end
+				if using_manager then
+					MANAGER.savesetting("tptmp", "authtoken", authToken)
+				end
+			end
+		else
+			authToken = nil
+		end
+		if authToken then
+			sock:send("\1" .. authToken .. "\0")
+		else
+			sock:send("\0")
+		end
+		if not connectByte() then
+			return false, r
+		end
+		local cresponse = c
+		if c == "\1" then
+			if not connectZString() then
+				return false, r
+			end
+			if nick ~= zs then
+				nick = zs
+				chatwindow:addline("You joined as "..nick,255,255,50)
+			end
+		else
+			authToken = nil
+		end
+		c = cresponse
+	end
+	sock:settimeout(0)
 	if c~= "\1" then
 	if c=="\0" then
 		local err=""
@@ -306,11 +394,18 @@ new=function(x,y,w,h)
 	intext.ratelimit = 0
 	intext:drawadd(function(self)
 		local cursoradjust=tpt.textwidth(self.t.text:sub(self.t.start,self.cursor))+2
-		gfx.drawLine(self.x+cursoradjust,self.y,self.x+cursoradjust,self.y+10,255,255,255)
+		if self.cursor > 0 then gfx.drawLine(self.x+cursoradjust,self.y,self.x+cursoradjust,self.y+10,255,255,255) end
 		self.t:draw()
 	end)
 	intext:moveadd(function(self,x,y) self.t:onmove(x,y) end)
 	function intext:setfocus(focus)
+		if ui.grabTextInput then
+			if focus and not self.focus then
+				ui.grabTextInput()
+			elseif not focus and self.focus then
+				ui.dropTextInput()
+			end
+		end
 		self.focus=focus
 		if focus then self:setcolor(255,255,0)
 		else self:setcolor(255,255,255) end
@@ -407,6 +502,22 @@ new=function(x,y,w,h)
 					end
 				end
 			end
+		-- CTRL+C
+		elseif scan == 6 and ctrl then
+			platform.clipboardPaste(self.t.text)
+			tpt.log('Copied to clipboard')
+		-- CTRL+V
+		elseif scan == 25 and ctrl then
+			local paste = platform.clipboardCopy()
+			local newText = self.t.text:sub(1, self.cursor) .. paste .. self.t.text:sub(self.cursor + 1)
+			self.cursor = self.cursor + #paste
+			self.t:update(newText, self.cursor)
+		-- CTRL+X
+		elseif scan == 27 and ctrl then
+			platform.clipboardPaste(self.t.text)
+			tpt.log('Copied to clipboard')
+			self.cursor = 0
+			self.t:update("", 0)
 		end
 		if newstr then
 			self.t:update(newstr,self.cursor)
@@ -530,11 +641,28 @@ new=function(x,y,w,h)
 	chat.inputbox = ui_inputbox.new(x,chat.y2-10,w,10)
 	chat.minimize = ui_button.new(chat.x2-15,chat.y,15,10,function() chat.moving=false chat.inputbox:setfocus(false) L.chatHidden=true TPTMP.chatHidden=true end,">>")
 	chat:drawadd(function(self)
-		if self.w > 175 and jacobsmod then
-			gfx.drawText(self.x+self.w/2-tpt.textwidth("TPT Multiplayer, by cracker64")/2,self.y+2,"TPT Multiplayer, by cracker64")
-		elseif self.w > 100 then
-			gfx.drawText(self.x+self.w/2-tpt.textwidth("TPT Multiplayer")/2,self.y+2,"TPT Multiplayer")
+		local header_pos = self.x+self.w/2-tpt.textwidth("TPT Multiplayer")/2
+		local lastchan_width = tpt.textwidth(lastchan)
+		self.minimize.t.y = self.y+1 -- aligns the minimize button vertically
+		-- channel displayed in the left top corner
+		if lastchan == "null" then
+			gfx.drawText(self.x+2,self.y+2,'lobby',200,200,0)
+		elseif lastchan == "guest" then
+			gfx.drawText(self.x+2,self.y+2,'guest lobby',200,200,0)
+		else
+			if lastchan_width > self.w - 5 then
+				while tpt.textwidth(lastchan) > self.w - 5 do
+					lastchan = lastchan:sub(1, #lastchan-1)
+				end
+				lastchan = lastchan:sub(1, #lastchan-3) .. '...'
+				gfx.drawText(self.x+2,self.y+2,lastchan,0,200,200)
+			end
+			gfx.drawText(self.x+2,self.y+2,lastchan,0,200,200)
 		end
+		if lastchan_width < header_pos - self.x - 15 then
+			gfx.drawText(header_pos,self.y+2,"TPT Multiplayer")
+		end
+		
 		gfx.drawLine(self.x+1,self.y+10,self.x2-1,self.y+10,120,120,120)
 		self.scrollbar:draw()
 		local count=0
@@ -584,6 +712,12 @@ new=function(x,y,w,h)
 		if mouseX < self.x or mouseX > self.x2 or mouseY < self.y or mouseY > self.y2 then
 			self.inputbox:setfocus(false)
 			return false
+		end
+
+		-- Copy the selected line
+		if button == 3 and selectedLine ~= 0 and selectedLine ~= self.shown_lines+1 and self.lines[self.scrollbar.pos+selectedLine] then
+			platform.clipboardPaste(self.lines[self.scrollbar.pos+selectedLine].text)
+			tpt.log('Copied to clipboard')
 		end
 
 		-- header was grabbed, enable window movement
@@ -637,7 +771,7 @@ new=function(x,y,w,h)
 	chatcommands = {
 	connect = function(self,msg,args)
 		if not issocket then self:addline("No luasockets found") return end
-		local newname = pcall(string.dump, get_name) and "Gue".."st"..math["random"](1111,9888) or get_name()
+		local newname = pcall(string.dump, get_name) and "Gue".."st#"..math["random"](1111,9888) or get_name()
 		local s,r = connectToServer(args[1],tonumber(args[2]), newname~="" and newname or username)
 		if not s then self:addline(r,255,50,50) end
 		pressedKeys = nil
@@ -659,7 +793,6 @@ new=function(x,y,w,h)
 	join = function(self,msg,args)
 		if args[1] then
 			joinChannel(args[1])
-			self:addline("joined channel "..args[1],50,255,50)
 		end
 	end,
 	sync = function(self,msg,args)
@@ -676,6 +809,8 @@ new=function(x,y,w,h)
 		elseif args[1] == "me" then self:addline("(/me <message>) -- say something in 3rd person") -- send a raw command
 		elseif args[1] == "kick" then self:addline("(/kick <nick> <reason>) -- kick a user, only works if you have been in a channel the longest")
 		elseif args[1] == "size" then self:addline("(/size <width> <height>) -- sets the size of the chat window")
+		elseif args[1] == "clear" then self:addline("(/clear, no arguments) -- clears the chat")
+		elseif args[1] == "lobby" then self:addline("(/lobby, no arguments) -- joins the lobby")
 		end
 	end,
 	list = function(self,msg,args)
@@ -708,6 +843,12 @@ new=function(x,y,w,h)
 				MANAGER.savesetting("tptmp", "height", h)
 			end
 		end
+	end,
+	clear = function(self, msg, args)
+		chatwindow.lines = {}
+	end,
+	lobby = function(self, msg, args)
+		joinChannel(username:find("#") and "guest" or "null") -- best effort
 	end
 	}
 	function chat:keypress(key, scan, rep, shift, ctrl, alt)
@@ -760,13 +901,13 @@ local function getypos()
 	if jacobsmod and tpt.oldmenu and tpt.oldmenu()==1 then
 		ypos = 392
 	elseif tpt.num_menus then
-		ypos = 392-16*math.min(tpt.num_menus(), 16)-(not jacobsmod and 16 or 0)+1
+		ypos = 392-16*tpt.num_menus()-(not jacobsmod and 16 or 0)
 	end
 	if using_manager then ypos = ypos - 17 end
 	return ypos
 end
 local jacobsmod_old_menu_check = false
-local showbutton = ui_button.new(615,getypos(),14,14,function() if using_manager and not MANAGER.hidden then _print("minimize the manager before opening TPTMP") return end if not hooks_enabled then TPTMP.enableMultiplayer() end L.chatHidden=false TPTMP.chatHidden=false L.flashChat=false end,"<<")
+local showbutton = ui_button.new(615,getypos() + 36,14,14,function() if using_manager and not MANAGER.hidden then _print("minimize the manager before opening TPTMP") return end if not hooks_enabled then TPTMP.enableMultiplayer() end L.chatHidden=false TPTMP.chatHidden=false L.flashChat=false end,"<<")
 local flashCount=0
 showbutton.drawbox = true showbutton:drawadd(function(self) if L.flashChat then self.almostselected=true flashCount=flashCount+1 if flashCount%25==0 then self.invert=not self.invert end end end)
 if using_manager then
@@ -1033,8 +1174,13 @@ local function deleteStamp(name)
 end
 
 local dataCmds = {
+	[5] = function()
+		disconnected(conGetNull())
+	end,
 	[16] = function()
-	--room members
+		local initialJoin = lastchan == ''
+		lastchan = conGetNull()
+		--room members
 		con.members = {}
 		local amount = cByte()
 		local peeps = {}
@@ -1043,6 +1189,9 @@ local dataCmds = {
 			con.members[id]={name=conGetNull(),mousex=0,mousey=0,brushx=4,brushy=4,brush=0,selectedl=1,selectedr=0,selecteda=296,replacemode=0,dcolour={0,0,0,0},lbtn=false,abtn=false,rbtn=false,ctrl=false,shift=false,alt=false}
 			local name = con.members[id].name
 			table.insert(peeps,name)
+		end
+		if not initialJoin then
+			chatwindow:addline("Joined channel "..lastchan,50,255,50)
 		end
 		chatwindow:addline("Online: "..table.concat(peeps," "),255,255,50)
 	end,
@@ -2007,11 +2156,12 @@ function TPTMP.disableMultiplayer()
 	evt.unregister(evt.mousedown, mouseDown)
 	evt.unregister(evt.mouseup, mouseUp)
 	evt.unregister(evt.mousemove, mouseMove)
-	evt.unregister(evt.mousewheel, mouseQheel)
+	evt.unregister(evt.mousewheel, mouseWheel)
 	evt.unregister(evt.keypress, keypress)
 	evt.unregister(evt.keyrelease, keyrelease)
 	evt.unregister(evt.textinput, textinput)
 	evt.unregister(evt.blur, blur)
+	chatwindow.inputbox:setfocus(false)
 	TPTMP = nil
 	disconnected("TPTMP unloaded")
 end

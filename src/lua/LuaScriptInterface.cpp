@@ -63,6 +63,8 @@ extern "C"
 #include "luasocket/luasocket.h"
 }
 #include "socket.lua.h"
+#include "multiplayer.lua.h"
+#include "script.lua.h"
 #include "eventcompat.lua.h"
 
 // idea from mniip, makes things much simpler
@@ -381,12 +383,15 @@ tpt.partsdata = nil");
 
 	ui::Engine::Ref().LastTick(Platform::GetTime());
 
-	luaopen_scriptmanager(l);
-	luaopen_multiplayer(l);
 	if (luaL_loadbuffer(l, (const char *)eventcompat_lua, eventcompat_lua_size, "@[built-in eventcompat.lua]") || lua_pcall(l, 0, 0, 0))
 	{
 		throw std::runtime_error(ByteString("failed to load built-in eventcompat: ") + lua_tostring(l, -1));
 	}
+
+	if (luaL_loadbuffer(l, (const char *)multiplayer_lua, multiplayer_lua_size, "@[built-in multiplayer.lua]") || lua_pcall(l, 0, 0, 0))
+		throw std::runtime_error(ByteString("failed to load built-in TPTMP: ") + lua_tostring(l, -1));
+	if (luaL_loadbuffer(l, (const char *)script_lua, script_lua_size, "@[built-in script.lua]") || lua_pcall(l, 0, 0, 0))
+		throw std::runtime_error(ByteString("failed to load built-in script manager: ") + lua_tostring(l, -1));
 }
 
 void LuaScriptInterface::Init()
