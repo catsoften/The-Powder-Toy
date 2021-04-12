@@ -897,17 +897,17 @@ local infoText = newFadeText("",150,245,370,255,255,255,true)
 local cmodeText = newFadeText("",120,250,180,255,255,255,true)
 
 local function getypos()
-	local ypos = 136
+	local ypos = 136 + 36
 	if jacobsmod and tpt.oldmenu and tpt.oldmenu()==1 then
-		ypos = 392
+		ypos = 392 + 36
 	elseif tpt.num_menus then
-		ypos = 392-16*tpt.num_menus()-(not jacobsmod and 16 or 0)
+		ypos = 392-16*tpt.num_menus()-(not jacobsmod and 16 or 0) + 36
 	end
 	if using_manager then ypos = ypos - 17 end
 	return ypos
 end
 local jacobsmod_old_menu_check = false
-local showbutton = ui_button.new(615,getypos() + 36,14,14,function() if using_manager and not MANAGER.hidden then _print("minimize the manager before opening TPTMP") return end if not hooks_enabled then TPTMP.enableMultiplayer() end L.chatHidden=false TPTMP.chatHidden=false L.flashChat=false end,"<<")
+local showbutton = ui_button.new(615,getypos(),14,14,function() if using_manager and not MANAGER.hidden then _print("minimize the manager before opening TPTMP") return end if not hooks_enabled then TPTMP.enableMultiplayer() end L.chatHidden=false TPTMP.chatHidden=false L.flashChat=false end,"<<")
 local flashCount=0
 showbutton.drawbox = true showbutton:drawadd(function(self) if L.flashChat then self.almostselected=true flashCount=flashCount+1 if flashCount%25==0 then self.invert=not self.invert end end end)
 if using_manager then
