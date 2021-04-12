@@ -2875,7 +2875,7 @@ static bool luaCtypeDrawWrapper(CTYPEDRAW_FUNC_ARGS)
 int LuaScriptInterface::elements_element(lua_State * l)
 {
 	int id = luaL_checkinteger(l, 1);
-	if (!luacon_sim->IsValidElement(id))
+	if (!luacon_sim->IsElementOrNone(id))
 	{
 		return luaL_error(l, "Invalid element");
 	}
@@ -3026,7 +3026,7 @@ int LuaScriptInterface::elements_element(lua_State * l)
 int LuaScriptInterface::elements_property(lua_State * l)
 {
 	int id = luaL_checkinteger(l, 1);
-	if (!luacon_sim->IsValidElement(id))
+	if (!luacon_sim->IsElementOrNone(id))
 	{
 		return luaL_error(l, "Invalid element");
 	}
@@ -3046,7 +3046,7 @@ int LuaScriptInterface::elements_property(lua_State * l)
 				if (prop->Type == StructProperty::TransitionType)
 				{
 					int type = luaL_checkinteger(l, 3);
-					if (!luacon_sim->IsValidElement(type) && type != NT && type != ST)
+					if (!luacon_sim->IsElementOrNone(type) && type != NT && type != ST)
 					{
 						return luaL_error(l, "Invalid element");
 					}
@@ -3207,7 +3207,7 @@ int LuaScriptInterface::elements_property(lua_State * l)
 int LuaScriptInterface::elements_free(lua_State * l)
 {
 	int id = luaL_checkinteger(l, 1);
-	if (!luacon_sim->IsValidElement(id))
+	if (!luacon_sim->IsElement(id))
 	{
 		return luaL_error(l, "Invalid element");
 	}

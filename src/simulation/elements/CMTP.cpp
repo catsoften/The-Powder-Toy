@@ -29,7 +29,7 @@ void Element::Element_CMTP() {
 	Weight = 90;
 
 	HeatConduct = 150;
-	Description = "Cement Powder. Mix with water to make cement.";
+	Description = "Cement Powder. Mix with water to make liquid concrete.";
 
 	Properties = TYPE_PART | PROP_DEADLY;
 
