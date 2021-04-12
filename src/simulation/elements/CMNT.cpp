@@ -32,7 +32,7 @@ void Element::Element_CMNT() {
 
 	DefaultProperties.temp = R_TEMP - 2.0f + 273.15f;
 	HeatConduct = 50;
-	Description = "Cement. Slowly dries out into reinforced concrete. Makes weaker concrete with contamination.";
+	Description = "Liquid concrete. Slowly dries out into reinforced concrete. Makes weaker concrete with contamination.";
 
 	Properties = TYPE_LIQUID | PROP_LIFE_DEC | PROP_NEUTPENETRATE;
 	DefaultProperties.life = 2000;
