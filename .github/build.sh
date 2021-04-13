@@ -69,9 +69,6 @@ if [ $PLATFORM_SHORT == "lin" ]; then
 	# pthread_create, thanks to weak symbols in libstdc++.so (or something). See
 	# https://gcc.gnu.org/legacy-ml/gcc-help/2017-03/msg00081.html
 	other_flags+=$'\t-Db_asneeded=false\t-Dcpp_link_args=-Wl,--no-as-needed'
-	if [ $STATIC_DYNAMIC == "static" ]; then
-		other_flags+=$'\t-Dbuild_render=true\t-Dbuild_font=true'
-	fi
 fi
 if [ $PLATFORM_SHORT == "win" ]; then
 	bin_suffix=$bin_suffix.exe

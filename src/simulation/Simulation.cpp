@@ -1758,7 +1758,6 @@ int Simulation::FloodWalls(int x, int y, int wall, int bm)
 	return 1;
 }
 
-#ifndef RENDERER
 int Simulation::CreateParts(int positionX, int positionY, int c, Brush * cBrush, int flags)
 {
 	if (flags == -1)
@@ -1836,6 +1835,8 @@ int Simulation::CreateParts(int x, int y, int rx, int ry, int c, int flags)
 	return !created;
 }
 
+
+#ifndef RENDERER
 void Simulation::CreateLine(int x1, int y1, int x2, int y2, int c, Brush * cBrush, int flags)
 {
 	int x, y, dx, dy, sy, rx = cBrush->GetRadius().X, ry = cBrush->GetRadius().Y;
