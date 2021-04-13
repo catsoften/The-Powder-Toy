@@ -4,3 +4,4 @@ mvsd_files = files(
     'rotation.cpp'
 )
 powder_files += mvsd_files
+render_files += mvsd_files

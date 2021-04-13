@@ -6,3 +6,4 @@ vehicle_files = files(
     'vehicle.cpp'
 )
 powder_files += vehicle_files
+render_files += vehicle_files

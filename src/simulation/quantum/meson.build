@@ -5,3 +5,4 @@ quantum_files = files(
     'quantum.cpp'
 )
 powder_files += quantum_files
+render_files += quantum_files
