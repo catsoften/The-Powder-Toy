@@ -22,3 +22,4 @@ powder_files += files(
 	'TextTool.cpp',
 	'TransformTool.cpp',
 )
+render_files += files('GameModel.cpp')

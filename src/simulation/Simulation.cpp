@@ -2001,7 +2001,6 @@ void Simulation::CreateLine(int x1, int y1, int x2, int y2, int c)
 	}
 }
 
-#ifndef RENDERER
 void Simulation::CreateBox(int x1, int y1, int x2, int y2, int c, int flags)
 {
 	int i, j;
@@ -2022,6 +2021,7 @@ void Simulation::CreateBox(int x1, int y1, int x2, int y2, int c, int flags)
 			CreateParts(i, j, 0, 0, c, flags);
 }
 
+#ifndef RENDERER
 int Simulation::FloodParts(int x, int y, int fullc, int cm, int flags)
 {
 	int c = TYP(fullc);
