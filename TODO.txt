@@ -4,9 +4,9 @@ v96 update:
 - TPTMP
 - fix all those bugs
     - INST: done
-    - texter crash
-    - sound
-    - BCTR w/ high life
+    - texter crash: done 
+    - sound - wont work
+    - BCTR w/ high life - done (eats itself)
 
 
 

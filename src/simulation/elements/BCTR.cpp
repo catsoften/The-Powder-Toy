@@ -6,8 +6,12 @@ static int graphics(GRAPHICS_FUNC_ARGS);
 
 #define DIE() {parts[i].tmp2=1;return 0;}
 #define EAT(other) {\
-	sim->part_change_type(ID(r), parts[ID(r)].x, parts[ID(r)].y, RNG::Ref().chance(1, 30) ? other : PT_NONE);\
-	parts[i].life += BCTR::FOOD_LIFE;}
+	if (other != PT_NONE && RNG::Ref().chance(1, 30))\
+		sim->part_change_type(ID(r), parts[ID(r)].x, parts[ID(r)].y, other);\
+	else\
+		sim->kill_part(ID(r));\
+	parts[i].life += BCTR::FOOD_LIFE;\
+	return 0;}
 
 namespace BCTR {
 	const int TEMP_RES_MULTI = 5;
@@ -17,7 +21,7 @@ namespace BCTR {
 	const int START_LIFE = 110;
 	const int AGE_MULTI = 90;
 	const int AGE_BASE = 300;
-	const int MUTATION_RATE = 1; // Higher = less mutations
+	const int MUTATION_RATE = 2; // Higher = less mutations
 
 	/**
 	 * Return an int represented by the bits of the target
@@ -27,9 +31,9 @@ namespace BCTR {
 	 * Assumes 32-bit int
 	 */
 	int extract_bits(int target, int start, int end) {
+		if (target == 0) return 0;
 		if (start < 0) start = 0;
 		if (end > 31) end = 31;
-		if (target == 0) return 0;
 
 		unsigned int mask = 0;
 		for (int t = start; t <= end; ++t)
@@ -42,7 +46,7 @@ namespace BCTR {
 	 */
 	int mutate(int gene) {
 		// Random flip a bit if mutation allows it
-		if (RNG::Ref().chance(0, MUTATION_RATE) != 0)
+		if (RNG::Ref().chance(1, MUTATION_RATE) != 0)
 			return gene;
 		return gene ^ (1 << RNG::Ref().between(0, 32));
 	}
@@ -274,7 +278,7 @@ static int update(UPDATE_FUNC_ARGS) {
 	int r, rx, ry, rt;
 	for (rx = -1; rx < 2; rx++) {
 		for (ry = -1; ry < 2; ry++) {
-			if (BOUNDS_CHECK) {
+			if (BOUNDS_CHECK && (rx || ry)) {
 				r = pmap[y + ry][x + rx];
 				rt = TYP(r);
 
@@ -293,9 +297,8 @@ static int update(UPDATE_FUNC_ARGS) {
 					
 					if (restype2 != 6 || (restype2 == 6 && RNG::Ref().between(0, 15) > resval2)) {
 						// Glow gene is always passed
-						if (glow2) parts[ID(r)].ctype |= 1 << 26;
+						if (glow2) parts[ID(i)].ctype |= 1 << 26;
 						EAT(PT_NONE)
-						sim->kill_part(ID(r));
 					}
 				}
 
@@ -333,12 +336,12 @@ static int update(UPDATE_FUNC_ARGS) {
 					// Reproduce if enough energy stored and spot is empty
 					if (parts[i].life >= 2 * BCTR::START_LIFE) {
 						parts[i].life -= BCTR::START_LIFE;
-						int ni = r ? ID(r) : sim->create_part(-1, x + rx, y + ry, PT_BCTR);
-						parts[ni].dcolour = parts[i].dcolour;
-						parts[ni].ctype = parts[i].ctype;
-
-						// Mutate new bacteria
-						parts[ni].ctype = BCTR::mutate(parts[ni].ctype);
+						int ni = r > 0 ? ID(r) : sim->create_part(-1, x + rx, y + ry, PT_BCTR);
+						if (ni > -1) {
+							parts[ni].dcolour = parts[i].dcolour;
+							// Mutate new bacteria
+							parts[ni].ctype = BCTR::mutate(parts[i].ctype);
+						}
 					}
 					r = sim->photons[y + ry][x + rx];
 				}
@@ -356,8 +359,8 @@ static int update(UPDATE_FUNC_ARGS) {
 					)
 						EAT(PT_GAS)
 					else if (foodtype == 3 && (rt == PT_PHOT || rt == PT_BRAY)) {
-						EAT(PT_NONE)
 						parts[i].temp += 2.0f;
+						EAT(PT_NONE)
 					}
 					else if (foodtype == 6 && r && parts[i].temp < parts[ID(r)].temp) { // Absorb thermal energy
 						parts[i].temp += 0.5f;
@@ -373,8 +376,10 @@ static int update(UPDATE_FUNC_ARGS) {
 				bool should_res = RNG::Ref().between(0, 15) <= resval;
 				if ((rt == PT_VRSS || rt == PT_VRSG || rt == PT_VIRS) && restype == 3 && should_res) // VIRS
 					parts[ID(r)].pavg[0] = 1;
-				else if (rt == PT_ACID && restype == 5 && should_res) // ACID
+				else if (rt == PT_ACID && restype == 5 && should_res) { // ACID
 					sim->kill_part(ID(r));
+					return 0;
+				}
 
 				// Passive resistances
 				else if ((rt == PT_SALT || rt == PT_SOAP) && RNG::Ref().chance(1, 10) && (restype != 4 || (restype == 4 && !should_res)))
