@@ -1,4 +1,4 @@
-MOD_ELEMENT_OFFSET = 191
+MOD_ELEMENT_OFFSET = 192
 simulation_elem_ids = [
 	[ 'NONE',     0 ],
 	[ 'DUST',     1 ],
@@ -191,6 +191,7 @@ simulation_elem_ids = [
 	[ 'PTNM',   188 ],
 	[ 'VSNS',   189 ],
 	[ 'ROCK',   190 ],
+	[ 'LITH',   191 ],
 
 	['BCTR', MOD_ELEMENT_OFFSET + 0],
 	['SUGR', MOD_ELEMENT_OFFSET + 1],
@@ -275,7 +276,7 @@ simulation_elem_ids = [
 	['C6', MOD_ELEMENT_OFFSET + 80],
 	['ERAY', MOD_ELEMENT_OFFSET + 81],
 	['TIN', MOD_ELEMENT_OFFSET + 82],
-	['LITH', MOD_ELEMENT_OFFSET + 83],
+	['LQUD', MOD_ELEMENT_OFFSET + 83],
 	['PAPR', MOD_ELEMENT_OFFSET + 84],
 	['DEBG', MOD_ELEMENT_OFFSET + 85],
 	['PULP', MOD_ELEMENT_OFFSET + 86],
@@ -333,8 +334,7 @@ simulation_elem_ids = [
 	['RADN', MOD_ELEMENT_OFFSET + 138],
 	['CLTH', MOD_ELEMENT_OFFSET + 139],
 	['N2',   MOD_ELEMENT_OFFSET + 140],
-	['AMNA', MOD_ELEMENT_OFFSET + 141],
-	['LQUD', MOD_ELEMENT_OFFSET + 142]
+	['AMNA', MOD_ELEMENT_OFFSET + 141]
 ]
 
 simulation_elem_src = []

@@ -138,15 +138,8 @@ namespace ui
 		String textEditingBuf;
 
 	public:
-		inline void SetMomentumScroll(bool newMomentumScroll)
-		{
-			momentumScroll = newMomentumScroll;
-		}
-
-		inline bool GetMomentumScroll() const
-		{
-			return momentumScroll;
-		}
+		bool MomentumScroll = true;
+		bool ShowAvatars = true;
 	};
 
 }

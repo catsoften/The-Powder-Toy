@@ -1,6 +1,7 @@
 #ifndef OPTIONSVIEW_H_
 #define OPTIONSVIEW_H_
 
+#include "common/String.h"
 #include "gui/interface/Window.h"
 #include "gui/interface/ScrollPanel.h"
 
@@ -8,7 +9,8 @@ namespace ui
 {
 	class Checkbox;
 	class DropDown;
-	class DropDown;
+	class Textbox;
+	class Button;
 }
 
 class OptionsModel;
@@ -33,6 +35,8 @@ class VanillaOptionsView: public OptionsView
 	ui::Checkbox * newtonianGravity;
 	ui::Checkbox * waterEqualisation;
 	ui::DropDown * airMode;
+	ui::Textbox * ambientAirTemp;
+	ui::Button * ambientAirTempPreview;
 	ui::DropDown * gravityMode;
 	ui::DropDown * edgeMode;
 	ui::DropDown * scale;
@@ -44,12 +48,14 @@ class VanillaOptionsView: public OptionsView
 	ui::DropDown * decoSpace;
 	ui::Checkbox * showAvatars;
 	ui::Checkbox * momentumScroll;
-	ui::Checkbox * autoDrawLimit;
 	ui::Checkbox * mouseClickRequired;
 	ui::Checkbox * includePressure;
 	ui::Checkbox * perfectCirclePressure;
 
 	ui::ScrollPanel * scrollPanel;
+	bool initializedAirTempPreview = false;
+	void UpdateAmbientAirTempPreview(float airTemp, bool isValid);
+	void UpdateAirTemp(String temp, bool isDefocus);
 public:
 	VanillaOptionsView();
 	void NotifySettingsChanged(OptionsModel * sender);

@@ -2,18 +2,17 @@
 
 #include "bzip2/bzlib.h"
 
-#include "gui/dialogues/ConfirmPrompt.h"
-#include "gui/interface/Engine.h"
+#include "Config.h"
+#include "Update.h"
 
+#include "client/Client.h"
+#include "common/Platform.h"
 #include "tasks/Task.h"
 #include "tasks/TaskWindow.h"
 
-#include "client/Client.h"
 #include "client/http/Request.h"
-
-#include "Update.h"
-#include "Config.h"
-#include "Platform.h"
+#include "gui/dialogues/ConfirmPrompt.h"
+#include "gui/interface/Engine.h"
 
 class UpdateDownloadTask : public Task
 {
@@ -101,7 +100,6 @@ private:
 		notifyProgress(-1);
 
 		Client::Ref().SetPref("version.update", true);
-		Client::Ref().WritePrefs();
 		if (update_start(res, uncompressedLength))
 		{
 			Client::Ref().SetPref("version.update", false);

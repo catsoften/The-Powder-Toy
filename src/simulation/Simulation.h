@@ -176,7 +176,7 @@ public:
 	bool FloodFillPmapCheck(int x, int y, int type);
 	int flood_prop(int x, int y, size_t propoffset, PropertyValue propvalue, StructProperty::PropertyType proptype);
 	bool flood_water(int x, int y, int i);
-	int FloodINST(int x, int y, int cm_=-1, int co_=-1);
+	int FloodINST(int x, int y, int INSTType=-1);
 	void RecalculateFaraday();
 	void detach(int i);
 	bool part_change_type(int i, int x, int y, int t);

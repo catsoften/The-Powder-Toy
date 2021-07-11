@@ -8,6 +8,7 @@
 #include "CommandInterface.h"
 #include "lua/LuaEvents.h"
 #include "simulation/StructProperty.h"
+#include "simulation/ElementDefs.h"
 
 #include <map>
 
@@ -185,6 +186,8 @@ class LuaScriptInterface: public CommandInterface
 	static int http_get(lua_State * l);
 	static int http_post(lua_State * l);
 
+	void initSocketAPI();
+
 	std::vector<LuaSmartRef> lua_el_func_v, lua_gr_func_v, lua_cd_func_v;
 	std::vector<int> lua_el_mode_v;
 
@@ -200,6 +203,9 @@ public:
 	std::map<LuaComponent *, LuaSmartRef> grabbed_components;
 	LuaScriptInterface(GameController * c, GameModel * m);
 
+	char custom_can_move[PT_NUM][PT_NUM];
+	void custom_init_can_move();
+
 	void OnTick() override;
 	bool HandleEvent(LuaEvents::EventTypes eventType, Event * event) override;
 
@@ -210,5 +216,6 @@ public:
 	virtual ~LuaScriptInterface();
 };
 
+extern LuaScriptInterface *luacon_ci;
 
 #endif /* LUASCRIPTINTERFACE_H_ */

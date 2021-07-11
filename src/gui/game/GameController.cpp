@@ -1,63 +1,17 @@
 #include "GameController.h"
 
-#include "GameView.h"
-#include "GameModel.h"
-
-#include "RenderPreset.h"
-#include "Menu.h"
-#include "Tool.h"
 #include "Brush.h"
-#include "QuickOptions.h"
-#include "GameModelException.h"
-
 #include "Config.h"
-#include "Format.h"
-#include "Platform.h"
 #include "Controller.h"
+#include "Format.h"
+#include "GameModel.h"
+#include "GameModelException.h"
+#include "GameView.h"
+#include "Menu.h"
 #include "Notification.h"
-
-#include "client/GameSave.h"
-#include "client/Client.h"
-
-#include "gui/search/SearchController.h"
-#include "gui/render/RenderController.h"
-#include "gui/login/LoginController.h"
-#include "gui/preview/PreviewController.h"
-#include "gui/tags/TagsController.h"
-#include "gui/console/ConsoleController.h"
-#include "gui/localbrowser/LocalBrowserController.h"
-#include "gui/options/OptionsController.h"
-
-#include "gui/dialogues/ErrorMessage.h"
-#include "gui/dialogues/InformationMessage.h"
-#include "gui/dialogues/ConfirmPrompt.h"
-
-#include "gui/elementsearch/ElementSearchActivity.h"
-#include "gui/profile/ProfileActivity.h"
-#include "gui/colourpicker/ColourPickerActivity.h"
-#include "gui/update/UpdateActivity.h"
-#include "gui/filebrowser/FileBrowserActivity.h"
-#include "gui/save/LocalSaveActivity.h"
-#include "gui/save/ServerSaveActivity.h"
-
-#include "gui/tags/TagsView.h"
-#include "gui/search/SearchView.h"
-#include "gui/render/RenderView.h"
-#include "gui/preview/PreviewView.h"
-#include "gui/options/OptionsView.h"
-#include "gui/login/LoginView.h"
-#include "gui/localbrowser/LocalBrowserView.h"
-#include "gui/console/ConsoleView.h"
-
-#include "gui/interface/Keys.h"
-#include "gui/interface/Mouse.h"
-#include "gui/interface/Engine.h"
-
-#include "debug/DebugInfo.h"
-#include "debug/DebugParts.h"
-#include "debug/ElementPopulation.h"
-#include "debug/DebugLines.h"
-#include "debug/ParticleDebug.h"
+#include "QuickOptions.h"
+#include "RenderPreset.h"
+#include "Tool.h"
 
 #ifdef LUACONSOLE
 # include "lua/LuaScriptInterface.h"
@@ -66,13 +20,52 @@
 # include "lua/TPTScriptInterface.h"
 #endif
 
+#include "client/Client.h"
+#include "client/GameSave.h"
+#include "common/Platform.h"
+#include "debug/DebugInfo.h"
+#include "debug/DebugLines.h"
+#include "debug/DebugParts.h"
+#include "debug/ElementPopulation.h"
+#include "debug/ParticleDebug.h"
 #include "graphics/Renderer.h"
-
+#include "simulation/Air.h"
+#include "simulation/ElementClasses.h"
 #include "simulation/Simulation.h"
 #include "simulation/SimulationData.h"
-#include "simulation/Air.h"
 #include "simulation/Snapshot.h"
-#include "simulation/ElementClasses.h"
+
+#include "gui/dialogues/ErrorMessage.h"
+#include "gui/dialogues/InformationMessage.h"
+#include "gui/dialogues/ConfirmPrompt.h"
+#include "gui/interface/Keys.h"
+#include "gui/interface/Mouse.h"
+#include "gui/interface/Engine.h"
+
+#include "gui/colourpicker/ColourPickerActivity.h"
+#include "gui/elementsearch/ElementSearchActivity.h"
+#include "gui/filebrowser/FileBrowserActivity.h"
+#include "gui/profile/ProfileActivity.h"
+#include "gui/save/LocalSaveActivity.h"
+#include "gui/save/ServerSaveActivity.h"
+#include "gui/update/UpdateActivity.h"
+
+#include "gui/console/ConsoleController.h"
+#include "gui/console/ConsoleView.h"
+#include "gui/localbrowser/LocalBrowserController.h"
+#include "gui/localbrowser/LocalBrowserView.h"
+#include "gui/login/LoginController.h"
+#include "gui/login/LoginView.h"
+#include "gui/options/OptionsController.h"
+#include "gui/options/OptionsView.h"
+#include "gui/preview/PreviewController.h"
+#include "gui/preview/PreviewView.h"
+#include "gui/render/RenderController.h"
+#include "gui/render/RenderView.h"
+#include "gui/search/SearchController.h"
+#include "gui/search/SearchView.h"
+#include "gui/tags/TagsController.h"
+#include "gui/tags/TagsView.h"
 
 #include <iostream>
 
@@ -560,6 +553,7 @@ void GameController::CopyRegion(ui::Point point1, ui::Point point2)
 void GameController::CutRegion(ui::Point point1, ui::Point point2)
 {
 	CopyRegion(point1, point2);
+	HistorySnapshot();
 	gameModel->GetSimulation()->clear_area(point1.X, point1.Y, point2.X-point1.X, point2.Y-point1.Y);
 }
 
@@ -1299,7 +1293,7 @@ void GameController::OpenLocalSaveWindow(bool asCurrent)
 			gameSave->authors = localSaveInfo;
 
 			gameModel->SetSaveFile(&tempSave, gameView->ShiftBehaviour());
-			Client::Ref().MakeDirectory(LOCAL_SAVE_DIR);
+			Platform::MakeDirectory(LOCAL_SAVE_DIR);
 			std::vector<char> saveData = gameSave->Serialise();
 			if (saveData.size() == 0)
 				new ErrorMessage("Error", "Unable to serialize game data.");
@@ -1444,7 +1438,7 @@ void GameController::OpenOptions()
 {
 	options = new OptionsController(gameModel, false, [this] {
 		gameModel->UpdateQuickOptions();
-		Client::Ref().WritePrefs();
+		Client::Ref().WritePrefs(); // * I don't think there's a reason for this but I'm too lazy to check. -- LBPHacker
 	});
 	ui::Engine::Ref().ShowWindow(options->GetView());
 }
@@ -1596,6 +1590,9 @@ void GameController::ClearSim()
 
 String GameController::ElementResolve(int type, int ctype)
 {
+	// "NONE" should never be displayed in the HUD
+	if (!type)
+		return "";
 	if (gameModel && gameModel->GetSimulation())
 	{
 		return gameModel->GetSimulation()->ElementResolve(type, ctype);

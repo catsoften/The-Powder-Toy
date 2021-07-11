@@ -253,6 +253,16 @@ void Component::OnMouseWheelInside(int localx, int localy, int d)
 {
 }
 
+void Component::OnFocus()
+{
+
+}
+
+void Component::OnDefocus()
+{
+
+}
+
 Component::~Component()
 {
 	delete menu;

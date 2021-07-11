@@ -66,16 +66,17 @@ int Simulation::Load(GameSave * save, bool includePressure)
 
 int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY)
 {
-	int x, y, r;
-
 	if (!save)
 		return 1;
 	try
 	{
 		save->Expand();
 	}
-	catch (ParseException &)
+	catch (const ParseException &e)
 	{
+#ifdef LUACONSOLE
+		luacon_ci->SetLastError(ByteString(e.what()).FromUtf8());
+#endif
 		return 1;
 	}
 
@@ -113,32 +114,101 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 		}
 	}
 
-	int i;
 	std::fill(&density_map[0][0], &density_map[YRES / DENSITY_CELL][0], 0);
+	// Map of soap particles loaded into this save, old ID -> new ID
+
+	int r;
+	bool doFullScan = false;
+
+	for (int n = 0; n < NPART && n < save->particlesCount; n++)
+	{
+		Particle *tempPart = &save->particles[n];
+		tempPart->x += (float)fullX;
+		tempPart->y += (float)fullY;
+		int x = int(tempPart->x + 0.5f);
+		int y = int(tempPart->y + 0.5f);
+
+		// Check various scenarios where we are unable to spawn the element, and set type to 0 to block spawning later
+		if (!InBounds(x, y))
+		{
+			tempPart->type = 0;
+			continue;
+		}
+
+		int type = tempPart->type;
+		if (type < 0 && type >= PT_NUM)
+		{
+			tempPart->type = 0;
+			continue;
+		}
+		// Ensure we can spawn this element
+		if ((player.spwn == 1 && tempPart->type==PT_STKM) || (player2.spwn == 1 && tempPart->type==PT_STKM2))
+		{
+			tempPart->type = 0;
+			continue;
+		}
+		if ((tempPart->type == PT_SPAWN || tempPart->type == PT_SPAWN2) && elementCount[type])
+		{
+			tempPart->type = 0;
+			continue;
+		}
+		bool Element_FIGH_CanAlloc(Simulation *sim);
+		if (tempPart->type == PT_FIGH && !Element_FIGH_CanAlloc(this))
+		{
+			tempPart->type = 0;
+			continue;
+		}
+		if (!elements[type].Enabled)
+		{
+			tempPart->type = 0;
+			continue;
+		}
+
+		if ((r = pmap[y][x]))
+		{
+			// Particle already exists in this location. Set pmap to 0, then kill it and all stacked particles in the loop below
+			pmap[y][x] = 0;
+			doFullScan = true;
+		}
+		else if ((r = photons[y][x]))
+		{
+			// Particle already exists in this location. Set photons to 0, then kill it and all stacked particles in the loop below
+			photons[y][x] = 0;
+			doFullScan = true;
+		}
+	}
+
+	if (doFullScan)
+	{
+		// Loop through particles to find particles in need of being killed
+		for (int i = 0; i <= parts_lastActiveIndex; i++) {
+			if (parts[i].type)
+			{
+				int x = int(parts[i].x + 0.5f);
+				int y = int(parts[i].y + 0.5f);
+				if (elements[parts[i].type].Properties & TYPE_ENERGY)
+				{
+					if (!photons[y][x])
+						kill_part(i);
+				}
+				else
+				{
+					if (!pmap[y][x])
+						kill_part(i);
+				}
+			}
+		}
+	}
+
+	int i;
 	// Map of soap particles loaded into this save, old ID -> new ID
 	std::map<unsigned int, unsigned int> soapList;
 	for (int n = 0; n < NPART && n < save->particlesCount; n++)
 	{
 		Particle tempPart = save->particles[n];
-		tempPart.x += (float)fullX;
-		tempPart.y += (float)fullY;
-		x = int(tempPart.x + 0.5f);
-		y = int(tempPart.y + 0.5f);
-
-		if (tempPart.type >= 0 && tempPart.type < PT_NUM)
+		if (tempPart.type > 0 && tempPart.type < PT_NUM)
 			tempPart.type = partMap[tempPart.type];
 		else
-			continue;
-
-		// Ensure we can spawn this element
-		if ((player.spwn == 1 && tempPart.type==PT_STKM) || (player2.spwn == 1 && tempPart.type==PT_STKM2))
-			continue;
-		if ((tempPart.type == PT_SPAWN && elementCount[PT_SPAWN]) || (tempPart.type == PT_SPAWN2 && elementCount[PT_SPAWN2]))
-			continue;
-		bool Element_FIGH_CanAlloc(Simulation *sim);
-		if (tempPart.type == PT_FIGH && !Element_FIGH_CanAlloc(this))
-			continue;
-		if (!elements[tempPart.type].Enabled)
 			continue;
 
 		// These store type in ctype, but are special because they store extra information in the bits after type
@@ -167,39 +237,16 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 			tempPart.tmp2 = partMap[tempPart.tmp2];
 		}
 
-		//Replace existing
-		if ((r = pmap[y][x]))
-		{
-			elementCount[parts[ID(r)].type]--;
-			parts[ID(r)] = tempPart;
-			i = ID(r);
-			elementCount[tempPart.type]++;
-			// * pmap will be repopulated a bit later by RecalcFreeParticles;
-			//   until then, remove the entry so the next new particle at the
-			//   same position doesn't overwrite the one we've just copied
-			pmap[y][x] = 0;
-		}
-		else if ((r = photons[y][x]))
-		{
-			elementCount[parts[ID(r)].type]--;
-			parts[ID(r)] = tempPart;
-			i = ID(r);
-			elementCount[tempPart.type]++;
-			// * same as with pmap above
-			photons[y][x] = 0;
-		}
-		//Allocate new particle
-		else
-		{
-			if (pfree == -1)
-				break;
-			i = pfree;
-			pfree = parts[i].life;
-			if (i > parts_lastActiveIndex)
-				parts_lastActiveIndex = i;
-			parts[i] = tempPart;
-			elementCount[tempPart.type]++;
-		}
+		// Allocate particle (this location is guaranteed to be empty due to "full scan" logic above)
+		if (pfree == -1)
+			break;
+		i = pfree;
+		pfree = parts[i].life;
+		if (i > parts_lastActiveIndex)
+			parts_lastActiveIndex = i;
+		parts[i] = tempPart;
+		elementCount[tempPart.type]++;
+
 
 		density_map[(int)(parts[i].y) / DENSITY_CELL][(int)(parts[i].x) / DENSITY_CELL]++;
 
@@ -539,6 +586,7 @@ void Simulation::SaveSimOptions(GameSave * gameSave)
 		return;
 	gameSave->gravityMode = gravityMode;
 	gameSave->airMode = air->airMode;
+	gameSave->ambientAirTemp = air->ambientAirTemp;
 	gameSave->edgeMode = edgeMode;
 	gameSave->legacyEnable = legacy_enable;
 	gameSave->waterEEnabled = water_equal_test;
@@ -588,6 +636,7 @@ void Simulation::Restore(const Snapshot & snap)
 {
 	timer = snap.timer;
 	parts_lastActiveIndex = NPART-1;
+	std::fill(elementCount, elementCount+PT_NUM, 0);
 	elementRecount = true;
 	force_stacking_check = true;
 
@@ -813,17 +862,20 @@ SimulationSample Simulation::GetSample(int x, int y)
 	return sample;
 }
 
-int Simulation::FloodINST(int x, int y, int cm, int co)
+int Simulation::FloodINST(int x, int y, int INSTtype)
 {
 	int x1, x2;
 	int created_something = 0;
 
-	const auto isSparkableInst = [this](int x, int y) -> bool {
-		return TYP(pmap[y][x])==PT_INST && parts[ID(pmap[y][x])].life==0;
+	if (INSTtype < 0)
+		INSTtype = PT_INST;
+
+	const auto isSparkableInst = [this, INSTtype](int x, int y) -> bool {
+		return TYP(pmap[y][x])==INSTtype && parts[ID(pmap[y][x])].life==0;
 	};
 
-	const auto isInst = [this](int x, int y) -> bool {
-		return TYP(pmap[y][x])==PT_INST || (TYP(pmap[y][x])==PT_SPRK  && parts[ID(pmap[y][x])].ctype==PT_INST);
+	const auto isInst = [this, INSTtype](int x, int y) -> bool {
+		return TYP(pmap[y][x])==INSTtype || (TYP(pmap[y][x])==PT_SPRK  && parts[ID(pmap[y][x])].ctype==INSTtype);
 	};
 
 	if (!isSparkableInst(x,y))
@@ -853,7 +905,7 @@ int Simulation::FloodINST(int x, int y, int cm, int co)
 			// fill span
 			for (x=x1; x<=x2; x++)
 			{
-				if (create_part(-1, x, y, co)>=0)
+				if (create_part(-1, x, y, PT_SPRK)>=0)
 					created_something = 1;
 			}
 
@@ -1776,7 +1828,7 @@ int Simulation::CreateParts(int positionX, int positionY, int c, Brush * cBrush,
 			if (newlife > 55)
 				newlife = 55;
 			c = PMAP(newlife, c);
-			lightningRecreate = currentTick+newlife/4;
+			lightningRecreate = currentTick + std::max(newlife / 4, 1);
 			return CreatePartFlags(positionX, positionY, c, flags);
 		}
 		else if (c == PT_TESC)
@@ -1817,7 +1869,7 @@ int Simulation::CreateParts(int x, int y, int rx, int ry, int c, int flags)
 		if (newlife > 55)
 			newlife = 55;
 		c = PMAP(newlife, c);
-		lightningRecreate = currentTick+newlife/4;
+		lightningRecreate = currentTick + std::max(newlife / 4, 1);
 		rx = ry = 0;
 	}
 	else if (c == PT_TESC)
@@ -2602,6 +2654,7 @@ void Simulation::init_can_move()
 	can_move[PT_DEST][PT_PCLN] = 0;
 	can_move[PT_DEST][PT_BCLN] = 0;
 	can_move[PT_DEST][PT_PBCN] = 0;
+	can_move[PT_DEST][PT_ROCK] = 0;
 
 	can_move[PT_NEUT][PT_INVIS] = 2;
 	can_move[PT_ELEC][PT_LCRY] = 2;
@@ -5166,6 +5219,9 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 			lastPartUsed = i;
 			NUM_PARTS ++;
 
+			if (elementRecount && t >= 0 && t < PT_NUM && elements[t].Enabled)
+				elementCount[t]++;
+
 			// Time dilation: slow down
 			if (!(elements[t].Properties & PROP_NO_TIME) && time_dilation[y / CELL][x / CELL] < 0 && timer % (int)abs(time_dilation[y / CELL][x / CELL]) != 0)
 				continue;
@@ -5178,9 +5234,6 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 					kill_part(i);
 					continue;
 				}
-
-				if (elementRecount)
-					elementCount[t]++;
 
 				unsigned int elem_properties = elements[t].Properties;
 				if (parts[i].life>0 && (elem_properties&PROP_LIFE_DEC) && !(inBounds && bmap[y/CELL][x/CELL] == WL_STASIS && emap[y/CELL][x/CELL]<8))
@@ -5230,7 +5283,7 @@ void Simulation::RecalcFreeParticles(bool do_life_dec)
 			parts[lastPartUnused].life = parts_lastActiveIndex+1;
 	}
 	parts_lastActiveIndex = lastPartUsed;
-	if (elementRecount && (!sys_pause || framerender))
+	if (elementRecount)
 		elementRecount = false;
 }
 
@@ -5371,15 +5424,18 @@ void Simulation::SimulateGoL()
 						{
 							// * 0x200000: No need to look for colours, they'll be set later anyway.
 							int i = create_part(-1, x, y, PT_LIFE, golnumToCreate | 0x200000);
-							int xx = (createFromEntry >> 24) & 3;
-							int yy = (createFromEntry >> 26) & 3;
-							if (xx == 3) xx = -1;
-							if (yy == 3) yy = -1;
-							int ax = ((x - xx + XRES - 3 * CELL) % (XRES - 2 * CELL)) + CELL;
-							int ay = ((y - yy + YRES - 3 * CELL) % (YRES - 2 * CELL)) + CELL;
-							auto &sample = parts[ID(pmap[ay][ax])];
-							parts[i].dcolour = sample.dcolour;
-							parts[i].tmp = sample.tmp;
+							if (i >= 0)
+							{
+								int xx = (createFromEntry >> 24) & 3;
+								int yy = (createFromEntry >> 26) & 3;
+								if (xx == 3) xx = -1;
+								if (yy == 3) yy = -1;
+								int ax = ((x - xx + XRES - 3 * CELL) % (XRES - 2 * CELL)) + CELL;
+								int ay = ((y - yy + YRES - 3 * CELL) % (YRES - 2 * CELL)) + CELL;
+								auto &sample = parts[ID(pmap[ay][ax])];
+								parts[i].dcolour = sample.dcolour;
+								parts[i].tmp = sample.tmp;
+							}
 						}
 					}
 				}

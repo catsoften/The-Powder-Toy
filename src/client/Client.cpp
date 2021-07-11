@@ -26,26 +26,27 @@
 #include <unistd.h>
 #endif
 
-#include "common/String.h"
+#include "ClientListener.h"
 #include "Config.h"
 #include "Format.h"
 #include "MD5.h"
-#include "Platform.h"
 #include "Update.h"
 
-#include "ClientListener.h"
-
+#include "client/GameSave.h"
+#include "client/SaveFile.h"
+#include "client/SaveInfo.h"
+#include "client/UserInfo.h"
+#include "common/Platform.h"
+#include "common/String.h"
 #include "graphics/Graphics.h"
 
-#include "gui/preview/Comment.h"
+#ifdef LUACONSOLE
+# include "lua/LuaScriptInterface.h"
+#endif
 
-#include "client/SaveInfo.h"
-#include "client/SaveFile.h"
-#include "client/GameSave.h"
-#include "client/UserInfo.h"
 #include "client/http/Request.h"
 #include "client/http/RequestManager.h"
-
+#include "gui/preview/Comment.h"
 
 extern "C"
 {
@@ -430,96 +431,6 @@ bool Client::DoInstallation()
 #endif
 }
 
-std::vector<ByteString> Client::DirectorySearch(ByteString directory, ByteString search, ByteString extension)
-{
-	std::vector<ByteString> extensions;
-	extensions.push_back(extension);
-	return DirectorySearch(directory, search.ToUpper(), extensions);
-}
-
-std::vector<ByteString> Client::DirectorySearch(ByteString directory, ByteString search, std::vector<ByteString> extensions)
-{
-	//Get full file listing
-	//Normalise directory string, ensure / or \ is present
-	if(*directory.rbegin() != '/' && *directory.rbegin() != '\\')
-		directory += PATH_SEP;
-	std::vector<ByteString> directoryList;
-#if defined(WIN) && !defined(__GNUC__)
-	//Windows
-	struct _wfinddata_t currentFile;
-	intptr_t findFileHandle;
-	ByteString fileMatch = directory + "*.*";
-	findFileHandle = _wfindfirst(Platform::WinWiden(fileMatch).c_str(), &currentFile);
-	if (findFileHandle == -1L)
-	{
-#ifdef DEBUG
-		printf("Unable to open directory: %s\n", directory.c_str());
-#endif
-		return std::vector<ByteString>();
-	}
-	do
-	{
-		ByteString currentFileName = Platform::WinNarrow(currentFile.name);
-		if(currentFileName.length()>4)
-			directoryList.push_back(directory+currentFileName);
-	}
-	while (_wfindnext(findFileHandle, &currentFile) == 0);
-	_findclose(findFileHandle);
-#else
-	//Linux or MinGW
-	struct dirent * directoryEntry;
-	DIR *directoryHandle = opendir(directory.c_str());
-	if(!directoryHandle)
-	{
-#ifdef DEBUG
-		printf("Unable to open directory: %s\n", directory.c_str());
-#endif
-		return std::vector<ByteString>();
-	}
-	while ((directoryEntry = readdir(directoryHandle)))
-	{
-		ByteString currentFileName = ByteString(directoryEntry->d_name);
-		if(currentFileName.length()>4)
-			directoryList.push_back(directory+currentFileName);
-	}
-	closedir(directoryHandle);
-#endif
-
-	std::vector<ByteString> searchResults;
-	for(std::vector<ByteString>::iterator iter = directoryList.begin(), end = directoryList.end(); iter != end; ++iter)
-	{
-		ByteString filename = *iter, tempfilename = *iter;
-		bool extensionMatch = !extensions.size();
-		for(std::vector<ByteString>::iterator extIter = extensions.begin(), extEnd = extensions.end(); extIter != extEnd; ++extIter)
-		{
-			if(filename.EndsWith(*extIter))
-			{
-				extensionMatch = true;
-				tempfilename = filename.SubstrFromEnd(0, (*extIter).size()).ToUpper();
-				break;
-			}
-		}
-		bool searchMatch = !search.size();
-		if(search.size() && tempfilename.Contains(search))
-			searchMatch = true;
-
-		if(searchMatch && extensionMatch)
-			searchResults.push_back(filename);
-	}
-
-	//Filter results
-	return searchResults;
-}
-
-int Client::MakeDirectory(const char * dirName)
-{
-#ifdef WIN
-	return _wmkdir(Platform::WinWiden(dirName).c_str());
-#else
-	return mkdir(dirName, 0755);
-#endif
-}
-
 bool Client::WriteFile(std::vector<unsigned char> fileData, ByteString filename)
 {
 	bool saveError = false;
@@ -541,26 +452,6 @@ bool Client::WriteFile(std::vector<unsigned char> fileData, ByteString filename)
 		saveError = true;
 	}
 	return saveError;
-}
-
-bool Client::FileExists(ByteString filename)
-{
-	bool exists = false;
-	try
-	{
-		std::ifstream fileStream;
-		fileStream.open(filename, std::ios::binary);
-		if(fileStream.is_open())
-		{
-			exists = true;
-			fileStream.close();
-		}
-	}
-	catch (std::exception & e)
-	{
-		exists = false;
-	}
-	return exists;
 }
 
 bool Client::WriteFile(std::vector<char> fileData, ByteString filename)
@@ -940,6 +831,7 @@ Client::~Client()
 void Client::SetAuthUser(User user)
 {
 	authUser = user;
+	WritePrefs();
 	notifyAuthUserChanged();
 }
 
@@ -1064,7 +956,7 @@ ByteString Client::AddStamp(GameSave * saveData)
 	ByteString saveID = ByteString::Build(Format::Hex(Format::Width(lastStampTime, 8)), Format::Hex(Format::Width(lastStampName, 2)));
 	ByteString filename = STAMPS_DIR PATH_SEP + saveID + ".stm";
 
-	MakeDirectory(STAMPS_DIR);
+	Platform::MakeDirectory(STAMPS_DIR);
 
 	Json::Value stampInfo;
 	stampInfo["type"] = "stamp";
@@ -1099,7 +991,7 @@ ByteString Client::AddStamp(GameSave * saveData)
 
 void Client::updateStamps()
 {
-	MakeDirectory(STAMPS_DIR);
+	Platform::MakeDirectory(STAMPS_DIR);
 
 	std::ofstream stampsStream;
 	stampsStream.open(ByteString(STAMPS_DIR PATH_SEP "stamps.def").c_str(), std::ios::binary);
@@ -1206,26 +1098,17 @@ std::vector<unsigned char> Client::GetSaveData(int saveID, int saveDate)
 LoginStatus Client::Login(ByteString username, ByteString password, User & user)
 {
 	lastError = "";
-	char passwordHash[33];
-	char totalHash[33];
 
 	user.UserID = 0;
 	user.Username = "";
 	user.SessionID = "";
 	user.SessionKey = "";
 
-	//Doop
-	md5_ascii(passwordHash, (const unsigned char *)password.c_str(), password.length());
-	passwordHash[32] = 0;
-	ByteString total = ByteString::Build(username, "-", passwordHash);
-	md5_ascii(totalHash, (const unsigned char *)(total.c_str()), total.size());
-	totalHash[32] = 0;
-
 	ByteString data;
 	int dataStatus;
-	data = http::Request::Simple(SCHEME SERVER "/Login.json", &dataStatus, {
-		{ "Username", username },
-		{ "Hash", totalHash },
+	data = http::Request::Simple("https://" SERVER "/Login.json", &dataStatus, {
+		{ "name", username },
+		{ "pass", password },
 	});
 
 	RequestStatus ret = ParseServerReturn(data, dataStatus, true);
@@ -1237,6 +1120,7 @@ LoginStatus Client::Login(ByteString username, ByteString password, User & user)
 			Json::Value objDocument;
 			dataStream >> objDocument;
 
+			ByteString usernameTemp = objDocument["Username"].asString();
 			int userIDTemp = objDocument["UserID"].asInt();
 			ByteString sessionIDTemp = objDocument["SessionID"].asString();
 			ByteString sessionKeyTemp = objDocument["SessionKey"].asString();
@@ -1252,7 +1136,7 @@ LoginStatus Client::Login(ByteString username, ByteString password, User & user)
 				AddServerNotification(item);
 			}
 
-			user.Username = username;
+			user.Username = usernameTemp;
 			user.UserID = userIDTemp;
 			user.SessionID = sessionIDTemp;
 			user.SessionKey = sessionKeyTemp;
@@ -1476,7 +1360,7 @@ SaveInfo * Client::GetSave(int saveID, int saveDate)
 
 SaveFile * Client::LoadSaveFile(ByteString filename)
 {
-	if (!FileExists(filename))
+	if (!Platform::FileExists(filename))
 		return nullptr;
 	SaveFile * file = new SaveFile(filename);
 	try
@@ -1484,8 +1368,11 @@ SaveFile * Client::LoadSaveFile(ByteString filename)
 		GameSave * tempSave = new GameSave(ReadFile(filename));
 		file->SetGameSave(tempSave);
 	}
-	catch (ParseException & e)
+	catch (const ParseException &e)
 	{
+#ifdef LUACONSOLE
+		luacon_ci->SetLastError(ByteString(e.what()).FromUtf8());
+#endif
 		std::cerr << "Client: Invalid save file '" << filename << "': " << e.what() << std::endl;
 		file->SetLoadingError(ByteString(e.what()).FromUtf8());
 	}
@@ -1970,6 +1857,7 @@ void Client::SetPref(ByteString prop, Json::Value value)
 			preferences[split.Before()] = SetPrefHelper(preferences[split.Before()], split.After(), value);
 		else
 			preferences[prop] = value;
+		WritePrefs();
 	}
 	catch (std::exception & e)
 	{

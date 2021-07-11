@@ -122,7 +122,7 @@ int Element_FIRE_update(UPDATE_FUNC_ARGS)
 					else
 						parts[i].ctype = PT_IRON;
 				}
-				else if (pres <= 255 && parts[i].temp >= 5000 && RNG::Ref().chance(1, 5))
+				else if (parts[i].temp >= 5000 && RNG::Ref().chance(1, 5))
 				{
 					if (RNG::Ref().chance(1, 5))
 						parts[i].ctype = PT_URAN;
@@ -133,7 +133,7 @@ int Element_FIRE_update(UPDATE_FUNC_ARGS)
 				}
 			}
 		}
-		else if (parts[i].ctype == PT_STNE && sim->pv[y / CELL][x / CELL] >= 2.0f) // Form ROCK with pressure
+		else if ((parts[i].ctype == PT_STNE || !parts[i].ctype) && sim->pv[y / CELL][x / CELL] >= 30.0f && (parts[i].temp > 1943.15f || sim->pv[y / CELL][x / CELL] < 120.0f)) // Form ROCK with pressure, if it will stay molten or not immediately break
 		{
 			parts[i].tmp2 = RNG::Ref().between(0, 10); // Provide tmp2 for color noise
 			parts[i].ctype = PT_ROCK;
@@ -296,7 +296,8 @@ int Element_FIRE_update(UPDATE_FUNC_ARGS)
 				    //exceptions, t is the thing causing the spark and rt is what's burning
 				    (t != PT_SPRK || (rt != PT_RBDM && rt != PT_LRBD && rt != PT_INSL)) &&
 				    (t != PT_PHOT || rt != PT_INSL) &&
-				    (rt != PT_SPNG || parts[ID(r)].life == 0))
+				    (rt != PT_SPNG || parts[ID(r)].life == 0) &&
+					(rt != PT_CRBN || parts[ID(r)].temp > 300.0f + 273.0f))
 				{
 					sim->part_change_type(ID(r), x+rx, y+ry, PT_FIRE);
 					parts[ID(r)].temp = restrict_flt(sim->elements[PT_FIRE].DefaultProperties.temp + (sim->elements[rt].Flammable/2), MIN_TEMP, MAX_TEMP);

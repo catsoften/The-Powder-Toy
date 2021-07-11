@@ -49,6 +49,11 @@ void OptionsController::SetAirMode(int airMode)
 	model->SetAirMode(airMode);
 }
 
+void OptionsController::SetAmbientAirTemperature(float ambientAirTemp)
+{
+	model->SetAmbientAirTemperature(ambientAirTemp);
+}
+
 void OptionsController::SetEdgeMode(int edgeMode)
 {
 	model->SetEdgeMode(edgeMode);
@@ -145,11 +150,6 @@ void OptionsController::SetSoundEnabled(bool enabled) {
 void OptionsController::SetMomentumScroll(bool momentumScroll)
 {
 	model->SetMomentumScroll(momentumScroll);
-}
-
-void OptionsController::SetAutoDrawLimit(bool autoDrawLimit)
-{
-	model->SetAutoDrawLimit(autoDrawLimit);
 }
 
 void OptionsController::Exit()
