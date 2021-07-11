@@ -58,7 +58,6 @@ extern "C"
 #include <sys/stat.h>
 #include <dirent.h>
 }
-#include "socket.lua.h"
 #include "multiplayer.lua.h"
 #include "script.lua.h"
 #include "eventcompat.lua.h"
