@@ -2,8 +2,5 @@
 # Erase and replace the changelog for every release, do not just append changes to the end
 # Lines starting with # and empty lines are ignored
 
-Update to v96
-- Fix BCTR crash
-- Fix texter crash
-- Fix INST lag
-- Update TPTMP
+Update to v96.1
+- Default secret mod setting to "false"

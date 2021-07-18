@@ -106,7 +106,7 @@ GameModel::GameModel():
 	//Load config into simulation
 	edgeMode = Client::Ref().GetPrefInteger("Simulation.EdgeMode", 0);
 	sim->SetEdgeMode(edgeMode);
-	ambientAirTemp = R_TEMP + 273.15;
+	ambientAirTemp = float(R_TEMP) + 273.15f;
 	{
 		auto temp = Client::Ref().GetPrefNumber("Simulation.AmbientAirTemp", ambientAirTemp);
 		if (MIN_TEMP <= temp && MAX_TEMP >= temp)
@@ -521,7 +521,7 @@ void GameModel::BuildBrushList()
 	std::vector<ByteString> brushFiles = Platform::DirectorySearch(BRUSH_DIR, "", { ".ptb" });
 	for (size_t i = 0; i < brushFiles.size(); i++)
 	{
-		std::vector<unsigned char> brushData = Client::Ref().ReadFile(brushFiles[i]);
+		std::vector<unsigned char> brushData = Client::Ref().ReadFile(BRUSH_DIR + ByteString(PATH_SEP) + brushFiles[i]);
 		if(!brushData.size())
 		{
 			std::cout << "Brushes: Skipping " << brushFiles[i] << ". Could not open" << std::endl;

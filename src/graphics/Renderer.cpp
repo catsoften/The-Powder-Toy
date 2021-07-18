@@ -1452,26 +1452,6 @@ void Renderer::render_parts()
 					}
 				}
 
-				if (findingElement)
-				{
-					if (TYP(findingElement) == parts[i].type &&
-							(parts[i].type != PT_LIFE || (ID(findingElement) == parts[i].ctype)))
-					{
-						colr = firer = 255;
-						colg = fireg = colb = fireb = 0;
-						foundElements++;
-					}
-					else
-					{
-						colr /= 10;
-						colg /= 10;
-						colb /= 10;
-						firer /= 5;
-						fireg /= 5;
-						fireb /= 5;
-					}
-				}
-
 				if (colour_mode & COLOUR_GRAD)
 				{
 					auto frequency = 0.05f;
@@ -1520,6 +1500,26 @@ void Renderer::render_parts()
 								firea = 150;
 							break;
 						default: break;
+					}
+				}
+				
+				if (findingElement)
+				{
+					if (TYP(findingElement) == parts[i].type &&
+							(parts[i].type != PT_LIFE || (ID(findingElement) == parts[i].ctype)))
+					{
+						colr = firer = 255;
+						colg = fireg = colb = fireb = 0;
+						foundElements++;
+					}
+					else
+					{
+						colr /= 10;
+						colg /= 10;
+						colb /= 10;
+						firer /= 5;
+						fireg /= 5;
+						fireb /= 5;
 					}
 				}
 

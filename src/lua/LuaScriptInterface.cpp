@@ -2649,9 +2649,6 @@ void LuaScriptInterface::LuaGetProperty(lua_State* l, StructProperty property, i
 		case StructProperty::Float:
 			lua_pushnumber(l, *((float*)propertyAddress));
 			break;
-		case StructProperty::Char:
-			lua_pushnumber(l, *((char*)propertyAddress));
-			break;
 		case StructProperty::UChar:
 			lua_pushnumber(l, *((unsigned char*)propertyAddress));
 			break;
@@ -2679,6 +2676,15 @@ void LuaScriptInterface::LuaGetProperty(lua_State* l, StructProperty property, i
 	}
 }
 
+static int32_t int32_truncate(double n)
+{
+	if (n >= 0x1p31)
+	{
+		n -= 0x1p32;
+	}
+	return int32_t(n);
+}
+
 void LuaScriptInterface::LuaSetProperty(lua_State* l, StructProperty property, intptr_t propertyAddress, int stackPos)
 {
 	switch (property.Type)
@@ -2686,19 +2692,16 @@ void LuaScriptInterface::LuaSetProperty(lua_State* l, StructProperty property, i
 		case StructProperty::TransitionType:
 		case StructProperty::ParticleType:
 		case StructProperty::Integer:
-			*((int*)propertyAddress) = luaL_checkinteger(l, stackPos);
+			*((int*)propertyAddress) = int32_truncate(luaL_checknumber(l, stackPos));
 			break;
 		case StructProperty::UInteger:
-			*((unsigned int*)propertyAddress) = luaL_checkinteger(l, stackPos);
+			*((unsigned int*)propertyAddress) = int32_truncate(luaL_checknumber(l, stackPos));
 			break;
 		case StructProperty::Float:
 			*((float*)propertyAddress) = luaL_checknumber(l, stackPos);
 			break;
-		case StructProperty::Char:
-			*((char*)propertyAddress) = luaL_checkinteger(l, stackPos);
-			break;
 		case StructProperty::UChar:
-			*((unsigned char*)propertyAddress) = luaL_checkinteger(l, stackPos);
+			*((unsigned char*)propertyAddress) = int32_truncate(luaL_checknumber(l, stackPos));
 			break;
 		case StructProperty::BString:
 			*((ByteString*)propertyAddress) = ByteString(luaL_checkstring(l, stackPos));
@@ -2708,9 +2711,9 @@ void LuaScriptInterface::LuaSetProperty(lua_State* l, StructProperty property, i
 			break;
 		case StructProperty::Colour:
 #if PIXELSIZE == 4
-			*((unsigned int*)propertyAddress) = luaL_checkinteger(l, stackPos);
+			*((unsigned int*)propertyAddress) = int32_truncate(luaL_checknumber(l, stackPos));
 #else
-			*((unsigned short*)propertyAddress) = luaL_checkinteger(l, stackPos);
+			*((unsigned short*)propertyAddress) = int32_truncate(luaL_checknumber(l, stackPos));
 #endif
 			break;
 		case StructProperty::Removed:
@@ -2840,14 +2843,15 @@ int LuaScriptInterface::elements_allocate(lua_State * l)
 		lua_pushinteger(l, newID);
 		lua_setfield(l, -2, identifier.c_str());
 		lua_pop(l, 1);
-	}
 
-	for (auto elem = 0; elem < PT_NUM; ++elem)
-	{
-		luacon_ci->custom_can_move[elem][newID] = 0;
-		luacon_ci->custom_can_move[newID][elem] = 0;
+		for (auto elem = 0; elem < PT_NUM; ++elem)
+		{
+			luacon_ci->custom_can_move[elem][newID] = 0;
+			luacon_ci->custom_can_move[newID][elem] = 0;
+		}
+		luacon_model->BuildMenus();
+		luacon_ci->custom_init_can_move();
 	}
-	luacon_ci->custom_init_can_move();
 
 	lua_pushinteger(l, newID);
 	return 1;
@@ -3476,7 +3480,7 @@ int LuaScriptInterface::graphics_fillCircle(lua_State * l)
 
 int LuaScriptInterface::graphics_getColors(lua_State * l)
 {
-	unsigned int color = lua_tointeger(l, 1);
+	unsigned int color = int32_truncate(lua_tonumber(l, 1));
 
 	int a = color >> 24;
 	int r = (color >> 16)&0xFF;
