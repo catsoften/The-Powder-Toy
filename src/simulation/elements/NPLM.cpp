@@ -49,19 +49,17 @@ void Element::Element_NPLM() {
 
 static int update(UPDATE_FUNC_ARGS) {
 	if (parts[i].tmp > 0 && sim->timer % 10 == 0) {
-		int j = sim->create_part(-1, parts[i].x - 1, parts[i].y - 1, PT_FIRE);
-		if (j > 0) parts[j].life = RNG::Ref().between(0, 200);
+		int j = sim->create_part(-1, x - 1, y - 1, PT_FIRE);
+		if (j > 0) parts[j].life = RNG::Ref().between(1, 200);
 		
-		for (unsigned int k = -1; k <= 1; ++k) {
-			j = sim->create_part(-1, parts[i].x + k, parts[i].y + k, PT_BCOL);
+		for (int k = -1; k <= 1; k += 2) {
+			j = sim->create_part(-1, x + k, y + k, PT_BCOL);
 			if (j > 0) {
 				parts[j].life = RNG::Ref().between(0, 400);
 				parts[j].vx = RNG::Ref().between(-15, 15);
 				parts[j].vy = RNG::Ref().between(-15, 15);
 			}
 		}
-
-		// sim->create_part(-1, parts[i].x - 1, parts[i].y + 1, PT_NITR);
 	}
 
 	// Fix burning forever
@@ -69,24 +67,21 @@ static int update(UPDATE_FUNC_ARGS) {
 		parts[i].life--;
 
 	int r, rx, ry;
-	for (rx = -1; rx < 2; rx++){
-		for (ry = -1; ry < 2; ry++){
+	for (rx = -1; rx < 2; rx++) {
+		for (ry = -1; ry < 2; ry++) {
 			if (BOUNDS_CHECK && (rx || ry)) {
 				r = pmap[y + ry][x + rx];
 				if (!r || TYP(r) == PT_NPLM)
-					r = sim->photons[y + ry][x + rx];
-				if (!r)
 					continue;
 
 				if (sim->elements[TYP(r)].Properties & TYPE_PART ||
 					sim->elements[TYP(r)].Properties & TYPE_SOLID)
 					parts[i].vx = parts[i].vy = 0;
 
-				if (parts[ID(r)].type == PT_FIRE || parts[ID(r)].type == PT_PLSM || parts[ID(r)].type == PT_LAVA
-												 || parts[i].temp >= 1273.15f) {
+				if (TYP(r) == PT_FIRE || TYP(r) == PT_PLSM || parts[ID(r)].type == PT_LAVA || parts[i].temp >= 1273.15f) {
 					parts[i].tmp = 1;
-					parts[ID(r)].vx = parts[ID(r)].vx * 2;
-					parts[ID(r)].vy = parts[ID(r)].vy * 2;
+					parts[ID(r)].vx *= 2;
+					parts[ID(r)].vy *= 2;
 					parts[ID(r)].life++;
 					parts[i].temp += 50.0f;
 					parts[i].life--;

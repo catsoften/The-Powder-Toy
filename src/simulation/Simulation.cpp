@@ -3404,8 +3404,10 @@ void Simulation::kill_part(int i, bool ignore_iwall)//kills particle number i
 	int x = (int)(parts[i].x + 0.5f);
 	int y = (int)(parts[i].y + 0.5f);
 
-	if (bmap[y / CELL][x / CELL] == WL_INDESTRUCTIBLE && !ignore_iwall)
-		return;
+	if (!(x<0 || y<0 || x>=XRES || y>=YRES)) {
+        if (bmap[y / CELL][x / CELL] == WL_INDESTRUCTIBLE && !ignore_iwall)
+            return;
+    }
 
 	int t = parts[i].type;
 	if (t && elements[t].ChangeType)
