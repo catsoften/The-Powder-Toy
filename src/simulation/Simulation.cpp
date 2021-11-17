@@ -596,7 +596,7 @@ void Simulation::SaveSimOptions(GameSave * gameSave)
 	gameSave->aheatEnable = aheat_enable;
 }
 
-std::unique_ptr<Snapshot> Simulation::CreateSnapshot()
+Snapshot * Simulation::CreateSnapshot()
 {
 	Snapshot * snap = new Snapshot();
 	snap->AirPressure.insert(snap->AirPressure.begin(), &pv[0][0], &pv[0][0]+((XRES/CELL)*(YRES/CELL)));
@@ -633,7 +633,7 @@ std::unique_ptr<Snapshot> Simulation::CreateSnapshot()
 	return snap;
 }
 
-void Simulation::Restore(const Snapshot &snap)
+void Simulation::Restore(const Snapshot & snap)
 {
 	timer = snap.timer;
 	parts_lastActiveIndex = NPART-1;
@@ -661,10 +661,10 @@ void Simulation::Restore(const Snapshot &snap)
 	if (grav->IsEnabled())
 	{
 		grav->Clear();
-		std::copy(snap.GravVelocityX.begin(), snap.GravVelocityX.end(), &gravx  [0]      );
-		std::copy(snap.GravVelocityY.begin(), snap.GravVelocityY.end(), &gravy  [0]      );
-		std::copy(snap.GravValue    .begin(), snap.GravValue    .end(), &gravp  [0]      );
-		std::copy(snap.GravMap      .begin(), snap.GravMap      .end(), &gravmap[0]      );
+		std::copy(snap.GravVelocityX.begin(), snap.GravVelocityX.end(), gravx);
+		std::copy(snap.GravVelocityY.begin(), snap.GravVelocityY.end(), gravy);
+		std::copy(snap.GravValue.begin(), snap.GravValue.end(), gravp);
+		std::copy(snap.GravMap.begin(), snap.GravMap.end(), gravmap);
 	}
 	gravWallChanged = true;
 	std::copy(snap.BlockMap.begin(), snap.BlockMap.end(), &bmap[0][0]);

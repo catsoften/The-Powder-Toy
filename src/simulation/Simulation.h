@@ -7,7 +7,6 @@
 #include <vector>
 #include <set>
 #include <array>
-#include <memory>
 
 #include "Particle.h"
 #include "Stickman.h"
@@ -152,8 +151,8 @@ public:
 	void SaveSimOptions(GameSave * gameSave);
 	SimulationSample GetSample(int x, int y);
 
-	std::unique_ptr<Snapshot> CreateSnapshot();
-	void Restore(const Snapshot &snap);
+	Snapshot * CreateSnapshot();
+	void Restore(const Snapshot & snap);
 
 	int is_blocking(int t, int x, int y);
 	int is_boundary(int pt, int x, int y);
@@ -252,17 +251,12 @@ public:
 	static int remainder_p(int x, int y);
 	static float remainder_p(float x, float y);
 
-<<<<<<< HEAD
 	GameModel *model = nullptr;
 	Renderer *ren = nullptr;
 	GameModel *getModel();
 
-	String ElementResolve(int type, int ctype);
-	String BasicParticleInfo(Particle const &sample_part);
-=======
 	String ElementResolve(int type, int ctype) const;
 	String BasicParticleInfo(Particle const &sample_part) const;
->>>>>>> upstream/master
 
 
 	struct CustomGOLData

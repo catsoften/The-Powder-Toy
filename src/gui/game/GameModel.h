@@ -4,7 +4,6 @@
 
 #include <vector>
 #include <deque>
-#include <memory>
 
 #define HOLLOW_BRUSHES 3
 
@@ -24,7 +23,6 @@ class SaveFile;
 class Simulation;
 class Renderer;
 class Snapshot;
-struct SnapshotDelta;
 class GameSave;
 
 class ToolSelection
@@ -34,14 +32,6 @@ public:
 	{
 		ToolPrimary, ToolSecondary, ToolTertiary
 	};
-};
-
-struct HistoryEntry
-{
-	std::unique_ptr<Snapshot> snap;
-	std::unique_ptr<SnapshotDelta> delta;
-
-	~HistoryEntry();
 };
 
 class GameModel
@@ -81,8 +71,8 @@ private:
 	Tool * previousToolNonOpposite = nullptr;
 	User currentUser;
 	float toolStrength;
-	std::deque<HistoryEntry> history;
-	std::unique_ptr<Snapshot> historyCurrent;
+	std::deque<Snapshot*> history;
+	Snapshot *redoHistory;
 	unsigned int historyPosition;
 	unsigned int undoHistoryLimit;
 	bool mouseClickRequired;
@@ -166,12 +156,12 @@ public:
 	void BuildBrushList();
 	void BuildQuickOptionMenu(GameController * controller);
 
-	const Snapshot *HistoryCurrent() const;
-	bool HistoryCanRestore() const;
-	void HistoryRestore();
-	bool HistoryCanForward() const;
-	void HistoryForward();
-	void HistoryPush(std::unique_ptr<Snapshot> last);
+	std::deque<Snapshot*> GetHistory();
+	unsigned int GetHistoryPosition();
+	void SetHistory(std::deque<Snapshot*> newHistory);
+	void SetHistoryPosition(unsigned int newHistoryPosition);
+	Snapshot * GetRedoHistory();
+	void SetRedoHistory(Snapshot * redo);
 	unsigned int GetUndoHistoryLimit();
 	void SetUndoHistoryLimit(unsigned int undoHistoryLimit_);
 
