@@ -13,8 +13,8 @@ simulation_tool_ids = [
 	[ 'RSET', 11 ],
 	[ 'SLOW', 12 ],
 	[ 'FAST', 13 ],
-	[ 'ACOL', 14 ],
-	[ 'AHET', 15 ]
+	[ 'AMBM', 14 ],
+	[ 'AMBP', 15 ],
 ]
 
 simulation_tool_src = []

@@ -1556,4 +1556,16 @@ int luatpt_play_sound(lua_State* l) {
 	return enabled;
 }
 
+int luatpt_perfectCircle(lua_State* l)
+{
+	if (!lua_gettop(l))
+	{
+		lua_pushboolean(l, luacon_model->GetPerfectCircle());
+		return 1;
+	}
+	luaL_checktype(l, 1, LUA_TBOOLEAN);
+	luacon_model->SetPerfectCircle(lua_toboolean(l, 1));
+	return 0;
+}
+
 #endif

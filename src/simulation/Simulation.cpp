@@ -31,6 +31,7 @@
 #include "common/tpt-compat.h"
 #include "common/tpt-minmax.h"
 #include "common/tpt-rand.h"
+#include "common/tpt-thread-local.h"
 #include "gui/game/Brush.h"
 
 #include "simulation/quantum/quantum.h"
@@ -59,15 +60,16 @@ extern int Element_LOVE_love[XRES/9][YRES/9];
 extern int Element_MONY_RuleTable[9][9];
 extern int Element_MONY_mony[XRES/9][YRES/9];
 
-int Simulation::Load(GameSave * save, bool includePressure)
+int Simulation::Load(const GameSave * save, bool includePressure)
 {
 	return Load(save, includePressure, 0, 0);
 }
 
-int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY)
+int Simulation::Load(const GameSave * originalSave, bool includePressure, int fullX, int fullY)
 {
-	if (!save)
+	if (!originalSave)
 		return 1;
+	auto save = std::unique_ptr<GameSave>(new GameSave(*originalSave));
 	try
 	{
 		save->Expand();
@@ -94,9 +96,8 @@ int Simulation::Load(GameSave * save, bool includePressure, int fullX, int fullY
 	}
 	if(save->palette.size())
 	{
-		for(std::vector<GameSave::PaletteItem>::iterator iter = save->palette.begin(), end = save->palette.end(); iter != end; ++iter)
+		for(auto &pi : save->palette)
 		{
-			GameSave::PaletteItem pi = *iter;
 			if (pi.second > 0 && pi.second < PT_NUM)
 			{
 				int myId = 0;
@@ -595,7 +596,7 @@ void Simulation::SaveSimOptions(GameSave * gameSave)
 	gameSave->aheatEnable = aheat_enable;
 }
 
-Snapshot * Simulation::CreateSnapshot()
+std::unique_ptr<Snapshot> Simulation::CreateSnapshot()
 {
 	Snapshot * snap = new Snapshot();
 	snap->AirPressure.insert(snap->AirPressure.begin(), &pv[0][0], &pv[0][0]+((XRES/CELL)*(YRES/CELL)));
@@ -632,7 +633,7 @@ Snapshot * Simulation::CreateSnapshot()
 	return snap;
 }
 
-void Simulation::Restore(const Snapshot & snap)
+void Simulation::Restore(const Snapshot &snap)
 {
 	timer = snap.timer;
 	parts_lastActiveIndex = NPART-1;
@@ -660,10 +661,10 @@ void Simulation::Restore(const Snapshot & snap)
 	if (grav->IsEnabled())
 	{
 		grav->Clear();
-		std::copy(snap.GravVelocityX.begin(), snap.GravVelocityX.end(), gravx);
-		std::copy(snap.GravVelocityY.begin(), snap.GravVelocityY.end(), gravy);
-		std::copy(snap.GravValue.begin(), snap.GravValue.end(), gravp);
-		std::copy(snap.GravMap.begin(), snap.GravMap.end(), gravmap);
+		std::copy(snap.GravVelocityX.begin(), snap.GravVelocityX.end(), &gravx  [0]      );
+		std::copy(snap.GravVelocityY.begin(), snap.GravVelocityY.end(), &gravy  [0]      );
+		std::copy(snap.GravValue    .begin(), snap.GravValue    .end(), &gravp  [0]      );
+		std::copy(snap.GravMap      .begin(), snap.GravMap      .end(), &gravmap[0]      );
 	}
 	gravWallChanged = true;
 	std::copy(snap.BlockMap.begin(), snap.BlockMap.end(), &bmap[0][0]);
@@ -731,7 +732,7 @@ bool Simulation::FloodFillPmapCheck(int x, int y, int type)
 CoordStack& Simulation::getCoordStackSingleton()
 {
 	// Future-proofing in case Simulation is later multithreaded
-	thread_local CoordStack cs;
+	static THREAD_LOCAL(CoordStack, cs);
 	return cs;
 }
 
@@ -4882,7 +4883,7 @@ killed:
 				// Checking stagnant is cool, but then it doesn't update when you change it later.
 				if (water_equal_test && elements[t].Falldown == 2 && RNG::Ref().chance(1, 200))
 				{
-					if (!flood_water(x, y, i))
+					if (flood_water(x, y, i))
 						goto movedone;
 				}
 				// liquids and powders
@@ -5882,7 +5883,7 @@ void Simulation::SetCustomGOL(std::vector<CustomGOLData> newCustomGol)
 	customGol = newCustomGol;
 }
 
-String Simulation::ElementResolve(int type, int ctype)
+String Simulation::ElementResolve(int type, int ctype) const
 {
 	if (type == PT_LIFE)
 	{
@@ -5902,7 +5903,7 @@ String Simulation::ElementResolve(int type, int ctype)
 	return "Empty";
 }
 
-String Simulation::BasicParticleInfo(Particle const &sample_part)
+String Simulation::BasicParticleInfo(Particle const &sample_part) const
 {
 	StringBuilder sampleInfo;
 	int type = sample_part.type;

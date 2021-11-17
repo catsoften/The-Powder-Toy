@@ -4,6 +4,8 @@
 
 #include "Particle.h"
 #include "simulation/circuits/circuits.h"
+#include "Sign.h"
+#include "Stickman.h"
 #include "json/json.h"
 
 class Snapshot
