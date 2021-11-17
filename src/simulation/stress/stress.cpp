@@ -57,9 +57,9 @@ void StressField::ComputeStress(int x, int y) {
     bool has_tension = sim->elements[TYP(r)].Properties & TYPE_SOLID;
 
     // The 3 pixels roughly in the direction of the force
-    int nox1 = isign(round(cos(force_angle))), noy1 = isign(round(sin(force_angle)));
-    int nox2 = isign(round(cos(force_angle + PI_4))), noy2 = isign(round(sin(force_angle + PI_4)));
-    int nox3 = isign(round(cos(force_angle - PI_4))), noy3 = isign(round(sin(force_angle - PI_4)));
+    int nox1 = isign((float)round(cos(force_angle))), noy1 = isign((float)round(sin(force_angle)));
+    int nox2 = isign((float)round(cos(force_angle + PI_4))), noy2 = isign((float)round(sin(force_angle + PI_4)));
+    int nox3 = isign((float)round(cos(force_angle - PI_4))), noy3 = isign((float)round(sin(force_angle - PI_4)));
 
     // Compression, apply in direction
     for (int rx = -1; rx <= 1; ++rx)

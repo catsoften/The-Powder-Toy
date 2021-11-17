@@ -3,9 +3,5 @@
 # Lines starting with # and empty lines are ignored
 
 - Fix crash with kill_part
-
-^ TODO: stil lcrashes?? (w/ stamp)
-
-TODO:
-- lua script crash
-- update tpt multi
+- Update to 96.2
+- Update TPTMP
