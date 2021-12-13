@@ -1156,10 +1156,10 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool) {
 		else if (tool->GetName() == "SLOW")
 			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_FAST"));
 
-		else if (tool->GetName() == "AHET")
-			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_ACOL"));
-		else if (tool->GetName() == "ACOL")
-			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_AHET"));
+		else if (tool->GetName() == "AMBP")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_AMBM"));
+		else if (tool->GetName() == "AMBM")
+			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_TOOL_AMBP"));
 
 		else if (tool->GetIdentifier().BeginsWith("DEFAULT_WL") && tool->GetIdentifier() != "DEFAULT_WL_ERASE")
 			gameModel->SetActiveTool(1, gameModel->GetToolFromIdentifier("DEFAULT_WL_ERASE"));
