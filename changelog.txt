@@ -2,6 +2,4 @@
 # Erase and replace the changelog for every release, do not just append changes to the end
 # Lines starting with # and empty lines are ignored
 
-- Fix crash with kill_part
-- Update to 96.2
-- Update TPTMP
+- Fix crash texter, VOLT, ACOL and MVSD
