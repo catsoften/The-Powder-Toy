@@ -56,8 +56,34 @@ static int next_shield_transition(int type) {
 	return PT_SHLD1;
 }
 
+static void wtrv_reactions(int wtrv1_id, UPDATE_FUNC_ARGS)
+{
+	for (int rx = -1; rx <= 1; rx++)
+	{
+		for (int ry = -1; ry <= 1; ry++)
+		{
+			if (BOUNDS_CHECK && (rx || ry))
+			{
+				int r = pmap[y + ry][x + rx];
+				if (!r || ID(r) == wtrv1_id)
+					continue;
+				int rt = TYP(r);
+
+				// WTRV + BCOL -> OIL
+				if (rt == PT_BCOL && parts[ID(r)].temp > 200.0f + 273.15f && parts[wtrv1_id].temp > 200.0f + 273.15f && sim->pv[(y + ry) / CELL][(x + rx) / CELL] > 7.f)
+				{
+					sim->part_change_type(ID(r), x + rx, y + ry, PT_OIL);
+					sim->kill_part(wtrv1_id);
+					return;
+				}
+			}
+		}
+	}
+}
+
 static int update(UPDATE_FUNC_ARGS) {
 	int hygn1_id = -1; // Id of a hydrogen particle for all the hydrogen reactions
+	int wtrv1_id = -1; // same but wtrv
 
 	// Fast conduction (like GOLD)
 	static int checkCoordsX[] = { -4, 4, 0, 0 };
@@ -88,6 +114,9 @@ static int update(UPDATE_FUNC_ARGS) {
 			if (rt == PT_H2 && hygn1_id < 0)
 				hygn1_id = ID(r);
 
+			if (rt == PT_WTRV && wtrv1_id < 0)
+				wtrv1_id = ID(r);
+
 			// These reactions will occur instantly in contact with PTNM
 			// --------------------------------------------------------
 
@@ -98,6 +127,14 @@ static int update(UPDATE_FUNC_ARGS) {
 				parts[ID(r)].life = 7;
 				continue;
 			}
+
+				// ISZS / ISOZ -> PHOT + PLUT
+				if (rt == PT_ISZS || rt == PT_ISOZ)
+				{
+					sim->part_change_type(ID(r), x + rx, y + ry, PT_PLUT);
+					sim->create_part(-3, x + rx, y + ry, PT_PHOT);
+					continue;
+				}
 
 				// These reactions are dependent on temperature
 				// Probability goes quadratically from 0% / frame to 100% / frame from 0 C to 1500 C
@@ -198,6 +235,12 @@ static int update(UPDATE_FUNC_ARGS) {
 	}
 	end_hydrogen_reactions:;
 
+	// WTRV reactions
+	if (wtrv1_id >= 0)
+	{
+		wtrv_reactions(wtrv1_id, UPDATE_FUNC_SUBCALL_ARGS);
+	}
+
 	return 0;
 }
 
@@ -211,3 +254,4 @@ static void create(ELEMENT_CREATE_FUNC_ARGS) {
 	if (RNG::Ref().chance(1, 15))
 		sim->parts[i].tmp = 1;
 }
+
