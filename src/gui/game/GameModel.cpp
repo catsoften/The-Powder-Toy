@@ -60,6 +60,9 @@ GameModel::GameModel(GameView *newView):
 	colour(255, 0, 0, 255),
 	edgeMode(EDGE_VOID),
 	ambientAirTemp(R_TEMP + 273.15f),
+	ambientPressure(-0.0f),
+	ambientVelocityX(0.0f),
+	ambientVelocityY(0.0f),
 	vorticityCoeff(0.0f),
 	convectionMode(AIRC_BOUSSINESQ),
 	decoSpace(DECOSPACE_SRGB),
@@ -122,6 +125,21 @@ GameModel::GameModel(GameView *newView):
 		}
 	}
 	sim->air->ambientAirTemp = ambientAirTemp;
+
+	{
+		auto pressure = prefs.Get("Simulation.AmbientPressure", ambientPressure);
+		if (-256.0f <= pressure && pressure <= 256.0f)
+		{
+			ambientPressure = pressure;
+		}
+	}
+	sim->air->ambientPressure = ambientPressure;
+
+	ambientVelocityX = prefs.Get("Simulation.AmbientVelocityX", ambientVelocityX);
+	sim->air->ambientVelocityX = ambientVelocityX;
+
+	ambientVelocityY = prefs.Get("Simulation.AmbientVelocityY", ambientVelocityY);
+	sim->air->ambientVelocityY = ambientVelocityY;
 
 	vorticityCoeff = 0.1f; // The default for old saves is 0, but use 0.1 for old configs
 	{
@@ -318,6 +336,39 @@ void GameModel::SetAmbientAirTemperature(float ambientAirTemp)
 float GameModel::GetAmbientAirTemperature()
 {
 	return this->ambientAirTemp;
+}
+
+void GameModel::SetAmbientPressure(float ambientPressure)
+{
+	this->ambientPressure = ambientPressure;
+	sim->air->ambientPressure = ambientPressure;
+}
+
+float GameModel::GetAmbientPressure()
+{
+	return this->ambientPressure;
+}
+
+void GameModel::SetAmbientVelocityX(float x)
+{
+	this->ambientVelocityX = x;
+	sim->air->ambientVelocityX = x;
+}
+
+float GameModel::GetAmbientVelocityX()
+{
+	return this->ambientVelocityX;
+}
+
+void GameModel::SetAmbientVelocityY(float y)
+{
+	this->ambientVelocityY = y;
+	sim->air->ambientVelocityY = y;
+}
+
+float GameModel::GetAmbientVelocityY()
+{
+	return this->ambientVelocityY;
 }
 
 void GameModel::SetVorticityCoeff(float vorticityCoeff)
@@ -770,6 +821,9 @@ void GameModel::SaveToSimParameters(const GameSave &saveData)
 	sim->customGravityY = saveData.customGravityY;
 	sim->air->airMode = saveData.airMode;
 	sim->air->ambientAirTemp = saveData.ambientAirTemp;
+	sim->air->ambientPressure = saveData.ambientPressure;
+	sim->air->ambientVelocityX = saveData.ambientVelocityX;
+	sim->air->ambientVelocityY = saveData.ambientVelocityY;
 	sim->air->vorticityCoeff = saveData.vorticityCoeff;
 	sim->air->convectionMode = saveData.convectionMode;
 	sim->edgeMode = saveData.edgeMode;
@@ -1148,6 +1202,9 @@ void GameModel::ClearSimulation()
 	sim->water_equal_test = false;
 	sim->SetEdgeMode(edgeMode);
 	sim->air->ambientAirTemp = ambientAirTemp;
+	sim->air->ambientPressure = ambientPressure;
+	sim->air->ambientVelocityX = ambientVelocityX;
+	sim->air->ambientVelocityY = ambientVelocityY;
 	sim->air->vorticityCoeff = vorticityCoeff;
 	sim->air->convectionMode = convectionMode;
 

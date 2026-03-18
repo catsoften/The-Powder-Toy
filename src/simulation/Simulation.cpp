@@ -465,6 +465,9 @@ void Simulation::SaveSimOptions(GameSave &gameSave)
 	gameSave.customGravityY = customGravityY;
 	gameSave.airMode = air->airMode;
 	gameSave.ambientAirTemp = air->ambientAirTemp;
+	gameSave.ambientPressure = air->ambientPressure;
+	gameSave.ambientVelocityX = air->ambientVelocityX;
+	gameSave.ambientVelocityY = air->ambientVelocityY;
 	gameSave.vorticityCoeff = air->vorticityCoeff;
 	gameSave.convectionMode = air->convectionMode;
 	gameSave.edgeMode = edgeMode;

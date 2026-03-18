@@ -24,6 +24,7 @@ class OptionsView: public ui::Window
 	ui::DropDown *airMode{};
 	ui::Textbox *ambientAirTemp{};
 	ui::Button *ambientAirTempPreview{};
+	ui::Textbox *ambientPressure{};
 	ui::Textbox *vorticityCoeff{};
 	ui::DropDown *convectionMode{};
 	ui::DropDown *gravityMode{};
@@ -50,11 +51,14 @@ class OptionsView: public ui::Window
 	ui::Checkbox *autoStartupRequest{};
 	ui::Label *startupRequestStatus{};
 	ui::ScrollPanel *scrollPanel{};
+	float ambientVelocityX, ambientVelocityY;
 	float customGravityX, customGravityY;
 	void UpdateAmbientAirTempPreview(float airTemp, bool isValid);
 	void AmbientAirTempToTextBox(float airTemp);
-	void UpdateAirTemp(String temp, bool isDefocus);
+	void AmbientPressureToTextBox(float vorticity);
 	void VorticityCoeffToTextBox(float vorticity);
+	void UpdateAirTemp(String temp, bool isDefocus);
+	void UpdateAmbientPressure(String p, bool isDefocus);
 	void UpdateVorticityCoeff(String cort, bool isDefocus);
 	void UpdateStartupRequestStatus();
 public:

@@ -23,6 +23,9 @@ public:
 	void SetCustomGravityY(float y);
 	void SetAirMode(int airMode);
 	void SetAmbientAirTemperature(float ambientAirTemp);
+	void SetAmbientPressure(float ambientPressure);
+	void SetAmbientVelocityX(float x);
+	void SetAmbientVelocityY(float y);
 	void SetVorticityCoeff(float vorticityCoeff);
 	void SetConvectionMode(int convMode);
 	void SetEdgeMode(int edgeMode);

@@ -107,6 +107,9 @@ private:
 
 	int edgeMode;
 	float ambientAirTemp;
+	float ambientPressure;
+	float ambientVelocityX;
+	float ambientVelocityY;
 	float vorticityCoeff;
 	int convectionMode;
 	int decoSpace;
@@ -167,6 +170,12 @@ public:
 	}
 	void SetAmbientAirTemperature(float ambientAirTemp);
 	float GetAmbientAirTemperature();
+	void SetAmbientPressure(float ambientPressure);
+	float GetAmbientPressure();
+	void SetAmbientVelocityX(float x);
+	float GetAmbientVelocityX();
+	void SetAmbientVelocityY(float y);
+	float GetAmbientVelocityY();
 	void SetVorticityCoeff(float vorticityCoeff);
 	float GetVorticityCoeff();
 	void SetConvectionMode(int convMode);

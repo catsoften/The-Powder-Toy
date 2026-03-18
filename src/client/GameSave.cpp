@@ -618,6 +618,9 @@ void GameSave::readOPS(const std::vector<char> &data)
 	copyIfFloat(b, "customGravityY", customGravityY);
 	copyIfInt32(b, "airMode", airMode);
 	copyIfFloat(b, "ambientAirTemp", ambientAirTemp);
+	copyIfFloat(b, "ambientPressure", ambientPressure);
+	copyIfFloat(b, "ambientVelocityX", ambientVelocityX);
+	copyIfFloat(b, "ambientVelocityY", ambientVelocityY);
 	copyIfFloat(b, "vorticityCoeff", vorticityCoeff);
 
 	// Before 99.0 the default is "legacy", from 99.0 the default is "Boussinesq"
@@ -2492,6 +2495,21 @@ std::pair<bool, std::vector<char>> GameSave::serialiseOPS() const
 	{
 		b["ambientAirTemp"] = double(ambientAirTemp);
 		RESTRICTVERSION(96, 0);
+	}
+	if (ambientPressure < -0.0001f || ambientPressure > 0.0001f)
+	{
+		b["ambientPressure"] = double(ambientPressure);
+		RESTRICTVERSION(100, 0);
+	}
+	if (ambientVelocityX < -0.0001f || ambientVelocityX > 0.0001f)
+	{
+		b["ambientVelocityX"] = double(ambientVelocityX);
+		RESTRICTVERSION(100, 0);
+	}
+	if (ambientVelocityY < -0.0001f || ambientVelocityY > 0.0001f)
+	{
+		b["ambientVelocityY"] = double(ambientVelocityY);
+		RESTRICTVERSION(100, 0);
 	}
 	if (vorticityCoeff > 0.0001f && vorticityCoeff < 1.0f)
 	{

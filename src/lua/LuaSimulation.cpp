@@ -1275,6 +1275,42 @@ static int ambientAirTemp(lua_State *L)
 	return 0;
 }
 
+static int ambientPressure(lua_State *L)
+{
+	auto *lsi = GetLSI();
+	int acount = lua_gettop(L);
+	if (acount == 0)
+	{
+		lua_pushnumber(L, -lsi->sim->air->ambientPressure);
+		return 1;
+	}
+	lsi->AssertInterfaceEvent();
+	float ambientPressure = -restrict_flt(luaL_optnumber(L, 1, 0.0f), -256.0f, 256.0f);
+	lsi->gameModel->SetAmbientPressure(ambientPressure);
+	return 0;
+}
+
+static int ambientVelocity(lua_State *L)
+{
+	auto *lsi = GetLSI();
+	auto *sim = lsi->sim;
+	int acount = lua_gettop(L);
+	if (acount == 0)
+	{
+		lua_pushnumber(L, sim->air->ambientVelocityX);
+		lua_pushnumber(L, sim->air->ambientVelocityY);
+		return 2;
+	}
+	lsi->AssertInterfaceEvent();
+	if (acount != 2)
+	{
+		return luaL_error(L, "Incorrect number of arguments");
+	}
+	lsi->gameModel->SetAmbientVelocityX(luaL_optnumber(L, 1, 0.0f));
+	lsi->gameModel->SetAmbientVelocityY(luaL_optnumber(L, 2, 0.0f));
+	return 0;
+}
+
 static int vorticityCoeff(lua_State *L)
 {
 	auto *lsi = GetLSI();
@@ -2047,6 +2083,8 @@ void LuaSimulation::Open(lua_State *L)
 		LFUNC(airMode),
 		LFUNC(waterEqualization),
 		LFUNC(ambientAirTemp),
+		LFUNC(ambientPressure),
+		LFUNC(ambientVelocity),
 		LFUNC(vorticityCoeff),
 		LFUNC(convectionMode),
 		LFUNC(elementCount),

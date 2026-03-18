@@ -108,6 +108,9 @@ public:
 	float customGravityY = 0.0f;
 	int airMode = 0;
 	float ambientAirTemp = R_TEMP + 273.15f;
+	float ambientPressure = -0.0f;
+	float ambientVelocityX = 0.0f;
+	float ambientVelocityY = 0.0f;
 	float vorticityCoeff = 0.0f;
 	int convectionMode = AIRC_LEGACY;
 	int edgeMode = 0;

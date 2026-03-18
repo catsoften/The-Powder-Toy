@@ -28,6 +28,12 @@ public:
 	void SetAirMode(int airMode);
 	float GetAmbientAirTemperature();
 	void SetAmbientAirTemperature(float ambientAirTemp);
+	float GetAmbientPressure();
+	void SetAmbientPressure(float ambientPressure);
+	float GetAmbientVelocityX();
+	void SetAmbientVelocityX(float x);
+	float GetAmbientVelocityY();
+	void SetAmbientVelocityY(float y);
 	float GetVorticityCoeff();
 	void SetVorticityCoeff(float vorticityCoeff);
 	int GetConvectionMode();

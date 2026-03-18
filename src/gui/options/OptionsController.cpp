@@ -62,6 +62,21 @@ void OptionsController::SetAmbientAirTemperature(float ambientAirTemp)
 	model->SetAmbientAirTemperature(ambientAirTemp);
 }
 
+void OptionsController::SetAmbientPressure(float ambientPressure)
+{
+	model->SetAmbientPressure(ambientPressure);
+}
+
+void OptionsController::SetAmbientVelocityX(float x)
+{
+	model->SetAmbientVelocityX(x);
+}
+
+void OptionsController::SetAmbientVelocityY(float y)
+{
+	model->SetAmbientVelocityY(y);
+}
+
 void OptionsController::SetVorticityCoeff(float vorticityCoeff)
 {
 	model->SetVorticityCoeff(vorticityCoeff);

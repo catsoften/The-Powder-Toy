@@ -5,6 +5,11 @@
 #include <cmath>
 #include <algorithm>
 
+void MultiplyOffset(float& x, float y, float offset)
+{
+	x = (x + offset) * y - offset;
+}
+
 void Air::make_kernel(void) //used for velocity
 {
 	float s = 0.0f;
@@ -43,7 +48,7 @@ float Air::vorticity(const RenderableSimulation & sm, int y, int x)
 
 void Air::Clear()
 {
-	std::fill(&sim.pv[0][0], &sim.pv[0][0]+NCELL, 0.0f);
+	std::fill(&sim.pv[0][0], &sim.pv[0][0]+NCELL, -ambientPressure);
 	std::fill(&sim.vy[0][0], &sim.vy[0][0]+NCELL, 0.0f);
 	std::fill(&sim.vx[0][0], &sim.vx[0][0]+NCELL, 0.0f);
 }
@@ -244,33 +249,33 @@ void Air::update_air(void)
 	{
 		for (auto i=0; i<YCELLS; i++) //reduces pressure/velocity on the edges every frame
 		{
-			pv[i][0] = pv[i][0]*0.8f;
-			pv[i][1] = pv[i][1]*0.8f;
-			pv[i][XCELLS-2] = pv[i][XCELLS-2]*0.8f;
-			pv[i][XCELLS-1] = pv[i][XCELLS-1]*0.8f;
-			vx[i][0] = vx[i][0]*0.9f;
-			vx[i][1] = vx[i][1]*0.9f;
-			vx[i][XCELLS-2] = vx[i][XCELLS-2]*0.9f;
-			vx[i][XCELLS-1] = vx[i][XCELLS-1]*0.9f;
-			vy[i][0] = vy[i][0]*0.9f;
-			vy[i][1] = vy[i][1]*0.9f;
-			vy[i][XCELLS-2] = vy[i][XCELLS-2]*0.9f;
-			vy[i][XCELLS-1] = vy[i][XCELLS-1]*0.9f;
+			MultiplyOffset(pv[i][0], 0.8f, ambientPressure);
+			MultiplyOffset(pv[i][1], 0.8f, ambientPressure);
+			MultiplyOffset(pv[i][XCELLS-2], 0.8f, ambientPressure);
+			MultiplyOffset(pv[i][XCELLS-1], 0.8f, ambientPressure);
+			MultiplyOffset(vx[i][0], 0.9f, ambientVelocityX);
+			MultiplyOffset(vx[i][1], 0.9f, ambientVelocityX);
+			MultiplyOffset(vx[i][XCELLS-2], 0.9f, ambientVelocityX);
+			MultiplyOffset(vx[i][XCELLS-1], 0.9f, ambientVelocityX);
+			MultiplyOffset(vy[i][0], 0.9f, ambientVelocityY);
+			MultiplyOffset(vy[i][1], 0.9f, ambientVelocityY);
+			MultiplyOffset(vy[i][XCELLS-2], 0.9f, ambientVelocityY);
+			MultiplyOffset(vy[i][XCELLS-1], 0.9f, ambientVelocityY);
 		}
 		for (auto i=0; i<XCELLS; i++) //reduces pressure/velocity on the edges every frame
 		{
-			pv[0][i] = pv[0][i]*0.8f;
-			pv[1][i] = pv[1][i]*0.8f;
-			pv[YCELLS-2][i] = pv[YCELLS-2][i]*0.8f;
-			pv[YCELLS-1][i] = pv[YCELLS-1][i]*0.8f;
-			vx[0][i] = vx[0][i]*0.9f;
-			vx[1][i] = vx[1][i]*0.9f;
-			vx[YCELLS-2][i] = vx[YCELLS-2][i]*0.9f;
-			vx[YCELLS-1][i] = vx[YCELLS-1][i]*0.9f;
-			vy[0][i] = vy[0][i]*0.9f;
-			vy[1][i] = vy[1][i]*0.9f;
-			vy[YCELLS-2][i] = vy[YCELLS-2][i]*0.9f;
-			vy[YCELLS-1][i] = vy[YCELLS-1][i]*0.9f;
+			MultiplyOffset(pv[0][i], 0.8f, ambientPressure);
+			MultiplyOffset(pv[1][i], 0.8f, ambientPressure);
+			MultiplyOffset(pv[YCELLS-2][i], 0.8f, ambientPressure);
+			MultiplyOffset(pv[YCELLS-1][i], 0.8f, ambientPressure);
+			MultiplyOffset(vx[0][i], 0.9f, ambientVelocityX);
+			MultiplyOffset(vx[1][i], 0.9f, ambientVelocityX);
+			MultiplyOffset(vx[YCELLS-2][i], 0.9f, ambientVelocityX);
+			MultiplyOffset(vx[YCELLS-1][i], 0.9f, ambientVelocityX);
+			MultiplyOffset(vy[0][i], 0.9f, ambientVelocityY);
+			MultiplyOffset(vy[1][i], 0.9f, ambientVelocityY);
+			MultiplyOffset(vy[YCELLS-2][i], 0.9f, ambientVelocityY);
+			MultiplyOffset(vy[YCELLS-1][i], 0.9f, ambientVelocityY);
 		}
 
 		for (auto j=1; j<YCELLS-1; j++) //clear some velocities near walls
@@ -296,7 +301,7 @@ void Air::update_air(void)
 				auto dp = 0.0f;
 				dp += vx[y][x-1] - vx[y][x+1];
 				dp += vy[y-1][x] - vy[y+1][x];
-				pv[y][x] *= AIR_PLOSS;
+				MultiplyOffset(pv[y][x], AIR_PLOSS, ambientPressure);
 				pv[y][x] += dp*AIR_TSTEPP * 0.5f;;
 			}
 		}

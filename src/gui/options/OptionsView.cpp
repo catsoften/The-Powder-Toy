@@ -16,17 +16,18 @@
 #include "gui/dialogues/InformationMessage.h"
 #include "gui/interface/Button.h"
 #include "gui/interface/Checkbox.h"
+#include "gui/interface/DirectionWindow.h"
 #include "gui/interface/DropDown.h"
 #include "gui/interface/Engine.h"
 #include "gui/interface/Label.h"
 #include "gui/interface/Separator.h"
 #include "gui/interface/Textbox.h"
-#include "gui/interface/DirectionSelector.h"
 #include "PowderToySDL.h"
 #include "Config.h"
 #include <cstdio>
 #include <cstring>
 #include <cmath>
+#include <iostream>
 #include <SDL.h>
 
 OptionsView::OptionsView() : ui::Window(ui::Point(-1, -1), ui::Point(320, 340))
@@ -139,6 +140,37 @@ OptionsView::OptionsView() : ui::Window(ui::Point(-1, -1), ui::Point(320, 340))
 		scrollPanel->AddChild(label);
 		currentY += 20;
 	}
+	{ // Ambient pressure setting
+		ambientPressure = new ui::Textbox(ui::Point(Size.X-95, currentY), ui::Point(80, 16));
+		ambientPressure->SetActionCallback({ [this] {
+			UpdateAmbientPressure(ambientPressure->GetText(), false);
+		} });
+		ambientPressure->SetDefocusCallback({ [this] {
+			UpdateAmbientPressure(ambientPressure->GetText(), true);
+		}});
+		ambientPressure->SetLimit(9);
+		scrollPanel->AddChild(ambientPressure);
+		auto *label = new ui::Label(ui::Point(8, currentY), ui::Point(Size.X-105, 16), "Ambient air pressure");
+		label->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+		label->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+		scrollPanel->AddChild(label);
+		currentY += 20;
+	}
+	{
+		auto *ambientVelocityButton = new ui::Button(ui::Point(Size.X-95, currentY), ui::Point(80, 16), "Change");
+		ambientVelocityButton->SetActionCallback({ [this] {
+			new ui::DirectionWindow(ui::Point(-1, -1), 0.4f, 40, "Ambient air velocity", -ambientVelocityX, -ambientVelocityY, [this](float x, float y) {
+				c->SetAmbientVelocityX(-x);
+				c->SetAmbientVelocityY(-y);
+			});
+		} });
+		scrollPanel->AddChild(ambientVelocityButton);
+		auto *label = new ui::Label(ui::Point(8, currentY), ui::Point(Size.X-105, 16), "Ambient air velocity");
+		label->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+		label->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+		scrollPanel->AddChild(label);
+		currentY += 20;
+	}
 	{ // Vorticity coefficient setting
 		vorticityCoeff = new ui::Textbox(ui::Point(Size.X-95, currentY), ui::Point(80, 16));
 		vorticityCoeff->SetActionCallback({ [this] {
@@ -162,70 +194,6 @@ OptionsView::OptionsView() : ui::Window(ui::Point(-1, -1), ui::Point(320, 340))
 	}, [this] {
 		c->SetConvectionMode(convectionMode->GetOption().second);
 	});
-	class GravityWindow : public ui::Window
-	{
-		void OnTryExit(ExitMethod method) override
-		{
-			CloseActiveWindow();
-			SelfDestruct();
-		}
-
-		void OnDraw() override
-		{
-			Graphics * g = GetGraphics();
-
-			g->DrawFilledRect(RectSized(Position - Vec2{ 1, 1 }, Size + Vec2{ 2, 2 }), 0x000000_rgb);
-			g->DrawRect(RectSized(Position, Size), 0xC8C8C8_rgb);
-		}
-
-		ui::DirectionSelector * gravityDirection;
-		ui::Label * labelValues;
-
-		OptionsController * c;
-
-	public:
-		GravityWindow(ui::Point position, float scale, int radius, float x, float y, OptionsController * c_):
-			ui::Window(position, ui::Point((radius * 5 / 2) + 20, (radius * 5 / 2) + 75)),
-			gravityDirection(new ui::DirectionSelector(ui::Point(10, 32), scale, radius, radius / 4, 2, 5)),
-			c(c_)
-			{
-				ui::Label * tempLabel = new ui::Label(ui::Point(4, 1), ui::Point(Size.X - 8, 22), "Custom Gravity");
-				tempLabel->SetTextColour(style::Colour::InformationTitle);
-				tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
-				tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-				AddComponent(tempLabel);
-
-				auto * tempSeparator = new ui::Separator(ui::Point(0, 22), ui::Point(Size.X, 1));
-				AddComponent(tempSeparator);
-
-				labelValues = new ui::Label(ui::Point(0, (radius * 5 / 2) + 37), ui::Point(Size.X, 16), String::Build(Format::Precision(1), "X:", x, " Y:", y, " Total:", std::hypot(x, y)));
-				labelValues->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
-				labelValues->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-				AddComponent(labelValues);
-
-				gravityDirection->SetValues(x, y);
-				gravityDirection->SetUpdateCallback([this](float x, float y) {
-					labelValues->SetText(String::Build(Format::Precision(1), "X:", x, " Y:", y, " Total:", std::hypot(x, y)));
-				});
-				gravityDirection->SetSnapPoints(5, 5, 2);
-				AddComponent(gravityDirection);
-
-				ui::Button * okayButton = new ui::Button(ui::Point(0, Size.Y - 17), ui::Point(Size.X, 17), "OK");
-				okayButton->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
-				okayButton->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-				okayButton->Appearance.BorderInactive = ui::Colour(200, 200, 200);
-				okayButton->SetActionCallback({ [this] {
-					c->SetCustomGravityX(gravityDirection->GetXValue());
-					c->SetCustomGravityY(gravityDirection->GetYValue());
-					CloseActiveWindow();
-					SelfDestruct();
-				} });
-				AddComponent(okayButton);
-				SetOkayButton(okayButton);
-
-				MakeActiveWindow();
-			}
-	};
 	gravityMode = addDropDown("Gravity simulation mode", {
 		{ "Vertical", GRAV_VERTICAL },
 		{ "Off", GRAV_OFF },
@@ -235,7 +203,10 @@ OptionsView::OptionsView() : ui::Window(ui::Point(-1, -1), ui::Point(320, 340))
 		c->SetGravityMode(gravityMode->GetOption().second);
 		if (gravityMode->GetOption().second == 3)
 		{
-			new GravityWindow(ui::Point(-1, -1), 0.05f, 40, customGravityX, customGravityY, c);
+			new ui::DirectionWindow(ui::Point(-1, -1), 0.05f, 40, "Custom Gravity", customGravityX, customGravityY, [this](float x, float y) {
+				c->SetCustomGravityX(x);
+				c->SetCustomGravityY(y);
+			});
 		}
 	});
 	edgeMode = addDropDown("Edge mode", {
@@ -454,6 +425,13 @@ void OptionsView::AmbientAirTempToTextBox(float airTemp)
 	ambientAirTemp->SetText(sb.Build());
 }
 
+void OptionsView::AmbientPressureToTextBox(float pressure)
+{
+	StringBuilder sb;
+	sb << Format::Precision(2) << -pressure;
+	ambientPressure->SetText(sb.Build());
+}
+
 void OptionsView::VorticityCoeffToTextBox(float vorticity)
 {
 	StringBuilder sb;
@@ -533,6 +511,47 @@ void OptionsView::UpdateAirTemp(String temp, bool isDefocus)
 	UpdateAmbientAirTempPreview(airTemp, isValid);
 }
 
+void OptionsView::UpdateAmbientPressure(String pressure_, bool isDefocus)
+{
+	// Parse ambient pressure and determine validity
+	float pressure = -0.0f;
+	bool isValid;
+	try
+	{
+		pressure = -pressure_.ToNumber<float>();
+		isValid = true;
+	}
+	catch (const std::exception &ex)
+	{
+		isValid = false;
+	}
+
+	// While defocusing, correct out of range pressure and empty textboxes
+	if (isDefocus)
+	{
+		if (pressure_.empty())
+		{
+			isValid = true;
+			pressure = -0.0f;
+		}
+		else if (!isValid)
+			return;
+		else if (pressure < -256.0f)
+			pressure = -256.0f;
+		else if (pressure > 256.0f)
+			pressure = 256.0f;
+
+		AmbientPressureToTextBox(pressure);
+	}
+	// Out of range pressure are invalid, preview should go away
+	else if (isValid && (pressure < -256.0f || pressure > 256.0f))
+		isValid = false;
+
+	// If valid, set pressure
+	if (isValid)
+		c->SetAmbientPressure(pressure);
+}
+
 void OptionsView::UpdateVorticityCoeff(String vort, bool isDefocus)
 {
 	// Parse vorticity and determine validity
@@ -589,6 +608,13 @@ void OptionsView::NotifySettingsChanged(OptionsModel * sender)
 		UpdateAmbientAirTempPreview(airTemp, true);
 		AmbientAirTempToTextBox(airTemp);
 	}
+	// Same for ambient pressure
+	if (!ambientPressure->IsFocused())
+	{
+		AmbientPressureToTextBox(sender->GetAmbientPressure());
+	}
+	ambientVelocityX = sender->GetAmbientVelocityX();
+	ambientVelocityY = sender->GetAmbientVelocityY();
 	// Same for vorticity
 	if (!vorticityCoeff->IsFocused())
 	{
